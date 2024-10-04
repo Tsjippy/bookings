@@ -1,0 +1,15 @@
+{
+  "name": "bookings",
+  "version": "1.0.0",
+  "description": "bookings",
+  "main": "./bookings.js",
+  "scripts": {
+    "build": "webpack --watch --entry ./bookings.js --output-path . --output-filename bookings.min.js --progress --mode=production --devtool source-map"
+  },
+  "author": "Ewald Harmsen",
+  "license": "ISC",
+  "devDependencies": {
+    "webpack": "^5.69.1",
+    "webpack-cli": "^4.9.2"
+  }
+}

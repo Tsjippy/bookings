@@ -1,0 +1,1 @@
+sass --watch --style=compressed ".\bookings.scss" "bookings.min.css"
