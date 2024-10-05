@@ -842,14 +842,14 @@ class Bookings{
                         array_intersect($submittingUser->roles, $confirmRoles) // and allowed
                     )
                 ){
-                    return    false;
+                    return    true;
                 }
-
-                break;
             }
+
+            break;
         }
 
-        return true;
+        return false;
     }
 
     /**
@@ -1028,7 +1028,9 @@ class Bookings{
 
         // update event
         $event                          = json_decode(get_post_meta($booking->event_id, 'eventdetails', true), true);
-        update_post_meta($booking->event_id, 'eventdetails', json_encode(array_merge($event, $values)));
+        if(!empty($event)){
+            update_post_meta($booking->event_id, 'eventdetails', json_encode(array_merge($event, $values)));
+        }
 
         $monthsHtml     = [];
         $months         = [];
@@ -1135,7 +1137,7 @@ class Bookings{
     public function retrievePendingBookings(){
         global $wpdb;
 
-        $query	    = "SELECT * FROM $this->tableName WHERE pending=1 ";
+        $query	    = "SELECT * FROM $this->tableName WHERE pending=1 AND startdate >= '".date('Y-m-d')."'";
 
         //sort on startdate
 		$query	.= " ORDER BY `startdate`, `starttime` ASC";
