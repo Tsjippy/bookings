@@ -7,6 +7,7 @@
 - hooks
 
 ### Fixed
+- pending status
 
 ### Updated
 
