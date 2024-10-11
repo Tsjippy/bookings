@@ -594,7 +594,8 @@ class Bookings{
      * Build the detail html for the current month
      */
     public function detailHtml(){
-        $baseUrl	= plugins_url('../pictures', __DIR__);
+        $url=SIM\pathToUrl(MODULE_PATH.'pictures');
+        $baseUrl	= SIM\pathToUrl(MODULE_PATH.'pictures');
 
         if($this->forms->columnSettings == null || empty($this->forms->tableSettings)){
             $result = $this->forms->loadShortcodeData();
