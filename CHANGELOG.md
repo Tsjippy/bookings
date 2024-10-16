@@ -6,6 +6,7 @@
 ### Changed
 
 ### Fixed
+- global css
 
 ### Updated
 
