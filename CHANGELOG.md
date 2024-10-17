@@ -4,12 +4,19 @@
 ### Added
 
 ### Changed
+
+### Fixed
+
+### Updated
+
+## [8.0.2] - 2024-10-17
+
+
+### Changed
 - readme
 
 ### Fixed
 - global css
-
-### Updated
 
 ## [8.0.1] - 2024-10-11
 
