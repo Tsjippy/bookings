@@ -8,7 +8,8 @@ DEFINE(__NAMESPACE__.'\MODULE_PATH', plugin_dir_path(__DIR__));
 
 DEFINE(__NAMESPACE__.'\MODULE_SLUG', strtolower(basename(dirname(__DIR__))));
 
-add_filter('sim_module_updated', function($newOptions, $moduleSlug){
+add_filter('sim_module_updated', __NAMESPACE__.'\moduleUpdated', 10, 2);
+function moduleUpdated($newOptions, $moduleSlug){
 	global $wpdb;
 
 	//module slug should be the same as grandparent folder name
@@ -58,12 +59,13 @@ add_filter('sim_module_updated', function($newOptions, $moduleSlug){
 	}
 
 	return $newOptions;
-}, 10, 2);
+}
 
-add_filter('sim_role_description', function($description, $role){
+add_filter('sim_role_description', __NAMESPACE__.'\roleDescription', 10, 2);
+function roleDescription($description, $role){
     if($role == 'bookingmanager'){
         return 'Someone who can manage accomodation bookings';
     }
 	
     return $description;
-}, 10, 2);
+}

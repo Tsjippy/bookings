@@ -3,14 +3,16 @@ namespace SIM\BOOKINGS;
 use SIM;
 
 // Add a new type to the element choice dropdown
-add_filter('sim-special-form-elements', function($options){
+add_filter('sim-special-form-elements', __NAMESPACE__.'\specialFormElements');
+function specialFormElements($options){
     $options['booking_selector']    = 'Booking selector';
 
     return $options;
-});
+}
 
 // add element options
-add_action('sim-after-formbuilder-element-options', function($element){
+add_action('sim-after-formbuilder-element-options', __NAMESPACE__.'\addFormElementOptions');
+function addFormElementOptions($element){
     global $wp_roles;
     
     //Get all available roles
@@ -203,10 +205,11 @@ add_action('sim-after-formbuilder-element-options', function($element){
         <br>
     </div>
     <?php
-});
+}
 
 // add extra elements for displaying in results table
-add_filter('sim-forms-elements', function($elements, $displayFormResults, $force){
+add_filter('sim-forms-elements', __NAMESPACE__.'\formElements', 10, 3);
+function formElements($elements, $displayFormResults, $force){
     if(!$force && !in_array(get_class($displayFormResults), ["SIM\FORMS\DisplayFormResults", "SIM\FORMS\SubmitForm", "SIM\FORMS\EditFormResults"])){
         return $elements;
     }
@@ -251,10 +254,11 @@ add_filter('sim-forms-elements', function($elements, $displayFormResults, $force
     }
     
     return $elements;
-}, 10, 3);
+}
 
 // Display the date selector in the form
-add_filter('sim-forms-element-html', function($html, $element, $displayForm){
+add_filter('sim-forms-element-html', __NAMESPACE__.'\elementHtml', 10, 3);
+function elementHtml($html, $element, $displayForm){
     if($element->type == 'booking_selector'){
         $bookingDetails = maybe_unserialize($element->booking_details);
 
@@ -361,10 +365,11 @@ add_filter('sim-forms-element-html', function($html, $element, $displayForm){
 
     return $html;
 
-}, 10, 3);
+}
 
 // the choice for table view or calendar view
-add_action('sim-formstable-after-table-settings', function($displayFormResults){
+add_action('sim-formstable-after-table-settings', __NAMESPACE__.'\tableSettings');
+function tableSettings($displayFormResults){
     // Check if it has an booking selector
     if(empty($displayFormResults->getElementByType('booking_selector'))){
         return;
@@ -391,7 +396,7 @@ add_action('sim-formstable-after-table-settings', function($displayFormResults){
         </label>
     </div>
     <?php
-});
+}
 
 /**
  * Adds the buttons to approve or delete a pending booking
@@ -449,7 +454,8 @@ function pendingBookingsHtml($bookings, $displayFormResults){
 }
 
 // Display calendar instead of a table
-add_filter('sim-formstable-should-show', function($shouldShow, $displayFormResults, $type){
+add_filter('sim-formstable-should-show', __NAMESPACE__.'\shouldShow', 10, 3);
+function shouldShow($shouldShow, $displayFormResults, $type){
     // display the calendar instead of the table
     if(
         $type == 'own'                                                  ||          // own is always an table
@@ -544,10 +550,11 @@ add_filter('sim-formstable-should-show', function($shouldShow, $displayFormResul
     return $html;
     
     
-}, 10, 3);
+}
 
 // check if a booking request is ok
-add_filter('sim_before_saving_formdata', function($formResults, $object){
+add_filter('sim_before_saving_formdata', __NAMESPACE__.'\beforeSavingFormData', 99, 2);
+function beforeSavingFormData($formResults, $object){
     // find the subject
     $elements       = $object->getElementByType('booking_selector');
 
@@ -587,10 +594,11 @@ add_filter('sim_before_saving_formdata', function($formResults, $object){
     }
 
     return $formResults;
-}, 99, 2);
+}
 
 // Create a booking
-add_filter('sim_after_saving_formdata', function($message, $formBuilder){
+add_filter('sim_after_saving_formdata', __NAMESPACE__.'\afterSavingFormData', 10, 2);
+function afterSavingFormData($message, $formBuilder){
     // find the subject
     $elements        = $formBuilder->getElementByType('booking_selector');
 
@@ -619,10 +627,11 @@ add_filter('sim_after_saving_formdata', function($message, $formBuilder){
     }
 
     return $message;
-}, 10, 2);
+}
 
 // Update an existing booking
-add_filter('sim-forms-submission-updated', function($message, $formTable, $elementName, $oldValue, $newValue){
+add_filter('sim-forms-submission-updated', __NAMESPACE__.'\onSubmissionUpdate', 10, 5);
+function onSubmissionUpdate($message, $formTable, $elementName, $oldValue, $newValue){
     // Get the element name
     $subject    = $formTable->getElementByType('booking_selector');
     if(!$subject){
@@ -724,10 +733,11 @@ add_filter('sim-forms-submission-updated', function($message, $formTable, $eleme
     }
 
     return $message;
-}, 10, 5);
+}
 
 // add attributes to booking dates on edit
-add_filter('sim-forms-element-html', function($html, $element, $displayFormResults){
+add_filter('sim-forms-element-html', __NAMESPACE__.'\formElementHtml', 10, 3);
+function formElementHtml($html, $element, $displayFormResults){
     global $wpdb;
 
     // Get the subject
@@ -770,7 +780,7 @@ add_filter('sim-forms-element-html', function($html, $element, $displayFormResul
     $html   = str_replace('>', " $min max='$max'>", $html);
 
     return $html;    
-}, 10, 3);
+}
 
 add_action('sim-forms-entry-archived', __NAMESPACE__.'\removeBooking', 10, 2);
 add_action('sim-forms-entry-removed', __NAMESPACE__.'\removeBooking', 10, 2);
@@ -789,7 +799,8 @@ function removeBooking($instance, $submissionId){
     }
 }
 
-add_filter('sim_form_actions_html', function($buttonsHtml, $bookingData, $index, $instance){
+add_filter('sim_form_actions_html', __NAMESPACE__.'\actionHtml', 10, 4);
+function actionHtml($buttonsHtml, $bookingData, $index, $instance){
     if(get_class($instance) != 'SIM\BOOKINGS\Bookings' || !isset($buttonsHtml['archive'])){
         return $buttonsHtml;
     }
@@ -797,9 +808,10 @@ add_filter('sim_form_actions_html', function($buttonsHtml, $bookingData, $index,
     $buttonsHtml['archive'] = str_replace('>Archive', 'style="width: max-content;">Cancel booking', $buttonsHtml['archive']);
 
     return $buttonsHtml;
-}, 10, 4);
+}
 
-add_filter('sim_transform_formtable_data', function($output, $elementName){
+add_filter('sim_transform_formtable_data', __NAMESPACE__.'\formtableData', 10, 2);
+function formtableData($output, $elementName){
     if(str_contains($output, ';')){
         // include room if needed
         $rooms  = explode(';', $output);
@@ -807,29 +819,32 @@ add_filter('sim_transform_formtable_data', function($output, $elementName){
     }
 
     return $output;
-}, 10, 2);
+}
 
 // Filter e-mail transforms
-add_filter('sim-forms-transform-array', function($string, $replaceValue, $forms, $match){
+add_filter('sim-forms-transform-array', __NAMESPACE__.'\transformArray', 10, 4);
+function transformArray($string, $replaceValue, $forms, $match){
     if(count(array_unique($replaceValue)) == 1){
         $string = array_unique($replaceValue)[0];
     }else{
 
     }
     return $string;
-}, 10, 4);
+}
 
 // add the booking details to the drop down for use in e-mails
-add_action('sim-add-email-placeholder-option', function($formBuilderForm){
+add_action('sim-add-email-placeholder-option', __NAMESPACE__.'\placeholderOption');
+function placeholderOption($formBuilderForm){
     if($formBuilderForm->getElementByType('booking_selector')){
         echo "<option>%booking-startdate%</option>";
         echo "<option>%booking-enddate%</option>";
         echo "<option>%booking-room%</option>";
         echo "<option>%booking-detalis%</option>";
     }
-});
+}
 
-add_filter('sim-forms-transform-empty', function($replaceValue, $instance, $match){
+add_filter('sim-forms-transform-empty', __NAMESPACE__.'\transformEmpty', 10, 3);
+function transformEmpty($replaceValue, $instance, $match){
 
     if($match == "booking-detalis"){
         
@@ -863,10 +878,11 @@ add_filter('sim-forms-transform-empty', function($replaceValue, $instance, $matc
         
     }
     return $replaceValue;
-}, 10, 3);
+}
 
 // Update the booking subjects name if the form name has changed
-add_action('sim-after-formelement-updated', function($element, $instance){
+add_action('sim-after-formelement-updated', __NAMESPACE__.'\formElementUpdated', 10, 2);
+function formElementUpdated($element, $instance){
     global $wpdb;
 
     if($element->type == 'booking_selector'){
@@ -889,7 +905,7 @@ add_action('sim-after-formelement-updated', function($element, $instance){
             $wpdb->query($query);
         }
     }
-}, 10, 2);
+}
 
 function getSubjectNames($v){
     if(is_array($v) && isset($v['name'])){
@@ -899,7 +915,8 @@ function getSubjectNames($v){
 }
 
 // only show upcoming bookings for own bookings
-add_filter('sim_retrieved_formdata', function($submissions, $userId, $object){
+add_filter('sim_retrieved_formdata', __NAMESPACE__.'\formdataRetrieved', 10, 3);
+function formdataRetrieved($submissions, $userId, $object){
     if(is_numeric($userId) && $object->getElementByType('booking_selector')){
         foreach($submissions as $index=>$submission){
             $result = maybe_unserialize($submission->formresults);
@@ -919,10 +936,11 @@ add_filter('sim_retrieved_formdata', function($submissions, $userId, $object){
     }
 
     return $submissions;
-}, 10, 3);
+}
 
 // add the booking id to a form result cell dataset
-add_filter('sim-formresult-cell-opening-tag', function($cellOpeningTag, $object, $columnSetting, $values){
+add_filter('sim-formresult-cell-opening-tag', __NAMESPACE__.'\cellOpeningTag', 10, 4);
+function cellOpeningTag($cellOpeningTag, $object, $columnSetting, $values){
     if(
         isset($object->submission->formresults['booking-id']) && 
         in_array($columnSetting['name'], ['booking-startdate', 'booking-enddate', 'booking-room'])
@@ -930,4 +948,4 @@ add_filter('sim-formresult-cell-opening-tag', function($cellOpeningTag, $object,
         $cellOpeningTag .= " data-booking-id='{$object->submission->formresults['booking-id']}'";
     }
     return $cellOpeningTag;
-}, 10, 4);
+}
