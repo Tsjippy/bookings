@@ -782,9 +782,9 @@ function formElementHtml($html, $element, $displayFormResults){
     return $html;    
 }
 
-add_action('sim-forms-entry-archived', __NAMESPACE__.'\removeBooking', 10, 2);
-add_action('sim-forms-entry-removed', __NAMESPACE__.'\removeBooking', 10, 2);
-function removeBooking($instance, $submissionId){
+add_action('sim-forms-entry-archived', __NAMESPACE__.'\removeBookings', 10, 2);
+add_action('sim-forms-entry-removed', __NAMESPACE__.'\removeBookings', 10, 2);
+function removeBookings($instance, $submissionId){
     // remove the booking
     $bookings   = new Bookings();
 
