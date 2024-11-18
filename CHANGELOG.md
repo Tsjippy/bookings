@@ -7,6 +7,7 @@
 - removed anonymous functions
 
 ### Fixed
+- double functionname
 
 ### Updated
 
