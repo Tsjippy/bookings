@@ -4,12 +4,19 @@
 ### Added
 
 ### Changed
+
+### Fixed
+
+### Updated
+
+## [8.0.3] - 2024-11-18
+
+
+### Changed
 - removed anonymous functions
 
 ### Fixed
 - double functionname
-
-### Updated
 
 ## [8.0.2] - 2024-10-17
 
