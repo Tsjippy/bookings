@@ -840,6 +840,7 @@ function placeholderOption($formBuilderForm){
         echo "<option>%booking-enddate%</option>";
         echo "<option>%booking-room%</option>";
         echo "<option>%booking-detalis%</option>";
+        echo "<option>%paid%</option>";
     }
 }
 

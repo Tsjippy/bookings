@@ -69,3 +69,83 @@ function roleDescription($description, $role){
 	
     return $description;
 }
+
+add_filter('sim_submenu_options', __NAMESPACE__.'\moduleOptions', 10, 4);
+function moduleOptions($optionsHtml, $moduleSlug, $settings, $moduleName){
+	//module slug should be the same as grandparent folder name
+	if($moduleSlug != MODULE_SLUG){
+		return $optionsHtml;
+	}
+
+	ob_start();
+	
+    ?>
+	<br>
+	<br>
+	<label for="reminder_freq">
+		How often should people be reminded to pay?
+	</label>
+	<select name="payment_reminder_freq">
+		<?php
+		SIM\ADMIN\recurrenceSelector($settings['payment_reminder_freq']);
+		?>
+	</select>
+
+	<?php
+
+	return ob_get_clean();
+}
+
+add_filter('sim_email_settings', __NAMESPACE__.'\emailSettings', 10, 3);
+function emailSettings($optionsHtml, $moduleSlug, $settings){
+	//module slug should be the same as grandparent folder name
+	if($moduleSlug != MODULE_SLUG){
+		return $optionsHtml;
+	}
+
+	ob_start();
+
+	?>
+	<label>
+		Define the e-mail people get when they still need to pay for some booking(s).<br>
+	</label>
+	<br>
+
+	<?php
+	$emails    = new BookingEmail(
+		wp_get_current_user(), 
+		(object)[
+			"id"			=> -1,
+			"accomodation"	=> "empty",
+			"startdate"		=> "2000-01-01",
+			"enddate"		=> "2000-01-01",
+			"payable"		=> "$23"
+		]
+	);
+	$emails->printPlaceholders();
+	?>
+
+	<h4>Payment Reminder E-mail</h4>
+	<?php
+
+	$emails->printInputs($settings);
+
+	return ob_get_clean();
+}
+
+//run on module activation
+add_action('sim_module_activated', __NAMESPACE__.'\moduleActivated', 10, 2);
+function moduleActivated($moduleSlug, $options){
+	//module slug should be the same as grandparent folder name
+	if($moduleSlug != MODULE_SLUG)	{
+		return;
+	}
+
+	// add an extra form setting column in db
+	require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+    require_once ABSPATH . 'wp-admin/install-helper.php';
+
+	$forms	= new SIM\FORMS\SimForms();
+
+	maybe_add_column($forms->tableName, 'payment_indicator', "ALTER TABLE $forms->tableName ADD COLUMN `payment_indicator` int");
+}

@@ -51,6 +51,7 @@ class Bookings{
             event_id mediumint(9),
             pending boolean DEFAULT true,
             paid boolean,
+            payable longtext,
 			PRIMARY KEY  (id)
 		) $charsetCollate;";
 
@@ -933,8 +934,8 @@ class Bookings{
     /**
      * Update an existing booking
      *
-     * @param   int     $bookingId  The booking id
-     * @param   array   $values     The values to update
+     * @param   int|object  $booking    The booking or booking id
+     * @param   array       $values     The values to update
      */
     public function updateBooking($booking, $values){
         global $wpdb;
@@ -945,40 +946,46 @@ class Bookings{
         }
 
         // only keep valid values
-        $values         = array_filter( $values, function($val){return in_array($val, ['startdate', 'enddate', 'starttime', 'endtime', 'subject', 'pending']);}, ARRAY_FILTER_USE_KEY);
+        $values         = array_filter( $values, function($val){return in_array($val, ['startdate', 'enddate', 'starttime', 'endtime', 'subject', 'pending', 'paid']);}, ARRAY_FILTER_USE_KEY);
 
-        $startdate      = $booking->startdate;
-        if(isset($values['startdate'])){
-            $startdate  = $values['startdate'];
-        }
-        $enddate      = $booking->enddate;
-        if(isset($values['enddate'])){
-            $enddate  = $values['enddate'];
-        }
-        $subject      = $booking->subject;
-        if(isset($values['subject'])){
-            $subject  = $values['subject'];
-        }
-
-        if(!is_array($subject)){
-            $subject    = [$subject];
-        }
-
-        $subjectName    = $subject[0];
-        // subject with rooms
-        if(count($subject) > 1){
-            unset($subject[0]);
-        }
-        
-        foreach($subject as $s){
-            $subjectString  = $s;
-
-            if($s != $subjectName){
-                $subjectString  = "$subjectName;$s";
+        // Validate updated dates
+        if(isset($values['startdate']) || isset($values['enddate'])){
+            $startdate      = $booking->startdate;
+            if(isset($values['startdate'])){
+                $startdate  = $values['startdate'];
             }
-            if($this->checkOverlap($startdate, $enddate, $subjectString, $booking->id)){
-                $subjectString    = str_replace(';', ' room ', $subjectString );
-                return new \WP_Error('booking', "The booking for $subjectString overlaps with an existing one, try again");
+
+            $enddate      = $booking->enddate;
+            if(isset($values['enddate'])){
+                $enddate  = $values['enddate'];
+            }
+
+            $subject      = $booking->subject;
+            if(isset($values['subject'])){
+                $subject  = $values['subject'];
+            }
+
+            if(!is_array($subject)){
+                $subject    = [$subject];
+            }
+
+            $subjectName    = $subject[0];
+
+            // subject with rooms
+            if(count($subject) > 1){
+                unset($subject[0]);
+            }
+            
+            foreach($subject as $s){
+                $subjectString  = $s;
+
+                if($s != $subjectName){
+                    $subjectString  = "$subjectName;$s";
+                }
+                if($this->checkOverlap($startdate, $enddate, $subjectString, $booking->id)){
+                    $subjectString    = str_replace(';', ' room ', $subjectString );
+                    return new \WP_Error('booking', "The booking for $subjectString overlaps with an existing one, try again");
+                }
             }
         }
 
@@ -1154,7 +1161,7 @@ class Bookings{
     public function retrieveUnPaidBookings(){
         global $wpdb;
 
-        $query	    = "SELECT * FROM $this->tableName WHERE pending=1 AND startdate >= '".date('Y-m-d')."'";
+        $query	    = "SELECT * FROM $this->tableName WHERE paid=0";
 
         //sort on startdate
 		$query	.= " ORDER BY `startdate`, `starttime` ASC";
@@ -1288,17 +1295,13 @@ class Bookings{
      * Sends a reminder to the owner of a booking to pay for it
      */
     public function sendPaymentReminders(){
-        $booking    = $this->getBookingById($bookingId);
+        foreach($this->retrieveUnPaidBookings() as $booking){
+            $submissions = $this->forms->getSubmissions(null, $booking->submission_id);
 
-        if(!$booking ){
-            return;
-        }
+            if(empty($submissions)){
+                continue;
+            }
 
-        $subject    = $booking->subject;
-
-        $submissions = $this->forms->getSubmissions(null, $booking->submission_id);
-
-        if(!empty($submissions)){
             // Load the form
             $this->forms->getForm($submissions[0]->form_id);
 
@@ -1314,53 +1317,65 @@ class Bookings{
 
             $userIdElName       = $this->forms->findUserIdElementName();
             if(is_wp_error($userIdElName)){
-                return $userIdElName;
+                continue;
             }
 
             if($userIdElName){
-                $userId             = $submissions[0]->formresults[$userIdElName];
+                $userId = $submissions[0]->formresults[$userIdElName];
             }else{
-                $userId             = $submissions[0]->userid;
+                $userId = $submissions[0]->userid;
             }
+
+            $phonenumber    = $userId;
+            $email          = false;
             
+            // Not an user
             if(!is_numeric($userId)){
-                SIM\printArray('No user id, trying phone numbers');
+                $user   = '';
 
-                foreach($submissions[0]->formresults['phone'] as $phonenumber){
-                    if (str_starts_with($phonenumber, '+')) {
-                        SIM\printArray(SIM\trySendSignal("Just a reminder about your booking for $accommodationString tommorow. Hopefully you didn't forget:)", $phonenumber));
+                $nameElName     = $this->forms->findUserNameElementName();
+                if($nameElName){
+                    $name   = $submissions[0]->formresults[$nameElName];
+                    $user   = (object) ['display_name' => $name ];
+                }
+
+                // Find the phone number
+                $phoneElName    = $this->forms->findPhoneNumberElementName();
+
+                if($phoneElName){
+                    foreach($submissions[0]->formresults[$phoneElName] as $number){
+                        if (str_starts_with($number, '+')) {
+                            $phonenumber = $number;
+                            break;
+                        }
                     }
                 }
 
-                return;
-            }
-            SIM\trySendSignal("Just a reminder about your booking for $accommodationString tommorow. Hopefully you didn't forget:)", $userId);
-
-            // get the booking selector element
-            $bookingDetails     = maybe_unserialize($this->forms->getElementByType('booking_selector')[0]->booking_details);
-
-            // find the subject
-            if($bookingDetails && !empty($bookingDetails['subjects'])){
-                foreach($bookingDetails['subjects'] as $subject){
-                    if($subject['name'] == $accommodation){
-                        $managerId  = $subject['manager'];
-                        if(!get_userdata($userId)){
-                            SIM\printArray($submissions);
-                        }
-
-                        $user       = get_userdata($userId);
-                        if($user){
-                            $name       = 'by '.$user->display_name;
-                        }elseif(!empty($submissions[0]->formresults['name'])){
-                            $name       = 'by '.$submissions[0]->formresults['name'];
-                        }else{
-                            $name       = '';
-                        }
-                        
-                        SIM\trySendSignal("Just a reminder about tommorows booking for $accommodationString $name ", $managerId);
-                    }
+                // Find the e-mail
+                $emailElName        = $this->forms->findEmailNumberElementName();
+                if($emailElName){
+                    $email          = $submissions[0]->formresults[$emailElName];
                 }
+            }else{
+                $user   = get_user($userId);
+                $email  = $user->user_email;
             }
+
+            // Send Signal message
+            SIM\trySendSignal("Just a reminder about your booking for $accommodationString tommorow. Hopefully you didn't forget:)", $phonenumber);
+
+            if(!$email){
+                continue;
+            }
+
+            // Send an e-mail
+            $email    = new BookingEmail($user, $booking);
+            $email->filterMail();
+                
+            $subject        = $email->subject;
+            $message        = $email->message;
+
+            wp_mail( $email, $subject, $message);
         }
     }
 }
