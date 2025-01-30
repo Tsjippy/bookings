@@ -3,6 +3,7 @@
 
 ### Added
 - paid column
+- payment reminders
 
 ### Changed
 
