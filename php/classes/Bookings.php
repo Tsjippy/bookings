@@ -50,6 +50,7 @@ class Bookings{
             submission_id mediumint(9) NOT NULL,
             event_id mediumint(9),
             pending boolean DEFAULT true,
+            paid boolean,
 			PRIMARY KEY  (id)
 		) $charsetCollate;";
 
@@ -1146,6 +1147,21 @@ class Bookings{
 		return $wpdb->get_results($query);
     }
 
+    /**
+     * Retrieve all the unpaid bookings
+     *
+     */
+    public function retrieveUnPaidBookings(){
+        global $wpdb;
+
+        $query	    = "SELECT * FROM $this->tableName WHERE pending=1 AND startdate >= '".date('Y-m-d')."'";
+
+        //sort on startdate
+		$query	.= " ORDER BY `startdate`, `starttime` ASC";
+
+		return $wpdb->get_results($query);
+    }
+
     /** Get a booking by booking id 
      *
      * @param   int $id         The booking id
@@ -1188,8 +1204,90 @@ class Bookings{
 
     /**
      * Sends a reminder to the owner of a booking and to the manager 
+     *
+     * @param   int     $bookingId  The id of a booking
      */
     public function sendBookingReminder($bookingId){
+        $booking    = $this->getBookingById($bookingId);
+
+        if(!$booking ){
+            return;
+        }
+
+        $subject    = $booking->subject;
+
+        $submissions = $this->forms->getSubmissions(null, $booking->submission_id);
+
+        if(!empty($submissions)){
+            // Load the form
+            $this->forms->getForm($submissions[0]->form_id);
+
+            $exploded       = explode(';', $booking->subject);
+            $accommodation  = $exploded[0];
+
+            $accommodationString    = $accommodation;
+            if(count($exploded) > 1){
+                $room   = $exploded[1];
+
+                $accommodationString  = "$accommodation room $room";
+            }
+
+            $userIdElName       = $this->forms->findUserIdElementName();
+            if(is_wp_error($userIdElName)){
+                return $userIdElName;
+            }
+
+            if($userIdElName){
+                $userId             = $submissions[0]->formresults[$userIdElName];
+            }else{
+                $userId             = $submissions[0]->userid;
+            }
+            
+            if(!is_numeric($userId)){
+                SIM\printArray('No user id, trying phone numbers');
+
+                foreach($submissions[0]->formresults['phone'] as $phonenumber){
+                    if (str_starts_with($phonenumber, '+')) {
+                        SIM\printArray(SIM\trySendSignal("Just a reminder about your booking for $accommodationString tommorow. Hopefully you didn't forget:)", $phonenumber));
+                    }
+                }
+
+                return;
+            }
+            SIM\trySendSignal("Just a reminder about your booking for $accommodationString tommorow. Hopefully you didn't forget:)", $userId);
+
+            // get the booking selector element
+            $bookingDetails     = maybe_unserialize($this->forms->getElementByType('booking_selector')[0]->booking_details);
+
+            // find the subject
+            if($bookingDetails && !empty($bookingDetails['subjects'])){
+                foreach($bookingDetails['subjects'] as $subject){
+                    if($subject['name'] == $accommodation){
+                        $managerId  = $subject['manager'];
+                        if(!get_userdata($userId)){
+                            SIM\printArray($submissions);
+                        }
+
+                        $user       = get_userdata($userId);
+                        if($user){
+                            $name       = 'by '.$user->display_name;
+                        }elseif(!empty($submissions[0]->formresults['name'])){
+                            $name       = 'by '.$submissions[0]->formresults['name'];
+                        }else{
+                            $name       = '';
+                        }
+                        
+                        SIM\trySendSignal("Just a reminder about tommorows booking for $accommodationString $name ", $managerId);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Sends a reminder to the owner of a booking to pay for it
+     */
+    public function sendPaymentReminders(){
         $booking    = $this->getBookingById($bookingId);
 
         if(!$booking ){
