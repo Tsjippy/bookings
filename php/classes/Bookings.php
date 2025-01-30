@@ -1161,7 +1161,7 @@ class Bookings{
     public function retrieveUnPaidBookings(){
         global $wpdb;
 
-        $query	    = "SELECT * FROM $this->tableName WHERE paid=0";
+        $query	    = "SELECT * FROM $this->tableName WHERE `paid` IS NULL OR `paid` = 0";
 
         //sort on startdate
 		$query	.= " ORDER BY `startdate`, `starttime` ASC";
