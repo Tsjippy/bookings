@@ -2,14 +2,19 @@
 ## [Unreleased] - yyyy-mm-dd
 
 ### Added
-- paid column
-- payment reminders
 
 ### Changed
 
 ### Fixed
 
 ### Updated
+
+## [8.0.4] - 2025-01-30
+
+
+### Added
+- paid column
+- payment reminders
 
 ## [8.0.3] - 2024-11-18
 
