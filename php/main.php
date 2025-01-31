@@ -415,6 +415,14 @@ function pendingBookingsHtml($bookings, $displayFormResults){
         return '';
     }
 
+    $managers           = $bookings->getSubjectManagers();
+    $ownSubjects        = [];
+    foreach($managers as $subject=>$manager){
+        if($manager == $bookings->user){
+            $ownSubjects[]    = $subject;
+        }
+    }
+
     $pendingBookings    = $bookings->retrievePendingBookings();
 
     if(empty($pendingBookings)){
@@ -427,17 +435,34 @@ function pendingBookingsHtml($bookings, $displayFormResults){
 
     // only show one booking for submissions with multiple
     foreach($pendingBookings as $pendingBooking){
+        $exploded       = explode(';', $pendingBooking->subject);
+        $baseSubject    = $exploded[0];
+
+        // only show our own
+        if(!in_array($baseSubject, $ownSubjects)){
+            continue;
+        }
+
         // one submission can have multiple bookings, only load the submission once
         if(empty($submission) || $submission->id != $pendingBooking->submission_id){
             $submission = $bookings->forms->getSubmissions(null, $pendingBooking->submission_id)[0];
         }
 
-        $submission->formresults['booking-room']                  = explode(';',$pendingBooking->subject)[1];
+        if(isset($exploded[1])){
+            $submission->formresults['booking-room']              = $exploded[1];
+        }else{
+            $submission->formresults['booking-room']              = '';
+        }
+
         $submission->formresults['booking-startdate']             = $pendingBooking->startdate;
         $submission->formresults['booking-enddate']               = $pendingBooking->enddate;
         $submission->formresults['booking-id']                    = $pendingBooking->id;
 
         $submissions[]                                            = clone $submission;
+    }
+
+    if(empty($submissions)){
+        return '';
     }
 
     add_filter('sim_form_actions_html', __NAMESPACE__.'\pendingButtons', 10, 4);
@@ -494,10 +519,10 @@ function shouldShow($shouldShow, $displayFormResults, $type){
     $bookedSubject              = '';
     $bookings->forms->submission = null;
     if(!empty($_REQUEST['id'])){
-        $bookings->forms->submission = $bookings->forms->getSubmissions(null, $_REQUEST['id'])[0];
-        $targetDate     = strtotime($bookings->forms->submission->formresults['booking-startdate'][0]);
-        $elementName    = $bookings->forms->getElementByType('booking_selector')[0]->name;
-        $bookedSubject  = $bookings->forms->submission->formresults[$elementName];
+        $bookings->forms->submission    = $bookings->forms->getSubmissions(null, $_REQUEST['id'])[0];
+        $targetDate                     = strtotime($bookings->forms->submission->formresults['booking-startdate'][0]);
+        $elementName                    = $bookings->forms->getElementByType('booking_selector')[0]->name;
+        $bookedSubject                  = $bookings->forms->submission->formresults[$elementName];
     }
     
     $html   = '<div class="tables-wrapper">';

@@ -18,6 +18,8 @@ class Bookings{
         global $wpdb;
 		$this->tableName		= $wpdb->prefix.'sim_bookings';
         $this->bookings         = [];
+        $this->user             = wp_get_current_user();
+        $this->userRoles	    = $this->user->roles;
 
         if(getType($displayFormResults) == 'object'){
             $this->forms        = $displayFormResults;
@@ -1163,6 +1165,9 @@ class Bookings{
 
         $query	    = "SELECT * FROM $this->tableName WHERE `paid` IS NULL OR `paid` = 0";
 
+        // only show finished bookings
+        $query	.= " AND enddate < '".date('Y-m-d')."'";
+
         //sort on startdate
 		$query	.= " ORDER BY `startdate`, `starttime` ASC";
 
@@ -1221,8 +1226,6 @@ class Bookings{
             return;
         }
 
-        $subject    = $booking->subject;
-
         $submissions = $this->forms->getSubmissions(null, $booking->submission_id);
 
         if(!empty($submissions)){
@@ -1263,32 +1266,57 @@ class Bookings{
             }
             SIM\trySendSignal("Just a reminder about your booking for $accommodationString tommorow. Hopefully you didn't forget:)", $userId);
 
-            // get the booking selector element
-            $bookingDetails     = maybe_unserialize($this->forms->getElementByType('booking_selector')[0]->booking_details);
+            $managers   = $this->getSubjectManagers();
 
-            // find the subject
-            if($bookingDetails && !empty($bookingDetails['subjects'])){
-                foreach($bookingDetails['subjects'] as $subject){
-                    if($subject['name'] == $accommodation){
-                        $managerId  = $subject['manager'];
-                        if(!get_userdata($userId)){
-                            SIM\printArray($submissions);
-                        }
+            if(!isset($managers[$accommodation])){
+                SIM\printArray("No manager found for $accommodation");
+                return;
+            }
+            $manager    = $managers[$accommodation];
 
-                        $user       = get_userdata($userId);
-                        if($user){
-                            $name       = 'by '.$user->display_name;
-                        }elseif(!empty($submissions[0]->formresults['name'])){
-                            $name       = 'by '.$submissions[0]->formresults['name'];
-                        }else{
-                            $name       = '';
-                        }
-                        
-                        SIM\trySendSignal("Just a reminder about tommorows booking for $accommodationString $name ", $managerId);
-                    }
+            $user       = get_userdata($userId);
+            if($user){
+                $name       = 'by '.$user->display_name;
+            }elseif(!empty($submissions[0]->formresults['name'])){
+                $name       = 'by '.$submissions[0]->formresults['name'];
+            }else{
+                $name       = '';
+            }
+            
+            SIM\trySendSignal("Just a reminder about tommorows booking for $accommodationString $name ", $manager);
+        
+        }
+    }
+
+    /**
+     * Get the booking managers
+     *
+     * @param   int     $userId     If supplied gets the subjects for this user only.
+     * 
+     * @return  array               Array of subject names with the manager user id
+     */
+    public function getSubjectManagers($userId=''){
+        // get the booking selector element
+        $bookingDetails     = maybe_unserialize($this->forms->getElementByType('booking_selector')[0]->booking_details);
+
+        // find the subject
+        if($bookingDetails && !empty($bookingDetails['subjects'])){
+            $managers   = [];
+
+            foreach($bookingDetails['subjects'] as $subject){
+                $managerId  = $subject['manager'];
+
+                $manager    = get_userdata($managerId);
+
+                if(( is_numeric($userId) && $managerId != $userId) || !$manager ){
+                    continue;
                 }
+
+                $managers[$subject['name'] ]    = $manager;
             }
         }
+
+        return $managers;
     }
 
     /**
