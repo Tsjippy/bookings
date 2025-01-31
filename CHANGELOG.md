@@ -2,6 +2,7 @@
 ## [Unreleased] - yyyy-mm-dd
 
 ### Added
+- payments icon
 
 ### Changed
 - unpaid bookings only bookings from the past
