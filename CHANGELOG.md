@@ -2,6 +2,17 @@
 ## [Unreleased] - yyyy-mm-dd
 
 ### Added
+
+### Changed
+
+### Fixed
+
+### Updated
+
+## [8.0.6] - 2025-01-31
+
+
+### Added
 - payments icon
 
 ### Changed
@@ -10,8 +21,6 @@
 ### Fixed
 - retrieveUnpaidBookings query
 - pending payments table
-
-### Updated
 
 ## [8.0.4] - 2025-01-30
 
