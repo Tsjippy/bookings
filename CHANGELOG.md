@@ -6,6 +6,7 @@
 ### Changed
 
 ### Fixed
+- payment selectors
 
 ### Updated
 
