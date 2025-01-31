@@ -3,6 +3,7 @@
 
 ### Added
 - price per night element
+- payable calculation
 
 ### Changed
 
