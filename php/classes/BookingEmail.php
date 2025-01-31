@@ -13,17 +13,31 @@ class BookingEmail extends ADMIN\MailSetting{
 
         $this->addUser($user);
 
+        if(isset($booking->submission_id)){
+            $formSubmissionId                       = $booking->submission_id;
+            $displayFormResults                     = new SIM\FORMS\DisplayFormResults();
+            $submission                             = $displayFormResults->getSubmissions(null, $formSubmissionId);
+
+            $amountName                             = $displayFormResults->getElementById('payment_amount_el');
+            $detailsName                            = $displayFormResults->getElementById('payment_details_el');
+
+            $this->replaceArray['%payable%']            = $submission[$amountName];
+            $this->replaceArray['%payment_details%']    = $submission[$detailsName];
+        }
+
         $this->replaceArray['%first_name%']     = $user->first_name;   
         $this->replaceArray['%id%']             = $booking->id;  
         $this->replaceArray['%accomodation%']   = $booking->accomodation;
         $this->replaceArray['%startdate%']      = $booking->startdate; 
         $this->replaceArray['%enddate%']        = $booking->enddate; 
-        $this->replaceArray['%payable%']        = $booking->payable; 
 
         $this->defaultSubject    = "Please pay for your booking with id %id%";
 
         $this->defaultMessage    = 'Hi %first_name%,<br><br>';
 		$this->defaultMessage   .= "Our records show you have not yet paid the amount of %payable% for your booking of %accomodation% from %startdate% till %enddate%.<br>";
-		$this->defaultMessage 	.= 'Please do so immidiately.';
+		$this->defaultMessage 	.= 'Please do so immidiately.<br>';
+        $this->defaultMessage 	.= '<b>Payment Details</b><br>';
+        $this->defaultMessage 	.= '<b>%payment_details%<br>';
+        
     }
 }

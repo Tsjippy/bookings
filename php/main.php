@@ -58,6 +58,27 @@ function addFormElementOptions($element){
                             <?php
                             echo SIM\userSelect('', false, false, '', "formfield[booking_details][subjects][$index][manager]", [], $subject['manager']);
                             ?>
+                            <h5 style='margin-bottom:2px;'><strong>Enable Payments</strong></h5>
+                            <div class="infobox" name="info">
+                                <div>
+                                    <p class="info_icon" style='float:right'>
+                                        <img draggable="false" role="img" class="emoji" alt="ℹ" src="<?php echo SIM\PICTURESURL."/info.png";?>" loading='lazy' >
+                                    </p>
+                                </div>
+                                <span class="info_text">
+                                    Enable to send payment reminders.<br>
+                                    Make sure to set the payment options in the form settings.
+                                </span>
+                            </div>
+
+                            <label>
+                                <input type="radio" name="formfield[booking_details][subjects][<?php echo $index;?>][payments]" id="payments" class=" formfield formfieldinput" value="1" <?php if($subject['payments']){echo 'checked';}?>>
+                                Yes
+                            </label>
+                            <label>
+                                <input type="radio" name="formfield[booking_details][subjects][<?php echo $index;?>][payments]" id="payments" class=" formfield formfieldinput" value="0" <?php if(!$subject['payments']){echo 'checked';}?>>
+                                No
+                            </label>
                         </label>
 
                         <label class="formfield formfieldlabel">
@@ -398,90 +419,10 @@ function tableSettings($displayFormResults){
     <?php
 }
 
-/**
- * Adds the buttons to approve or delete a pending booking
- */
-function pendingButtons($buttonsHtml, $values, $subId, $object){
-    $buttonsHtml['approve'] = "<button class='button approve' type='button' data-id='{$values['booking-id']}' data-formid='{$object->submission->form_id}'>Approve</button>";
-    $buttonsHtml['delete']  = "<button class='button delete' type='button' data-id='{$values['booking-id']}' data-formid='{$object->submission->form_id}'>Delete</button><br>";
-    unset($buttonsHtml['archive']);
-
-    return $buttonsHtml;
-}
-
-function pendingBookingsHtml($bookings, $displayFormResults){
-    // do not show if no permissions
-    if(!array_intersect(array_keys($bookings->forms->formData->full_right_roles), $bookings->forms->userRoles)){
-        return '';
-    }
-
-    $managers           = $bookings->getSubjectManagers();
-    $ownSubjects        = [];
-    foreach($managers as $subject=>$manager){
-        if($manager == $bookings->user){
-            $ownSubjects[]    = $subject;
-        }
-    }
-
-    $pendingBookings    = $bookings->retrievePendingBookings();
-
-    if(empty($pendingBookings)){
-        return '';
-    }
-
-    $html   = "<h4>Pending Bookings</h4>";
-
-    $submissions    = [];
-
-    // only show one booking for submissions with multiple
-    foreach($pendingBookings as $pendingBooking){
-        $exploded       = explode(';', $pendingBooking->subject);
-        $baseSubject    = $exploded[0];
-
-        // only show our own
-        if(!in_array($baseSubject, $ownSubjects)){
-            continue;
-        }
-
-        // one submission can have multiple bookings, only load the submission once
-        if(empty($submission) || $submission->id != $pendingBooking->submission_id){
-            $submission = $bookings->forms->getSubmissions(null, $pendingBooking->submission_id)[0];
-        }
-
-        if(isset($exploded[1])){
-            $submission->formresults['booking-room']              = $exploded[1];
-        }else{
-            $submission->formresults['booking-room']              = '';
-        }
-
-        $submission->formresults['booking-startdate']             = $pendingBooking->startdate;
-        $submission->formresults['booking-enddate']               = $pendingBooking->enddate;
-        $submission->formresults['booking-id']                    = $pendingBooking->id;
-
-        $submissions[]                                            = clone $submission;
-    }
-
-    if(empty($submissions)){
-        return '';
-    }
-
-    add_filter('sim_form_actions_html', __NAMESPACE__.'\pendingButtons', 10, 4);
-
-    ob_start();
-
-    $displayFormResults->theTable('pending', $submissions);
-
-    $html   .= ob_get_clean();
-
-    remove_filter('sim_form_actions_html', __NAMESPACE__.'\pendingButtons', 10);
-
-    return $html;
-}
-
 // Display calendar instead of a table
 add_filter('sim-formstable-should-show', __NAMESPACE__.'\shouldShow', 10, 3);
 function shouldShow($shouldShow, $displayFormResults, $type){
-    // display the calendar instead of the table
+    // Check if we should show the table view
     if(
         $type == 'own'                                                  ||          // own is always an table
         !isset($displayFormResults->tableSettings['booking-display'])   ||          // no option choosen
@@ -494,11 +435,15 @@ function shouldShow($shouldShow, $displayFormResults, $type){
     ){
         if($type == 'own' && $displayFormResults->tableSettings['booking-display'] == 'calendar'){
             $bookings    = new Bookings($displayFormResults);
-            echo pendingBookingsHtml($bookings, $displayFormResults);
+            echo $bookings->pendingBookingsHtml('approval');
+
+            echo $bookings->pendingBookingsHtml('payment');
         }
+
         return $shouldShow;
     }
     
+    // display the calendar instead of the table
     wp_enqueue_script('sim-bookings');
 
     $bookings    = new Bookings($displayFormResults);
@@ -526,8 +471,9 @@ function shouldShow($shouldShow, $displayFormResults, $type){
     }
     
     $html   = '<div class="tables-wrapper">';
-        if($type != 'others'){ // has already been rendered for above own submissions
-            $html       .= pendingBookingsHtml($bookings, $displayFormResults);
+        if($type != 'others'){ // has already been rendered for own submissions if the type is others
+            $html       .= $bookings->pendingBookingsHtml('approval');
+            $html       .= $bookings->pendingBookingsHtml('payment');
         }
 
         $calendars  = '';
@@ -657,7 +603,17 @@ function afterSavingFormData($message, $formBuilder){
 // Update an existing booking
 add_filter('sim-forms-submission-updated', __NAMESPACE__.'\onSubmissionUpdate', 10, 5);
 function onSubmissionUpdate($message, $formTable, $elementName, $oldValue, $newValue){
-    // Get the element name
+    $element =  $formTable->getElementByName($elementName);
+
+    // Change payment status
+    if($formTable->formData->payment_indicator  == $element->id){
+        $bookings           =  new Bookings($formTable);
+
+        // Mark as paid
+        $bookings->updateBooking($bookings->getBookingsBySubmission($formTable->submission->id), ['paid' => 1]);
+    }
+
+    // Subject changed
     $subject    = $formTable->getElementByType('booking_selector');
     if(!$subject){
         return $message;
@@ -669,11 +625,11 @@ function onSubmissionUpdate($message, $formTable, $elementName, $oldValue, $newV
         return $message;
     }
 
-    $elementName  = str_replace('booking-', '', $elementName);
+    $elementName        = str_replace('booking-', '', $elementName);
 
-    $bookings          =  new Bookings($formTable);
+    $bookings           = new Bookings($formTable);
     
-    $currentBookings   = $bookings->getBookingsBySubmission($formTable->submission->id);
+    $currentBookings    = $bookings->getBookingsBySubmission($formTable->submission->id);
 
     if(isset($_POST['bookingid']) && is_numeric($_POST['bookingid'])){
         foreach($currentBookings as $index=>$booking){

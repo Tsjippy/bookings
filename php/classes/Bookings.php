@@ -13,6 +13,7 @@ class Bookings{
     public $tableEditPermissions;
     public $user;
     public $userRoles;
+    public $managers;
 
     public function __construct($displayFormResults=''){
         global $wpdb;
@@ -20,6 +21,7 @@ class Bookings{
         $this->bookings         = [];
         $this->user             = wp_get_current_user();
         $this->userRoles	    = $this->user->roles;
+        $this->managers         = [];
 
         if(getType($displayFormResults) == 'object'){
             $this->forms        = $displayFormResults;
@@ -1266,13 +1268,13 @@ class Bookings{
             }
             SIM\trySendSignal("Just a reminder about your booking for $accommodationString tommorow. Hopefully you didn't forget:)", $userId);
 
-            $managers   = $this->getSubjectManagers();
+            $this->getSubjectManagers();
 
-            if(!isset($managers[$accommodation])){
+            if(!isset($this->managers[$accommodation])){
                 SIM\printArray("No manager found for $accommodation");
                 return;
             }
-            $manager    = $managers[$accommodation];
+            $manager    = $this->managers[$accommodation];
 
             $user       = get_userdata($userId);
             if($user){
@@ -1292,16 +1294,32 @@ class Bookings{
      * Get the booking managers
      *
      * @param   int     $userId     If supplied gets the subjects for this user only.
-     * 
-     * @return  array               Array of subject names with the manager user id
      */
-    public function getSubjectManagers($userId=''){
+    public function getSubjectManagers($userId = ''){
+        if(
+            !empty($this->managers) &&                          // the current list is not empty
+            (
+                (
+                    is_numeric($userId)     &&                  // we only need the subjects for a certain user
+                    isset($this->managers['onlyfor'])   &&      // the current manager list is only for a certain user
+                    $this->managers['onlyfor']  == $userId      // the current list is for the current user
+                ) ||
+                (
+                    empty($userId) &&                           // we want the generic list
+                    empty($this->managers['onlyfor'] )          // the current list is generic
+                )
+            )
+        ){
+            // the current list is the list we need
+            return;
+        }
+
         // get the booking selector element
         $bookingDetails     = maybe_unserialize($this->forms->getElementByType('booking_selector')[0]->booking_details);
 
         // find the subject
         if($bookingDetails && !empty($bookingDetails['subjects'])){
-            $managers   = [];
+            $this->managers   = [];
 
             foreach($bookingDetails['subjects'] as $subject){
                 $managerId  = $subject['manager'];
@@ -1312,11 +1330,9 @@ class Bookings{
                     continue;
                 }
 
-                $managers[$subject['name'] ]    = $manager;
+                $this->managers[$subject['name'] ]    = $manager;
             }
         }
-
-        return $managers;
     }
 
     /**
@@ -1405,5 +1421,98 @@ class Bookings{
 
             wp_mail( $email, $subject, $message);
         }
+    }
+
+    /**
+     * Adds the buttons to approve or delete a pending booking
+     */
+    public function pendingButtons($buttonsHtml, $values, $subId, $object){
+        $buttonsHtml['approve'] = "<button class='button approve' type='button' data-id='{$values['booking-id']}' data-formid='{$object->submission->form_id}'>Approve</button>";
+        $buttonsHtml['delete']  = "<button class='button delete' type='button' data-id='{$values['booking-id']}' data-formid='{$object->submission->form_id}'>Delete</button><br>";
+        unset($buttonsHtml['archive']);
+
+        return $buttonsHtml;
+    }
+
+    /**
+     * shows the html to list, approve and or delete pending bookings
+     * 
+     * @param   string  $type       One of approval or payment to show bookings that are pending approval or pending payment
+     */
+    public function pendingBookingsHtml($type='approval'){
+        // do not show if no permissions
+        if(!array_intersect(array_keys($this->forms->formData->full_right_roles), $this->forms->userRoles)){
+            return '';
+        }
+
+        $this->getSubjectManagers();
+        $ownSubjects        = [];
+        foreach($this->managers as $subject=>$manager){
+            if($manager == $this->user){
+                $ownSubjects[]    = $subject;
+            }
+        }
+
+        if($type == 'approval'){
+            $bookings    = $this->retrievePendingBookings();
+        }else{
+            $bookings    = $this->retrieveUnPaidBookings();
+        }
+
+        if(empty($bookings)){
+            return '';
+        }
+
+        $html   = "<h4>Bookings Pending ".ucfirst($type)."</h4>";
+
+        $submissions    = [];
+
+        // only show one booking for submissions with multiple
+        foreach($bookings as $booking){
+            $exploded       = explode(';', $booking->subject);
+            $baseSubject    = $exploded[0];
+
+            // only show our own
+            if(!in_array($baseSubject, $ownSubjects)){
+                continue;
+            }
+
+            // one submission can have multiple bookings, only load the submission once
+            if(empty($submission) || $submission->id != $booking->submission_id){
+                $submission = $this->forms->getSubmissions(null, $booking->submission_id)[0];
+            }
+
+            if(isset($exploded[1])){
+                $submission->formresults['booking-room']              = $exploded[1];
+            }else{
+                $submission->formresults['booking-room']              = '';
+            }
+
+            $submission->formresults['booking-startdate']             = $booking->startdate;
+            $submission->formresults['booking-enddate']               = $booking->enddate;
+            $submission->formresults['booking-id']                    = $booking->id;
+
+            $submissions[]                                            = clone $submission;
+        }
+
+        if(empty($submissions)){
+            return '';
+        }
+
+        if($type == 'approval'){
+            add_filter('sim_form_actions_html', [$this, 'pendingButtons'], 10, 4);
+        }
+
+        ob_start();
+
+        $this->forms->theTable('pending', $submissions);
+
+        $html   .= ob_get_clean();
+
+        if($type == 'approval'){
+            remove_filter('sim_form_actions_html',  [$this, 'pendingButtons'], 10);
+        }
+
+        return $html;
     }
 }

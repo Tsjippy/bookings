@@ -13,7 +13,6 @@ function pluginUpdate($oldVersion){
 
     if($oldVersion < '8.0.4'){
         maybe_add_column($bookings->tableName, 'paid', "ALTER TABLE $simForms->tableName ADD COLUMN `paid` BOOL");
-        maybe_add_column($bookings->tableName, 'payable', "ALTER TABLE $simForms->tableName ADD COLUMN `payable` longtext");
 
         SIM\printArray("Added 'paid' column to '$bookings->tableName' table");
 
@@ -25,5 +24,7 @@ function pluginUpdate($oldVersion){
         $forms	= new SIM\FORMS\SimForms();
 
         maybe_add_column($forms->tableName, 'payment_indicator', "ALTER TABLE $forms->tableName ADD COLUMN `payment_indicator` int");
+        maybe_add_column($forms->tableName, 'payment_amount_el', "ALTER TABLE $forms->tableName ADD COLUMN `payment_amount_el` int");
+        maybe_add_column($forms->tableName, 'payment_details_el', "ALTER TABLE $forms->tableName ADD COLUMN `payment_details_el` int");
     }
 }
