@@ -4,6 +4,7 @@
 ### Added
 
 ### Changed
+- unpaid bookings only bookings from the past
 
 ### Fixed
 - retrieveUnpaidBookings query
