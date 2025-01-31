@@ -16,13 +16,19 @@ class BookingEmail extends ADMIN\MailSetting{
         if(isset($booking->submission_id)){
             $formSubmissionId                       = $booking->submission_id;
             $displayFormResults                     = new SIM\FORMS\DisplayFormResults();
-            $submission                             = $displayFormResults->getSubmissions(null, $formSubmissionId);
+            $submission                             = $displayFormResults->getSubmissions(null, $formSubmissionId)[0];
+
+            // Load the formdata for this form
+            $displayFormResults->getForm($submission->form_id);
 
             $amountName                             = $displayFormResults->getElementById('payment_amount_el');
+            if($amountName){
+                $this->replaceArray['%payable%']            = $submission[$amountName];
+            }
             $detailsName                            = $displayFormResults->getElementById('payment_details_el');
-
-            $this->replaceArray['%payable%']            = $submission[$amountName];
-            $this->replaceArray['%payment_details%']    = $submission[$detailsName];
+            if($detailsName){
+                $this->replaceArray['%payment_details%']    = $submission[$detailsName];
+            }
         }
 
         $this->replaceArray['%first_name%']     = $user->first_name;   

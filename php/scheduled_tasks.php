@@ -22,7 +22,7 @@ function bookingReminder($bookingId){
 	$bookings->sendBookingReminder($bookingId);
 }
 
-function paymentReminder($bookingId){
+function paymentReminder(){
 	$bookings = new Bookings();
-	$bookings->sendPaymentReminders($bookingId);
+	$bookings->sendPaymentReminders();
 }

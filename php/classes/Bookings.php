@@ -14,6 +14,7 @@ class Bookings{
     public $user;
     public $userRoles;
     public $managers;
+    public $payables;
 
     public function __construct($displayFormResults=''){
         global $wpdb;
@@ -22,6 +23,7 @@ class Bookings{
         $this->user             = wp_get_current_user();
         $this->userRoles	    = $this->user->roles;
         $this->managers         = [];
+        $this->payables         = [];
 
         if(getType($displayFormResults) == 'object'){
             $this->forms        = $displayFormResults;
@@ -1322,7 +1324,8 @@ class Bookings{
 
         // find the subject
         if($bookingDetails && !empty($bookingDetails['subjects'])){
-            $this->managers   = [];
+            $this->managers = [];
+            $this->payables = [];
 
             foreach($bookingDetails['subjects'] as $subject){
                 $managerId  = $subject['manager'];
@@ -1334,6 +1337,10 @@ class Bookings{
                 }
 
                 $this->managers[$subject['name'] ]    = $manager;
+
+                if($subject['payables']){
+                    $this->payables[]   = $subject['payables'];
+                }
             }
         }
     }
@@ -1343,6 +1350,10 @@ class Bookings{
      */
     public function sendPaymentReminders(){
         foreach($this->retrieveUnPaidBookings(true) as $booking){
+            if(empty($booking->subject)){
+                continue;
+            }
+
             $submissions = $this->forms->getSubmissions(null, $booking->submission_id);
 
             if(empty($submissions)){
@@ -1477,6 +1488,8 @@ class Bookings{
             $bookings    = $this->retrievePendingBookings();
         }else{
             $bookings    = $this->retrieveUnPaidBookings(false);
+
+
         }
 
         if(empty($bookings)){
@@ -1492,8 +1505,14 @@ class Bookings{
             $exploded       = explode(';', $booking->subject);
             $baseSubject    = $exploded[0];
 
-            // only show our own
-            if(!in_array($baseSubject, $ownSubjects)){
+            
+            if(
+                !in_array($baseSubject, $ownSubjects) ||    // only show our own
+                (
+                    $type == 'payment' &&                   // we are looking for pending payments
+                    !isset($this->payables[$baseSubject])   // This is not a payable subject
+                )
+            ){
                 continue;
             }
 
