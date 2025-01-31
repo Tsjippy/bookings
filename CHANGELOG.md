@@ -9,6 +9,7 @@
 
 ### Fixed
 - retrieveUnpaidBookings query
+- pending payments table
 
 ### Updated
 
