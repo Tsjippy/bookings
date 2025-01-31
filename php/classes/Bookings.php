@@ -1161,14 +1161,17 @@ class Bookings{
     /**
      * Retrieve all the unpaid bookings
      *
+     * @param   bool    $onlyFinished       True to only return bookings that are finished 
      */
-    public function retrieveUnPaidBookings(){
+    public function retrieveUnPaidBookings($onlyFinished){
         global $wpdb;
 
         $query	    = "SELECT * FROM $this->tableName WHERE `paid` IS NULL OR `paid` = 0";
 
         // only show finished bookings
-        $query	.= " AND enddate < '".date('Y-m-d')."'";
+        if($onlyFinished){
+            $query	.= " AND enddate < '".date('Y-m-d')."'";
+        }
 
         //sort on startdate
 		$query	.= " ORDER BY `startdate`, `starttime` ASC";
@@ -1339,18 +1342,35 @@ class Bookings{
      * Sends a reminder to the owner of a booking to pay for it
      */
     public function sendPaymentReminders(){
-        foreach($this->retrieveUnPaidBookings() as $booking){
+        foreach($this->retrieveUnPaidBookings(true) as $booking){
             $submissions = $this->forms->getSubmissions(null, $booking->submission_id);
 
             if(empty($submissions)){
                 continue;
             }
 
+            $submission = $submissions[0];
+
             // Load the form
-            $this->forms->getForm($submissions[0]->form_id);
+            $this->forms->getForm($submission->form_id);
+
+            $bookingDetails = maybe_unserialize($this->forms->getElementByType('booking_selector')[0]->booking_details);
 
             $exploded       = explode(';', $booking->subject);
             $accommodation  = $exploded[0];
+
+            // check if payment is enabled for this subject
+            foreach($bookingDetails['subjects'] as $subject){
+                // this is the current subject
+                if($subject['name'] == $accommodation){
+                    if(!$subject['payments']){
+                        // do not continue
+                        continue 2;
+                    }
+
+                    break;
+                }
+            }
 
             $accommodationString    = $accommodation;
             if(count($exploded) > 1){
@@ -1365,9 +1385,9 @@ class Bookings{
             }
 
             if($userIdElName){
-                $userId = $submissions[0]->formresults[$userIdElName];
+                $userId = $submission->formresults[$userIdElName];
             }else{
-                $userId = $submissions[0]->userid;
+                $userId = $submission->userid;
             }
 
             $phonenumber    = $userId;
@@ -1379,7 +1399,7 @@ class Bookings{
 
                 $nameElName     = $this->forms->findUserNameElementName();
                 if($nameElName){
-                    $name   = $submissions[0]->formresults[$nameElName];
+                    $name   = $submission->formresults[$nameElName];
                     $user   = (object) ['display_name' => $name ];
                 }
 
@@ -1387,7 +1407,7 @@ class Bookings{
                 $phoneElName    = $this->forms->findPhoneNumberElementName();
 
                 if($phoneElName){
-                    foreach($submissions[0]->formresults[$phoneElName] as $number){
+                    foreach($submission->formresults[$phoneElName] as $number){
                         if (str_starts_with($number, '+')) {
                             $phonenumber = $number;
                             break;
@@ -1398,7 +1418,7 @@ class Bookings{
                 // Find the e-mail
                 $emailElName        = $this->forms->findEmailNumberElementName();
                 if($emailElName){
-                    $email          = $submissions[0]->formresults[$emailElName];
+                    $email          = $submission->formresults[$emailElName];
                 }
             }else{
                 $user   = get_user($userId);
@@ -1456,7 +1476,7 @@ class Bookings{
         if($type == 'approval'){
             $bookings    = $this->retrievePendingBookings();
         }else{
-            $bookings    = $this->retrieveUnPaidBookings();
+            $bookings    = $this->retrieveUnPaidBookings(false);
         }
 
         if(empty($bookings)){

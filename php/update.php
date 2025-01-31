@@ -12,14 +12,9 @@ function pluginUpdate($oldVersion){
     $bookings = new Bookings();
 
     if($oldVersion < '8.0.4'){
-        maybe_add_column($bookings->tableName, 'paid', "ALTER TABLE $simForms->tableName ADD COLUMN `paid` BOOL");
+        maybe_add_column($bookings->tableName, 'paid', "ALTER TABLE $bookings->tableName ADD COLUMN `paid` BOOL");
 
         SIM\printArray("Added 'paid' column to '$bookings->tableName' table");
-
-        // mark old bookings as paid
-        foreach($bookings->retrieveUnPaidBookings() as $unpaidBooking){
-            $bookings->updateBooking($unpaidBooking, ['paid' => 1]);
-        }
         
         $forms	= new SIM\FORMS\SimForms();
 
