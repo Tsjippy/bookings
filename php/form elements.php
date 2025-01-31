@@ -448,8 +448,8 @@ function elementHtml($html, $element, $object){
 }
 
 // Update the booking subjects name if the form name has changed
-add_action('sim-after-formelement-updated', __NAMESPACE__.'\formElementUpdated', 10, 2);
-function formElementUpdated($element, $instance){
+add_action('sim-after-formelement-updated', __NAMESPACE__.'\formElementUpdated', 10, 3);
+function formElementUpdated($element, $instance, $oldElement){
     global $wpdb;
 
     if($element->type != 'booking_selector'){
@@ -457,7 +457,7 @@ function formElementUpdated($element, $instance){
     }
 
     // Check if a subject name is changed
-    $oldBookingDetails  = maybe_unserialize($instance->getElementById($element->id)->booking_details);
+    $oldBookingDetails  = maybe_unserialize($oldElement->booking_details);
     $newBookingDetails  = maybe_unserialize($element->booking_details);
 
     $oldSubjects        = array_map(__NAMESPACE__.'\getSubjectNames', $oldBookingDetails['subjects']);

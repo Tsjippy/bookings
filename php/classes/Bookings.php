@@ -1151,7 +1151,7 @@ class Bookings{
     }
 
     /**
-     * Retrieve all the pending bookings
+     * Retrieve all the pending bookings for the current user
      *
      */
     public function retrievePendingBookings(){
@@ -1159,8 +1159,24 @@ class Bookings{
 
         $query	    = "SELECT * FROM $this->tableName WHERE pending=1 AND startdate >= '".date('Y-m-d')."'";
 
+        $this->getSubjectManagers($this->user->ID);
+
+        if(empty($this->managers)){
+            return [];
+        }
+
+        foreach(array_keys($this->managers) as $index => $subject){
+            if($index == 0){
+                $query	.= " AND (";
+            }else{
+                $query	.= " OR";
+            }
+
+            $query	.= " subject LIKE '%$subject%'";
+        }
+
         //sort on startdate
-		$query	.= " ORDER BY `startdate`, `starttime` ASC";
+		$query	.= ") ORDER BY id ASC";
 
 		return $wpdb->get_results($query);
     }
@@ -1173,15 +1189,31 @@ class Bookings{
     public function retrieveUnPaidBookings($onlyFinished){
         global $wpdb;
 
-        $query	    = "SELECT * FROM $this->tableName WHERE `paid` IS NULL OR `paid` = 0";
+        $query	    = "SELECT * FROM $this->tableName WHERE (`paid` IS NULL OR `paid` = 0)";
 
         // only show finished bookings
         if($onlyFinished){
             $query	.= " AND enddate < '".date('Y-m-d')."'";
         }
 
+        $this->getSubjectManagers($this->user->ID, true);
+
+        if(empty($this->payables)){
+            return [];
+        }
+
+        foreach($this->payables as $index => $subject){
+            if($index == 0){
+                $query	.= " AND (";
+            }else{
+                $query	.= " OR";
+            }
+
+            $query	.= " subject LIKE '%$subject%'";
+        }
+
         //sort on startdate
-		$query	.= " ORDER BY `startdate`, `starttime` ASC";
+		$query	.= ") ORDER BY id ASC";
 
 		return $wpdb->get_results($query);
     }
@@ -1305,8 +1337,9 @@ class Bookings{
      *
      * @param   int     $userId     If supplied gets the subjects for this user only.
      */
-    public function getSubjectManagers($userId = ''){
+    public function getSubjectManagers($userId = '', $force=false){
         if(
+            !$force &&
             !empty($this->managers) &&                          // the current list is not empty
             (
                 (
@@ -1481,14 +1514,6 @@ class Bookings{
             return '';
         }
 
-        $this->getSubjectManagers();
-        $ownSubjects        = [];
-        foreach($this->managers as $subject=>$manager){
-            if($manager == $this->user){
-                $ownSubjects[]    = $subject;
-            }
-        }
-
         if($type == 'approval'){
             $bookings    = $this->retrievePendingBookings();
         }else{
@@ -1499,6 +1524,12 @@ class Bookings{
             return '';
         }
 
+        if(empty($this->forms->formData->split)){
+            $this->forms->formData->split   = [];
+        }
+        $this->forms->formData->split[] = $this->forms->getElementByName('booking-startdate')->id;
+        $this->forms->formData->split[] = $this->forms->getElementByName('booking-enddate')->id;
+
         $html   = "<h4>Bookings Pending ".ucfirst($type)."</h4>";
 
         $submissions    = [];
@@ -1506,21 +1537,13 @@ class Bookings{
         // only show one booking for submissions with multiple
         foreach($bookings as $booking){
             $exploded       = explode(';', $booking->subject);
-            $baseSubject    = $exploded[0];
-            
-            if(
-                !in_array($baseSubject, $ownSubjects) ||    // only show our own
-                (
-                    $type == 'payment' &&                   // we are looking for pending payments
-                    !in_array($baseSubject, $this->payables)   // This is not a payable subject
-                )
-            ){
-                continue;
-            }
 
             // one submission can have multiple bookings, only load the submission once
             if(empty($submission) || $submission->id != $booking->submission_id){
-                $submission = $this->forms->getSubmissions(null, $booking->submission_id)[0];
+                $submission         = $this->forms->getSubmission($booking->submission_id);
+                $submission->subId  = 0;
+            }else{
+                $submission->subId++;
             }
 
             if(isset($exploded[1])){
@@ -1555,5 +1578,49 @@ class Bookings{
         }
 
         return $html;
+    }
+
+    /**
+     * Calculate the total amount due after booking update
+     */
+    public function calculatePaymentAmount(){
+        $pricePerNightEl    = $this->forms->formData->price_per_night_el;
+        $paymentAmountEl    = $this->forms->formData->payment_amount_el;
+
+        if(empty($pricePerNightEl)){
+            return;
+        }
+
+        if(!is_array($this->forms->submission->formresults['booking-startdate'])){
+            $this->forms->submission->formresults['booking-startdate']  = [$this->forms->submission->formresults['booking-startdate']];
+        }
+
+        if(!is_array($this->forms->submission->formresults['booking-enddate'])){
+            $this->forms->submission->formresults['booking-enddate']  = [$this->forms->submission->formresults['booking-enddate']];
+        }
+
+        $nights = 0;
+        foreach($this->forms->submission->formresults['booking-startdate'] as $index=>$startDate){
+            if(empty($this->forms->submission->formresults['booking-enddate'][$index])){
+                continue;
+            }
+
+            $endDate    = $this->forms->submission->formresults['booking-enddate'][$index];
+            $diff       = strtotime($endDate) - strtotime($startDate);
+
+            $days       = round($diff / (60 * 60 * 24));
+
+            $nights     = $nights + $days;
+        }
+
+        $pricePerNight      = $this->forms->submission->formresults[$pricePerNightEl];
+        preg_match('/(.*?)([\d+|\.]+)/', "$pricePerNight", $matches);
+        $amount             = $matches[2];
+        $currency           = $matches[1];
+
+        // Formatted number
+        $payable            = $currency.number_format($amount*$days, 2);
+
+        $this->forms->submission->formresults[$paymentAmountEl] = $payable;
     }
 }

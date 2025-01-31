@@ -49,6 +49,7 @@ function shouldShow($shouldShow, $displayFormResults, $type){
     ){
         if($type == 'own' && $displayFormResults->tableSettings['booking-display'] == 'calendar'){
             $bookings    = new Bookings($displayFormResults);
+            
             echo $bookings->pendingBookingsHtml('approval');
 
             echo $bookings->pendingBookingsHtml('payment');

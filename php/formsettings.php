@@ -79,5 +79,7 @@ function beforeSavingSettings($newSettings, $object, $formId){
 
     $newSettings['payment_details_el']	= is_numeric($_POST['payment_details_el'])   ? $_POST['payment_details_el'] : false;
 
+    $newSettings['price_per_night_el']	= is_numeric($_POST['price_per_night_el'])   ? $_POST['price_per_night_el'] : false;
+
     return $newSettings;
 }

@@ -73,6 +73,8 @@ function afterSavingFormData($message, $formBuilder){
             if(is_wp_error($result)){
                 return $result;
             }
+
+            $bookings->calculatePaymentAmount();
         }
     }
 
@@ -82,14 +84,21 @@ function afterSavingFormData($message, $formBuilder){
 // Update an existing booking
 add_filter('sim-forms-submission-updated', __NAMESPACE__.'\onSubmissionUpdate', 10, 5);
 function onSubmissionUpdate($message, $formTable, $elementName, $oldValue, $newValue){
-    $element =  $formTable->getElementByName($elementName);
+    $element    =  $formTable->getElementByName($elementName);
+    $bookings   =  new Bookings($formTable);
 
     // Change payment status
     if($formTable->formData->payment_indicator  == $element->id){
-        $bookings           =  new Bookings($formTable);
-
         // Mark as paid
-        $bookings->updateBooking($bookings->getBookingsBySubmission($formTable->submission->id), ['paid' => 1]);
+        $bookings->updateBooking($bookings->getBookingsBySubmission($formTable->submission->id)[0], ['paid' => 1]);
+    }
+
+    // We are dealing with start or end date
+    if(in_array($elementName, ['booking-startdate', 'booking-enddate'])){
+        // the update only aplies to one room. Make sure we keep the remaining values
+        
+        // calculate payable
+        $bookings->calculatePaymentAmount();
     }
 
     // Subject changed
@@ -105,8 +114,6 @@ function onSubmissionUpdate($message, $formTable, $elementName, $oldValue, $newV
     }
 
     $elementName        = str_replace('booking-', '', $elementName);
-
-    $bookings           = new Bookings($formTable);
     
     $currentBookings    = $bookings->getBookingsBySubmission($formTable->submission->id);
 
@@ -147,8 +154,6 @@ function onSubmissionUpdate($message, $formTable, $elementName, $oldValue, $newV
         if(is_string($newValue) && str_contains($newValue, ';')){
             $newValue   = explode(';', $newValue);
             $baseSubject= explode(';', $booking->subject)[0];
-
-            //$oldRooms   = explode(';', $oldValue);
 
             $deleted    = array_diff($oldValue, $newValue);
             $added      = array_diff($newValue, $oldValue);
