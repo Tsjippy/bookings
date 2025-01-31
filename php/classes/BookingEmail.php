@@ -14,20 +14,25 @@ class BookingEmail extends ADMIN\MailSetting{
         $this->addUser($user);
 
         if(isset($booking->submission_id)){
-            $formSubmissionId                       = $booking->submission_id;
             $displayFormResults                     = new SIM\FORMS\DisplayFormResults();
-            $submission                             = $displayFormResults->getSubmissions(null, $formSubmissionId)[0];
+            $displayFormResults->getSubmission($booking->submission_id);
 
             // Load the formdata for this form
-            $displayFormResults->getForm($submission->form_id);
+            $displayFormResults->getForm($displayFormResults->submission->form_id);
 
-            $amountName                             = $displayFormResults->getElementById('payment_amount_el');
+            $amountName                                     = $displayFormResults->getElementById('payment_amount_el');
             if($amountName){
-                $this->replaceArray['%payable%']            = $submission[$amountName];
+                $this->replaceArray['%payable%']            = $displayFormResults->submission->formresults[$amountName];
             }
-            $detailsName                            = $displayFormResults->getElementById('payment_details_el');
+
+            $detailsName                                    = $displayFormResults->getElementById('payment_details_el');
             if($detailsName){
-                $this->replaceArray['%payment_details%']    = $submission[$detailsName];
+                $this->replaceArray['%payment_details%']    = $displayFormResults->submission->formresults[$detailsName];
+            }
+
+            $pricePerNightName                              = $displayFormResults->getElementById('price_per_night_el');
+            if($pricePerNightName){
+                $this->replaceArray['%price_per_night_el%'] = $displayFormResults->submission->formresults[$pricePerNightName];
             }
         }
 

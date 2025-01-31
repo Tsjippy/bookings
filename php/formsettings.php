@@ -52,6 +52,22 @@ function extraFormSettings($object){
             }
         ?>
     </select>
+
+    <br>
+    <h4>Price Per Night Element</h4>
+    <select name="price_per_night_el">
+        <?php
+            $checked    = '';
+
+            foreach($object->formElements as $element){
+                if($checked == '' && $object->formData->price_per_night_el == $element->id){
+                    $checked = 'selected';
+                }
+
+                echo "<option value='$element->id' $checked>$element->nicename</option>";
+            }
+        ?>
+    </select>
     <?php
 }
 

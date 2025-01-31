@@ -428,6 +428,21 @@ function elementHtml($html, $element, $object){
         $html   = str_replace('>', " $min max='$max'>", $html);
     }
 
+    // Add a class for payment_amount_el
+    elseif($element->id == $object->formData->payment_amount_el){
+        $html   = str_replace("class='", "class='payment-amount ", $html);
+    } 
+
+    // Add a class for payment_details_el
+    elseif($element->id == $object->formData->payment_details_el){
+        $html   = str_replace("class='", "class='payment-details ", $html);
+    } 
+
+    // Add a class for payment_details_el
+    elseif($element->id == $object->formData->price_per_night_el){
+        $html   = str_replace("class='", "class='price-per-night ", $html);
+    }
+
     return $html;
 
 }

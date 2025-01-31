@@ -193,7 +193,6 @@ function changeBookingData(target){
         console.log(selector);
     }else{
         selector    = `[name="${el.value}-modal"]`;
-        console.log(selector);
     }
 
     Main.showModal(document.querySelector(selector));
