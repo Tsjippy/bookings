@@ -602,13 +602,18 @@ class Bookings{
      * Build the detail html for the current month
      */
     public function detailHtml(){
-        $url=SIM\pathToUrl(MODULE_PATH.'pictures');
+        if(!method_exists($this->forms, 'parseSubmissions')){
+            return '';
+        }
+
         $baseUrl	= SIM\pathToUrl(MODULE_PATH.'pictures');
 
         if($this->forms->columnSettings == null || empty($this->forms->tableSettings)){
-            $result = $this->forms->loadShortcodeData();
-            if(is_wp_error($result)){
-                return $result;
+            if(method_exists($this->forms, 'loadShortcodeData')){
+                $result = $this->forms->loadShortcodeData();
+                if(is_wp_error($result)){
+                    return $result;
+                }
             }
         }
 
@@ -1012,7 +1017,7 @@ class Bookings{
 
         // update submission
         if(empty($this->forms->submission)){
-            $this->forms->submission = $this->forms->getSubmissions(null, $booking->submission_id)[0];
+            $this->forms->submission = $this->forms->getSubmission($booking->submission_id);
         }
         $formResults    = $this->forms->submission->formresults;
 
@@ -1338,8 +1343,8 @@ class Bookings{
 
                 $this->managers[$subject['name'] ]    = $manager;
 
-                if($subject['payables']){
-                    $this->payables[]   = $subject['payables'];
+                if($subject['payments']){
+                    $this->payables[]   = $subject['name'];
                 }
             }
         }
@@ -1488,8 +1493,6 @@ class Bookings{
             $bookings    = $this->retrievePendingBookings();
         }else{
             $bookings    = $this->retrieveUnPaidBookings(false);
-
-
         }
 
         if(empty($bookings)){
@@ -1504,13 +1507,12 @@ class Bookings{
         foreach($bookings as $booking){
             $exploded       = explode(';', $booking->subject);
             $baseSubject    = $exploded[0];
-
             
             if(
                 !in_array($baseSubject, $ownSubjects) ||    // only show our own
                 (
                     $type == 'payment' &&                   // we are looking for pending payments
-                    !isset($this->payables[$baseSubject])   // This is not a payable subject
+                    !in_array($baseSubject, $this->payables)   // This is not a payable subject
                 )
             ){
                 continue;
