@@ -2,16 +2,23 @@
 ## [Unreleased] - yyyy-mm-dd
 
 ### Added
-- price per night element
-- payable calculation
 
 ### Changed
 
 ### Fixed
-- payment selectors
-- payment updates
 
 ### Updated
+
+## [8.0.7] - 2025-02-03
+
+
+### Added
+- price per night element
+- payable calculation
+
+### Fixed
+- payment selectors
+- payment updates
 
 ## [8.0.6] - 2025-01-31
 
