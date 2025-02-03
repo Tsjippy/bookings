@@ -90,13 +90,17 @@ function onSubmissionUpdate($message, $formTable, $elementName, $oldValue, $newV
     // Change payment status
     if($formTable->formData->payment_indicator  == $element->id){
         // Mark as paid
-        $bookings->updateBooking($bookings->getBookingsBySubmission($formTable->submission->id)[0], ['paid' => 1]);
+        foreach($bookings->getBookingsBySubmission($formTable->submission->id) as $b){
+            $bookings->updateBooking($b, ['paid' => 1]);
+        }
     }
 
-    // We are dealing with start or end date
-    if(in_array($elementName, ['booking-startdate', 'booking-enddate'])){
-        // the update only aplies to one room. Make sure we keep the remaining values
-        
+    // Update the payable amount
+    if(
+        in_array($elementName, ['booking-startdate', 'booking-enddate']) || // We are dealing with start or end date,
+        $element->id == $formTable->formData->price_per_night_el ||         // change or night price
+        $elementName == 'booking-room'                                              // or change in #rooms
+    ){
         // calculate payable
         $bookings->calculatePaymentAmount();
     }
@@ -117,9 +121,9 @@ function onSubmissionUpdate($message, $formTable, $elementName, $oldValue, $newV
     
     $currentBookings    = $bookings->getBookingsBySubmission($formTable->submission->id);
 
-    if(isset($_POST['bookingid']) && is_numeric($_POST['bookingid'])){
+    if(isset($_POST['booking_id']) && is_numeric($_POST['booking_id'])){
         foreach($currentBookings as $index=>$booking){
-            if($booking->id == $_POST['bookingid']){
+            if($booking->id == $_POST['booking_id']){
                 break;
             }
         }
@@ -133,17 +137,6 @@ function onSubmissionUpdate($message, $formTable, $elementName, $oldValue, $newV
         $index      = 0;
     }
 
-    $new            = $newValue;
-    if(is_array($oldValue)){
-        $new            = $oldValue;
-        
-        if(is_array($newValue)){
-            $new[$index]    = $newValue[0];
-        }else{
-            $new[$index]    = $newValue;
-        }
-    }
-
     // change the $elementName to subject as that is the name of the column in the db
     if($subject == $elementName){
         $elementName  = 'subject';
@@ -153,44 +146,59 @@ function onSubmissionUpdate($message, $formTable, $elementName, $oldValue, $newV
     if($elementName == 'room'){
         if(is_string($newValue) && str_contains($newValue, ';')){
             $newValue   = explode(';', $newValue);
-            $baseSubject= explode(';', $booking->subject)[0];
+        }
+        
+        $baseSubject= explode(';', $booking->subject)[0];
 
-            $deleted    = array_diff($oldValue, $newValue);
-            $added      = array_diff($newValue, $oldValue);
+        $oldMessage = implode('&', $oldValue);
+        $newMessage = implode('&', $newValue);
 
-            // remove any removed bookings
-            if(!empty($deleted)){
-                // find all bookings with the same submission_id
-                $currentBookings    = $bookings->getBookingsBySubmission($formTable->submission->id);
+        $message    = str_replace($oldMessage, $newMessage, $message);
 
-                foreach($currentBookings as $booking){
-                    if(in_array(explode(';', $booking->subject)[1], $deleted)){
-                        $result = $bookings->removeBooking($booking);
+        $deleted    = array_diff($oldValue, $newValue);
+        $added      = array_diff($newValue, $oldValue);
+
+        // we changed a room
+        if(count($oldValue) == count($newValue)){
+            $deleted    = [];
+            $added      = [];
+
+            foreach($oldValue as $i=>$oldRoom){
+                $newRoom    = $newValue[$i];
+
+                $oldSubject = "$baseSubject;$oldRoom";
+
+                // Find the booking for this room
+                foreach($currentBookings as $b){
+                    if($oldSubject == $b->subject){
+                        $newSubject = "$baseSubject;$newRoom";
+                        $result     = $bookings->updateBooking($b, ['subject' => $newSubject]);
+                        break;
                     }
                 }
             }
-
-            // add new ones
-            foreach($added as $room){
-                $result = $bookings->insertBooking($booking->startdate, $booking->enddate, $baseSubject.';'.$room, $formTable->submission->id);
-            }
-
-            $formTable->submission->formresults['booking-room'] = array_values($newValue);
-        }else{
-            // update the booking
-            $oldRoom    = $oldValue[$index];
-            $newSubject = str_replace($oldRoom, $newValue, $booking->subject);
-            $result = $bookings->updateBooking($booking, ['subject' => $newSubject]);
-
-            // update the form result
-            $formTable->submission->formresults[$elementName]   = $new;
         }
+
+        // remove any removed bookings
+        if(!empty($deleted)){
+            foreach($currentBookings as $booking){
+                // if this is the booking for the room
+                if(in_array(explode(';', $booking->subject)[1], $deleted)){
+                    // Delete the booking
+                    $result = $bookings->removeBooking($booking);
+                }
+            }
+        }
+
+        // add new ones
+        foreach($added as $room){
+            $result = $bookings->insertBooking($booking->startdate, $booking->enddate, $baseSubject.';'.$room, $formTable->submission->id);
+        }
+
+        $formTable->submission->formresults['booking-room'] = array_values($newValue);
     }else{
         // update the booking
         $result = $bookings->updateBooking($booking, [$elementName => $newValue]);
-
-        // update the form result
-        $formTable->submission->formresults[$elementName]   = $new;
     }
 
     if(is_wp_error($result)){

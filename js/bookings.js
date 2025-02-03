@@ -395,10 +395,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.querySelectorAll('.booking-detail tr.actions').forEach(row=>row.addEventListener('submissionArchived', ev => {
         let wrapper     = ev.target.closest('.booking-detail-wrapper');
-        let bookingId   = wrapper.dataset.bookingid;
+        let bookingId   = wrapper.dataset.booking_id;
 
         // mark dates as available again
-        document.querySelectorAll(`.calendar.day.booked[data-bookingid="${bookingId}"]`).forEach(el=>{
+        document.querySelectorAll(`.calendar.day.booked[data-booking_id="${bookingId}"]`).forEach(el=>{
             el.classList.remove('booked');
             el.classList.add('available');
         });
@@ -443,7 +443,7 @@ document.addEventListener('click', (ev) => {
         target.closest('.bookings-wrap').querySelectorAll(`.booking-detail-wrapper:not(.hidden)`).forEach(el=>el.classList.add('hidden'));
         
         // Show the details
-        target.closest('.bookings-wrap').querySelectorAll(`.booking-detail-wrapper[data-bookingid="${target.dataset.bookingid}"]`).forEach(el=>{
+        target.closest('.bookings-wrap').querySelectorAll(`.booking-detail-wrapper[data-booking_id="${target.dataset.booking_id}"]`).forEach(el=>{
             el.classList.remove('hidden');
             el.scrollIntoView({block: "center"});
         });

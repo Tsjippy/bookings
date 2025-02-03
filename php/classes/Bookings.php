@@ -121,7 +121,7 @@ class Bookings{
             }
 
             if(!empty($_REQUEST['id']) && $this->forms->submission->id != $_REQUEST['id']){
-                $this->forms->submission = $this->forms->getSubmissions(null, $_REQUEST['id'])[0];
+                $this->forms->submission = $this->forms->getSubmission($_REQUEST['submissionid']);
             }
             ?>
             <div class="rooms">
@@ -527,7 +527,7 @@ class Bookings{
                                 $class	.= ' booked';
                             }
 
-                            $data   .= "data-bookingid='$bookingId'";
+                            $data   .= "data-booking_id='$bookingId'";
 
                             if(method_exists($this->forms, 'getSubmissions')){
                                 // check if this is our own booking
@@ -636,7 +636,7 @@ class Bookings{
                 )
             ){
                 // no right to see this
-                echo "<div class='booking-detail-wrapper warning hidden' data-bookingid='$booking->id'>";
+                echo "<div class='booking-detail-wrapper warning hidden' data-booking_id='$booking->id'>";
                     echo "No Permission to see this booking";
                 echo "</div>";
                 continue;
@@ -648,7 +648,7 @@ class Bookings{
             }
 
             ?>
-            <div class='booking-detail-wrapper <?php echo $hidden;?>' data-bookingid='<?php echo $booking->id;?>'>
+            <div class='booking-detail-wrapper <?php echo $hidden;?>' data-booking_id='<?php echo $booking->id;?>'>
                 <h6 class='booking-title'>
                     Booking details
                 </h6>
@@ -666,12 +666,12 @@ class Bookings{
                                     <td class='booking-data-wrapper edit_forms_table'>
                                         <table data-formid='<?php echo $this->forms->submission->formresults['formid'];?>' style='margin-bottom: 0px; width:unset;'>
                                             <tr data-id='<?php echo $this->forms->submission->formresults['id'];?>'>
-                                                <td data-name='booking-startdate' data-id='<?php echo $this->forms->getElementByName('booking-startdate')->id;?>' data-oldvalue='<?php echo json_encode($booking->startdate);?>' data-bookingid='<?php echo $booking->id;?>' class='edit_forms_table'>
+                                                <td data-name='booking-startdate' data-id='<?php echo $this->forms->getElementByName('booking-startdate')->id;?>' data-oldvalue='<?php echo json_encode($booking->startdate);?>' data-booking_id='<?php echo $booking->id;?>' class='edit_forms_table'>
                                                     <?php echo date('d-M-Y', strtotime($booking->startdate));?>
                                                 </td>
                                             </tr>
                                             <tr data-id='<?php echo $this->forms->submission->formresults['id'];?>'>
-                                                <td data-name='booking-enddate' data-id='<?php echo  $this->forms->getElementByName('booking-enddate')->id;?>' data-oldvalue='<?php echo json_encode($booking->enddate);?>' data-bookingid='<?php echo $booking->id;?>' class='edit_forms_table'>
+                                                <td data-name='booking-enddate' data-id='<?php echo  $this->forms->getElementByName('booking-enddate')->id;?>' data-oldvalue='<?php echo json_encode($booking->enddate);?>' data-booking_id='<?php echo $booking->id;?>' class='edit_forms_table'>
                                                     <?php echo date('d-M-Y', strtotime($booking->enddate));?>
                                                 </td>
                                             </tr>
@@ -703,7 +703,7 @@ class Bookings{
                                             }else{
                                                 echo "<td>{$setting['nice_name']}:</td>";
                                             }
-                                            echo "<td class='booking-data-wrapper edit_forms_table' data-id='$element->id' data-name='$name' data-oldvalue='".json_encode($data)."' data-bookingid='$booking->id'>";
+                                            echo "<td class='booking-data-wrapper edit_forms_table' data-id='$element->id' data-name='$name' data-oldvalue='".json_encode($data)."' data-booking_id='$booking->id'>";
                                                 echo $transformedData;
                                             echo "</td>";
                                         echo "</tr>";
@@ -942,6 +942,142 @@ class Bookings{
         wp_schedule_single_event($start, 'send_booking_reminder_action', [$bookingId]);
     }
 
+        /**
+     * Validate a date change
+     *
+     * @param   object          $booking    The booking to validate
+     * @param   array           $values     Reference to the values array
+     *
+     * @return  WP_error|bool               Error object if overlapping with another booking, true if ok.
+     */
+    protected function validateDates($booking, &$values){
+        if(!isset($values['startdate']) && !isset($values['enddate'])){
+            return true;
+        }
+
+        $startdate      = $booking->startdate;
+        
+        // Start date is updated
+        if(isset($values['startdate'])){
+            $startdate  = &$values['startdate'];
+
+            // get the relevant date
+            if(is_array($startdate)){
+                if(!empty($_POST['subid']) && isset($startdate[$_POST['subid']])){
+                    $startdate  = $startdate[$_POST['subid']];
+                }else{
+                    $startdate  = array_values($startdate)[0];
+                }
+            }
+        }
+
+        $enddate      = $booking->enddate;
+
+        // End date is updated
+        if(isset($values['enddate'])){
+            $enddate  = &$values['enddate'];
+
+            // get the relevant date
+            if(is_array($enddate)){
+                if(!empty($_POST['subid']) && isset($enddate[$_POST['subid']])){
+                    $enddate  = $enddate[$_POST['subid']];
+                }else{
+                    $enddate  = array_values($enddate)[0];
+                }
+            }
+        }
+
+        $subject      = $booking->subject;
+        if(isset($values['subject'])){
+            $subject  = $values['subject'];
+        }
+
+        if(!is_array($subject)){
+            $subject    = [$subject];
+        }
+
+        $subjectName    = $subject[0];
+
+        // subject with rooms
+        if(count($subject) > 1){
+            unset($subject[0]);
+        }
+        
+        foreach($subject as $s){
+            $subjectString  = $s;
+
+            if($s != $subjectName){
+                $subjectString  = "$subjectName;$s";
+            }
+            if($this->checkOverlap($startdate, $enddate, $subjectString, $booking->id)){
+                $subjectString    = str_replace(';', ' room ', $subjectString );
+                return new \WP_Error('booking', "The booking for $subjectString overlaps with an existing one, try again");
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Update the formresults of a booking
+     *
+     * @param   object          $booking    The booking to validate
+     * @param   array           $values     Values array
+     */
+    protected function updateBookingSubmission($booking, $values){
+        global $wpdb;
+
+        // update submission
+        if(empty($this->forms->submission)){
+            $this->forms->submission = $this->forms->getSubmission($booking->submission_id);
+        }
+
+        $formResults    = &$this->forms->submission->formresults;
+
+        $shouldUpdate   = false;
+        foreach($values as $key => $value){
+            // We updated a booking value
+            if(!isset($formResults[$key]) && isset($formResults['booking-'.$key])){
+                $key    = 'booking-'.$key;
+            }
+
+            if(isset($formResults[$key])){
+                // We are updating a subid
+                if(
+                    is_array($formResults[$key]) &&                 // the target formresult is an array
+                    !empty($_POST['subid']) &&                      // We have submitted an subid
+                    isset($formResults[$key][$_POST['subid']])      // and the sub id is an index of the array
+                ){
+                    // It is an updated value
+                    if($formResults[$key][$_POST['subid']] != $value){   
+                        $shouldUpdate   = true;
+                        $formResults[$key][$_POST['subid']] = $value;
+                    }
+
+                    $value  = $formResults[$key];
+                }
+
+                // value needs to be updated in the db
+                elseif($formResults[$key] != $value){
+                    $shouldUpdate        = true;
+                    $formResults[$key]   = $value;
+                }
+            }
+        }
+
+        if($shouldUpdate){
+            $wpdb->update(
+                $this->forms->submissionTableName,
+                [
+                    'formresults'   => serialize($formResults)
+                ],
+                array(
+                    'id'		=> $booking->submission_id
+                ),
+            );
+        }
+    }
+
     /**
      * Update an existing booking
      *
@@ -960,44 +1096,11 @@ class Bookings{
         $values         = array_filter( $values, function($val){return in_array($val, ['startdate', 'enddate', 'starttime', 'endtime', 'subject', 'pending', 'paid']);}, ARRAY_FILTER_USE_KEY);
 
         // Validate updated dates
-        if(isset($values['startdate']) || isset($values['enddate'])){
-            $startdate      = $booking->startdate;
-            if(isset($values['startdate'])){
-                $startdate  = $values['startdate'];
-            }
+        $result         = $this->validateDates($booking, $values);
 
-            $enddate      = $booking->enddate;
-            if(isset($values['enddate'])){
-                $enddate  = $values['enddate'];
-            }
-
-            $subject      = $booking->subject;
-            if(isset($values['subject'])){
-                $subject  = $values['subject'];
-            }
-
-            if(!is_array($subject)){
-                $subject    = [$subject];
-            }
-
-            $subjectName    = $subject[0];
-
-            // subject with rooms
-            if(count($subject) > 1){
-                unset($subject[0]);
-            }
-            
-            foreach($subject as $s){
-                $subjectString  = $s;
-
-                if($s != $subjectName){
-                    $subjectString  = "$subjectName;$s";
-                }
-                if($this->checkOverlap($startdate, $enddate, $subjectString, $booking->id)){
-                    $subjectString    = str_replace(';', ' room ', $subjectString );
-                    return new \WP_Error('booking', "The booking for $subjectString overlaps with an existing one, try again");
-                }
-            }
+        // return the error if needed
+        if($result !== true){
+            return $result;
         }
 
         // update booking
@@ -1010,47 +1113,20 @@ class Bookings{
         );
 
         if(empty($wpdb->last_error)){
-            $message            = 'Succesfully approved the booking';
+            $message            = 'Succesfully updated the booking';
         }else{
             $message            = $wpdb->last_error;
         }
 
-        // update submission
-        if(empty($this->forms->submission)){
-            $this->forms->submission = $this->forms->getSubmission($booking->submission_id);
-        }
-        $formResults    = $this->forms->submission->formresults;
-
-        $shouldUpdate   = false;
-        foreach($values as $key => $value){
-            if(isset($formResults[$key])){
-                $shouldUpdate       = true;
-                $formResults[$key]  = $value;
-            }
-
-            if(isset($formResults['booking-'.$key])){
-                $shouldUpdate                   = true;
-                $formResults['booking-'.$key]   = [$value];
-            }
-        }
-
-        if($shouldUpdate){
-            $wpdb->update(
-                $this->forms->submissionTableName,
-                [
-                    'formresults'   => serialize($formResults)
-                ],
-                array(
-                    'id'		=> $booking->submission_id
-                ),
-            );
-        }
+        $this->updateBookingSubmission($booking, $values);
 
         // update event
         $event                          = json_decode(get_post_meta($booking->event_id, 'eventdetails', true), true);
         if(!empty($event)){
             update_post_meta($booking->event_id, 'eventdetails', json_encode(array_merge($event, $values)));
         }
+
+        // Build the return array
 
         $monthsHtml     = [];
         $months         = [];
@@ -1584,8 +1660,13 @@ class Bookings{
      * Calculate the total amount due after booking update
      */
     public function calculatePaymentAmount(){
+        global $wpdb;
+
         $pricePerNightEl    = $this->forms->formData->price_per_night_el;
+        $pricePerNightName  = $this->forms->getElementById($pricePerNightEl, 'name');
+
         $paymentAmountEl    = $this->forms->formData->payment_amount_el;
+        $paymentAmountName  = $this->forms->getElementById($paymentAmountEl, 'name');
 
         if(empty($pricePerNightEl)){
             return;
@@ -1613,7 +1694,7 @@ class Bookings{
             $nights     = $nights + $days;
         }
 
-        $pricePerNight      = $this->forms->submission->formresults[$pricePerNightEl];
+        $pricePerNight      = $this->forms->submission->formresults[$pricePerNightName];
         preg_match('/(.*?)([\d+|\.]+)/', "$pricePerNight", $matches);
         $amount             = $matches[2];
         $currency           = $matches[1];
@@ -1621,6 +1702,17 @@ class Bookings{
         // Formatted number
         $payable            = $currency.number_format($amount*$days, 2);
 
-        $this->forms->submission->formresults[$paymentAmountEl] = $payable;
+        $this->forms->submission->formresults[$paymentAmountName] = $payable;
+
+        // Update in db
+        $wpdb->update(
+            $this->forms->submissionTableName,
+            [
+                'formresults'   => serialize($this->forms->submission->formresults)
+            ],
+            array(
+                'id'		    => $this->forms->submission->id
+            ),
+        );
     }
 }

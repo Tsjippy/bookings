@@ -359,14 +359,14 @@ function elementHtml($html, $element, $object){
     }
 
     elseif($element->name == 'booking-room'){
-        $bookings   = new Bookings($object);
+        $bookings       = new Bookings($object);
 
         $bookingDetails = maybe_unserialize($element->booking_details);
 
         if(!isset($bookingDetails['subjects'])){
             return 'Please add one or more subjects';
         }else{
-            $subjects       = $bookingDetails['subjects'];
+            $subjects   = $bookingDetails['subjects'];
         }
 
         $elementName    = $object->getElementByType('booking_selector')[0]->name;
@@ -377,11 +377,7 @@ function elementHtml($html, $element, $object){
             }
         }
 
-        $radio  = false;
-        if(isset($_POST['oldvalue'])){
-            $radio  = true;
-        }
-        $html   .= $bookings->roomSelector($subject, true, $radio);
+        $html   .= $bookings->roomSelector($subject, true);
     }
 
     // Display existing form entry element element
@@ -394,8 +390,8 @@ function elementHtml($html, $element, $object){
         $startDate  = $object->submission->formresults['booking-startdate'];
         $endDate    = $object->submission->formresults['booking-enddate'];
 
-        if(isset($_POST['bookingid']) && is_numeric($_POST['bookingid'])){
-            $html   = str_replace('>', " data-bookingid='{$_POST['bookingid']}'>", $html);
+        if(isset($_POST['booking_id']) && is_numeric($_POST['booking_id'])){
+            $html   = str_replace('>', " data-booking_id='{$_POST['booking_id']}'>", $html);
         }
 
         if($element->name == 'booking-enddate'){

@@ -192,7 +192,7 @@ function cellOpeningTag($cellOpeningTag, $object, $columnSetting, $values){
         isset($object->submission->formresults['booking-id']) && 
         in_array($columnSetting['name'], ['booking-startdate', 'booking-enddate', 'booking-room'])
     ){
-        $cellOpeningTag .= " data-booking-id='{$object->submission->formresults['booking-id']}'";
+        $cellOpeningTag .= " data-booking_id='{$object->submission->formresults['booking-id']}'";
     }
     return $cellOpeningTag;
 }
