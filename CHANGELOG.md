@@ -9,6 +9,7 @@
 
 ### Fixed
 - payment selectors
+- payment updates
 
 ### Updated
 
