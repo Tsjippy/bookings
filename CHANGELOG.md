@@ -2,14 +2,21 @@
 ## [Unreleased] - yyyy-mm-dd
 
 ### Added
-- multipe booking managers
 
 ### Changed
 
 ### Fixed
-- change dates
 
 ### Updated
+
+## [8.0.8] - 2025-02-07
+
+
+### Added
+- multipe booking managers
+
+### Fixed
+- change dates
 
 ## [8.0.7] - 2025-02-03
 
