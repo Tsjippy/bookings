@@ -16,6 +16,7 @@ class Bookings{
     public $userRoles;
     public $managers;
     public $payables;
+    public $bookingElements;
 
     public function __construct($displayFormResults=''){
         global $wpdb;
@@ -23,7 +24,6 @@ class Bookings{
         $this->bookings         = [];
         $this->user             = wp_get_current_user();
         $this->userRoles	    = $this->user->roles;
-        $this->managers         = [];
         $this->payables         = [];
 
         if(getType($displayFormResults) == 'object'){
@@ -31,6 +31,9 @@ class Bookings{
         }else{
             $this->forms        = new SIM\FORMS\DisplayFormResults();
         }
+
+        // Load the managers
+        $this->getSubjectManagers();
 
         wp_enqueue_style( 'sim_bookings_style');
     }
@@ -133,7 +136,7 @@ class Bookings{
                 }
 
                 if($isResult){
-                    echo "Select the room$s you want to check<br>";
+                    echo "Select the room$s you want to see the calendar for<br>";
                 }else{
                     echo "First, select one or more room(s) you want to book:<br>";
                 }
@@ -625,15 +628,19 @@ class Bookings{
             $this->forms->parseSubmissions(null, $booking->submission_id);
             $bookingData    = $this->forms->submission->formresults;
 
+            $userIdElName   = $this->forms->findUserIdElementName();
+
+            $subject        = $bookingData[$this->bookingElements[0]->name];
+
             if(
+                // we are not the manager of this subject
+                !in_array($this->user, $this->managers[$subject]) &&
+                // we do not have permissions
                 !array_intersect($this->forms->userRoles, array_keys($this->forms->tableSettings['view_right_roles']))  &&      // we do not have the right to see others submissions
+                // This is not our own booking
                 (
-                    isset($bookingData['user_id'])                      &&
-                    $bookingData['user_id'] != $this->forms->user->ID
-                ) ||
-                (
-                    isset($bookingData['userid'])                      &&
-                    $bookingData['userid'] != $this->forms->user->ID
+                    isset($bookingData[$userIdElName])                      &&
+                    $bookingData[$userIdElName] != $this->forms->user->ID
                 )
             ){
                 // no right to see this
@@ -755,9 +762,18 @@ class Bookings{
      * Retrieve the subject data
      */
     public function getSubjectData(){
-        $elements   = $this->forms->getElementByType('booking_selector');
+        if(!empty($this->bookingElements)){
+            return $this->bookingElements;
+        }
 
-        foreach($elements as $element){
+        $this->bookingElements   = $this->forms->getElementByType('booking_selector');
+
+        if(is_wp_error($this->bookingElements)){
+            $this->bookingElements  = [];
+            return;
+        }
+
+        foreach($this->bookingElements as $element){
             $element->booking_details = maybe_unserialize($element->booking_details);
 
             if(!isset($element->booking_details['subjects'])){
@@ -765,7 +781,7 @@ class Bookings{
             }
         }
 
-        return $elements;
+        return $this->bookingElements;
     }
 
     /**
@@ -958,7 +974,7 @@ class Bookings{
         wp_schedule_single_event($start, 'send_booking_reminder_action', [$bookingId]);
     }
 
-        /**
+    /**
      * Validate a date change
      *
      * @param   object          $booking    The booking to validate
@@ -1037,7 +1053,7 @@ class Bookings{
     /**
      * Update the formresults of a booking
      *
-     * @param   object          $booking    The booking to validate
+     * @param   object          $booking    The booking to update
      * @param   array           $values     Values array
      */
     protected function updateBookingSubmission($booking, $values){
@@ -1069,8 +1085,6 @@ class Bookings{
                         $shouldUpdate   = true;
                         $formResults[$key][$_POST['subid']] = $value;
                     }
-
-                    $value  = $formResults[$key];
                 }
 
                 // value needs to be updated in the db
@@ -1082,15 +1096,30 @@ class Bookings{
         }
 
         if($shouldUpdate){
-            $wpdb->update(
-                $this->forms->submissionTableName,
-                [
-                    'formresults'   => serialize($formResults)
-                ],
-                array(
-                    'id'		=> $booking->submission_id
-                ),
-            );
+            $this->updateSubmissionData();
+        }
+    }
+
+    /**
+     * Updates the submission data of a booking
+     */
+    public function updateSubmissionData(){
+        global $wpdb;
+
+        $wpdb->update(
+            $this->forms->submissionTableName,
+            [
+                'formresults'   => serialize($this->forms->submission->formresults)
+            ],
+            array(
+                'id'		    => $this->forms->submission->id
+            ),
+        );
+
+        if(empty($wpdb->last_error)){
+            return true;
+        }else{
+            return $wpdb->last_error;
         }
     }
 
@@ -1277,8 +1306,9 @@ class Bookings{
      * Retrieve all the unpaid bookings
      *
      * @param   bool    $onlyFinished       True to only return bookings that are finished 
+     * @param   bool    $all                Whether to get unpaid bookings for the current user only. Default true;
      */
-    public function retrieveUnPaidBookings($onlyFinished){
+    public function retrieveUnPaidBookings($onlyFinished, $all=false){
         global $wpdb;
 
         $query	    = "SELECT * FROM $this->tableName WHERE (`paid` IS NULL OR `paid` = 0)";
@@ -1288,7 +1318,13 @@ class Bookings{
             $query	.= " AND enddate < '".date('Y-m-d')."'";
         }
 
-        $this->getSubjectManagers($this->user->ID, true);
+        if($all){
+            $userId = '';
+        }else{
+            $userId = $this->user->ID;
+        }
+
+        $this->getSubjectManagers($userId, true);
 
         if(empty($this->payables)){
             return [];
@@ -1315,7 +1351,7 @@ class Bookings{
      * @param   int $id         The booking id
      *
      * @return  object|false    The booking or false if not found
-    */
+     */
     public function getBookingById($id){
         global $wpdb;
 
@@ -1451,41 +1487,53 @@ class Bookings{
             return;
         }
 
+        if(is_numeric($userId)){
+            $this->managers['onlyfor']  = $userId;
+        }
+
         // get the booking selector element
         $els     = $this->getSubjectData();
         if(!$els || is_wp_error($els)){
             return;
         }
 
-        // find the subject
-        if($els[0]->booking_details && !empty($els[0]->bookingDetails['subjects'])){
-            $this->managers = [];
-            $this->payables = [];
+        $this->managers = [];
+        $this->payables = [];
 
-            foreach($els[0]->bookingDetails['subjects'] as $subject){
-                $managerIds  = $subject['managers'];
+        // loop over all booking selector elements of this form
+        foreach($els as $el){
+            // find the subject
+            if($el->booking_details && !empty($el->booking_details['subjects'])){
+                // Loop over all subjects
+                foreach($el->booking_details['subjects'] as $subject){
+                    $managerIds  = $subject['managers'];
 
-                foreach($managerIds as $managerId){
+                    // loop over all the managers of this subject
+                    foreach($managerIds as $managerId){
 
-                    if(!is_numeric($managerId)){
-                        continue;
-                    }
+                        if(!is_numeric($managerId)){
+                            continue;
+                        }
 
-                    // Check if this useraccount exists
-                    $manager    = get_userdata($managerId);
+                        // Check if this useraccount exists
+                        $manager    = get_userdata($managerId);
 
+                        // this manager is not the current user
+                        if(( is_numeric($userId) && $managerId != $userId) || !$manager ){
+                            continue;
+                        }
 
-                    if(( is_numeric($userId) && $managerId != $userId) || !$manager ){
-                        continue;
-                    }
+                        // create an empty array if needed for this subject 
+                        if(!is_array($this->managers[$subject['name'] ] )){
+                            $this->managers[$subject['name'] ]  = [];
+                        }
 
-                    if(!is_array($this->managers[$subject['name'] ] )){
-                        $this->managers[$subject['name'] ]  = [];
-                    }
-                    $this->managers[$subject['name'] ][]    = $manager;
+                        // add the manager to the subject
+                        $this->managers[$subject['name'] ][$manager->ID]    = $manager;
 
-                    if($subject['payments']){
-                        $this->payables[]   = $subject['name'];
+                        if($subject['payments']){
+                            $this->payables[]   = $subject['name'];
+                        }
                     }
                 }
             }
@@ -1574,7 +1622,7 @@ class Bookings{
                 }
 
                 // Find the e-mail
-                $emailElName        = $this->forms->findEmailNumberElementName();
+                $emailElName        = $this->forms->findEmailElementName();
                 if($emailElName){
                     $email          = $submission->formresults[$emailElName];
                 }
@@ -1618,11 +1666,6 @@ class Bookings{
      * @param   string  $type       One of approval or payment to show bookings that are pending approval or pending payment
      */
     public function pendingBookingsHtml($type='approval'){
-        // do not show if no permissions
-        if(!array_intersect(array_keys($this->forms->formData->full_right_roles), $this->forms->userRoles)){
-            return '';
-        }
-
         if($type == 'approval'){
             $bookings    = $this->retrievePendingBookings();
         }else{
@@ -1678,7 +1721,7 @@ class Bookings{
 
         ob_start();
 
-        $this->forms->theTable('pending', $submissions);
+        $this->forms->theTable('all', $submissions);
 
         $html   .= ob_get_clean();
 
@@ -1693,8 +1736,6 @@ class Bookings{
      * Calculate the total amount due after booking update
      */
     public function calculatePaymentAmount(){
-        global $wpdb;
-
         $pricePerNightEl    = $this->forms->formData->price_per_night_el;
         $pricePerNightName  = $this->forms->getElementById($pricePerNightEl, 'name');
 
@@ -1728,24 +1769,16 @@ class Bookings{
         }
 
         $pricePerNight      = $this->forms->submission->formresults[$pricePerNightName];
-        preg_match('/(.*?)([\d+|\.]+)/', "$pricePerNight", $matches);
+        preg_match('/(.*?)([\d+|\.|,]+)/', "$pricePerNight", $matches);
         $amount             = $matches[2];
         $currency           = $matches[1];
 
         // Formatted number
-        $payable            = $currency.number_format($amount*$days, 2);
+        $payable            = $currency.number_format(intval(str_replace(",","",$amount)) * $nights, 2);
 
         $this->forms->submission->formresults[$paymentAmountName] = $payable;
 
         // Update in db
-        $wpdb->update(
-            $this->forms->submissionTableName,
-            [
-                'formresults'   => serialize($this->forms->submission->formresults)
-            ],
-            array(
-                'id'		    => $this->forms->submission->id
-            ),
-        );
+        $this->updateSubmissionData();
     }
 }

@@ -34,7 +34,7 @@ function tableSettings($displayFormResults){
 }
 
 // give table view permissions if we are a subject manager
-add_filter('sim-table-view-permissions', __NAMESPACE__.'\changeTableViewPermissions', 10, 2);
+add_filter('sim-table-edit-permissions', __NAMESPACE__.'\changeTableViewPermissions', 10, 2);
 function changeTableViewPermissions($tableViewPermissions, $object){
     if($tableViewPermissions){
         return $tableViewPermissions;
@@ -42,8 +42,20 @@ function changeTableViewPermissions($tableViewPermissions, $object){
 
     $bookings       = new Bookings($object);
 
-    $subjects       = $bookings->getSubjectData();
+    // get all booking selectors
+    $elements       = $bookings->getSubjectData();
 
+    // Loop over all subjects
+    foreach($elements as $element){
+        foreach($element->booking_details['subjects'] as $subject){
+            // if we are the manager of one of the subjects
+            if(is_array($subject['managers']) && in_array($object->user->ID, $subject['managers'])){
+                return true;
+            }
+        }
+    }
+
+    return $tableViewPermissions;
 }
 
 // Display calendar instead of a table
@@ -87,11 +99,15 @@ function shouldShow($shouldShow, $displayFormResults, $type){
     if(!empty($_REQUEST['id'])){
         $bookings->forms->submission    = $bookings->forms->getSubmissions(null, $_REQUEST['id'])[0];
         $targetDate                     = strtotime($bookings->forms->submission->formresults['booking-startdate'][0]);
-        $elementName                    = $elements[0]->name;
-        $bookedSubject                  = $bookings->forms->submission->formresults[$elementName];
+        
+        foreach($elements as $element){
+            $elementName                    = $element->name;
+            if(isset($bookings->forms->submission->formresults[$elementName])){
+                $bookedSubject                  = $bookings->forms->submission->formresults[$elementName];
+                break;
+            }
+        }
     }
-
-    $bookings->getSubjectManagers($bookings->user->ID);
     
     $html   = '<div class="tables-wrapper">';
         if($type != 'others'){ // has already been rendered for own submissions if the type is others
@@ -100,27 +116,47 @@ function shouldShow($shouldShow, $displayFormResults, $type){
         }
 
         $calendars  = '';
-        $checkboxes = '<h4>Please select the accomodation you want to see the calendar for</h4>';
+        $subjects   = [];
 
         // Find the accomodation names
-        foreach($elements[0]->booking_details['subjects'] as $subject){
+        foreach($elements as $element){
+            foreach($element->booking_details['subjects'] as $subject){
+                // Only show the subjects we are manager of
+                if(!is_array($subject['managers']) || !in_array($bookings->user->ID, $subject['managers'])){
+                    continue;
+                }
+
+                $subjects[]   = $subject;
+            }
+        }
+
+        // Only show subject selection if there is something to choose
+        if(count($subjects) > 1){
+            $checkboxes = '<h4>Please select the accomodation you want to see the calendar for</h4>';
+        }
+
+        foreach($subjects as $subject){
             $bookings->bookings  = [];   // reset the bookings so they do not include the previous location
 
             $checked    = '';
             $hidden     = true;
-            if($subject['name'] == $bookedSubject){
+            if($subject['name'] == $bookedSubject || count($subjects) == 1){
                 $checked    = 'checked';
                 $hidden     = false;
             }
 
             $cleanSubject   = trim($subject['name']);
-            $checkboxes .= "<label>";
-                $checkboxes .= "<input type='checkbox' class='admin-booking-subject-selector' value='$cleanSubject' $checked>";
-                $checkboxes .= $cleanSubject;
-            $checkboxes .= "</label>";
+
+            if(count($subjects) > 1){
+                $checkboxes .= "<label>";
+                    $checkboxes .= "<input type='checkbox' class='admin-booking-subject-selector' value='$cleanSubject' $checked>";
+                    $checkboxes .= $cleanSubject;
+                $checkboxes .= "</label>";
+            }
 
             $calendars  .= $bookings->modalContent($subject, $targetDate, true, $hidden, true);
         }
+
         $html   .= '<div class="form-data-table">';
             $html   .= $checkboxes;
             $html   .= $calendars;
@@ -201,6 +237,19 @@ function cellOpeningTag($cellOpeningTag, $object, $columnSetting, $values){
         in_array($columnSetting['name'], ['booking-startdate', 'booking-enddate', 'booking-room'])
     ){
         $cellOpeningTag .= " data-booking_id='{$object->submission->formresults['booking-id']}'";
+
+        $bookings       = new Bookings($object);
+
+        $booking        = $bookings->getBookingById($object->submission->formresults['booking-id']);
+
+        $room           = '';
+        $exploded       = explode(';', $booking->subject);
+        if(!empty($exploded[1])){
+            $room   = $exploded[1];
+        }
+
+        $cellOpeningTag  = preg_replace("/data-subid='[0-9]+'/", "data-subid='$room'", $cellOpeningTag);
     }
+
     return $cellOpeningTag;
 }

@@ -5,13 +5,9 @@ use SIM\ADMIN;
 
 class BookingEmail extends ADMIN\MailSetting{
 
-    public $user;
-
-    public function __construct($user, object $booking) {
+    public function __construct(object $booking) {
         // call parent constructor
 		parent::__construct('payment_reminder', MODULE_SLUG);
-
-        $this->addUser($user);
 
         if(isset($booking->submission_id)){
             $displayFormResults                     = new SIM\FORMS\DisplayFormResults();
@@ -19,6 +15,11 @@ class BookingEmail extends ADMIN\MailSetting{
 
             // Load the formdata for this form
             $displayFormResults->getForm($displayFormResults->submission->form_id);
+
+            $name                                           = $displayFormResults->findUserNameElementName();
+            if($name){
+                $this->replaceArray['%name%']               = $displayFormResults->submission->formresults[$name];
+            }
 
             $amountName                                     = $displayFormResults->getElementById('payment_amount_el');
             if($amountName){
@@ -35,8 +36,7 @@ class BookingEmail extends ADMIN\MailSetting{
                 $this->replaceArray['%price_per_night_el%'] = $displayFormResults->submission->formresults[$pricePerNightName];
             }
         }
-
-        $this->replaceArray['%first_name%']     = $user->first_name;   
+  
         $this->replaceArray['%id%']             = $booking->id;  
         $this->replaceArray['%accomodation%']   = $booking->accomodation;
         $this->replaceArray['%startdate%']      = $booking->startdate; 
@@ -44,7 +44,7 @@ class BookingEmail extends ADMIN\MailSetting{
 
         $this->defaultSubject    = "Please pay for your booking with id %id%";
 
-        $this->defaultMessage    = 'Hi %first_name%,<br><br>';
+        $this->defaultMessage    = 'Hi %name%,<br><br>';
 		$this->defaultMessage   .= "Our records show you have not yet paid the amount of %payable% for your booking of %accomodation% from %startdate% till %enddate%.<br>";
 		$this->defaultMessage 	.= 'Please do so immidiately.<br>';
         $this->defaultMessage 	.= '<b>Payment Details</b><br>';

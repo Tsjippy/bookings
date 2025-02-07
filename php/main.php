@@ -62,15 +62,30 @@ function afterSavingFormData($message, $formBuilder){
         $bookings       = new Bookings($formBuilder);
 
         foreach($elements as $element){
-            $startDate      = $formBuilder->submission->formresults['booking-startdate'];
-            $endDate        = $formBuilder->submission->formresults['booking-enddate'];
-            $subject        = $formBuilder->submission->formresults[$element->name];
-            $submissionId   = $formBuilder->submission->formresults['id'];
+            $startDate      = $bookings->forms->submission->formresults['booking-startdate'];
+            $endDate        = $bookings->forms->submission->formresults['booking-enddate'];
+            $subject        = $bookings->forms->submission->formresults[$element->name];
+            $submissionId   = $bookings->forms->submission->formresults['id'];
 
-            if(!empty($formBuilder->submission->formresults['booking-room'])){
-                foreach($formBuilder->submission->formresults['booking-room'] as $index=>$room){
-                    $result         = $bookings->insertBooking($startDate[$index], $endDate[$index], "$subject;$room", $submissionId);
+            if(!empty($bookings->forms->submission->formresults['booking-room'])){
+                $startDates = [];
+                $endDates   = [];
+
+                foreach($bookings->forms->submission->formresults['booking-room'] as $index=>$room){
+                    // Create a booking for this room
+                    $result     = $bookings->insertBooking($startDate[$index], $endDate[$index], "$subject;$room", $submissionId);
+
+                    // use the room name as index for the dates
+                    $startDates[$room]  = $startDate[$index];
+                    $endDates[$room]    = $endDate[$index];
                 }
+
+                // Store dates indexed by room
+                $bookings->forms->submission->formresults['booking-startdate']  = $startDates;
+                $bookings->forms->submission->formresults['booking-enddate']    = $endDates;
+
+                // update in db
+                $bookings->updateSubmissionData();
             }else{
                 $result         = $bookings->insertBooking($startDate[0], $endDate[0], $subject, $submissionId);
             }
@@ -89,127 +104,170 @@ function afterSavingFormData($message, $formBuilder){
 // Update an existing booking
 add_filter('sim-forms-submission-updated', __NAMESPACE__.'\onSubmissionUpdate', 10, 5);
 function onSubmissionUpdate($message, $formTable, $elementName, $oldValue, $newValue){
-    $element    =  $formTable->getElementByName($elementName);
     $bookings   =  new Bookings($formTable);
+    $element    =  $bookings->forms->getElementByName($elementName);
 
-    // Change payment status
-    if($formTable->formData->payment_indicator  == $element->id){
-        // Mark as paid
-        foreach($bookings->getBookingsBySubmission($formTable->submission->id) as $b){
-            $bookings->updateBooking($b, ['paid' => 1]);
-
-            do_action('sim-booking-paid', $b, $bookings, $element);
-        }
-    }
-
-    // Update the payable amount
-    if(
-        in_array($elementName, ['booking-startdate', 'booking-enddate']) || // We are dealing with start or end date,
-        $element->id == $formTable->formData->price_per_night_el ||         // change or night price
-        $elementName == 'booking-room'                                              // or change in #rooms
-    ){
-        // calculate payable
-        $bookings->calculatePaymentAmount();
-    }
-
-    // Subject changed
-    $subject    = $formTable->getElementByType('booking_selector');
-    if(!$subject){
+    // Get the subject
+    $elements    = $bookings->forms->getElementByType('booking_selector');
+    if(!$elements){
         return $message;
     }
-    $subject    = $subject[0]->name;
+    $subject            = $elements[0]->name;
 
-    // location and date & time are editable
-    if(!in_array($elementName, ['booking-startdate', 'booking-enddate', 'startime', 'endtime', $subject, 'booking-room'])){
+    $currentBookings    = $bookings->getBookingsBySubmission($bookings->forms->submission->id);
+    if(!$currentBookings || !isset($currentBookings[0])){
         return $message;
     }
-
-    $elementName        = str_replace('booking-', '', $elementName);
-    
-    $currentBookings    = $bookings->getBookingsBySubmission($formTable->submission->id);
-
     if(isset($_POST['booking_id']) && is_numeric($_POST['booking_id'])){
-        foreach($currentBookings as $index=>$booking){
+        foreach($currentBookings as $booking){
             if($booking->id == $_POST['booking_id']){
+                $currentBooking  = $booking;
                 break;
             }
         }
     }else{
-        if(!$currentBookings || !isset($currentBookings[0])){
-            return $message;
-        }
-
-        $booking    = $currentBookings[0];
-
-        $index      = 0;
+        $currentBooking    = $currentBookings[0];
     }
 
+    $elementName        = str_replace('booking-', '', $elementName);
     // change the $elementName to subject as that is the name of the column in the db
     if($subject == $elementName){
         $elementName  = 'subject';
     }
 
-    // multiple rooms and bookings
-    if($elementName == 'room'){
-        if(is_string($newValue) && str_contains($newValue, ';')){
-            $newValue   = explode(';', $newValue);
-        }
-        
-        $baseSubject= explode(';', $booking->subject)[0];
+    // Change to paid / unpaid
+    changePaymentStatus($bookings, $newValue, $element, $currentBookings);
 
-        $oldMessage = implode('&', $oldValue);
-        $newMessage = implode('&', $newValue);
+    // Add or remove bookings
+    $message    = updateRooms($message, $elementName, $oldValue, $newValue, $currentBooking, $currentBookings, $bookings);
 
-        $message    = str_replace($oldMessage, $newMessage, $message);
-
-        $deleted    = array_diff($oldValue, $newValue);
-        $added      = array_diff($newValue, $oldValue);
-
-        // we changed a room
-        if(count($oldValue) == count($newValue)){
-            $deleted    = [];
-            $added      = [];
-
-            foreach($oldValue as $i=>$oldRoom){
-                $newRoom    = $newValue[$i];
-
-                $oldSubject = "$baseSubject;$oldRoom";
-
-                // Find the booking for this room
-                foreach($currentBookings as $b){
-                    if($oldSubject == $b->subject){
-                        $newSubject = "$baseSubject;$newRoom";
-                        $result     = $bookings->updateBooking($b, ['subject' => $newSubject]);
-                        break;
-                    }
-                }
-            }
-        }
-
-        // remove any removed bookings
-        if(!empty($deleted)){
-            foreach($currentBookings as $booking){
-                // if this is the booking for the room
-                if(in_array(explode(';', $booking->subject)[1], $deleted)){
-                    // Delete the booking
-                    $result = $bookings->removeBooking($booking);
-                }
-            }
-        }
-
-        // add new ones
-        foreach($added as $room){
-            $result = $bookings->insertBooking($booking->startdate, $booking->enddate, $baseSubject.';'.$room, $formTable->submission->id);
-        }
-
-        $formTable->submission->formresults['booking-room'] = array_values($newValue);
-    }else{
+    // location and date & time are editable
+    if(in_array($elementName, ['startdate', 'enddate', 'startime', 'endtime', 'subject'])){
         // update the booking
-        $result = $bookings->updateBooking($booking, [$elementName => $newValue]);
+        $result = $bookings->updateBooking($currentBooking, [$elementName => $newValue]);
+        if(is_wp_error($result)){
+            return $result;
+        }
     }
 
-    if(is_wp_error($result)){
-        return $result;
+    // Update the payable amount
+    updatePayable($elementName, $bookings, $element);
+
+    return $message;
+}
+
+function updatePayable($elementName, $bookings, $element){
+    if(
+        in_array($elementName, ['startdate', 'enddate', 'room']) || // We are dealing with a room change or a start or end date,
+        $element->id == $bookings->forms->formData->price_per_night_el   // change in night price
+    ){
+        // calculate payable
+        $bookings->calculatePaymentAmount();
+    }
+}
+
+function changePaymentStatus($bookings, $newValue, $element, $currentBookings){
+    // Change payment status
+    if($bookings->forms->formData->payment_indicator != $element->id){
+        return;
+    }
+
+    if($newValue == 'not paid'){
+        $paid   = 0;
+    }else{
+        $paid   = 1;
+    }
+
+    // Mark as paid
+    foreach($currentBookings as $b){
+        $bookings->updateBooking($b, ['paid' => $paid]);
+
+        do_action('sim-booking-paid', $b, $bookings, $element, $newValue);
+    }
+}
+
+function updateRooms($message, $elementName, $oldValue, $newValue, $booking, $currentBookings, $bookings){
+    if($elementName != 'room'){
+        return $message;
+    }
+
+    if(is_string($newValue) && str_contains($newValue, ';')){
+        $newValue   = explode(';', $newValue);
+    }
+    
+    $baseSubject= explode(';', $booking->subject)[0];
+
+    $oldMessage = implode('&', $oldValue);
+    $newMessage = implode('&', $newValue);
+    $replace2   = implode('<br>', $newValue);
+
+    $message    = str_replace($replace2, $newMessage, $message, $count);
+    if($count < 1){
+        $message    = str_replace($oldMessage, $newMessage, $message);
+    }
+
+    $deleted    = array_diff($oldValue, $newValue);
+    $added      = array_diff($newValue, $oldValue);
+
+    // we changed a room
+    if(count($oldValue) == count($newValue)){
+        $deleted    = [];
+        $added      = [];
+
+        foreach($oldValue as $i=>$oldRoom){
+            $newRoom    = $newValue[$i];
+
+            $oldSubject = "$baseSubject;$oldRoom";
+
+            // Find the booking for this room
+            foreach($currentBookings as $b){
+                if($oldSubject == $b->subject){
+                    $newSubject = "$baseSubject;$newRoom";
+                    $result     = $bookings->updateBooking($b, ['subject' => $newSubject]);
+                    break;
+                }
+            }
+        }
+    }
+
+    // remove any removed bookings
+    if(!empty($deleted)){
+        foreach($currentBookings as $booking){
+            $room   = explode(';', $booking->subject)[1];
+            // if this is the booking for the room
+            if(in_array($room, $deleted)){
+                // Delete the booking
+                $result = $bookings->removeBooking($booking);
+
+                // Delete the dates
+                unset($bookings->forms->submission->formresults['booking-startdate'][$room]);
+                unset($bookings->forms->submission->formresults['booking-enddate'][$room]);
+            }
+        }
+
+        // Update the room
+        $bookings->forms->submission->formresults['booking-room']         = array_values($newValue);
+
+        // Update in db
+        $bookings->updateSubmissionData();
+    }
+
+    // add new ones
+    if(!empty($added)){
+        foreach($added as $room){
+            //Insert the new booking
+            $result = $bookings->insertBooking($booking->startdate, $booking->enddate, $baseSubject.';'.$room, $bookings->forms->submission->id);
+
+            // Add the new dates
+            $bookings->forms->submission->formresults['booking-startdate'][$room]  = $booking->startdate;
+            $bookings->forms->submission->formresults['booking-enddate'][$room]    = $booking->enddate;
+        }
+
+        // Update the room
+        $bookings->forms->submission->formresults['booking-room']         = array_values($newValue);
+
+        // Update in db
+        $bookings->updateSubmissionData();
     }
 
     return $message;

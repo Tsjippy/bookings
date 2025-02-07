@@ -384,14 +384,27 @@ function elementHtml($html, $element, $object){
     }
 
     // Display existing form entry element element
-    elseif(!empty(object->submission)){
+    elseif(!empty($object->submission)){
         global $wpdb;
 
         // Get the subject
         $subject    = $object->submission->formresults[$object->getElementByType('booking_selector')[0]->name];
             
-        $startDate  = $object->submission->formresults['booking-startdate'];
-        $endDate    = $object->submission->formresults['booking-enddate'];
+        $startDates = $object->submission->formresults['booking-startdate'];
+        $endDates   = $object->submission->formresults['booking-enddate'];
+
+        $early      = array_values($startDates)[0];
+        $late       = array_values($endDates)[0];
+
+        foreach($startDates as $index=>$date){
+            if($date < $early){
+                $early  = $date;
+            }
+
+            if($endDates[$index] > $late){
+                $late   = $endDates[$index];
+            }
+        }
 
         if(isset($_POST['booking_id']) && is_numeric($_POST['booking_id'])){
             $html   = str_replace('>', " data-booking_id='{$_POST['booking_id']}'>", $html);
@@ -399,27 +412,24 @@ function elementHtml($html, $element, $object){
 
         if($element->name == 'booking-enddate'){
             // get the first event after this one
-            $query  = "SELECT startdate FROM {$wpdb->prefix}sim_bookings WHERE subject = '$subject' AND startdate > '{$endDate[0]}' ORDER BY startdate LIMIT 1";
+            $query  = "SELECT startdate FROM {$wpdb->prefix}sim_bookings WHERE subject = '$subject' AND startdate > '$late' ORDER BY startdate LIMIT 1";
             $max    = $wpdb->get_var($query);
 
             if(!empty($max)){
                 $max    = "max='$max'";
             }
 
-            $min    = "min='$startDate'";
+            $min    = "min='$early'";
         }elseif($element->name == 'booking-startdate'){
             // get the first event before this one
-            $query  = "SELECT enddate FROM {$wpdb->prefix}sim_bookings WHERE subject = '$subject' AND enddate <= '{$startDate[0]}' ORDER BY enddate LIMIT 1";
+            $query  = "SELECT enddate FROM {$wpdb->prefix}sim_bookings WHERE subject = '$subject' AND enddate <= '$early' ORDER BY enddate LIMIT 1";
             $min    = $wpdb->get_var($query);
 
             if(!empty($min)){
                 $min    = "min='$min'";
             }
 
-            $max    = $endDate;
-            if(is_array($max)){
-                $max    = $max[0];
-            }
+            $max    = $late;
         }else{
             return $html;
         }
@@ -483,7 +493,7 @@ function formElementUpdated($element, $instance, $oldElement){
         // If we enable payments
         if($newPayments[$index] && $old != $newPayments[$index]){
             // mark old bookings as paid
-            foreach($bookings->retrieveUnPaidBookings(true) as $unpaidBooking){
+            foreach($bookings->retrieveUnPaidBookings(true, true) as $unpaidBooking){
                 $bookings->updateBooking($unpaidBooking, ['paid' => 1]);
             }
         }

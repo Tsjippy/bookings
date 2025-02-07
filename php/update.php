@@ -11,7 +11,7 @@ function pluginUpdate($oldVersion){
 
     $bookings = new Bookings();
 
-    if($oldVersion < '8.0.7'){
+    if($oldVersion < '8.1.0'){
         maybe_add_column($bookings->tableName, 'paid', "ALTER TABLE $bookings->tableName ADD COLUMN `paid` BOOL");
 
         SIM\printArray("Added 'paid' column to '$bookings->tableName' table");

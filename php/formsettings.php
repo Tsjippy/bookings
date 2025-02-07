@@ -9,15 +9,14 @@ function extraFormSettings($object){
     <h4>Payment Indicator Element</h4>
     <select name="payment_indicator">
         <?php
+        foreach($object->formElements as $element){
             $checked    = '';
-
-            foreach($object->formElements as $element){
-                if($checked == '' && $object->formData->payment_indicator == $element->id){
-                    $checked = 'selected';
-                }
-
-                echo "<option value='$element->id' $checked>$element->nicename</option>";
+            if($checked == '' && $object->formData->payment_indicator == $element->id){
+                $checked = 'selected';
             }
+
+            echo "<option value='$element->id' $checked>$element->nicename</option>";
+        }
         ?>
     </select>
 
@@ -25,15 +24,14 @@ function extraFormSettings($object){
     <h4>Payment Amount Element</h4>
     <select name="payment_amount_el">
         <?php
+        foreach($object->formElements as $element){
             $checked    = '';
-
-            foreach($object->formElements as $element){
-                if($checked == '' && $object->formData->payment_amount_el == $element->id){
-                    $checked = 'selected';
-                }
-
-                echo "<option value='$element->id' $checked>$element->nicename</option>";
+            if($checked == '' && $object->formData->payment_amount_el == $element->id){
+                $checked = 'selected';
             }
+
+            echo "<option value='$element->id' $checked>$element->nicename</option>";
+        }
         ?>
     </select>
 
@@ -41,15 +39,14 @@ function extraFormSettings($object){
     <h4>Payment Details Element</h4>
     <select name="payment_details_el">
         <?php
+        foreach($object->formElements as $element){
             $checked    = '';
-
-            foreach($object->formElements as $element){
-                if($checked == '' && $object->formData->payment_details_el == $element->id){
-                    $checked = 'selected';
-                }
-
-                echo "<option value='$element->id' $checked>$element->nicename</option>";
+            if($checked == '' && $object->formData->payment_details_el == $element->id){
+                $checked = 'selected';
             }
+
+            echo "<option value='$element->id' $checked>$element->nicename</option>";
+        }
         ?>
     </select>
 
@@ -57,15 +54,14 @@ function extraFormSettings($object){
     <h4>Price Per Night Element</h4>
     <select name="price_per_night_el">
         <?php
+        foreach($object->formElements as $element){
             $checked    = '';
-
-            foreach($object->formElements as $element){
-                if($checked == '' && $object->formData->price_per_night_el == $element->id){
-                    $checked = 'selected';
-                }
-
-                echo "<option value='$element->id' $checked>$element->nicename</option>";
+            if($checked == '' && $object->formData->price_per_night_el == $element->id){
+                $checked = 'selected';
             }
+
+            echo "<option value='$element->id' $checked>$element->nicename</option>";
+        }
         ?>
     </select>
     <?php
