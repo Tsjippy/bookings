@@ -5,16 +5,21 @@ use SIM;
 // check if a booking request is ok
 add_filter('sim_before_saving_formdata', __NAMESPACE__.'\beforeSavingFormData', 99, 2);
 function beforeSavingFormData($formResults, $object){
-    // find the subject
-    $elements       = $object->getElementByType('booking_selector');
+    $bookings                   = new Bookings($object);
 
-    if(empty($elements)){
+    // find the subject
+    $elements             = $bookings->getSubjectData();
+    if(is_wp_error($elements)){
+        return $elements;
+    }
+
+    if(empty(!$elements)){
         return $formResults;
     }
 
     // loop over all booking selectors (usually one)
     foreach($elements as $element){
-        $bookingDetails = unserialize($element->booking_details);
+        $bookingDetails = $element->booking_details;
         $subjectName    = $formResults[$element->name];
 
         // somehow we do not have any data
@@ -92,6 +97,8 @@ function onSubmissionUpdate($message, $formTable, $elementName, $oldValue, $newV
         // Mark as paid
         foreach($bookings->getBookingsBySubmission($formTable->submission->id) as $b){
             $bookings->updateBooking($b, ['paid' => 1]);
+
+            do_action('sim-booking-paid', $b, $bookings, $element);
         }
     }
 

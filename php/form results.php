@@ -33,6 +33,19 @@ function tableSettings($displayFormResults){
     <?php
 }
 
+// give table view permissions if we are a subject manager
+add_filter('sim-table-view-permissions', __NAMESPACE__.'\changeTableViewPermissions', 10, 2);
+function changeTableViewPermissions($tableViewPermissions, $object){
+    if($tableViewPermissions){
+        return $tableViewPermissions;
+    }
+
+    $bookings       = new Bookings($object);
+
+    $subjects       = $bookings->getSubjectData();
+
+}
+
 // Display calendar instead of a table
 add_filter('sim-formstable-should-show', __NAMESPACE__.'\shouldShow', 10, 3);
 function shouldShow($shouldShow, $displayFormResults, $type){
@@ -61,18 +74,11 @@ function shouldShow($shouldShow, $displayFormResults, $type){
     // display the calendar instead of the table
     wp_enqueue_script('sim-bookings');
 
-    $bookings    = new Bookings($displayFormResults);
+    $bookings                   = new Bookings($displayFormResults);
 
-    $elements   = $displayFormResults->getElementByType('booking_selector');
-
-    foreach($elements as $element){
-        $bookingDetails = maybe_unserialize($element->booking_details);
-
-        if(!isset($bookingDetails['subjects'])){
-            return 'Please add one or more booking subjects';
-        }else{
-            $subjects       = $bookingDetails['subjects'];
-        }
+    $elements                   = $bookings->getSubjectData();
+    if(is_wp_error($elements)){
+        return $elements;
     }
 
     $targetDate                 = time();
@@ -81,9 +87,11 @@ function shouldShow($shouldShow, $displayFormResults, $type){
     if(!empty($_REQUEST['id'])){
         $bookings->forms->submission    = $bookings->forms->getSubmissions(null, $_REQUEST['id'])[0];
         $targetDate                     = strtotime($bookings->forms->submission->formresults['booking-startdate'][0]);
-        $elementName                    = $bookings->forms->getElementByType('booking_selector')[0]->name;
+        $elementName                    = $elements[0]->name;
         $bookedSubject                  = $bookings->forms->submission->formresults[$elementName];
     }
+
+    $bookings->getSubjectManagers($bookings->user->ID);
     
     $html   = '<div class="tables-wrapper">';
         if($type != 'others'){ // has already been rendered for own submissions if the type is others
@@ -95,7 +103,7 @@ function shouldShow($shouldShow, $displayFormResults, $type){
         $checkboxes = '<h4>Please select the accomodation you want to see the calendar for</h4>';
 
         // Find the accomodation names
-        foreach($subjects as $subject){
+        foreach($elements[0]->booking_details['subjects'] as $subject){
             $bookings->bookings  = [];   // reset the bookings so they do not include the previous location
 
             $checked    = '';

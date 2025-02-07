@@ -29,15 +29,6 @@ function moduleUpdated($newOptions, $moduleSlug){
 	$bookings	= new Bookings();
 	$bookings->createBookingsTable();
 
-	// Add booking manager role
-	if(!wp_roles()->is_role( 'bookingmanager' )){
-		add_role(
-			'bookingmanager',
-			'Booking manager',
-			get_role( 'contributor' )->capabilities
-		);
-	}
-
 	// Add columns to forms element table
 	$forms	= new SIM\FORMS\SimForms();
 
@@ -59,15 +50,6 @@ function moduleUpdated($newOptions, $moduleSlug){
 	}
 
 	return $newOptions;
-}
-
-add_filter('sim_role_description', __NAMESPACE__.'\roleDescription', 10, 2);
-function roleDescription($description, $role){
-    if($role == 'bookingmanager'){
-        return 'Someone who can manage accomodation bookings';
-    }
-	
-    return $description;
 }
 
 add_filter('sim_submenu_options', __NAMESPACE__.'\moduleOptions', 10, 4);

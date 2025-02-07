@@ -3,6 +3,7 @@ namespace SIM\BOOKINGS;
 use SIM;
 use SIM\EVENTS;
 use SIM\FORMS;
+use WP_Error;
 
 class Bookings{
     public $tableName;
@@ -751,6 +752,23 @@ class Bookings{
     }
 
     /**
+     * Retrieve the subject data
+     */
+    public function getSubjectData(){
+        $elements   = $this->forms->getElementByType('booking_selector');
+
+        foreach($elements as $element){
+            $element->booking_details = maybe_unserialize($element->booking_details);
+
+            if(!isset($element->booking_details['subjects'])){
+                return new WP_Error('no subject', 'Please add one or more booking subjects');
+            }
+        }
+
+        return $elements;
+    }
+
+    /**
      * Check if a booking overlaps another booking
      *
      * @param   int     $startDate      The startdate epoch of a booking
@@ -776,13 +794,13 @@ class Bookings{
         $baseSubject        = explode(';', $subject)[0];
         $overlap            = false;
 
-        $bookingEl          = $this->forms->getElementByType('booking_selector');
+        $bookingEls          = $this->getSubjectData();
 
-        if(is_wp_error($bookingEl)){
-            return $bookingEl;
+        if(is_wp_error($bookingEls)){
+            return $bookingEls;
         }
 
-        $bookingDetails     = maybe_unserialize($bookingEl[0]->booking_details);
+        $bookingDetails     = $bookingEls[0]->booking_details;
         if(!empty($bookingDetails) && is_array($bookingDetails['subjects'])){
             foreach($bookingDetails['subjects'] as $detail){
                 if(
@@ -821,14 +839,12 @@ class Bookings{
      * @return  bool                true if is should be pending, false otherwise
      */
     public function checkPending($user, $subject){
-        $el = $this->forms->getElementByType('booking_selector');
-        if(!$el){
+        $els = $this->getSubjectData();
+        if(!$els){
             return true;
         }
 
-        $elSettings    = maybe_unserialize($el[0]->booking_details);
-
-        foreach($elSettings['subjects'] as $subjectSettings){
+        foreach($els[0]->booking_details['subjects'] as $subjectSettings){
             if(!str_contains($subject, $subjectSettings['name'])){
                 continue;
             }
@@ -933,7 +949,7 @@ class Bookings{
 
 		$bookingId   = $wpdb->insert_id;
 
-		//Create an booking warning for the owner and the manager
+		//Create an booking warning for the owner and the managers
         $start	= new \DateTime($event['startdate'].' '.$event['starttime'], new \DateTimeZone(wp_timezone_string()));
 
         //Warn 1 day in advance
@@ -1335,7 +1351,7 @@ class Bookings{
     }
 
     /**
-     * Sends a reminder to the owner of a booking and to the manager 
+     * Sends a reminder to the owner of a booking and to the managers
      *
      * @param   int     $bookingId  The id of a booking
      */
@@ -1392,7 +1408,8 @@ class Bookings{
                 SIM\printArray("No manager found for $accommodation");
                 return;
             }
-            $manager    = $this->managers[$accommodation];
+
+            $managers    = (array) $this->managers[$accommodation];
 
             $user       = get_userdata($userId);
             if($user){
@@ -1403,8 +1420,9 @@ class Bookings{
                 $name       = '';
             }
             
-            SIM\trySendSignal("Just a reminder about tommorows booking for $accommodationString $name ", $manager);
-        
+            foreach($managers as $manager){
+                SIM\trySendSignal("Just a reminder about tommorows booking for $accommodationString $name ", $manager);
+            }        
         }
     }
 
@@ -1434,26 +1452,41 @@ class Bookings{
         }
 
         // get the booking selector element
-        $bookingDetails     = maybe_unserialize($this->forms->getElementByType('booking_selector')[0]->booking_details);
+        $els     = $this->getSubjectData();
+        if(!$els || is_wp_error($els)){
+            return;
+        }
 
         // find the subject
-        if($bookingDetails && !empty($bookingDetails['subjects'])){
+        if($els[0]->booking_details && !empty($els[0]->bookingDetails['subjects'])){
             $this->managers = [];
             $this->payables = [];
 
-            foreach($bookingDetails['subjects'] as $subject){
-                $managerId  = $subject['manager'];
+            foreach($els[0]->bookingDetails['subjects'] as $subject){
+                $managerIds  = $subject['managers'];
 
-                $manager    = get_userdata($managerId);
+                foreach($managerIds as $managerId){
 
-                if(( is_numeric($userId) && $managerId != $userId) || !$manager ){
-                    continue;
-                }
+                    if(!is_numeric($managerId)){
+                        continue;
+                    }
 
-                $this->managers[$subject['name'] ]    = $manager;
+                    // Check if this useraccount exists
+                    $manager    = get_userdata($managerId);
 
-                if($subject['payments']){
-                    $this->payables[]   = $subject['name'];
+
+                    if(( is_numeric($userId) && $managerId != $userId) || !$manager ){
+                        continue;
+                    }
+
+                    if(!is_array($this->managers[$subject['name'] ] )){
+                        $this->managers[$subject['name'] ]  = [];
+                    }
+                    $this->managers[$subject['name'] ][]    = $manager;
+
+                    if($subject['payments']){
+                        $this->payables[]   = $subject['name'];
+                    }
                 }
             }
         }
@@ -1479,17 +1512,17 @@ class Bookings{
             // Load the form
             $this->forms->getForm($submission->form_id);
 
-            $bookingDetails = maybe_unserialize($this->forms->getElementByType('booking_selector')[0]->booking_details);
+            $el = $this->getSubjectData()[0];
 
             $exploded       = explode(';', $booking->subject);
             $accommodation  = $exploded[0];
 
             // check if payment is enabled for this subject
-            foreach($bookingDetails['subjects'] as $subject){
+            foreach($el->booking_details['subjects'] as $subject){
                 // this is the current subject
                 if($subject['name'] == $accommodation){
                     if(!$subject['payments']){
-                        // do not continue
+                        // do not continue if disabled
                         continue 2;
                     }
 
@@ -1558,11 +1591,11 @@ class Bookings{
             }
 
             // Send an e-mail
-            $email    = new BookingEmail($user, $booking);
-            $email->filterMail();
+            $bookingEmail    = new BookingEmail($user, $booking);
+            $bookingEmail->filterMail();
                 
-            $subject        = $email->subject;
-            $message        = $email->message;
+            $subject        = $bookingEmail->subject;
+            $message        = $bookingEmail->message;
 
             wp_mail( $email, $subject, $message);
         }

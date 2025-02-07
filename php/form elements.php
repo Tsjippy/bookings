@@ -51,13 +51,16 @@ function addFormElementOptions($element){
                     ?>
                     <div class="clone_div" data-divid="<?php echo $index;?>" style='display: flex;'>
                         <label name="Subject" class=" formfield formfieldlabel" style='width: auto;margin-right: 20px;'>
-                            <h4 class="labeltext">Subject <?php echo $index+1;?></h4>
-                            <h5 style='margin-bottom:2px;'><strong>Name</bold></strong>
+                            <h4 class="labeltext">Subject <?php echo $index + 1;?></h4>
+
+                            <h5 style='margin-bottom:2px;'><strong>Name</strong></h5>
                             <input type="text" name="formfield[booking_details][subjects][<?php echo $index;?>][name]" id="subjects" class=" formfield formfieldinput" value="<?php echo $subject['name'];?>" placeholder="Enter subject name" style='width: unset;'>
-                            <h5 style='margin-bottom:2px;'><strong>Manager</strong></h5>
+                            
+                            <h5 style='margin-bottom:2px;'><strong>Manager(s)</strong></h5>
                             <?php
-                            echo SIM\userSelect('', false, false, '', "formfield[booking_details][subjects][$index][manager]", [], $subject['manager']);
+                            echo SIM\userSelect('', false, false, '', "formfield[booking_details][subjects][$index][managers][]", [], $subject['managers'], [], 'select', '', true);
                             ?>
+
                             <h5 style='margin-bottom:2px;'><strong>Enable Payments</strong></h5>
                             <div class="infobox" name="info">
                                 <div>
