@@ -7,6 +7,7 @@
 ### Changed
 
 ### Fixed
+- placeholders in payment reminder e-mail
 
 ### Updated
 
