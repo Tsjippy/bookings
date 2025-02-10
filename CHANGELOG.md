@@ -2,6 +2,7 @@
 ## [Unreleased] - yyyy-mm-dd
 
 ### Added
+- sim-bookings-should-not-send-payment-reminder filter
 
 ### Changed
 
