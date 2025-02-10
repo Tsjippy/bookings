@@ -2,6 +2,17 @@
 ## [Unreleased] - yyyy-mm-dd
 
 ### Added
+
+### Changed
+
+### Fixed
+
+### Updated
+
+## [8.1.1] - 2025-02-10
+
+
+### Added
 - rooms to seperate db column
 
 ### Changed
@@ -10,8 +21,6 @@
 ### Fixed
 - bug in room calendars
 - bug in element html filter
-
-### Updated
 
 ## [8.1.0] - 2025-02-10
 
