@@ -36,6 +36,23 @@ class Bookings{
         $this->getSubjectManagers();
 
         wp_enqueue_style( 'sim_bookings_style');
+
+        $this->addSplitEl();
+    }
+
+    /**
+     * Adds the splitelements needed foor bookings
+     */
+    private function addSplitEl(){
+        if(empty($this->forms->formData)){
+            return;
+        }
+        
+        if(empty($this->forms->formData->split)){
+            $this->forms->formData->split   = [];
+        }
+        $this->forms->formData->split[] = $this->forms->getElementByName('booking-startdate', 'id');
+        $this->forms->formData->split[] = $this->forms->getElementByName('booking-enddate', 'id');
     }
 
     /**
@@ -209,8 +226,8 @@ class Bookings{
                 <h4>Room <?php echo $room;?></h4>
                 <div class='flex'>
                     <?php
-                    echo $this->monthCalendar($subject.";$room", $date);
-                    echo $this->monthCalendar($subject.";$room", strtotime('first day of next month', $date));
+                    echo $this->monthCalendar($subject, $room, $date);
+                    echo $this->monthCalendar($subject, $room, strtotime('first day of next month', $date));
                     ?>
                 </div>
             </div>
@@ -268,8 +285,8 @@ class Bookings{
                         <div class='roomwrapper'>
                             <div class='flex'>
                                 <?php
-                                echo $this->monthCalendar($cleanSubject, $date);
-                                echo $this->monthCalendar($cleanSubject, strtotime('first day of next month', $date));
+                                echo $this->monthCalendar($cleanSubject, '', $date);
+                                echo $this->monthCalendar($cleanSubject, '', strtotime('first day of next month', $date));
                                 ?>
                             </div>
                         </div>
@@ -423,15 +440,15 @@ class Bookings{
 	 * Get the month calendar
 	 *
 	 * @param	string		$subject		The subject name
+     * @param	string		$room		    The subject room
      * @param   int         $date           The time
-     * @param   boolean     $hidden         Wheter we should hide the calendar, default false
 	 *
 	 * @return	string				        Html of the calendar
 	 */
-	public function monthCalendar($subject, $date){
+	public function monthCalendar($subject, $room, $date){
 		
         if(is_array($subject)){
-            $subject= $subject['name'];
+            $subject    = $subject['name'];
         }
 
 		ob_start();
@@ -451,7 +468,7 @@ class Bookings{
         if(!empty($bookingDetails) && is_array($bookingDetails['subjects'])){
             // find the details of the current subject
             foreach($bookingDetails['subjects'] as $s){
-                // check overlap
+                // check if overlap is enabled
                 if($s['name'] == $subject && !empty($s['overlap'])){
                     if($s['overlap'] == 'yes'){
                         $overlap    = true;
@@ -465,7 +482,7 @@ class Bookings{
         }
 
         //get the bookings for this month
-		$this->retrieveMonthBookings($month, $year, $subject, $gapDays);
+		$this->retrieveMonthBookings($month, $year, $subject, $room, $gapDays);
 
 		//loop over all weeks of a month
 		while(true){
@@ -1179,7 +1196,7 @@ class Bookings{
         $period   = new \DatePeriod($start, $interval, $end);
 
         foreach ($period as $dt) {
-            $monthsHtml[]   = $this->monthCalendar($booking->subject, $dt->format("U"));
+            $monthsHtml[]   = $this->monthCalendar($booking->subject, $booking->room, $dt->format("U"));
             $months[]       = $dt->format("m");
             $years[]        = $dt->format("Y");
 
@@ -1233,13 +1250,13 @@ class Bookings{
      * @param   int     $extraDays      Extra days to block after each booking, default 0
      *
      */
-    protected function retrieveMonthBookings($month, $year, $subject, $extraDays=0){
+    protected function retrieveMonthBookings($month, $year, $subject, $room, $extraDays=0){
         global $wpdb;
 
 		//select all bookings of this month
         $startDate  = "$year-$month-01";
         $endDate    = date("Y-m-t", strtotime($startDate));
-		$query	    = "SELECT * FROM $this->tableName WHERE (`startdate` >= '$startDate' OR '$startDate' BETWEEN startdate and enddate) AND `startdate` <= '$endDate' AND subject = '$subject'";
+		$query	    = "SELECT * FROM $this->tableName WHERE (`startdate` >= '$startDate' OR '$startDate' BETWEEN startdate and enddate) AND `startdate` <= '$endDate' AND subject = '$subject' AND room = '$room'";
 
         //sort on startdate
 		$query	.= " ORDER BY `startdate`, `starttime` ASC";
@@ -1663,12 +1680,6 @@ class Bookings{
         if(empty($bookings)){
             return '';
         }
-
-        if(empty($this->forms->formData->split)){
-            $this->forms->formData->split   = [];
-        }
-        $this->forms->formData->split[] = $this->forms->getElementByName('booking-startdate', 'id');
-        $this->forms->formData->split[] = $this->forms->getElementByName('booking-enddate', 'id');
 
         $html   = "<h4>Bookings Pending ".ucfirst($type)."</h4>";
 

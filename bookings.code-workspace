@@ -1,9 +1,15 @@
 {
 	"folders": [
 		{
+			"name": "bookings",
 			"path": "."
 		},
 		{
+			"name": "sim-modules",
+			"path": ".."
+		},
+		{
+			"name": "simnigeria",
 			"path": "../../.."
 		}
 	],
