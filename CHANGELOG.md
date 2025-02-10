@@ -8,6 +8,7 @@
 - update message contains payable amount
 
 ### Fixed
+- bug in room calendars
 
 ### Updated
 
