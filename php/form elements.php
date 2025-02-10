@@ -283,6 +283,11 @@ function formElements($elements, $displayFormResults, $force){
 // Display the date selector in the form
 add_filter('sim-forms-element-html', __NAMESPACE__.'\elementHtml', 10, 3);
 function elementHtml($html, $element, $object){
+     // Check if it has an booking selector
+     if(empty($object->getElementByType('booking_selector'))){
+        return;
+    }
+
     if($element->type == 'booking_selector'){
         $bookingDetails = maybe_unserialize($element->booking_details);
 
@@ -390,8 +395,8 @@ function elementHtml($html, $element, $object){
         // Get the subject
         $subject    = $object->submission->formresults[$object->getElementByType('booking_selector')[0]->name];
             
-        $startDates = $object->submission->formresults['booking-startdate'];
-        $endDates   = $object->submission->formresults['booking-enddate'];
+        $startDates = (array) $object->submission->formresults['booking-startdate'];
+        $endDates   = (array) $object->submission->formresults['booking-enddate'];
 
         $early      = array_values($startDates)[0];
         $late       = array_values($endDates)[0];
