@@ -57,6 +57,7 @@ class Bookings{
 			starttime varchar(80) NOT NULL,
 			endtime varchar(80) NOT NULL,
 			subject varchar(80) NOT NULL,
+			room varchar(80),
             submission_id mediumint(9) NOT NULL,
             event_id mediumint(9),
             pending boolean DEFAULT true,
@@ -442,7 +443,6 @@ class Bookings{
 		$calendarRows	= '';
 
         // subject without optional room name
-        $baseSubject        = explode(';', $subject)[0];
         $overlap            = false;
         $gapDays            = 0;
 
@@ -452,7 +452,7 @@ class Bookings{
             // find the details of the current subject
             foreach($bookingDetails['subjects'] as $s){
                 // check overlap
-                if($s['name'] == $baseSubject && !empty($s['overlap'])){
+                if($s['name'] == $subject && !empty($s['overlap'])){
                     if($s['overlap'] == 'yes'){
                         $overlap    = true;
                     }elseif(!empty($s['overlap-period']) && is_numeric($s['overlap-period'])){
@@ -792,11 +792,11 @@ class Bookings{
      * @param   string  $subject        The subject  of a booking
      * @param   int     $id             An booking id to ignore to check exclude the the booking itself
      */
-    public function checkOverlap($startDate, $endDate, $subject, $id=-1){
+    public function checkOverlap($startDate, $endDate, $subject, $room, $id=-1){
         global $wpdb;
 
         // First check if a booking on these dates doesn't exist
-        $query	    = "SELECT * FROM $this->tableName WHERE pending=0 AND subject = '$subject' AND ('$startDate' BETWEEN startdate and enddate OR '$endDate' BETWEEN startdate and enddate)";
+        $query	    = "SELECT * FROM $this->tableName WHERE pending=0 AND subject = '$subject' AND room = '$room' AND ('$startDate' BETWEEN startdate and enddate OR '$endDate' BETWEEN startdate and enddate)";
 
         if($id != -1){
             $query  .= " AND NOT id=$id";
@@ -807,10 +807,9 @@ class Bookings{
 
 		$bookings           = $wpdb->get_results($query);
 
-        $baseSubject        = explode(';', $subject)[0];
         $overlap            = false;
 
-        $bookingEls          = $this->getSubjectData();
+        $bookingEls         = $this->getSubjectData();
 
         if(is_wp_error($bookingEls)){
             return $bookingEls;
@@ -820,7 +819,7 @@ class Bookings{
         if(!empty($bookingDetails) && is_array($bookingDetails['subjects'])){
             foreach($bookingDetails['subjects'] as $detail){
                 if(
-                    $detail['name'] == $baseSubject && 
+                    $detail['name'] == $subject && 
                     !empty($detail['overlap']) && 
                     $detail['overlap'] == 'yes'
                 ){
@@ -904,12 +903,13 @@ class Bookings{
      * @param   string      $startdate      The startdate string
      * @param   string      $enddate        The enddate string
      * @param   string      $subject        The subject the booking is for
+     * @param   string      $room           The room the booking is for
      * @param   int         $submissionId   The form submission id
      */
-    public function insertBooking($startDate, $endDate, $subject, $submissionId){
+    public function insertBooking($startDate, $endDate, $subject, $room, $submissionId){
         global $wpdb;
 
-		if($this->checkOverlap($startDate, $endDate, $subject)){
+		if($this->checkOverlap($startDate, $endDate, $subject, $room)){
             return new \WP_Error('booking', 'This booking overlaps with an existing one, try again');
         }
 
@@ -917,7 +917,10 @@ class Bookings{
 
         $userId             = $this->forms->submission->formresults[$userIdKey];
 
-        $subjectWithRoom    = str_replace(';', ' room ', $subject, $count);
+        $subjectWithRoom    = $subject;
+        if(!empty($room)){
+            $subjectWithRoom    = "$subject room $room";
+        }
 
         // create a personal event
         if(!empty($userId)){
@@ -953,6 +956,7 @@ class Bookings{
                 'startdate'			=> $startDate,
                 'enddate'			=> $endDate,
                 'subject'			=> $subject,
+                'room'			    => $room,
                 'submission_id'	    => $submissionId,
                 'event_id'          => $eventId,
                 'pending'           => $pending
@@ -1024,27 +1028,17 @@ class Bookings{
             $subject  = $values['subject'];
         }
 
-        if(!is_array($subject)){
-            $subject    = [$subject];
-        }
-
-        $subjectName    = $subject[0];
-
-        // subject with rooms
-        if(count($subject) > 1){
-            unset($subject[0]);
+        $room      = $booking->room;
+        if(isset($values['room'])){
+            $room  = $values['room'];
         }
         
-        foreach($subject as $s){
-            $subjectString  = $s;
-
-            if($s != $subjectName){
-                $subjectString  = "$subjectName;$s";
+        if($this->checkOverlap($startdate, $enddate, $subject, $room, $booking->id)){
+            $subjectString    = $subject;
+            if(!empty($room)){
+                $subjectString  .= " room $room";
             }
-            if($this->checkOverlap($startdate, $enddate, $subjectString, $booking->id)){
-                $subjectString    = str_replace(';', ' room ', $subjectString );
-                return new \WP_Error('booking', "The booking for $subjectString overlaps with an existing one, try again");
-            }
+            return new \WP_Error('booking', "The booking for $subjectString overlaps with an existing one, try again");
         }
 
         return true;
@@ -1138,7 +1132,7 @@ class Bookings{
         }
 
         // only keep valid values
-        $values         = array_filter( $values, function($val){return in_array($val, ['startdate', 'enddate', 'starttime', 'endtime', 'subject', 'pending', 'paid']);}, ARRAY_FILTER_USE_KEY);
+        $values         = array_filter( $values, function($val){return in_array($val, ['startdate', 'enddate', 'starttime', 'endtime', 'subject', 'room', 'pending', 'paid']);}, ARRAY_FILTER_USE_KEY);
 
         // Validate updated dates and adjusts the values array to only the relevant date for this booking
         $result         = $this->validateDates($booking, $values);
@@ -1404,14 +1398,11 @@ class Bookings{
             // Load the form
             $this->forms->getForm($submissions[0]->form_id);
 
-            $exploded       = explode(';', $booking->subject);
-            $accommodation  = $exploded[0];
+            $accommodation          = $booking->subject;
 
             $accommodationString    = $accommodation;
-            if(count($exploded) > 1){
-                $room   = $exploded[1];
-
-                $accommodationString  = "$accommodation room $room";
+            if(!empty($booking->room)){
+                $accommodationString  = "$accommodation room $booking->room";
             }
 
             $userIdElName       = $this->forms->findUserIdElementName();
@@ -1562,8 +1553,7 @@ class Bookings{
 
             $el = $this->getSubjectData()[0];
 
-            $exploded       = explode(';', $booking->subject);
-            $accommodation  = $exploded[0];
+            $accommodation  = $booking->subject;
 
             // check if payment is enabled for this subject
             foreach($el->booking_details['subjects'] as $subject){
@@ -1579,10 +1569,8 @@ class Bookings{
             }
 
             $accommodationString    = $accommodation;
-            if(count($exploded) > 1){
-                $room   = $exploded[1];
-
-                $accommodationString  = "$accommodation room $room";
+            if(!empty(!$booking->room)){
+                $accommodationString  = "$accommodation room $booking->room";
             }
 
             $userIdElName       = $this->forms->findUserIdElementName();
@@ -1679,8 +1667,8 @@ class Bookings{
         if(empty($this->forms->formData->split)){
             $this->forms->formData->split   = [];
         }
-        $this->forms->formData->split[] = $this->forms->getElementByName('booking-startdate')->id;
-        $this->forms->formData->split[] = $this->forms->getElementByName('booking-enddate')->id;
+        $this->forms->formData->split[] = $this->forms->getElementByName('booking-startdate', 'id');
+        $this->forms->formData->split[] = $this->forms->getElementByName('booking-enddate', 'id');
 
         $html   = "<h4>Bookings Pending ".ucfirst($type)."</h4>";
 
@@ -1688,27 +1676,20 @@ class Bookings{
 
         // only show one booking for submissions with multiple
         foreach($bookings as $booking){
-            $exploded       = explode(';', $booking->subject);
-
             // one submission can have multiple bookings, only load the submission once
             if(empty($submission) || $submission->id != $booking->submission_id){
-                $submission         = $this->forms->getSubmission($booking->submission_id);
-                $submission->subId  = 0;
-            }else{
-                $submission->subId++;
+                $submission         = $this->forms->getSubmission($booking->submission_id);   
             }
 
-            if(isset($exploded[1])){
-                $submission->formresults['booking-room']              = $exploded[1];
-            }else{
-                $submission->formresults['booking-room']              = '';
+            if(!empty($booking->room)){
+                $submission->subId  = $booking->room;
             }
+            $submission->formresults['booking-room']        = $booking->room;
+            $submission->formresults['booking-startdate']   = $booking->startdate;
+            $submission->formresults['booking-enddate']     = $booking->enddate;
+            $submission->formresults['booking-id']          = $booking->id;
 
-            $submission->formresults['booking-startdate']             = $booking->startdate;
-            $submission->formresults['booking-enddate']               = $booking->enddate;
-            $submission->formresults['booking-id']                    = $booking->id;
-
-            $submissions[]                                            = clone $submission;
+            $submissions[]                                  = clone $submission;
         }
 
         if(empty($submissions)){

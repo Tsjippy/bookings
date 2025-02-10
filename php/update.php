@@ -2,8 +2,8 @@
 namespace SIM\BOOKINGS;
 use SIM;
 
-add_action('sim_bookings_module_update', __NAMESPACE__.'\pluginUpdate');
-function pluginUpdate($oldVersion){
+add_action('sim_bookings_module_update', __NAMESPACE__.'\moduleUpdate');
+function moduleUpdate($oldVersion){
     require_once ABSPATH . 'wp-admin/includes/upgrade.php';
     require_once ABSPATH . 'wp-admin/install-helper.php';
 
@@ -22,5 +22,36 @@ function pluginUpdate($oldVersion){
         maybe_add_column($forms->tableName, 'payment_amount_el', "ALTER TABLE $forms->tableName ADD COLUMN `payment_amount_el` int");
         maybe_add_column($forms->tableName, 'payment_details_el', "ALTER TABLE $forms->tableName ADD COLUMN `payment_details_el` int");
         maybe_add_column($forms->tableName, 'price_per_night_el', "ALTER TABLE $forms->tableName ADD COLUMN `price_per_night_el` int");
+    }
+
+    if($oldVersion < '8.1.1'){
+        maybe_add_column($bookings->tableName, 'room', "ALTER TABLE $bookings->tableName ADD COLUMN `room` varchar(80)");
+
+        global $wpdb;
+
+		$query	    = "SELECT * FROM $bookings->tableName";
+
+        $results    = $wpdb->get_results($query);
+
+        foreach($results as $booking){
+            $exploded   = explode(';', $booking->subject);
+
+            $subject    = $exploded[0];
+            $room       = '';
+            if(!empty($exploded[1])){
+                $room   = $exploded[1];
+            }
+
+            $wpdb->update(
+                $bookings->tableName,
+                [
+                    'subject'   => $subject,
+                    'room'      => $room
+                ],
+                array(
+                    'id'		=> $booking->id
+                ),
+            );
+        }
     }
 }

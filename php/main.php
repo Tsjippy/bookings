@@ -73,7 +73,7 @@ function afterSavingFormData($message, $formBuilder){
 
                 foreach($bookings->forms->submission->formresults['booking-room'] as $index=>$room){
                     // Create a booking for this room
-                    $result     = $bookings->insertBooking($startDate[$index], $endDate[$index], "$subject;$room", $submissionId);
+                    $result     = $bookings->insertBooking($startDate[$index], $endDate[$index], $subject, $room, $submissionId);
 
                     // use the room name as index for the dates
                     $startDates[$room]  = $startDate[$index];
@@ -87,7 +87,7 @@ function afterSavingFormData($message, $formBuilder){
                 // update in db
                 $bookings->updateSubmissionData();
             }else{
-                $result         = $bookings->insertBooking($startDate[0], $endDate[0], $subject, $submissionId);
+                $result         = $bookings->insertBooking($startDate[0], $endDate[0], $subject, '', $submissionId);
             }
 
             if(is_wp_error($result)){
@@ -118,6 +118,7 @@ function onSubmissionUpdate($message, $formTable, $elementName, $oldValue, $newV
     if(!$currentBookings || !isset($currentBookings[0])){
         return $message;
     }
+
     if(isset($_POST['booking_id']) && is_numeric($_POST['booking_id'])){
         foreach($currentBookings as $booking){
             if($booking->id == $_POST['booking_id']){
@@ -195,20 +196,9 @@ function updateRooms($message, $elementName, $oldValue, $newValue, $booking, $cu
         return $message;
     }
 
-    if(is_string($newValue) && str_contains($newValue, ';')){
-        $newValue   = explode(';', $newValue);
-    }
-    
-    $baseSubject= explode(';', $booking->subject)[0];
-
-    $oldMessage = implode('&', $oldValue);
     $newMessage = implode('&', $newValue);
-    $replace2   = implode('<br>', $newValue);
-
-    $message    = str_replace($replace2, $newMessage, $message, $count);
-    if($count < 1){
-        $message    = str_replace($oldMessage, $newMessage, $message);
-    }
+    $oldMessage = implode('<br>', $newValue);
+    $message    = str_replace($oldMessage, $newMessage, $message, $count);
 
     $deleted    = array_diff($oldValue, $newValue);
     $added      = array_diff($newValue, $oldValue);
@@ -221,23 +211,26 @@ function updateRooms($message, $elementName, $oldValue, $newValue, $booking, $cu
         foreach($oldValue as $i=>$oldRoom){
             $newRoom    = $newValue[$i];
 
-            $oldSubject = "$baseSubject;$oldRoom";
-
             // Find the booking for this room
             foreach($currentBookings as $b){
-                if($oldSubject == $b->subject){
-                    $newSubject = "$baseSubject;$newRoom";
-                    $result     = $bookings->updateBooking($b, ['subject' => $newSubject]);
+                if($oldRoom == $b->room){
+                    $result     = $bookings->updateBooking($b, ['room' => $newRoom]);
                     break;
                 }
             }
         }
+
+        // Update the room
+        $bookings->forms->submission->formresults['booking-room']         = array_values($newValue);
+
+        // Update in db
+        $bookings->updateSubmissionData();
     }
 
     // remove any removed bookings
     if(!empty($deleted)){
         foreach($currentBookings as $booking){
-            $room   = explode(';', $booking->subject)[1];
+            $room   = $booking->room;
             // if this is the booking for the room
             if(in_array($room, $deleted)){
                 // Delete the booking
@@ -260,7 +253,7 @@ function updateRooms($message, $elementName, $oldValue, $newValue, $booking, $cu
     if(!empty($added)){
         foreach($added as $room){
             //Insert the new booking
-            $result = $bookings->insertBooking($booking->startdate, $booking->enddate, $baseSubject.';'.$room, $bookings->forms->submission->id);
+            $result = $bookings->insertBooking($booking->startdate, $booking->enddate, $booking->subject, $room, $bookings->forms->submission->id);
 
             // Add the new dates
             $bookings->forms->submission->formresults['booking-startdate'][$room]  = $booking->startdate;

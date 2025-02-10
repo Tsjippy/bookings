@@ -228,28 +228,3 @@ function formdataRetrieved($submissions, $userId, $object){
 
     return $submissions;
 }
-
-// add the booking id to a form result cell dataset
-add_filter('sim-formresult-cell-opening-tag', __NAMESPACE__.'\cellOpeningTag', 10, 4);
-function cellOpeningTag($cellOpeningTag, $object, $columnSetting, $values){
-    if(
-        isset($object->submission->formresults['booking-id']) && 
-        in_array($columnSetting['name'], ['booking-startdate', 'booking-enddate', 'booking-room'])
-    ){
-        $cellOpeningTag .= " data-booking_id='{$object->submission->formresults['booking-id']}'";
-
-        $bookings       = new Bookings($object);
-
-        $booking        = $bookings->getBookingById($object->submission->formresults['booking-id']);
-
-        $room           = '';
-        $exploded       = explode(';', $booking->subject);
-        if(!empty($exploded[1])){
-            $room   = $exploded[1];
-        }
-
-        $cellOpeningTag  = preg_replace("/data-subid='[0-9]+'/", "data-subid='$room'", $cellOpeningTag);
-    }
-
-    return $cellOpeningTag;
-}
