@@ -285,7 +285,7 @@ add_filter('sim-forms-element-html', __NAMESPACE__.'\elementHtml', 10, 3);
 function elementHtml($html, $element, $object){
      // Check if the form has a booking selector
      if(empty($object->getElementByType('booking_selector'))){
-        return;
+        return $html;
     }
 
     if($element->type == 'booking_selector'){
