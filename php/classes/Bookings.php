@@ -777,15 +777,16 @@ class Bookings{
 
     /**
      * Retrieve the subject data
+     * @param   bool    $force      Do not send cacheg data, default false
      */
-    public function getSubjectData(){
-        if(!empty($this->bookingElements)){
+    public function getSubjectData($force = false){
+        if(!empty($this->bookingElements) && !$force){
             return $this->bookingElements;
         }
 
         $this->bookingElements   = $this->forms->getElementByType('booking_selector');
 
-        if(is_wp_error($this->bookingElements)){
+        if(!$this->bookingElements || is_wp_error($this->bookingElements)){
             $this->bookingElements  = [];
             return;
         }
@@ -1532,7 +1533,7 @@ class Bookings{
                         }
 
                         // create an empty array if needed for this subject 
-                        if(!is_array($this->managers[$subject['name'] ] )){
+                        if(empty($this->managers[$subject['name'] ] )){
                             $this->managers[$subject['name'] ]  = [];
                         }
 
@@ -1552,7 +1553,25 @@ class Bookings{
      * Sends a reminder to the owner of a booking to pay for it
      */
     public function sendPaymentReminders(){
-        foreach($this->retrieveUnPaidBookings(true) as $booking){
+        // forms loaded, load them all
+        if(empty($this->forms->formData)){
+            $this->forms->getForms();
+
+            // Send payment reminder for each form
+            foreach($this->forms->forms as $form){
+                $this->forms->getForm($form->id);
+
+                $result = $this->getSubjectData(true);
+
+                if(!is_wp_error($result) && !empty($result)){
+                    $this->sendPaymentReminders();
+                }
+            }
+
+            return;
+        }
+
+        foreach($this->retrieveUnPaidBookings(true, true) as $booking){
             if(empty($booking->subject)){
                 continue;
             }
@@ -1634,7 +1653,7 @@ class Bookings{
                 $email  = $user->user_email;
             }
 
-            if(apply_filters('sim-bookings-should-not-send-payment-reminder', false, $submission, $name, $email, $this)){
+            if(apply_filters('sim-bookings-should-not-send-payment-reminder', false, $submission, $user, $email, $this)){
                 continue;
             }
 
@@ -1646,13 +1665,14 @@ class Bookings{
             }
 
             // Send an e-mail
-            $bookingEmail    = new BookingEmail($user, $booking);
+            $bookingEmail    = new BookingEmail($booking);
             $bookingEmail->filterMail();
                 
             $subject        = $bookingEmail->subject;
             $message        = $bookingEmail->message;
+            $headers        = $bookingEmail->headers;
 
-            wp_mail( $email, $subject, $message);
+            wp_mail( $email, $subject, $message, $headers);
         }
     }
 
