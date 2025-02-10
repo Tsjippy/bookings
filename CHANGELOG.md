@@ -2,14 +2,21 @@
 ## [Unreleased] - yyyy-mm-dd
 
 ### Added
-- sim-bookings-should-not-send-payment-reminder filter
 
 ### Changed
 
 ### Fixed
-- placeholders in payment reminder e-mail
 
 ### Updated
+
+## [8.1.2] - 2025-02-10
+
+
+### Added
+- sim-bookings-should-not-send-payment-reminder filter
+
+### Fixed
+- placeholders in payment reminder e-mail
 
 ## [8.1.1] - 2025-02-10
 
