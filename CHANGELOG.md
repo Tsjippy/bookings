@@ -4,6 +4,7 @@
 ### Added
 
 ### Changed
+- update message contains payable amount
 
 ### Fixed
 
