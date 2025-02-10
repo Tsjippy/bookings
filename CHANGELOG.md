@@ -2,6 +2,7 @@
 ## [Unreleased] - yyyy-mm-dd
 
 ### Added
+- rooms to seperate db column
 
 ### Changed
 - update message contains payable amount
