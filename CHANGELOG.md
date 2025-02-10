@@ -9,6 +9,7 @@
 
 ### Fixed
 - bug in room calendars
+- bug in element html filter
 
 ### Updated
 
