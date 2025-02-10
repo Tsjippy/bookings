@@ -1557,18 +1557,16 @@ class Bookings{
                 continue;
             }
 
-            $submissions = $this->forms->getSubmissions(null, $booking->submission_id);
+            $submission = $this->forms->getSubmission($booking->submission_id);
 
-            if(empty($submissions)){
+            if(!$submission){
                 continue;
             }
-
-            $submission = $submissions[0];
 
             // Load the form
             $this->forms->getForm($submission->form_id);
 
-            $el = $this->getSubjectData()[0];
+            $el             = $this->getSubjectData()[0];
 
             $accommodation  = $booking->subject;
 
@@ -1590,15 +1588,15 @@ class Bookings{
                 $accommodationString  = "$accommodation room $booking->room";
             }
 
-            $userIdElName       = $this->forms->findUserIdElementName();
+            $userIdElName    = $this->forms->findUserIdElementName();
             if(is_wp_error($userIdElName)){
                 continue;
             }
 
             if($userIdElName){
-                $userId = $submission->formresults[$userIdElName];
+                $userId     = $submission->formresults[$userIdElName];
             }else{
-                $userId = $submission->userid;
+                $userId     = $submission->userid;
             }
 
             $phonenumber    = $userId;
@@ -1606,9 +1604,9 @@ class Bookings{
             
             // Not an user
             if(!is_numeric($userId)){
-                $user   = '';
+                $user       = '';
 
-                $nameElName     = $this->forms->findUserNameElementName();
+                $nameElName = $this->forms->findUserNameElementName();
                 if($nameElName){
                     $name   = $submission->formresults[$nameElName];
                     $user   = (object) ['display_name' => $name ];
@@ -1634,6 +1632,10 @@ class Bookings{
             }else{
                 $user   = get_user($userId);
                 $email  = $user->user_email;
+            }
+
+            if(apply_filters('sim-bookings-should-not-send-payment-reminder', false, $submission, $name, $email, $this)){
+                continue;
             }
 
             // Send Signal message
