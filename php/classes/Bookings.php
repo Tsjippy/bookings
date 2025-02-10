@@ -1131,7 +1131,7 @@ class Bookings{
      */
     public function updateBooking($booking, $values){
         global $wpdb;
-
+        
         // Get the booking
         if(is_numeric($booking)){
             $booking        = $this->getBookingById($booking);
@@ -1140,7 +1140,7 @@ class Bookings{
         // only keep valid values
         $values         = array_filter( $values, function($val){return in_array($val, ['startdate', 'enddate', 'starttime', 'endtime', 'subject', 'pending', 'paid']);}, ARRAY_FILTER_USE_KEY);
 
-        // Validate updated dates
+        // Validate updated dates and adjusts the values array to only the relevant date for this booking
         $result         = $this->validateDates($booking, $values);
 
         // return the error if needed
@@ -1148,7 +1148,7 @@ class Bookings{
             return $result;
         }
 
-        // update booking
+        // update the booking
         $wpdb->update(
             $this->tableName,
             $values,
@@ -1163,6 +1163,7 @@ class Bookings{
             $message            = $wpdb->last_error;
         }
 
+        // booking submission contains possibly the data of multiple bookings so make sure we use the original data
         $this->updateBookingSubmission($booking, $values);
 
         // update event
@@ -1172,7 +1173,6 @@ class Bookings{
         }
 
         // Build the return array
-
         $monthsHtml     = [];
         $months         = [];
         $years          = [];
@@ -1780,5 +1780,7 @@ class Bookings{
 
         // Update in db
         $this->updateSubmissionData();
+
+        return $payable;
     }
 }

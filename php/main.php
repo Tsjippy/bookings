@@ -151,19 +151,23 @@ function onSubmissionUpdate($message, $formTable, $elementName, $oldValue, $newV
     }
 
     // Update the payable amount
-    updatePayable($elementName, $bookings, $element);
+    $message    = updatePayable($elementName, $bookings, $element, $message);
 
     return $message;
 }
 
-function updatePayable($elementName, $bookings, $element){
+function updatePayable($elementName, $bookings, $element, $message){
     if(
         in_array($elementName, ['startdate', 'enddate', 'room']) || // We are dealing with a room change or a start or end date,
         $element->id == $bookings->forms->formData->price_per_night_el   // change in night price
     ){
         // calculate payable
-        $bookings->calculatePaymentAmount();
+        $payable    = $bookings->calculatePaymentAmount();
+
+        $message    .= "<br>Payable amount is $payable";
     }
+
+    return $message;
 }
 
 function changePaymentStatus($bookings, $newValue, $element, $currentBookings){

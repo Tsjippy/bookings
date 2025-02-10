@@ -283,7 +283,7 @@ function formElements($elements, $displayFormResults, $force){
 // Display the date selector in the form
 add_filter('sim-forms-element-html', __NAMESPACE__.'\elementHtml', 10, 3);
 function elementHtml($html, $element, $object){
-     // Check if it has an booking selector
+     // Check if the form has a booking selector
      if(empty($object->getElementByType('booking_selector'))){
         return;
     }
