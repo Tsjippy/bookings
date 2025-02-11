@@ -11,9 +11,7 @@ class BookingEmail extends ADMIN\MailSetting{
 
         $this->replaceArray['%id%']                         = $booking->id;  
         $this->replaceArray['%subject%']                    = $booking->subject;
-        $this->replaceArray['%startdate%']                  = date('d-m-Y', strtotime($booking->startdate)); 
-        $this->replaceArray['%enddate%']                    = date('d-m-Y', strtotime($booking->enddate)); 
-        $this->replaceArray['%name%']                       = '';
+        $this->replaceArray['%duration%']                   = "from ".date(DATEFORMAT, strtotime($booking->startdate))." till ".date(DATEFORMAT, strtotime($booking->enddate));
         $this->replaceArray['%payable%']                    = '';
         $this->replaceArray['%payment_details%']            = '';
         $this->replaceArray['%price_per_night%']            = '';
@@ -25,8 +23,31 @@ class BookingEmail extends ADMIN\MailSetting{
             // Load the formdata for this form
             $displayFormResults->getForm($displayFormResults->submission->form_id);
 
-            if(!empty($booking->room)){
-                $this->replaceArray['%subject%']   .= " room $booking->room";
+            // Add rooms
+            if(!empty($booking->room) && is_array($displayFormResults->submission->formresults['booking-room'])){
+                $rooms      = $displayFormResults->submission->formresults['booking-room'];
+                if(count($rooms) == 1){
+                    $this->replaceArray['%subject%']   .= " room ". array_values($rooms)[0];
+                }else{
+                    $rooms  = implode('&', $rooms);
+                    $this->replaceArray['%subject%']   .= " rooms $rooms";
+                }
+            }
+
+            $startdates     = $displayFormResults->submission->formresults['booking-startdate'];
+            $enddates       = $displayFormResults->submission->formresults['booking-enddate'];
+            // only change the duration string if more than one unique startdate or enddate
+            if(count(array_unique($startdates)) > 1 || count(array_unique($enddates)) > 1){
+                $this->replaceArray['%duration%']   = '';
+                foreach($startdates as $room => $d){
+                    $startDate  = date(DATEFORMAT, strtotime($d));
+                    $endDate    = date(DATEFORMAT, strtotime($enddates[$room]));
+
+                    if(!empty($this->replaceArray['%duration%'])){
+                        $this->replaceArray['%duration%']   .= " and ";
+                    }
+                    $this->replaceArray['%duration%']   .= "from $startDate till $endDate (room $room)";
+                }
             }
 
             $name                                           = $displayFormResults->findUserNameElementName();

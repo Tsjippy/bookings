@@ -692,12 +692,12 @@ class Bookings{
                                         <table data-formid='<?php echo $this->forms->submission->formresults['formid'];?>' style='margin-bottom: 0px; width:unset;'>
                                             <tr data-id='<?php echo $this->forms->submission->formresults['id'];?>'>
                                                 <td data-name='booking-startdate' data-id='<?php echo $this->forms->getElementByName('booking-startdate')->id;?>' data-oldvalue='<?php echo json_encode($booking->startdate);?>' data-booking_id='<?php echo $booking->id;?>' class='edit_forms_table'>
-                                                    <?php echo date('d-M-Y', strtotime($booking->startdate));?>
+                                                    <?php echo date(DATEFORMAT, strtotime($booking->startdate));?>
                                                 </td>
                                             </tr>
                                             <tr data-id='<?php echo $this->forms->submission->formresults['id'];?>'>
                                                 <td data-name='booking-enddate' data-id='<?php echo  $this->forms->getElementByName('booking-enddate')->id;?>' data-oldvalue='<?php echo json_encode($booking->enddate);?>' data-booking_id='<?php echo $booking->id;?>' class='edit_forms_table'>
-                                                    <?php echo date('d-M-Y', strtotime($booking->enddate));?>
+                                                    <?php echo date(DATEFORMAT, strtotime($booking->enddate));?>
                                                 </td>
                                             </tr>
                                         </table>
