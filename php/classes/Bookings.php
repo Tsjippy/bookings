@@ -1571,8 +1571,11 @@ class Bookings{
             return;
         }
 
+        $processed  =   [];
         foreach($this->retrieveUnPaidBookings(true, true) as $booking){
-            if(empty($booking->subject)){
+
+            // no subject set or this form submission is already processed
+            if(empty($booking->subject) || in_array($booking->submission_id, $processed)){
                 continue;
             }
 
@@ -1581,6 +1584,8 @@ class Bookings{
             if(!$submission){
                 continue;
             }
+
+            $processed[]    = $booking->submission_id;
 
             // Load the form
             $this->forms->getForm($submission->form_id);

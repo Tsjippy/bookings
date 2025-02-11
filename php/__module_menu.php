@@ -8,15 +8,8 @@ DEFINE(__NAMESPACE__.'\MODULE_PATH', plugin_dir_path(__DIR__));
 
 DEFINE(__NAMESPACE__.'\MODULE_SLUG', strtolower(basename(dirname(__DIR__))));
 
-add_filter('sim_module_updated', __NAMESPACE__.'\moduleUpdated', 10, 2);
-function moduleUpdated($newOptions, $moduleSlug){
-	global $wpdb;
-
-	//module slug should be the same as grandparent folder name
-	if($moduleSlug != MODULE_SLUG){
-		return $newOptions;
-	}
-
+add_filter('sim_module_bookings_after_save', __NAMESPACE__.'\moduleUpdated');
+function moduleUpdated($newOptions){
 	// enable forms and events modules
 	if(!SIM\getModuleOption('forms', 'enable')){
 		SIM\ADMIN\enableModule('forms');
@@ -25,29 +18,7 @@ function moduleUpdated($newOptions, $moduleSlug){
 		SIM\ADMIN\enableModule('events');
 	}
 
-	// Create the table
-	$bookings	= new Bookings();
-	$bookings->createBookingsTable();
-
-	// Add columns to forms element table
-	$forms	= new SIM\FORMS\SimForms();
-
-	// Add columns to forms table
-	$row 	= $wpdb->get_results(  "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = '$forms->tableName' AND column_name = 'default_booking_state'"  );
-	if(empty($row)){
-		$wpdb->query("ALTER TABLE $forms->tableName ADD default_booking_state text NOT NULL");
-	}
-
-	$row 	= $wpdb->get_results(  "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = '$forms->tableName' AND column_name = 'confirmed_booking_roles'"  );
-	if(empty($row)){
-		$wpdb->query("ALTER TABLE $forms->tableName ADD confirmed_booking_roles text NOT NULL");
-	}
-
-	// Add columns to forms element table
-	$row 	= $wpdb->get_results(  "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = '$forms->elTableName' AND column_name = 'booking_details'"  );
-	if(empty($row)){
-		$wpdb->query("ALTER TABLE $forms->elTableName ADD booking_details text NOT NULL");
-	}
+	scheduleTasks();
 
 	return $newOptions;
 }
@@ -123,16 +94,25 @@ function moduleActivated($moduleSlug, $options){
 		return;
 	}
 
-	// add an extra form setting column in db
+	// Create the table
+	$bookings	= new Bookings();
+	$bookings->createBookingsTable();
+
+	// Add columns to forms element table
+	$forms	= new SIM\FORMS\SimForms();
+
 	require_once ABSPATH . 'wp-admin/includes/upgrade.php';
     require_once ABSPATH . 'wp-admin/install-helper.php';
 
-	$forms	= new SIM\FORMS\SimForms();
+	// add columns to the forms table
+    maybe_add_column($forms->tableName, 'payment_indicator', "ALTER TABLE $forms->tableName ADD COLUMN `payment_indicator` int");
+    maybe_add_column($forms->tableName, 'payment_amount_el', "ALTER TABLE $forms->tableName ADD COLUMN `payment_amount_el` int");
+    maybe_add_column($forms->tableName, 'payment_details_el', "ALTER TABLE $forms->tableName ADD COLUMN `payment_details_el` int");
+    maybe_add_column($forms->tableName, 'price_per_night_el', "ALTER TABLE $forms->tableName ADD COLUMN `price_per_night_el` int");
+	maybe_add_column($forms->tableName, 'default_booking_state', "ALTER TABLE $forms->tableName ADD COLUMN `default_booking_state` text");
+    maybe_add_column($forms->tableName, 'confirmed_booking_roles', "ALTER TABLE $forms->tableName ADD COLUMN `confirmed_booking_roles` text");
+    
+	// Add column to the form element table
+	maybe_add_column($forms->elTableName, 'booking_details', "ALTER TABLE $forms->elTableName ADD COLUMN `booking_details` text");
 
-	$forms	= new SIM\FORMS\SimForms();
-
-	maybe_add_column($forms->tableName, 'payment_indicator', "ALTER TABLE $forms->tableName ADD COLUMN `payment_indicator` int");
-	maybe_add_column($forms->tableName, 'payment_amount_el', "ALTER TABLE $forms->tableName ADD COLUMN `payment_amount_el` int");
-	maybe_add_column($forms->tableName, 'payment_details_el', "ALTER TABLE $forms->tableName ADD COLUMN `payment_details_el` int");
-	maybe_add_column($forms->tableName, 'price_per_night_el', "ALTER TABLE $forms->tableName ADD COLUMN `price_per_night_el` int");
 }

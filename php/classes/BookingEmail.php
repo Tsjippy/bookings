@@ -9,6 +9,10 @@ class BookingEmail extends ADMIN\MailSetting{
         // call parent constructor
 		parent::__construct('payment_reminder', MODULE_SLUG);
 
+        $this->replaceArray['%id%']                         = $booking->id;  
+        $this->replaceArray['%subject%']                    = $booking->subject;
+        $this->replaceArray['%startdate%']                  = date('d-m-Y', strtotime($booking->startdate)); 
+        $this->replaceArray['%enddate%']                    = date('d-m-Y', strtotime($booking->enddate)); 
         $this->replaceArray['%name%']                       = '';
         $this->replaceArray['%payable%']                    = '';
         $this->replaceArray['%payment_details%']            = '';
@@ -20,6 +24,10 @@ class BookingEmail extends ADMIN\MailSetting{
 
             // Load the formdata for this form
             $displayFormResults->getForm($displayFormResults->submission->form_id);
+
+            if(!empty($booking->room)){
+                $this->replaceArray['%subject%']   .= " room $booking->room";
+            }
 
             $name                                           = $displayFormResults->findUserNameElementName();
             if($name){
@@ -41,14 +49,6 @@ class BookingEmail extends ADMIN\MailSetting{
                 $this->replaceArray['%price_per_night%']    = $displayFormResults->submission->formresults[$pricePerNightName];
             }
         }
-  
-        $this->replaceArray['%id%']             = $booking->id;  
-        $this->replaceArray['%subject%']        = $booking->subject;
-        if(!empty($booking->room)){
-            $this->replaceArray['%subject%']   .= " room $booking->room";
-        }
-        $this->replaceArray['%startdate%']      = date('d-m-Y', strtotime($booking->startdate)); 
-        $this->replaceArray['%enddate%']        = date('d-m-Y', strtotime($booking->enddate)); 
 
         $this->defaultSubject    = "Please pay for your booking with id %id%";
 
