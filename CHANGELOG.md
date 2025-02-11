@@ -6,6 +6,7 @@
 ### Changed
 
 ### Fixed
+- do not sent an e-mail after an incorrect booking
 
 ### Updated
 
