@@ -9,6 +9,12 @@
 
 ### Updated
 
+## [8.1.3] - 2025-02-11
+
+
+### Changed
+- sim_module_updated filter to new format
+
 ## [8.1.2] - 2025-02-10
 
 
