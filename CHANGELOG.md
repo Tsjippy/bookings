@@ -6,9 +6,14 @@
 ### Changed
 
 ### Fixed
-- do not sent an e-mail after an incorrect booking
 
 ### Updated
+
+## [8.1.5] - 2025-02-11
+
+
+### Fixed
+- do not sent an e-mail after an incorrect booking
 
 ## [8.1.4] - 2025-02-11
 
