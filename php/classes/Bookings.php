@@ -861,7 +861,7 @@ class Bookings{
             }
         }
 
-        return !empty($bookings);
+        return $bookings;
     }
 
     /**
@@ -927,8 +927,15 @@ class Bookings{
     public function insertBooking($startDate, $endDate, $subject, $room, $submissionId){
         global $wpdb;
 
-		if($this->checkOverlap($startDate, $endDate, $subject, $room)){
-            return new \WP_Error('booking', 'This booking overlaps with an existing one, try again');
+        $overlappingBookings    = $this->checkOverlap($startDate, $endDate, $subject, $room);
+		if(!empty($overlappingBookings)){
+            if(!empty($room)){
+                $subject    .= " room $room";
+            }
+
+            $startDateString    = date(DATEFORMAT, strtotime($overlappingBookings[0]->startdate));
+            $endDateString      = date(DATEFORMAT, strtotime($overlappingBookings[0]->enddate));
+            return new \WP_Error('booking', "The booking for $subject overlaps with an existing one from $startDateString till $endDateString, try again");
         }
 
         $userIdKey	        = $this->forms->findUserIdElementName();
@@ -1051,12 +1058,15 @@ class Bookings{
             $room  = $values['room'];
         }
         
-        if($this->checkOverlap($startdate, $enddate, $subject, $room, $booking->id)){
-            $subjectString    = $subject;
+        $overlappingBookings    = $this->checkOverlap($startdate, $enddate, $subject, $room);
+		if(!empty($overlappingBookings)){
             if(!empty($room)){
-                $subjectString  .= " room $room";
+                $subject    .= " room $room";
             }
-            return new \WP_Error('booking', "The booking for $subjectString overlaps with an existing one, try again");
+
+            $startDateString    = date(DATEFORMAT, strtotime($overlappingBookings[0]->startdate));
+            $endDateString      = date(DATEFORMAT, strtotime($overlappingBookings[0]->enddate));
+            return new \WP_Error('booking', "The booking for $subject overlaps with an existing one from $startDateString till $endDateString, try again");
         }
 
         return true;

@@ -13,7 +13,7 @@ function beforeSavingFormData($formResults, $object){
         return $elements;
     }
 
-    if(empty(!$elements)){
+    if(empty($elements)){
         return $formResults;
     }
 
@@ -46,57 +46,50 @@ function beforeSavingFormData($formResults, $object){
                 return new \WP_Error('bookings', "Please select a room");
             }
         }
+
+        // Check for overlapping dates
+        $startDate      = $formResults['booking-startdate'];
+        $endDate        = $formResults['booking-enddate'];
+        $subject        = $formResults[$element->name];
+        $submissionId   = $formResults['id'];
+
+        if(!empty($formResults['booking-room'])){
+            $startDates = [];
+            $endDates   = [];
+
+            foreach($formResults['booking-room'] as $index=>$room){
+                // Create a booking for this room
+                $result     = $bookings->insertBooking($startDate[$index], $endDate[$index], $subject, $room, $submissionId);
+
+                if(is_wp_error($result)){
+                    return $result;
+                }
+
+                // use the room name as index for the dates
+                $startDates[$room]  = $startDate[$index];
+                $endDates[$room]    = $endDate[$index];
+            }
+
+            // Store dates indexed by room
+            $formResults['booking-startdate']  = $startDates;
+            $formResults['booking-enddate']    = $endDates;
+        }else{
+            $result         = $bookings->insertBooking($startDate[0], $endDate[0], $subject, '', $submissionId);
+
+            if(is_wp_error($result)){
+                return $result;
+            }
+        }
     }
 
     return $formResults;
 }
 
-// Create a booking
+// Calculate the payable for the booking
 add_filter('sim_after_saving_formdata', __NAMESPACE__.'\afterSavingFormData', 10, 2);
-function afterSavingFormData($message, $formBuilder){
-    // find the subject
-    $elements        = $formBuilder->getElementByType('booking_selector');
-
-    if(isset($elements)){
-    
-        $bookings       = new Bookings($formBuilder);
-
-        foreach($elements as $element){
-            $startDate      = $bookings->forms->submission->formresults['booking-startdate'];
-            $endDate        = $bookings->forms->submission->formresults['booking-enddate'];
-            $subject        = $bookings->forms->submission->formresults[$element->name];
-            $submissionId   = $bookings->forms->submission->formresults['id'];
-
-            if(!empty($bookings->forms->submission->formresults['booking-room'])){
-                $startDates = [];
-                $endDates   = [];
-
-                foreach($bookings->forms->submission->formresults['booking-room'] as $index=>$room){
-                    // Create a booking for this room
-                    $result     = $bookings->insertBooking($startDate[$index], $endDate[$index], $subject, $room, $submissionId);
-
-                    // use the room name as index for the dates
-                    $startDates[$room]  = $startDate[$index];
-                    $endDates[$room]    = $endDate[$index];
-                }
-
-                // Store dates indexed by room
-                $bookings->forms->submission->formresults['booking-startdate']  = $startDates;
-                $bookings->forms->submission->formresults['booking-enddate']    = $endDates;
-
-                // update in db
-                $bookings->updateSubmissionData();
-            }else{
-                $result         = $bookings->insertBooking($startDate[0], $endDate[0], $subject, '', $submissionId);
-            }
-
-            if(is_wp_error($result)){
-                return $result;
-            }
-
-            $bookings->calculatePaymentAmount();
-        }
-    }
+function afterSavingFormData($message, $object){
+    $bookings                   = new Bookings($object);
+    $bookings->calculatePaymentAmount();
 
     return $message;
 }
