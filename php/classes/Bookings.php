@@ -1563,7 +1563,7 @@ class Bookings{
      * Sends a reminder to the owner of a booking to pay for it
      */
     public function sendPaymentReminders(){
-        // forms loaded, load them all
+        // no form loaded, load them all, and send payment reminder for each of them
         if(empty($this->forms->formData)){
             $this->forms->getForms();
 
@@ -1573,6 +1573,7 @@ class Bookings{
 
                 $result = $this->getSubjectData(true);
 
+                // this form has booking selector in it
                 if(!is_wp_error($result) && !empty($result)){
                     $this->sendPaymentReminders();
                 }
@@ -1615,11 +1616,6 @@ class Bookings{
 
                     break;
                 }
-            }
-
-            $accommodationString    = $accommodation;
-            if(!empty(!$booking->room)){
-                $accommodationString  = "$accommodation room $booking->room";
             }
 
             $userIdElName    = $this->forms->findUserIdElementName();
@@ -1672,13 +1668,6 @@ class Bookings{
                 continue;
             }
 
-            // Send Signal message
-            SIM\trySendSignal("Just a reminder about your booking for $accommodationString tommorow. Hopefully you didn't forget:)", $phonenumber);
-
-            if(!$email){
-                continue;
-            }
-
             // Send an e-mail
             $bookingEmail    = new BookingEmail($booking);
             $bookingEmail->filterMail();
@@ -1686,6 +1675,13 @@ class Bookings{
             $subject        = $bookingEmail->subject;
             $message        = $bookingEmail->message;
             $headers        = $bookingEmail->headers;
+
+            // Send Signal message
+            SIM\trySendSignal($message, $phonenumber);
+
+            if(!$email){
+                continue;
+            }
 
             wp_mail( $email, $subject, $message, $headers);
         }

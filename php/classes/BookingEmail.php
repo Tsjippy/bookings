@@ -20,6 +20,10 @@ class BookingEmail extends ADMIN\MailSetting{
             $displayFormResults                             = new SIM\FORMS\DisplayFormResults();
             $displayFormResults->getSubmission($booking->submission_id);
 
+            if(!$displayFormResults->submission->formresults){
+                return;
+            }
+
             // Load the formdata for this form
             $displayFormResults->getForm($displayFormResults->submission->form_id);
 
@@ -36,6 +40,7 @@ class BookingEmail extends ADMIN\MailSetting{
 
             $startdates     = $displayFormResults->submission->formresults['booking-startdate'];
             $enddates       = $displayFormResults->submission->formresults['booking-enddate'];
+
             // only change the duration string if more than one unique startdate or enddate
             if(count(array_unique($startdates)) > 1 || count(array_unique($enddates)) > 1){
                 $this->replaceArray['%duration%']   = '';
