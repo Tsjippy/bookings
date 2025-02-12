@@ -179,9 +179,8 @@ function changePaymentStatus($bookings, $newValue, $element, $currentBookings){
     // Mark as paid
     foreach($currentBookings as $b){
         $bookings->updateBooking($b, ['paid' => $paid]);
-
-        do_action('sim-booking-paid', $b, $bookings, $element, $newValue);
     }
+    do_action('sim-booking-paid', $currentBookings, $bookings, $element, $newValue);
 }
 
 function updateRooms($message, $elementName, $oldValue, $newValue, $booking, $currentBookings, $bookings){
