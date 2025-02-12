@@ -6,9 +6,14 @@
 ### Changed
 
 ### Fixed
-- updating existing booking
 
 ### Updated
+
+## [8.1.7] - 2025-02-12
+
+
+### Fixed
+- updating existing booking
 
 ## [8.1.6] - 2025-02-12
 
