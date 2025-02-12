@@ -6,10 +6,15 @@
 ### Changed
 
 ### Fixed
-- error when invalid json form result
-- run sim-booking-paid only once ber submission
 
 ### Updated
+
+## [8.1.6] - 2025-02-12
+
+
+### Fixed
+- error when invalid json form result
+- run sim-booking-paid only once ber submission
 
 ## [8.1.5] - 2025-02-11
 
