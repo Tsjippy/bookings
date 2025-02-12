@@ -1058,7 +1058,7 @@ class Bookings{
             $room  = $values['room'];
         }
         
-        $overlappingBookings    = $this->checkOverlap($startdate, $enddate, $subject, $room);
+        $overlappingBookings    = $this->checkOverlap($startdate, $enddate, $subject, $room, $booking->id);
 		if(!empty($overlappingBookings)){
             if(!empty($room)){
                 $subject    .= " room $room";
