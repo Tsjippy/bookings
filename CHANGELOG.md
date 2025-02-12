@@ -7,6 +7,7 @@
 
 ### Fixed
 - error when invalid json form result
+- run sim-booking-paid only once ber submission
 
 ### Updated
 
