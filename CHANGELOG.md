@@ -6,6 +6,7 @@
 ### Changed
 
 ### Fixed
+- error when invalid json form result
 
 ### Updated
 
