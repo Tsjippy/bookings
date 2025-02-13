@@ -4,11 +4,13 @@
 ### Added
 
 ### Changed
-- only show payable bookings from the past
 
 ### Fixed
 
 ### Updated
+
+## [8.1.9] - 2025-02-13
+
 
 ## [8.1.8] - 2025-02-13
 
