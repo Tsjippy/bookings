@@ -4,12 +4,19 @@
 ### Added
 
 ### Changed
+
+### Fixed
+
+### Updated
+
+## [8.1.8] - 2025-02-13
+
+
+### Changed
 - module hooks now include module slug
 
 ### Fixed
 - updating existing booking
-
-### Updated
 
 ## [8.1.6] - 2025-02-12
 
