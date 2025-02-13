@@ -6,6 +6,7 @@
 ### Changed
 
 ### Fixed
+- updating existing booking
 
 ### Updated
 
