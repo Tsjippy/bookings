@@ -23,13 +23,8 @@ function moduleUpdated($newOptions){
 	return $newOptions;
 }
 
-add_filter('sim_submenu_options', __NAMESPACE__.'\moduleOptions', 10, 4);
-function moduleOptions($optionsHtml, $moduleSlug, $settings, $moduleName){
-	//module slug should be the same as grandparent folder name
-	if($moduleSlug != MODULE_SLUG){
-		return $optionsHtml;
-	}
-
+add_filter('sim_submenu_bookings_options', __NAMESPACE__.'\moduleOptions', 10, 2);
+function moduleOptions($optionsHtml, $settings){
 	ob_start();
 	
     ?>
@@ -46,16 +41,11 @@ function moduleOptions($optionsHtml, $moduleSlug, $settings, $moduleName){
 
 	<?php
 
-	return ob_get_clean();
+	return $optionsHtml.ob_get_clean();
 }
 
-add_filter('sim_email_settings', __NAMESPACE__.'\emailSettings', 10, 3);
-function emailSettings($optionsHtml, $moduleSlug, $settings){
-	//module slug should be the same as grandparent folder name
-	if($moduleSlug != MODULE_SLUG){
-		return $optionsHtml;
-	}
-
+add_filter('sim_email_bookings_settings', __NAMESPACE__.'\emailSettings', 10, 2);
+function emailSettings($html, $settings){
 	ob_start();
 
 	?>
@@ -83,17 +73,12 @@ function emailSettings($optionsHtml, $moduleSlug, $settings){
 
 	$emails->printInputs($settings);
 
-	return ob_get_clean();
+	return $html.ob_get_clean();
 }
 
 //run on module activation
-add_action('sim_module_activated', __NAMESPACE__.'\moduleActivated', 10, 2);
-function moduleActivated($moduleSlug, $options){
-	//module slug should be the same as grandparent folder name
-	if($moduleSlug != MODULE_SLUG)	{
-		return;
-	}
-
+add_action('sim_module_bookings_activated', __NAMESPACE__.'\moduleActivated');
+function moduleActivated($options){
 	// Create the table
 	$bookings	= new Bookings();
 	$bookings->createBookingsTable();
