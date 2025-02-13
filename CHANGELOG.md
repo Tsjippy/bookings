@@ -4,6 +4,7 @@
 ### Added
 
 ### Changed
+- only show payable bookings from the past
 
 ### Fixed
 
