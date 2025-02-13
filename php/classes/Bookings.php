@@ -1707,7 +1707,7 @@ class Bookings{
         if($type == 'approval'){
             $bookings    = $this->retrievePendingBookings();
         }else{
-            $bookings    = $this->retrieveUnPaidBookings(false);
+            $bookings    = $this->retrieveUnPaidBookings(true);
         }
 
         if(empty($bookings)){
