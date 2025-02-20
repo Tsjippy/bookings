@@ -118,7 +118,7 @@ function shouldShow($shouldShow, $displayFormResults, $type){
         $calendars  = '';
         $subjects   = [];
 
-        // Find the accomodation names
+        // Find the subject names
         foreach($elements as $element){
             foreach($element->booking_details['subjects'] as $subject){
                 // Only show the subjects we are manager of
@@ -132,7 +132,7 @@ function shouldShow($shouldShow, $displayFormResults, $type){
 
         // Only show subject selection if there is something to choose
         if(count($subjects) > 1){
-            $checkboxes = '<h4>Please select the accomodation you want to see the calendar for</h4>';
+            $checkboxes = '<h4>Please select the calendar you like to see</h4>';
         }
 
         foreach($subjects as $subject){
@@ -192,17 +192,6 @@ function actionHtml($buttonsHtml, $bookingData, $index, $instance){
     $buttonsHtml['archive'] = str_replace('>Archive', 'style="width: max-content;">Cancel booking', $buttonsHtml['archive']);
 
     return $buttonsHtml;
-}
-
-// include room if needed
-add_filter('sim_transform_formtable_data', __NAMESPACE__.'\formtableData', 10, 2);
-function formtableData($output, $elementName){
-    if(str_contains($output, ';')){
-        $rooms  = explode(';', $output);
-        $output = implode('&', $rooms);
-    }
-
-    return $output;
 }
 
 // only show upcoming bookings for own bookings

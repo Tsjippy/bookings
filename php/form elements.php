@@ -312,7 +312,7 @@ function elementHtml($html, $element, $object){
             foreach($subjects as $subject){
                 $cleanSubject    = trim($subject['name']);
                 $checked    = '';
-                if(isset($object->submission->formresults['accomodation']) && $object->submission->formresults['accomodation'] == $cleanSubject){
+                if(isset($object->submission->formresults[$element->name]) && $object->submission->formresults[$element->name] == $cleanSubject){
                     $checked    = 'checked';
                 }
                 $html   .= "<label style='margin-right:5px;'>";
@@ -360,7 +360,7 @@ function elementHtml($html, $element, $object){
 
         $booking   = new Bookings($object);
 
-        // Find the accomodation names
+        // Find the subject names
         foreach($subjects as $subject){
             $html   .= $booking->dateSelectorModal($subject);
         }

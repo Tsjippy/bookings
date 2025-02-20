@@ -100,11 +100,16 @@ function onSubmissionUpdate($message, $formTable, $elementName, $oldValue, $newV
     $bookings   =  new Bookings($formTable);
     $element    =  $bookings->forms->getElementByName($elementName);
 
+    if($oldValue == $newValue){
+        return $message;
+    }
+
     // Get the subject
     $elements    = $bookings->forms->getElementByType('booking_selector');
     if(!$elements){
         return $message;
     }
+
     $subject            = $elements[0]->name;
 
     $currentBookings    = $bookings->getBookingsBySubmission($bookings->forms->submission->id);
@@ -319,8 +324,8 @@ function transformEmpty($replaceValue, $instance, $match){
     if($match == "booking-detalis"){
         
         if(!empty($instance->submission->formresults['booking-startdate'])){
-            $startDates     = array_unique($instance->submission->formresults['booking-startdate']);
-            $endDates       = array_unique($instance->submission->formresults['booking-enddate']);
+            $startDates     = $instance->submission->formresults['booking-startdate'];
+            $endDates       = $instance->submission->formresults['booking-enddate'];
         
             // NO ROOMS
             if(empty($instance->submission->formresults['booking-room'])){
@@ -329,16 +334,16 @@ function transformEmpty($replaceValue, $instance, $match){
                 $endDate        = date(get_option('date_format'), strtotime((string)$endDates[0]));
                 $replaceValue   = "from $startDate till $endDate";
             }else{
-                if(count($startDates) == 1 && count($endDates) == 1){
+                if(count( array_unique($startDates)) == 1 && count(array_unique($endDates)) == 1){
                     $rooms          = implode('&', $instance->submission->formresults['booking-room']);
                     $startDate      = date(get_option('date_format'), strtotime((string)$startDates[0]));
                     $endDate        = date(get_option('date_format'), strtotime((string)$endDates[0]));
                     $replaceValue   = "room $rooms from $startDate till $endDate";
                 }else{
                     $replaceValue   = "room:<br>";
-                    foreach($instance->submission->formresults['booking-room'] as $index=>$room){
-                        $startDate      = date(get_option('date_format'), strtotime((string)$startDates[$index]));
-                        $endDate        = date(get_option('date_format'), strtotime((string)$endDates[$index]));
+                    foreach($instance->submission->formresults['booking-room'] as $room){
+                        $startDate      = date(get_option('date_format'), strtotime((string)$startDates[$room]));
+                        $endDate        = date(get_option('date_format'), strtotime((string)$endDates[$room]));
 
                         $replaceValue   .= "$room from $startDate till $endDate<br>";
                     }
@@ -347,5 +352,6 @@ function transformEmpty($replaceValue, $instance, $match){
         }
         
     }
+
     return $replaceValue;
 }

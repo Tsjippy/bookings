@@ -59,7 +59,7 @@ function emailSettings($html, $settings){
 		wp_get_current_user(), 
 		(object)[
 			"id"			=> -1,
-			"accomodation"	=> "empty",
+			"subject"		=> "empty",
 			"startdate"		=> "2000-01-01",
 			"enddate"		=> "2000-01-01",
 			"payable"		=> "$23"

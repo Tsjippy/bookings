@@ -643,21 +643,21 @@ class Bookings{
         foreach($this->bookings as $booking){
             // Retrieve booking details
             $this->forms->parseSubmissions(null, $booking->submission_id);
-            $bookingData    = $this->forms->submission->formresults;
+            $submission     = $this->forms->submission->formresults;
 
             $userIdElName   = $this->forms->findUserIdElementName();
 
-            $subject        = $bookingData[$this->bookingElements[0]->name];
+            $subject        = $submission[$this->bookingElements[0]->name];
 
             if(
                 // we are not the manager of this subject
-                !in_array($this->user, $this->managers[$subject]) &&
+                !in_array($this->user, (array) $this->managers[$subject]) &&
                 // we do not have permissions
                 !array_intersect($this->forms->userRoles, array_keys($this->forms->tableSettings['view_right_roles']))  &&      // we do not have the right to see others submissions
                 // This is not our own booking
                 (
-                    isset($bookingData[$userIdElName])                      &&
-                    $bookingData[$userIdElName] != $this->forms->user->ID
+                    isset($submission[$userIdElName])                      &&
+                    $submission[$userIdElName] != $this->forms->user->ID
                 )
             ){
                 // no right to see this
@@ -668,9 +668,16 @@ class Bookings{
             }
 
             $hidden         = 'hidden';
-            if(!empty($_REQUEST['id']) && $_REQUEST['id'] == $bookingData['id']){
+            if(!empty($_REQUEST['id']) && $_REQUEST['id'] == $submission['id']){
                 $hidden = '';
             }
+
+            foreach((array)$submission['booking-room'] as $room){
+                if($room == $booking->room){
+                    $subId  = $room;
+                    break;
+                }
+            }            
 
             ?>
             <div class='booking-detail-wrapper <?php echo $hidden;?>' data-booking_id='<?php echo $booking->id;?>'>
@@ -679,91 +686,108 @@ class Bookings{
                 </h6>
 
                 <article class='booking'>
-                    <h4 class='booking-title'><?php echo $bookingData['name'];?></h4>
+                    <h4 class='booking-title'><?php echo $submission['name'];?></h4>
                     <div class='booking-detail'>
-                        <table data-formid='<?php echo $this->forms->submission->formresults['formid'];?>' style='width: unset;'>
+                        <table data-formid='<?php echo $submission['formid'];?>' style='width: unset;'>
                             <thead></thead>
                             <tbody>
+                                <tr class='<?php $this->bookingElements[0]->name;?>' data-id='<?php echo $submission['id'];?>'>
+                                    <td>
+                                        <img src='<?php echo $baseUrl;?>/subject.png' loading='lazy' alt='<?php echo $this->bookingElements[0]->nicename;?>' class='booking-icon' title='<?php echo $this->bookingElements[0]->nicename;?>'>
+                                    </td>
+                                    <td class='booking-data-wrapper edit_forms_table' data-id='<?php echo $this->bookingElements[0]->id;?>' data-name='<?php echo $this->bookingElements[0]->name;?>' data-oldvalue='<?php echo json_encode($submission[$this->bookingElements[0]->name]);?>' data-booking_id='<?php echo $booking->id;?>'>
+                                        <?php echo $submission[$this->bookingElements[0]->name];?>
+                                    </td>
+                                </tr>
                                 <tr>
                                     <td>
                                         <img src='<?php echo $baseUrl;?>/date.png' loading='lazy' alt='date' class='booking-icon'>
                                     </td>
                                     <td class='booking-data-wrapper edit_forms_table'>
-                                        <table data-formid='<?php echo $this->forms->submission->formresults['formid'];?>' style='margin-bottom: 0px; width:unset;'>
-                                            <tr data-id='<?php echo $this->forms->submission->formresults['id'];?>'>
-                                                <td data-name='booking-startdate' data-id='<?php echo $this->forms->getElementByName('booking-startdate')->id;?>' data-oldvalue='<?php echo json_encode($booking->startdate);?>' data-booking_id='<?php echo $booking->id;?>' class='edit_forms_table'>
+                                        <table data-formid='<?php echo $submission['formid'];?>' style='margin-bottom: 0px; width:unset;'>
+                                            <tr data-id='<?php echo $submission['id'];?>'>
+                                                <td data-name='booking-startdate' data-id='<?php echo $this->forms->getElementByName('booking-startdate')->id;?>' data-subid='<?php echo $subId;?>' data-oldvalue='<?php echo json_encode($booking->startdate);?>' data-booking_id='<?php echo $booking->id;?>' class='edit_forms_table'>
                                                     <?php echo date(DATEFORMAT, strtotime($booking->startdate));?>
                                                 </td>
                                             </tr>
-                                            <tr data-id='<?php echo $this->forms->submission->formresults['id'];?>'>
-                                                <td data-name='booking-enddate' data-id='<?php echo  $this->forms->getElementByName('booking-enddate')->id;?>' data-oldvalue='<?php echo json_encode($booking->enddate);?>' data-booking_id='<?php echo $booking->id;?>' class='edit_forms_table'>
+                                            <tr data-id='<?php echo $submission['id'];?>'>
+                                                <td data-name='booking-enddate' data-id='<?php echo  $this->forms->getElementByName('booking-enddate')->id;?>' data-subid='<?php echo $subId;?>' data-oldvalue='<?php echo json_encode($booking->enddate);?>' data-booking_id='<?php echo $booking->id;?>' class='edit_forms_table'>
                                                     <?php echo date(DATEFORMAT, strtotime($booking->enddate));?>
                                                 </td>
                                             </tr>
                                         </table>
                                     </td>
                                 </tr>
+                                <tr class='room' data-id='<?php echo $submission['id'];?>'>
+                                    <td>
+                                        <img src='<?php echo $baseUrl;?>/room.png' loading='lazy' alt='Room' class='booking-icon' title='Room'>
+                                    </td>
+                                    <td class='booking-data-wrapper edit_forms_table' data-id='-104' data-subid='<?php echo $subId;?>' data-name='booking-room' data-oldvalue='<?php echo json_encode($submission['booking-room']);?>' data-booking_id='<?php echo $booking->id;?>'>
+                                        <?php echo $booking->room;?>
+                                    </td>
+                                </tr>
+
                                 <?php
-                                    foreach($this->forms->columnSettings as $key=>$setting){
-                                        if($setting['show'] == 'hide' || !is_numeric($key) || in_array($setting['name'], ['formid', 'formurl', '_wpnonce', 'id', 'submissiontime', 'edittime', 'booking-startdate', 'booking-enddate', 'name'])){
-                                            continue;
+                                foreach($this->forms->columnSettings as $key=>$setting){
+                                    if(
+                                        $setting['show'] == 'hide' || 
+                                        !is_numeric($key) || 
+                                        in_array($setting['name'], ['formid', 'formurl', '_wpnonce', 'id', 'submissiontime', 'edittime', 'booking-startdate', 'booking-enddate', 'booking-room', 'name', $this->bookingElements[0]->name])
+                                    ){
+                                        continue;
+                                    }
+
+                                    $name       = $setting['name'];
+                                    $element    = $this->forms->getElementByName($name);
+                                    $data       = $submission[$name];
+
+                                    $transformedData   = $this->forms->transformInputData($data, $name, $submission);
+                                    if(empty($transformedData)){
+                                        $transformedData    = 'X';
+                                    }
+
+                                    echo "<tr class='$name' data-id='{$submission['id']}'>";
+                                        if(file_exists(SIM\urlToPath("$baseUrl/$name.png"))){
+                                            echo "<td><img src='$baseUrl/$name.png' loading='lazy' alt='{$setting['nice_name']}' class='booking-icon' title='{$setting['nice_name']}'></td>";
+                                        }else{
+                                            echo "<td>{$setting['nice_name']}:</td>";
                                         }
+                                        echo "<td class='booking-data-wrapper edit_forms_table' data-id='$element->id' data-name='$name' data-oldvalue='".json_encode($data)."' data-booking_id='$booking->id'>";
+                                            echo $transformedData;
+                                        echo "</td>";
+                                    echo "</tr>";
+                                }
 
-                                        $name       = $setting['name'];
-                                        $element    = $this->forms->getElementByName($name);
-                                        $data       = $bookingData[$name];
-
-                                        if($name == 'booking-room' && is_array($data) ){
-                                            $data   = implode('&', $data);
+                                //if there are actions
+                                if(!empty($this->forms->formData->actions)){
+                                    //loop over all the actions
+                                    $buttonsHtml	= [];
+                                    $buttons		= '';
+                                    foreach($this->forms->formData->actions as $action){
+                                        if($action == 'archive' && $this->showArchived == 'true' && $this->forms->submissions->archived){
+                                            $action = 'unarchive';
                                         }
-
-                                        $transformedData   = $this->forms->transformInputData($data, $name, $bookingData);
-                                        if(empty($transformedData)){
-                                            $transformedData    = 'X';
+                                        $buttonsHtml[$action]	= "<button class='$action button forms_table_action' name='{$action}_action' value='$action'>".ucfirst($action)."</button>";
+                                    }
+                                    $buttonsHtml = apply_filters('sim_form_actions_html', $buttonsHtml, $submission, $name, $this, $this->forms->submission);
+                                    
+                                    //we have te html now, check for which one we have permission
+                                    foreach($buttonsHtml as $action=>$button){
+                                        if(
+                                            $this->tableEditPermissions || 																			//if we are allowed to do all actions
+                                            $submission['userid'] == $this->user->ID || 															//or this is our own entry
+                                            array_intersect($this->userRoles, (array)$this->forms->columnSettings[$action]['edit_right_roles'])		//or we have permission for this specific button
+                                        ){
+                                            $buttons .= $button;
                                         }
-
-                                        echo "<tr class='$name' data-id='{$this->forms->submission->formresults['id']}'>";
-                                            if(file_exists(SIM\urlToPath("$baseUrl/$name.png"))){
-                                                echo "<td><img src='$baseUrl/$name.png' loading='lazy' alt='{$setting['nice_name']}' class='booking-icon' title='{$setting['nice_name']}'></td>";
-                                            }else{
-                                                echo "<td>{$setting['nice_name']}:</td>";
-                                            }
-                                            echo "<td class='booking-data-wrapper edit_forms_table' data-id='$element->id' data-name='$name' data-oldvalue='".json_encode($data)."' data-booking_id='$booking->id'>";
-                                                echo $transformedData;
-                                            echo "</td>";
+                                    }
+                                    if(!empty($buttons)){
+                                        echo "<tr class='actions' data-id='{$submission['id']}'>";
+                                            echo "<td  colspan='2'>$buttons</td>";
                                         echo "</tr>";
                                     }
-
-                                    //if there are actions
-                                    if(!empty($this->forms->formData->actions)){
-                                        //loop over all the actions
-                                        $buttonsHtml	= [];
-                                        $buttons		= '';
-                                        foreach($this->forms->formData->actions as $action){
-                                            if($action == 'archive' && $this->showArchived == 'true' && $this->forms->submissions->archived){
-                                                $action = 'unarchive';
-                                            }
-                                            $buttonsHtml[$action]	= "<button class='$action button forms_table_action' name='{$action}_action' value='$action'>".ucfirst($action)."</button>";
-                                        }
-                                        $buttonsHtml = apply_filters('sim_form_actions_html', $buttonsHtml, $bookingData, $name, $this, $this->forms->submission);
-                                        
-                                        //we have te html now, check for which one we have permission
-                                        foreach($buttonsHtml as $action=>$button){
-                                            if(
-                                                $this->tableEditPermissions || 																			//if we are allowed to do all actions
-                                                $bookingData['userid'] == $this->user->ID || 															//or this is our own entry
-                                                array_intersect($this->userRoles, (array)$this->forms->columnSettings[$action]['edit_right_roles'])		//or we have permission for this specific button
-                                            ){
-                                                $buttons .= $button;
-                                            }
-                                        }
-                                        if(!empty($buttons)){
-                                            echo "<tr class='actions' data-id='{$this->forms->submission->formresults['id']}'>";
-                                                echo "<td  colspan='2'>$buttons</td>";
-                                            echo "</tr>";
-                                        }
-                                    }
-                                    ?>
+                                }
+                                ?>
                             </tbody>
                         </table>
                     </div>
@@ -1782,10 +1806,10 @@ class Bookings{
         $nights = 0;
         foreach($this->forms->submission->formresults['booking-startdate'] as $index=>$startDate){
             if(empty($this->forms->submission->formresults['booking-enddate'][$index])){
-                continue;
+                $endDate    = array_values($this->forms->submission->formresults['booking-enddate'])[0]; // assume the end date is the same as the first given one
+            }else{
+                $endDate    = $this->forms->submission->formresults['booking-enddate'][$index];
             }
-
-            $endDate    = $this->forms->submission->formresults['booking-enddate'][$index];
             $diff       = strtotime($endDate) - strtotime($startDate);
 
             $days       = round($diff / (60 * 60 * 24));
