@@ -6,6 +6,7 @@
 ### Changed
 
 ### Fixed
+- edit booking details if booked multiple rooms
 
 ### Updated
 
