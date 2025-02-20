@@ -6,9 +6,14 @@
 ### Changed
 
 ### Fixed
-- edit booking details if booked multiple rooms
 
 ### Updated
+
+## [8.2.0] - 2025-02-20
+
+
+### Fixed
+- edit booking details if booked multiple rooms
 
 ## [8.1.8] - 2025-02-13
 
