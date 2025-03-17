@@ -6,6 +6,7 @@
 ### Changed
 
 ### Fixed
+- only process payment when needed
 
 ### Updated
 
