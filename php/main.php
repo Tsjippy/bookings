@@ -88,6 +88,12 @@ function beforeSavingFormData($formResults, $object){
 // Calculate the payable for the booking
 add_filter('sim_after_saving_formdata', __NAMESPACE__.'\afterSavingFormData', 10, 2);
 function afterSavingFormData($message, $object){
+    $bookingElements   = $object->getElementByType('booking_selector');
+
+    if(!$bookingElements || is_wp_error($bookingElements)){
+        return $message;
+    }
+
     $bookings                   = new Bookings($object);
     $bookings->calculatePaymentAmount();
 

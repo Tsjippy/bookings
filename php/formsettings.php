@@ -8,6 +8,7 @@ function extraFormSettings($object){
     <br>
     <h4>Payment Indicator Element</h4>
     <select name="payment_indicator">
+        <option value=''>---</option>
         <?php
         foreach($object->formElements as $element){
             $checked    = '';
@@ -23,6 +24,7 @@ function extraFormSettings($object){
     <br>
     <h4>Payment Amount Element</h4>
     <select name="payment_amount_el">
+        <option value=''>---</option>
         <?php
         foreach($object->formElements as $element){
             $checked    = '';
@@ -38,6 +40,7 @@ function extraFormSettings($object){
     <br>
     <h4>Payment Details Element</h4>
     <select name="payment_details_el">
+        <option value=''>---</option>
         <?php
         foreach($object->formElements as $element){
             $checked    = '';
@@ -53,6 +56,7 @@ function extraFormSettings($object){
     <br>
     <h4>Price Per Night Element</h4>
     <select name="price_per_night_el">
+        <option value=''>---</option>
         <?php
         foreach($object->formElements as $element){
             $checked    = '';

@@ -1791,7 +1791,7 @@ class Bookings{
         $paymentAmountEl    = $this->forms->formData->payment_amount_el;
         $paymentAmountName  = $this->forms->getElementById($paymentAmountEl, 'name');
 
-        if(empty($pricePerNightEl)){
+        if(empty($pricePerNightEl) || empty($paymentAmountEl)){
             return;
         }
 
