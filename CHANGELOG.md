@@ -6,9 +6,14 @@
 ### Changed
 
 ### Fixed
-- only process payment when needed
 
 ### Updated
+
+## [8.2.1] - 2025-03-17
+
+
+### Fixed
+- only process payment when needed
 
 ## [8.2.0] - 2025-02-20
 
