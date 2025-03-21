@@ -1017,14 +1017,6 @@ class Bookings{
 		}
 
 		$bookingId   = $wpdb->insert_id;
-
-		//Create an booking warning for the owner and the managers
-        $start	= new \DateTime($event['startdate'].' '.$event['starttime'], new \DateTimeZone(wp_timezone_string()));
-
-        //Warn 1 day in advance
-        $start	= $start->getTimestamp() - DAY_IN_SECONDS;
-
-        wp_schedule_single_event($start, 'send_booking_reminder_action', [$bookingId]);
     }
 
     /**
@@ -1392,6 +1384,32 @@ class Bookings{
 		return $wpdb->get_results($query);
     }
 
+    /**
+     * Retrieve all the bookings of a certain startdate
+     *
+     *  @param  string  $date   The date in '2000-01-24' format
+     */
+    public function retrieveFinishedBookings($date){
+        global $wpdb;
+
+        $query	    = "SELECT * FROM $this->tableName WHERE enddate = '$date'";
+
+		return $wpdb->get_results($query);
+    }
+
+    /**
+     * Retrieve all the bookings of a certain startdate
+     *
+     *  @param  string  $date   The date in '2000-01-24' format
+     */
+    public function retrieveStartingBookings($date){
+        global $wpdb;
+
+        $query	    = "SELECT * FROM $this->tableName WHERE startdate = '$date'";
+
+		return $wpdb->get_results($query);
+    }
+
     /** Get a booking by booking id 
      *
      * @param   int $id         The booking id
@@ -1434,74 +1452,91 @@ class Bookings{
 
     /**
      * Sends a reminder to the owner of a booking and to the managers
-     *
-     * @param   int     $bookingId  The id of a booking
      */
-    public function sendBookingReminder($bookingId){
-        $booking    = $this->getBookingById($bookingId);
+    public function sendBookingEmails(){
+        $this->forms->getForms();
 
-        if(!$booking ){
-            return;
-        }
+        foreach($this->forms->forms as $form){
 
-        $submissions = $this->forms->getSubmissions(null, $booking->submission_id);
+            $this->forms->formId    = $form->id;
 
-        if(!empty($submissions)){
-            // Load the form
-            $this->forms->getForm($submissions[0]->form_id);
+            $this->forms->formData  = $form;
 
-            $accommodation          = $booking->subject;
+            $this->getSubjectData(true);
 
-            $accommodationString    = $accommodation;
-            if(!empty($booking->room)){
-                $accommodationString  = "$accommodation room $booking->room";
+            if(empty($this->bookingElements)){
+                continue;
             }
 
-            $userIdElName       = $this->forms->findUserIdElementName();
-            if(is_wp_error($userIdElName)){
-                return $userIdElName;
-            }
+            $subjectKey = $this->bookingElements[0]->name;
 
-            if($userIdElName){
-                $userId             = $submissions[0]->formresults[$userIdElName];
-            }else{
-                $userId             = $submissions[0]->userid;
-            }
-            
-            if(!is_numeric($userId)){
-                SIM\printArray('No user id, trying phone numbers');
+            $emails     = $form->emails;
+		
+            foreach($emails as $mail){
+                if($mail['emailtrigger'] == 'before-stay' || $mail['emailtrigger'] == 'after-stay'){
+                    if($mail['emailtrigger'] == 'before-stay'){
+                        $date       = date('Y-m-d', strtotime("+{$mail['days-before']} days", time()));
+                        $bookings   = $this->retrieveStartingBookings($date);
+                    }
 
-                foreach($submissions[0]->formresults['phone'] as $phonenumber){
-                    if (str_starts_with($phonenumber, '+')) {
-                        SIM\printArray(SIM\trySendSignal("Just a reminder about your booking for $accommodationString tommorow. Hopefully you didn't forget:)", $phonenumber));
+                    elseif($mail['emailtrigger'] == 'after-stay'){
+                        $date       = date('Y-m-d', strtotime("-{$mail['days-after']} days", time()));
+                        $bookings   = $this->retrieveFinishedBookings($mail['days-after']);
+                    }
+
+                    foreach($bookings as $booking){
+
+                        $this->forms->getSubmission($booking->submission_id);
+    
+                        $from       = $this->forms->processPlaceholders($mail['from']);
+        
+                        $to         = $this->forms->processPlaceholders($mail['to']);
+        
+                        $subject    = $this->forms->processPlaceholders($mail['subject']);
+        
+                        $message    = $this->forms->processPlaceholders($mail['message']);
+        
+                        $headers	= [];
+        
+                        if(!empty(trim($mail['headers']))){
+                            $headers	= explode("\n", trim($mail['headers']));
+                        }
+
+                        if(!empty($from)){
+                            $headers[]	= "Reply-To: $from";
+                        }                    
+
+                        add_filter('wp_mail', [$this->forms, 'addFormData'], 1);
+                        wp_mail($to , $subject, $message, $headers);
+                        remove_filter('wp_mail', [$this->forms, 'addFormData'], 1);
+
+                        $this->getSubjectManagers();
+
+                        $bookingSubject    =  $this->forms->submission->formresults[$subjectKey];
+
+                        if(!isset($this->managers[$bookingSubject])){
+                            SIM\printArray("No manager found for $bookingSubject");
+                            return;
+                        }
+
+                        $managers    = (array) $this->managers[$bookingSubject];
+
+                        foreach($managers as $manager){
+                            $name       = $this->forms->submission->formresults[$this->forms->findUserNameElementName()];
+
+                            // first repplace all occurences of the name for the manager name
+                            $newSubject = str_replace($name, $manager->display_name, $subject);
+                            $newMessage = str_replace($name, $manager->display_name, $message);
+
+                            // Then replace your with the name
+                            $newSubject = str_replace('your', $name."'s", $newSubject);
+                            $newMessage = str_replace('your', $name."'s", $newMessage);
+
+                            wp_mail($manager->user_email, $newSubject, $newMessage, $headers);
+                        }
                     }
                 }
-
-                return;
             }
-            SIM\trySendSignal("Just a reminder about your booking for $accommodationString tommorow. Hopefully you didn't forget:)", $userId);
-
-            $this->getSubjectManagers();
-
-            if(!isset($this->managers[$accommodation])){
-                SIM\printArray("No manager found for $accommodation");
-                return;
-            }
-
-            $managers    = (array) $this->managers[$accommodation];
-
-            $user       = get_userdata($userId);
-            if($user){
-                $name       = 'by '.$user->display_name;
-            }elseif(!empty($submissions[0]->formresults['name'])){
-                $name       = 'by '.$submissions[0]->formresults['name'];
-            }else{
-                $name       = '';
-            }
-            
-            foreach($managers as $manager){
-                SIM\trySendSignal("Just a reminder about tommorows booking for $accommodationString $name ", $manager);
-            }        
         }
     }
 
@@ -1700,14 +1735,13 @@ class Bookings{
             $message        = $bookingEmail->message;
             $headers        = $bookingEmail->headers;
 
-            // Send Signal message
-            SIM\trySendSignal($message, $phonenumber);
-
             if(!$email){
                 continue;
             }
 
+            add_filter('wp_mail', [$this->forms, 'addFormData'], 1);
             wp_mail( $email, $subject, $message, $headers);
+            remove_filter('wp_mail', [$this->forms, 'addFormData'], 1);
         }
     }
 
