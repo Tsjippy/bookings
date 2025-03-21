@@ -319,7 +319,7 @@ function placeholderOption($formBuilderForm){
         echo "<option>%booking-startdate%</option>";
         echo "<option>%booking-enddate%</option>";
         echo "<option>%booking-room%</option>";
-        echo "<option>%booking-detalis%</option>";
+        echo "<option>%booking-details%</option>";
         echo "<option>%paid%</option>";
     }
 }
@@ -327,7 +327,7 @@ function placeholderOption($formBuilderForm){
 add_filter('sim-forms-transform-empty', __NAMESPACE__.'\transformEmpty', 10, 3);
 function transformEmpty($replaceValue, $instance, $match){
 
-    if($match == "booking-detalis"){
+    if($match == "booking-details"){
         
         if(!empty($instance->submission->formresults['booking-startdate'])){
             $startDates     = $instance->submission->formresults['booking-startdate'];
