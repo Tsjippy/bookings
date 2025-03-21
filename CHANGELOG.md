@@ -2,13 +2,18 @@
 ## [Unreleased] - yyyy-mm-dd
 
 ### Added
-- booking e-mails
 
 ### Changed
 
 ### Fixed
 
 ### Updated
+
+## [8.2.2] - 2025-03-21
+
+
+### Added
+- booking e-mails
 
 ## [8.2.1] - 2025-03-17
 
