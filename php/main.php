@@ -336,20 +336,22 @@ function transformEmpty($replaceValue, $instance, $match){
             // NO ROOMS
             if(empty($instance->submission->formresults['booking-room'])){
                 
-                $startDate      = date(get_option('date_format'), strtotime((string)$startDates[0]));
-                $endDate        = date(get_option('date_format'), strtotime((string)$endDates[0]));
+                $startDate      = date(DATEFORMAT, strtotime((string)$startDates[0]));
+                $endDate        = date(DATEFORMAT, strtotime((string)$endDates[0]));
                 $replaceValue   = "from $startDate till $endDate";
             }else{
                 if(count( array_unique($startDates)) == 1 && count(array_unique($endDates)) == 1){
+                    $startDate      = array_values($startDates)[0];
+                    $endDate        = array_values($endDates)[0];
                     $rooms          = implode('&', $instance->submission->formresults['booking-room']);
-                    $startDate      = date(get_option('date_format'), strtotime((string)$startDates[0]));
-                    $endDate        = date(get_option('date_format'), strtotime((string)$endDates[0]));
+                    $startDate      = date(DATEFORMAT, strtotime((string)$startDate));
+                    $endDate        = date(DATEFORMAT, strtotime((string)$endDate));
                     $replaceValue   = "room $rooms from $startDate till $endDate";
                 }else{
                     $replaceValue   = "room:<br>";
                     foreach($instance->submission->formresults['booking-room'] as $room){
-                        $startDate      = date(get_option('date_format'), strtotime((string)$startDates[$room]));
-                        $endDate        = date(get_option('date_format'), strtotime((string)$endDates[$room]));
+                        $startDate      = date(DATEFORMAT, strtotime((string)$startDates[$room]));
+                        $endDate        = date(DATEFORMAT, strtotime((string)$endDates[$room]));
 
                         $replaceValue   .= "$room from $startDate till $endDate<br>";
                     }
