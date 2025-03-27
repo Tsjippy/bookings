@@ -6,6 +6,7 @@
 ### Changed
 
 ### Fixed
+- bookings in table view
 
 ### Updated
 
