@@ -149,7 +149,7 @@ function onSubmissionUpdate($message, $formTable, $elementName, $oldValue, $newV
     // location and date & time are editable
     if(in_array($elementName, ['startdate', 'enddate', 'startime', 'endtime', 'subject'])){
         // update the booking
-        $result = $bookings->updateBooking($currentBooking, [$elementName => $newValue]);
+        $result = $bookings->updateBooking($currentBooking, [$elementName => $newValue], true);
         if(is_wp_error($result)){
             return $result;
         }

@@ -219,3 +219,37 @@ function formdataRetrieved($submissions, $userId, $object){
 
     return $submissions;
 }
+
+// Use room as subId in table view
+add_filter('sim-formresults-split-subid', __NAMESPACE__.'\adjustSubId', 10, 3);
+function adjustSubId($x, $newSubmission, $object){
+    // Return if this is not a booking
+    if(!isset($newSubmission->formresults['booking-startdate'])){
+        return $x;
+    }
+
+    // find the number to be used
+    return array_keys($newSubmission->formresults['booking-startdate'])[$x];
+}
+
+// only show the date for the current room
+add_filter('sim-form-result-table-value', __NAMESPACE__.'\adjustCellValue', 10, 3);
+function adjustCellValue($value, $columnSetting, $values){
+    if(
+        (
+            $columnSetting['name'] != 'booking-startdate' &&
+            $columnSetting['name'] != 'booking-enddate' &&
+            $columnSetting['name'] != 'booking-room' 
+        ) || 
+        !isset($values['subid'])
+    ){
+        return $value;
+    }
+
+    if($columnSetting['name'] == 'booking-room' ){
+        return $values['subid'];
+    }
+
+    // return only the value for this room
+    return $value[$values['subid']];
+}

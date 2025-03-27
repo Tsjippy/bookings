@@ -1166,8 +1166,9 @@ class Bookings{
      *
      * @param   int|object  $booking    The booking or booking id
      * @param   array       $values     The values to update in an a named array
+     * @param   bool        $skipHtml   Whether to return new details html, default false
      */
-    public function updateBooking($booking, $values){
+    public function updateBooking($booking, $values, $skipHtml=false){
         global $wpdb;
         
         // Get the booking
@@ -1208,6 +1209,10 @@ class Bookings{
         $event                          = json_decode(get_post_meta($booking->event_id, 'eventdetails', true), true);
         if(!empty($event)){
             update_post_meta($booking->event_id, 'eventdetails', json_encode(array_merge($event, $values)));
+        }
+
+        if($skipHtml){
+            return $message;
         }
 
         // Build the return array
