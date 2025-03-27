@@ -520,30 +520,13 @@ class Bookings{
                             if(
                                 $class	!= 'unavailable' &&                                                                 // not in the past
                                 $overlap &&                                                                                 // overlap enabled
+                                get_class($this->forms) != 'SIM\FORMS\DisplayFormResults'   &&                              // we are not in the overview page           
                                 (
                                     !isset($this->unavailable[date('Y-m-d', strtotime('-1 day', $workingDate))])    ||      // this is the first day of a booking
                                     !isset($this->unavailable[date('Y-m-d', strtotime('+1 day', $workingDate))])            // or the last day of a booking
                                 )
                             ){
                                 $class	.= ' available';
-
-                                // if the booking is only 1 or two days long we still should mark it as booked otherwise it wil not be visible in the calendar
-                                if(isset($this->unavailable[$workingDateStr])){
-                                    if(   
-                                        $this->unavailable[date('Y-m-d', strtotime('-1 day', $workingDate))] != $this->unavailable[$workingDateStr]   &&  // this is the first day of a booking
-                                        $this->unavailable[date('Y-m-d', strtotime('+2 day', $workingDate))] != $this->unavailable[$workingDateStr]       // booking is maximum 2 days long
-                                    ){
-                                        $class	.= ' booked first-day';
-                                    }
-                                    
-                                    if(   
-                                        $this->unavailable[date('Y-m-d', strtotime('+1 day', $workingDate))] != $this->unavailable[$workingDateStr]   &&  // this is the last day of a booking
-                                        $this->unavailable[date('Y-m-d', strtotime('-2 day', $workingDate))] != $this->unavailable[$workingDateStr]       // booking is maximum 2 days long
-                                    ){
-                                        // both booked and available
-                                        $class	.= ' booked last-day';
-                                    }
-                                }
                             }else{
                                 $class	.= ' booked';
                             }
