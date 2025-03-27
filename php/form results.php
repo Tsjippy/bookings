@@ -96,17 +96,21 @@ function shouldShow($shouldShow, $displayFormResults, $type){
     $targetDate                 = time();
     $bookedSubject              = '';
     $bookings->forms->submission = null;
+
+    // Show a specific booking
     if(!empty($_REQUEST['id'])){
-        $bookings->forms->submission    = $bookings->forms->getSubmissions(null, $_REQUEST['id'])[0];
-        $targetDate                     = strtotime($bookings->forms->submission->formresults['booking-startdate'][0]);
-        
+        $bookings->forms->submission    = $bookings->forms->getSubmission($_REQUEST['id']);
+
+        // Find the subject
         foreach($elements as $element){
-            $elementName                    = $element->name;
+            $elementName                = $element->name;
             if(isset($bookings->forms->submission->formresults[$elementName])){
-                $bookedSubject                  = $bookings->forms->submission->formresults[$elementName];
+                $bookedSubject          = $bookings->forms->submission->formresults[$elementName];
                 break;
             }
         }
+
+        $targetDate                     = strtotime(array_values($bookings->forms->submission->formresults['booking-startdate'])[0]);
     }
     
     $html   = '<div class="tables-wrapper">';
@@ -178,8 +182,6 @@ function shouldShow($shouldShow, $displayFormResults, $type){
     $html   .= '</div>';
 
     return $html;
-    
-    
 }
 
 // Change Archive button text

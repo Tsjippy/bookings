@@ -143,7 +143,7 @@ class Bookings{
             }
 
             if(!empty($_REQUEST['id']) && $this->forms->submission->id != $_REQUEST['id']){
-                $this->forms->submission = $this->forms->getSubmission($_REQUEST['submissionid']);
+                $this->forms->submission = $this->forms->getSubmission($_REQUEST['id']);
             }
             ?>
             <div class="rooms">
@@ -1387,10 +1387,14 @@ class Bookings{
     /**
      * Retrieve all the bookings of a certain startdate
      *
-     *  @param  string  $date   The date in '2000-01-24' format
+     *  @param  string|int  $date   The date in 'Y-m-d' format or unix timestamp
      */
-    public function retrieveFinishedBookings($date){
+    public function retrieveBookingsByEndDate($date){
         global $wpdb;
+
+        if(is_numeric($date)){
+            $date   = date('Y-m-d', $date);
+        }
 
         $query	    = "SELECT * FROM $this->tableName WHERE enddate = '$date'";
 
@@ -1400,10 +1404,14 @@ class Bookings{
     /**
      * Retrieve all the bookings of a certain startdate
      *
-     *  @param  string  $date   The date in '2000-01-24' format
+     *  @param  string|int  $date   The date in 'Y-m-d' format or unix timestamp
      */
-    public function retrieveStartingBookings($date){
+    public function retrieveBookingsByStartDate($date){
         global $wpdb;
+
+        if(is_numeric($date)){
+            $date   = date('Y-m-d', $date);
+        }
 
         $query	    = "SELECT * FROM $this->tableName WHERE startdate = '$date'";
 
@@ -1476,12 +1484,12 @@ class Bookings{
                 if($mail['emailtrigger'] == 'before-stay' || $mail['emailtrigger'] == 'after-stay'){
                     if($mail['emailtrigger'] == 'before-stay'){
                         $date       = date('Y-m-d', strtotime("+{$mail['days-before']} days", time()));
-                        $bookings   = $this->retrieveStartingBookings($date);
+                        $bookings   = $this->retrieveBookingsByStartDate($date);
                     }
 
                     elseif($mail['emailtrigger'] == 'after-stay'){
                         $date       = date('Y-m-d', strtotime("-{$mail['days-after']} days", time()));
-                        $bookings   = $this->retrieveFinishedBookings($mail['days-after']);
+                        $bookings   = $this->retrieveBookingsByEndDate($mail['days-after']);
                     }
 
                     foreach($bookings as $booking){
