@@ -5,6 +5,7 @@
 
 ### Changed
 - adjust sub id if needed
+- show booked dates in results page
 
 ### Fixed
 
