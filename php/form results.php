@@ -224,7 +224,7 @@ function formdataRetrieved($submissions, $userId, $object){
 add_filter('sim-formresults-split-subid', __NAMESPACE__.'\adjustSubId', 10, 3);
 function adjustSubId($x, $newSubmission, $object){
     // Return if this is not a booking
-    if(!isset($newSubmission->formresults['booking-startdate'])){
+    if(!isset($newSubmission->formresults['booking-startdate']) || !is_array($newSubmission->formresults['booking-startdate'])){
         return $x;
     }
 
