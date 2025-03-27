@@ -7,6 +7,7 @@
 
 ### Fixed
 - %booking-details% dates
+- details view of specific booking by id
 
 ### Updated
 
