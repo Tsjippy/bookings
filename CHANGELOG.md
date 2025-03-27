@@ -6,10 +6,15 @@
 ### Changed
 
 ### Fixed
-- %booking-details% dates
-- details view of specific booking by id
 
 ### Updated
+
+## [8.2.4] - 2025-03-27
+
+
+### Fixed
+- %booking-details% dates
+- details view of specific booking by id
 
 ## [8.2.3] - 2025-03-21
 
