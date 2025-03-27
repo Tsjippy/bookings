@@ -4,12 +4,17 @@
 ### Added
 
 ### Changed
-- adjust sub id if needed
-- show booked dates in results page
 
 ### Fixed
 
 ### Updated
+
+## [8.2.6] - 2025-03-27
+
+
+### Changed
+- adjust sub id if needed
+- show booked dates in results page
 
 ## [8.2.5] - 2025-03-27
 
