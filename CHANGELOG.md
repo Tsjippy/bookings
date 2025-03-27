@@ -6,9 +6,14 @@
 ### Changed
 
 ### Fixed
-- bookings in table view
 
 ### Updated
+
+## [8.2.5] - 2025-03-27
+
+
+### Fixed
+- bookings in table view
 
 ## [8.2.4] - 2025-03-27
 
