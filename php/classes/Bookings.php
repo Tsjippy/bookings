@@ -1165,7 +1165,7 @@ class Bookings{
      * Update an existing booking
      *
      * @param   int|object  $booking    The booking or booking id
-     * @param   array       $values     The values to update
+     * @param   array       $values     The values to update in an a named array
      */
     public function updateBooking($booking, $values){
         global $wpdb;
