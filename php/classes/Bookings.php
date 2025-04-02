@@ -1506,29 +1506,31 @@ class Bookings{
                         wp_mail($to , $subject, $message, $headers);
                         remove_filter('wp_mail', [$this->forms, 'addFormData'], 1);
 
-                        $this->getSubjectManagers();
+                        if($mail['emailtrigger'] == 'before-stay'){
+                            $this->getSubjectManagers();
 
-                        $bookingSubject    =  $this->forms->submission->formresults[$subjectKey];
+                            $bookingSubject    =  $this->forms->submission->formresults[$subjectKey];
 
-                        if(!isset($this->managers[$bookingSubject])){
-                            SIM\printArray("No manager found for $bookingSubject");
-                            return;
-                        }
+                            if(!isset($this->managers[$bookingSubject])){
+                                SIM\printArray("No manager found for $bookingSubject");
+                                return;
+                            }
 
-                        $managers    = (array) $this->managers[$bookingSubject];
+                            $managers    = (array) $this->managers[$bookingSubject];
 
-                        foreach($managers as $manager){
-                            $name       = $this->forms->submission->formresults[$this->forms->findUserNameElementName()];
+                            foreach($managers as $manager){
+                                $name       = $this->forms->submission->formresults[$this->forms->findUserNameElementName()];
 
-                            // first repplace all occurences of the name for the manager name
-                            $newSubject = str_replace($name, $manager->display_name, $subject);
-                            $newMessage = str_replace($name, $manager->display_name, $message);
+                                // first repplace all occurences of the name for the manager name
+                                $newSubject = str_replace($name, $manager->display_name, $subject);
+                                $newMessage = str_replace($name, $manager->display_name, $message);
 
-                            // Then replace your with the name
-                            $newSubject = str_replace('your', $name."'s", $newSubject);
-                            $newMessage = str_replace('your', $name."'s", $newMessage);
+                                // Then replace your with the name
+                                $newSubject = str_replace('your', $name."'s", $newSubject);
+                                $newMessage = str_replace('your', $name."'s", $newMessage);
 
-                            wp_mail($manager->user_email, $newSubject, $newMessage, $headers);
+                                wp_mail($manager->user_email, $newSubject, $newMessage, $headers);
+                            }
                         }
                     }
                 }
