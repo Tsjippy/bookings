@@ -4,6 +4,7 @@
 ### Added
 
 ### Changed
+- only send a copy to booking manager on before-stay
 
 ### Fixed
 - after stay e-mails
