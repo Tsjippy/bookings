@@ -6,6 +6,7 @@
 ### Changed
 
 ### Fixed
+- after stay e-mails
 
 ### Updated
 
