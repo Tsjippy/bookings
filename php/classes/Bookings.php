@@ -1477,7 +1477,7 @@ class Bookings{
 
                     elseif($mail['emailtrigger'] == 'after-stay'){
                         $date       = date('Y-m-d', strtotime("-{$mail['days-after']} days", time()));
-                        $bookings   = $this->retrieveBookingsByEndDate($mail['days-after']);
+                        $bookings   = $this->retrieveBookingsByEndDate($date);
                     }
 
                     foreach($bookings as $booking){
