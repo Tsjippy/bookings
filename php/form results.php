@@ -199,20 +199,28 @@ function actionHtml($buttonsHtml, $bookingData, $index, $instance){
 // only show upcoming bookings for own bookings
 add_filter('sim_retrieved_formdata', __NAMESPACE__.'\formdataRetrieved', 10, 3);
 function formdataRetrieved($submissions, $userId, $object){
-    if(is_numeric($userId) && $object->getElementByType('booking_selector')){
+    $bookingSelectors   = $object->getElementByType('booking_selector');
+    if(!$bookingSelectors){
+        return $submissions;
+    }
+
+    $bookings   = new Bookings($object);
+
+    $bookings->getSubjectData();
+
+    // Get the subjects for the current user
+    $bookings->getSubjectManagers($bookings->user->ID);
+
+    $subjectsToKeep  = array_keys($bookings->managers);
+    
+    // Loop over all booking selctors in the form
+    foreach($bookingSelectors as $bookingSelector){
+
+        // loop over all submissions
         foreach($submissions as $index=>$submission){
-            $result = maybe_unserialize($submission->formresults);
-
-            if(isset($result['booking-enddate'])){
-                $endDate    = $result['booking-enddate'];
-                if(is_array($endDate)){
-                    $endDate    = $endDate[0];
-                }
-
-                if($endDate < date('Y-m-d')){
-                    unset($submissions[$index]);
-                    $object->total--;
-                }
+            // remove any submission not belonging to the  $subjectsToKeep
+            if(!in_array($submission->formresults[$bookingSelector->name], $subjectsToKeep)){
+                unset($submissions[$index]);
             }
         }
     }
@@ -252,4 +260,20 @@ function adjustCellValue($value, $columnSetting, $values){
 
     // return only the value for this room
     return $value[$values['subid']];
+}
+
+// only show future bookings in table view
+add_filter('sim_formdata_retrieval_query', __NAMESPACE__.'\alterQuery', 10, 3);
+function alterQuery($query, $userId, $instance){
+    $bookings   = new Bookings($instance);
+
+    if(empty($instance->getElementByType('booking_selector'))){
+        return $query;
+    }
+
+    $date   = date('Y-m-d');
+
+    $query      .= " and id IN(SELECT submission_id FROM `$bookings->tableName` WHERE enddate >= '$date' ORDER BY 'startdate')";
+
+    return $query;
 }
