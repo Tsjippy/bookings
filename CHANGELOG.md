@@ -4,13 +4,20 @@
 ### Added
 
 ### Changed
+
+### Fixed
+
+### Updated
+
+## [8.2.7] - 2025-04-05
+
+
+### Changed
 - only send a copy to booking manager on before-stay
 
 ### Fixed
 - after stay e-mails
 - only export bookings for the current logged in manager
-
-### Updated
 
 ## [8.2.6] - 2025-03-27
 
