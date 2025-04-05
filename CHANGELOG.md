@@ -8,6 +8,7 @@
 
 ### Fixed
 - after stay e-mails
+- only export bookings for the current logged in manager
 
 ### Updated
 
