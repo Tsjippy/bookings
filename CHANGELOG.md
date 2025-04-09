@@ -6,10 +6,15 @@
 ### Changed
 
 ### Fixed
-- show personal bookings
-- display issue with payable bookings
 
 ### Updated
+
+## [8.2.8] - 2025-04-09
+
+
+### Fixed
+- show personal bookings
+- display issue with payable bookings
 
 ## [8.2.7] - 2025-04-05
 
