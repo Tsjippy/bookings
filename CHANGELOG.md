@@ -7,6 +7,7 @@
 
 ### Fixed
 - show personal bookings
+- display issue with payable bookings
 
 ### Updated
 
