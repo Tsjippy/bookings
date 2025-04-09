@@ -6,6 +6,7 @@
 ### Changed
 
 ### Fixed
+- show personal bookings
 
 ### Updated
 
