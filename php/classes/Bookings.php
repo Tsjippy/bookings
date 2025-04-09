@@ -1774,7 +1774,7 @@ class Bookings{
 
         $submissions    = [];
 
-        // only show one booking for submissions with multiple
+        // Add a sub id to bookings which is equal to the booked room
         foreach($bookings as $booking){
             // one submission can have multiple bookings, only load the submission once
             if(empty($submission) || $submission->id != $booking->submission_id){
@@ -1784,10 +1784,6 @@ class Bookings{
             if(!empty($booking->room)){
                 $submission->subId  = $booking->room;
             }
-            $submission->formresults['booking-room']        = $booking->room;
-            $submission->formresults['booking-startdate']   = $booking->startdate;
-            $submission->formresults['booking-enddate']     = $booking->enddate;
-            $submission->formresults['booking-id']          = $booking->id;
 
             $submissions[]                                  = clone $submission;
         }

@@ -263,7 +263,11 @@ function adjustCellValue($value, $columnSetting, $values){
     }
 
     // return only the value for this room
-    return $value[$values['subid']];
+    if(is_array($value)){
+        return $value[$values['subid']];
+    }
+
+    return $value;
 }
 
 // only show future bookings in table view
@@ -272,7 +276,7 @@ function alterQuery($query, $userId, $instance){
     if(str_contains($query, " id='")){
         return $query;
     }
-    
+
     $bookings   = new Bookings($instance);
 
     if(empty($instance->getElementByType('booking_selector'))){
