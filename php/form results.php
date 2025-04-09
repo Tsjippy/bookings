@@ -199,6 +199,11 @@ function actionHtml($buttonsHtml, $bookingData, $index, $instance){
 // only show upcoming bookings for own bookings
 add_filter('sim_retrieved_formdata', __NAMESPACE__.'\formdataRetrieved', 10, 3);
 function formdataRetrieved($submissions, $userId, $object){
+    // Do not filter if this is for a specific user
+    if(is_numeric($userId)){
+        return $submissions;
+    }
+
     $bookingSelectors   = $object->getElementByType('booking_selector');
     if(!$bookingSelectors){
         return $submissions;
@@ -215,7 +220,6 @@ function formdataRetrieved($submissions, $userId, $object){
     
     // Loop over all booking selctors in the form
     foreach($bookingSelectors as $bookingSelector){
-
         // loop over all submissions
         foreach($submissions as $index=>$submission){
             // remove any submission not belonging to the  $subjectsToKeep
@@ -265,6 +269,10 @@ function adjustCellValue($value, $columnSetting, $values){
 // only show future bookings in table view
 add_filter('sim_formdata_retrieval_query', __NAMESPACE__.'\alterQuery', 10, 3);
 function alterQuery($query, $userId, $instance){
+    if(str_contains($query, " id='")){
+        return $query;
+    }
+    
     $bookings   = new Bookings($instance);
 
     if(empty($instance->getElementByType('booking_selector'))){
