@@ -203,8 +203,8 @@ function updateRooms($message, $elementName, $oldValue, $newValue, $booking, $cu
     $oldMessage = implode('<br>', $newValue);
     $message    = str_replace($oldMessage, $newMessage, $message, $count);
 
-    $deleted    = array_diff($oldValue, $newValue);
-    $added      = array_diff($newValue, $oldValue);
+    $deleted    = array_diff((array) $oldValue, (array)$newValue);
+    $added      = array_diff((array)$newValue, (array)$oldValue);
 
     // we changed a room
     if(count($oldValue) == count($newValue)){
@@ -213,6 +213,14 @@ function updateRooms($message, $elementName, $oldValue, $newValue, $booking, $cu
 
         foreach($oldValue as $i=>$oldRoom){
             $newRoom    = $newValue[$i];
+
+            // Update the index of the dates
+            $bookings->forms->submission->formresults['booking-startdate'][$newRoom]    = $bookings->forms->submission->formresults['booking-startdate'][$oldRoom];
+            $bookings->forms->submission->formresults['booking-enddate'][$newRoom]      = $bookings->forms->submission->formresults['booking-enddate'][$oldRoom] ;
+
+            // Delete the old dates
+            unset($bookings->forms->submission->formresults['booking-startdate'][$oldRoom]);
+            unset($bookings->forms->submission->formresults['booking-enddate'][$oldRoom]);
 
             // Find the booking for this room
             foreach($currentBookings as $b){
@@ -234,6 +242,7 @@ function updateRooms($message, $elementName, $oldValue, $newValue, $booking, $cu
     if(!empty($deleted)){
         foreach($currentBookings as $booking){
             $room   = $booking->room;
+
             // if this is the booking for the room
             if(in_array($room, $deleted)){
                 // Delete the booking
