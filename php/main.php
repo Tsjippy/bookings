@@ -341,14 +341,18 @@ function transformEmpty($replaceValue, $instance, $match){
         if(!empty($instance->submission->formresults['booking-startdate'])){
             $startDates     = $instance->submission->formresults['booking-startdate'];
             $endDates       = $instance->submission->formresults['booking-enddate'];
-        
+
             // NO ROOMS
             if(empty($instance->submission->formresults['booking-room'])){
-                
                 $startDate      = date(DATEFORMAT, strtotime((string)$startDates[0]));
                 $endDate        = date(DATEFORMAT, strtotime((string)$endDates[0]));
                 $replaceValue   = "from $startDate till $endDate";
             }else{
+                if(!is_array($instance->submission->formresults['booking-room'])){
+                    SIM\printArray($instance->submission->formresults['booking-room']);
+                    $instance->submission->formresults['booking-room']  = [$instance->submission->formresults['booking-room']];
+                }
+
                 if(count( array_unique($startDates)) == 1 && count(array_unique($endDates)) == 1){
                     $startDate      = array_values($startDates)[0];
                     $endDate        = array_values($endDates)[0];
@@ -367,7 +371,6 @@ function transformEmpty($replaceValue, $instance, $match){
                 }
             }
         }
-        
     }
 
     return $replaceValue;
