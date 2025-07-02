@@ -126,6 +126,53 @@ class Bookings{
     }
 
     /**
+     * Room description modals
+     */
+    public function roomDescription($subject){
+        ob_start();
+
+        $subjectName    = strtolower(str_replace(' ', '_', $subject['name']));
+
+        ?>
+        <div name='<?php echo $subjectName;?>-room-modal' class="booking rooms modal hidden" style="display:unset; z-index: 999999999 !important;">
+            <div class="modal-content">
+                <span class="close mobile-sticky">&times;</span>
+
+                <h4>Room descriptions</h4>
+                <p>Select a room to see its description</p>
+                <div class='tablink-wrapper'>
+                    <?php
+                    // Render tablink buttons
+                    foreach($subject['rooms'] as $index=>$room){
+                        ?>
+                        <button class='button tablink formbuilderform <?php if($index === 0){echo 'active';}?>' type='button' id='show_<?php echo $subjectName;?>_room_<?php echo $index;?>' data-target='<?php echo $subjectName;?>_room_<?php echo $index;?>' style='margin-right:4px;'>
+                            <?php echo $room['name'];?>
+                        </button>
+                        <?php
+                    }
+                ?>
+                </div>
+                <?php
+
+                // Room description
+                foreach($subject['rooms'] as $index=>$room){
+                    ?>
+                    <div id="<?php echo $subjectName;?>_room_<?php echo $index;?>" class="tabcontent <?php if($index > 0){echo 'hidden';}?>">
+                        <?php
+                        echo do_shortcode($room['description']);
+                        ?>
+                    </div>
+                    <?php
+                }
+                ?>
+            </div>
+        </div>
+        <?php
+        
+        return ob_get_clean();
+    }
+
+    /**
      * Function to get the room selector html
      * 
      * @param   array   $subject   The name
@@ -133,73 +180,83 @@ class Bookings{
      * @param   bool    $radio      true for radio choice, false for checkboxes
      */
     public function roomSelector($subject, $isResult, $radio=false){
-        ob_start();
+        if(empty($subject['amount']) || $subject['amount'] == 1){
+            return;
+        }
 
-        if($subject['amount'] > 1){
+        ob_start();
+        
+        if($radio){
+            $type   = 'radio';
+        }else{
+            $type   = 'checkbox';
+        }
+
+        if(!empty($_REQUEST['id']) && $this->forms->submission->id != $_REQUEST['id']){
+            $this->forms->submission = $this->forms->getSubmission($_REQUEST['id']);
+        }
+
+        ?>
+        <div class="rooms">
+            <?php
+            $s  = 's';
             if($radio){
-                $type   = 'radio';
-            }else{
-                $type   = 'checkbox';
+                $s  = '';
             }
 
-            if(!empty($_REQUEST['id']) && $this->forms->submission->id != $_REQUEST['id']){
-                $this->forms->submission = $this->forms->getSubmission($_REQUEST['id']);
+            if($isResult){
+                echo "Select the room$s you want to see the calendar for<br>";
+            }else{
+                $subjectName    = strtolower(str_replace(' ', '_', $subject['name']));
+                echo "Select one or more room(s) you want to book <button class='button sim small room-details' type='button' data-target='{$subjectName}-room-modal'>Show room details</button><br>";
+            }
+            
+            if(isset($subject['nrtype']) && $subject['nrtype'] == 'letters'){
+                $alphabet = range('A', 'Z');
+                for ($x = 0; $x < $subject['amount']; $x++) {
+                    $checked    = '';
+                    if(is_array($this->forms->submission->formresults['booking-room']) && in_array($alphabet[$x], $this->forms->submission->formresults['booking-room'])){
+                        $checked    = 'checked';
+                    }
+                    ?>
+                    <input type='<?php echo $type;?>' name='room' class='room-selector' value='<?php echo $alphabet[$x];?>' <?php echo $checked;?>>
+                    <?php
+                    echo $alphabet[$x];
+                }
+            }elseif(isset($subject['nrtype']) && $subject['nrtype'] == 'custom'){
+                foreach($subject['rooms'] as $room){
+                    if(!is_array($room)){
+                        $room   = [
+                            "name"          => $room,
+                            "description"   => ''
+                        ];
+                    }
+
+                    $checked    = '';
+                    if(is_array($this->forms->submission->formresults['booking-room']) && in_array($room['name'], $this->forms->submission->formresults['booking-room'])){
+                        $checked    = 'checked';
+                    }
+                    ?>
+                    <input type='<?php echo $type;?>' name='room' class='room-selector' value='<?php echo $room['name'];?>' <?php echo $checked;?>>
+                    <?php
+                    echo $room['name'];
+                }
+            }else{
+                for ($x = 1; $x <= $subject['amount']; $x++) {
+                    $checked    = '';
+                    if(isset($this->forms->submission->formresults['booking-room']) && in_array($x, $this->forms->submission->formresults['booking-room'])){
+                        $checked    = 'checked';
+                    }
+                    ?>
+                    <input type='<?php echo $type;?>' name='room' class='room-selector' value='<?php echo $x;?>' <?php echo $checked;?>>
+                    <?php
+                    echo $x;
+                }
             }
             ?>
-            <div class="rooms">
-                <?php
-                $s  = 's';
-                if($radio){
-                    $s  = '';
-                }
-
-                if($isResult){
-                    echo "Select the room$s you want to see the calendar for<br>";
-                }else{
-                    echo "First, select one or more room(s) you want to book:<br>";
-                }
-                
-                if(isset($subject['nrtype']) && $subject['nrtype'] == 'letters'){
-                    $alphabet = range('A', 'Z');
-                    for ($x = 0; $x < $subject['amount']; $x++) {
-                        $checked    = '';
-                        if(is_array($this->forms->submission->formresults['booking-room']) && in_array($alphabet[$x], $this->forms->submission->formresults['booking-room'])){
-                            $checked    = 'checked';
-                        }
-                        ?>
-                        <input type='<?php echo $type;?>' name='room' class='room-selector' value='<?php echo $alphabet[$x];?>' <?php echo $checked;?>>
-                        <?php
-                        echo $alphabet[$x];
-                    }
-                }elseif(isset($subject['nrtype']) && $subject['nrtype'] == 'custom'){
-                    foreach($subject['rooms'] as $room){
-                        $checked    = '';
-                        if(is_array($this->forms->submission->formresults['booking-room']) && in_array($room, $this->forms->submission->formresults['booking-room'])){
-                            $checked    = 'checked';
-                        }
-                        ?>
-                        <input type='<?php echo $type;?>' name='room' class='room-selector' value='<?php echo $room;?>' <?php echo $checked;?>>
-                        <?php
-                        echo $room;
-                    }
-                }else{
-                    for ($x = 1; $x <= $subject['amount']; $x++) {
-                        $checked    = '';
-                        if(isset($this->forms->submission->formresults['booking-room']) && in_array($x, $this->forms->submission->formresults['booking-room'])){
-                            $checked    = 'checked';
-                        }
-                        ?>
-                        <input type='<?php echo $type;?>' name='room' class='room-selector' value='<?php echo $x;?>' <?php echo $checked;?>>
-                        <?php
-                        echo $x;
-                    }
-                }
-                ?>
-            </div>
-            <br>
-            <br>
-            <?php
-        }
+        </div>
+        <br>
+        <?php
 
         return ob_get_clean();
     }
@@ -214,20 +271,28 @@ class Bookings{
     private function roomCalendars($rooms, $subject, $date){
         foreach($rooms as $room){
             $roomHidden = 'hidden';
+
+            if(!is_array($room)){
+                $room   = [
+                    "name"          => $room,
+                    "description"   => ''
+                ];
+            }
+
             if(
                 isset($_REQUEST['id'])                                  &&              // We should display a specific submission
                 is_array($this->forms->submission->formresults['booking-room'])   &&    // and a room is set
-                in_array($room, $this->forms->submission->formresults['booking-room'])  // and it is this room
+                in_array($room['name'], $this->forms->submission->formresults['booking-room'])  // and it is this room
             ){
                 $roomHidden = '';
             }
             ?>
-            <div class='roomwrapper <?php echo $roomHidden;?>'data-room='<?php echo $room;?>'>
-                <h4>Room <?php echo $room;?></h4>
+            <div class='roomwrapper <?php echo $roomHidden;?>'data-room='<?php echo $room['name'];?>'>
+                <h4>Room <?php echo $room['name']?></h4>
                 <div class='flex'>
                     <?php
-                    echo $this->monthCalendar($subject, $room, $date);
-                    echo $this->monthCalendar($subject, $room, strtotime('first day of next month', $date));
+                    echo $this->monthCalendar($subject, $room['name'], $date);
+                    echo $this->monthCalendar($subject, $room['name'], strtotime('first day of next month', $date));
                     ?>
                 </div>
             </div>
@@ -237,7 +302,7 @@ class Bookings{
 
     /**
      * Displays the booking calendars
-     * @param   string      $subject    The subject of the calendar
+     * @param   array       $subject    The subject of the calendar
      * @param   int         $date       The date to retrieve the calendar for
      * @param   boolean     $isAdmin    Wheter to show for admin puposes
      * @param   boolean     $hidden     Wheter to hide the calendar by default
@@ -323,11 +388,33 @@ class Bookings{
                 ?>
             </div>
             <?php
+
             if($isAdmin){
                 ?>
                 <div class="booking details-wrapper">
                     <?php
                     echo $this->detailHtml();
+                    ?>
+                </div>
+                <?php
+            }
+
+            // We don't need this on mobile devices
+            elseif(!wp_is_mobile()){
+                ?>
+                <div>
+                    <?php
+                    // Room description
+                    foreach($subject['rooms'] as $index=>$room){
+                        ?>
+                        <div class="hidden room-description" data-room_name="<?php echo $room['name'];?>" >
+                            <h4>Room <?php echo $room['name'];?></h4>
+                            <?php
+                            echo do_shortcode($room['description']);
+                            ?>
+                        </div>
+                        <?php
+                    }
                     ?>
                 </div>
                 <?php
@@ -423,6 +510,8 @@ class Bookings{
 
         ob_start();
         $cleanSubject    = trim($subject['name']);
+
+        echo $this->roomDescription($subject);
 
 		?>
         <div name='<?php echo $cleanSubject;?>-modal' class="booking modal hidden" style="display:unset;">

@@ -373,6 +373,10 @@ function roomSelected(target){
 
     // Show the selected room
     modal.querySelectorAll(`[data-room="${target.value}"]`).forEach(el=>el.classList.toggle('hidden'));
+
+    // Show selected room description
+    modal.querySelectorAll(`.room-description[data-room_name="${target.value}"]`).forEach(el=>el.classList.toggle('hidden'));
+    
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -455,15 +459,50 @@ document.addEventListener('click', (ev) => {
         roomSelected(target);
     }else if(target.matches('.confirmed-roles-switcher')){
         target.closest('.formfieldlabel').querySelectorAll('.confirmed-roles-wrapper').forEach(el=>el.classList.toggle('hidden'));
+    }else if(target.matches(`.room-details`)){
+        target.closest(`.inputwrapper`).querySelector(`[name="${target.dataset.target}"]`).classList.toggle('hidden');
+    }else if(target.matches(`.location-details`)){
+        target.closest(`.inputwrapper`).querySelector(`[name="location-details-modal"]`).classList.toggle('hidden');
     }
+
+    
 });
 
 document.addEventListener('change', (ev) => {
-    if(ev.target.name.includes('default_booking_state')){
-        if(ev.target.value == 'pending' && ev.target.checked){
-            ev.target.closest('.formfield.formfieldlabel').querySelectorAll('button.confirmed-roles-switcher.hidden').forEach(but=>but.classList.remove('hidden'));
+    let target  = ev.target;
+
+    if(target.name.includes('default_booking_state')){
+        if(target.value == 'pending' && target.checked){
+            target.closest('.formfield.formfieldlabel').querySelectorAll('button.confirmed-roles-switcher.hidden').forEach(but=>but.classList.remove('hidden'));
         }else{
-            ev.target.closest('.formfield.formfieldlabel').querySelectorAll('button.confirmed-roles-switcher:not(.hidden)').forEach(but=>but.classList.add('hidden'));
+            target.closest('.formfield.formfieldlabel').querySelectorAll('button.confirmed-roles-switcher:not(.hidden)').forEach(but=>but.classList.add('hidden'));
         }
+    }else if(target.name.includes('amount')){
+        let numberingType   = target.closest('.tabcontent').querySelector(`.room-numbering`);
+        let rooms           = target.closest('.tabcontent').querySelector(`.rooms`);
+
+        if(target.value < 2){
+            numberingType.classList.add('hidden');
+            rooms.classList.add('hidden');
+        }else{
+            numberingType.classList.remove('hidden');
+            rooms.classList.remove('hidden');
+        }
+    }else if(target.matches('.numbering-type')){
+        target.closest(`.tabcontent`).querySelectorAll('.roomname').forEach(el =>{
+            if(target.value == 'custom'){
+                el.classList.remove('hidden');
+            }else{
+                el.classList.add('hidden');
+            }
+        });
+    }
+});
+
+document.addEventListener('input', (ev) => {
+    let target  = ev.target;
+    if(target.matches(`.subject-name`)){
+        let tabId   = target.closest(`.tabcontent`).id;
+        document.querySelector(`[data-target="${tabId}"`).textContent   = target.value;
     }
 });

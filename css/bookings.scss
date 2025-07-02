@@ -132,9 +132,17 @@ button.change-booking-date{
 }
 
 @media (min-width: $fullwidth){
-    .booking.modal .modal-content{
-        margin: 10px auto;
-        max-width: min(600px,100%);
+    .booking.modal {
+
+        .modal-content{
+            margin: 10px auto;
+            width: max-content;
+            max-width: 100vw;
+
+            .room-details{
+                display: none;
+            }
+        }
     }
 }
 
@@ -185,15 +193,22 @@ article.booking{
 .bookings-wrap{
     @media (min-width: $fullwidth){
         overflow: auto;
+        display: flex;
     }
+
     @media (max-width: $fullwidth){
         margin-top: 20px;
     }
 }
 
+.room-description{
+    min-width: 300px;
+}
+
 .navigators{
     min-height: 30px;
 }
+
 .navigator{
     text-align: center;
     border: none;
@@ -239,10 +254,9 @@ article.booking{
 }
 
 .overview{
-    /*width: 100%;*/
 
     @media (min-width: $fullwidth){
-        float: left;
+        max-width: 500px;
         margin-right: 40px;
     }
 
@@ -313,10 +327,11 @@ article.booking{
     /* height: 522px; */
     padding: 0px 40px;
     width: 100%;
+    display: inline-block;
+
     @media (max-width: $tabletwidth){
         width: 100%;
     }
-    display: inline-block;
 
     .booking-title{
         text-align: center;
@@ -515,57 +530,4 @@ article.booking{
     .dir.sewcpu6[class][class] {
         padding-bottom: calc(var(--spacingBottom) * var(--fgg-f-l-a));
     }
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-.dir.hnwb2pb[class][class] {
-    margin: 0;
-    padding: 0;
-}
-
-.hnwb2pb[class][class] {
-    color: inherit;
-    font-size: 1em;
-    font-weight: inherit;
-    line-height: inherit;
-}
-
-.dir.s1bh1tge[class][class] {
-    padding-top: var(--fgg-f-l-a);
-}
-.s1bh1tge[class][class] {
-    color: var(--fo-jk-r-s);
-    font-family: var(--e-ls-qkw);
-    font-weight: var(--e-y-j-d-v-j);
-    font-size: var(--c-zdwk-p);
-    line-height: var(--j-p-z-kco);
-}
-
-@supports (overflow: clip){
-._uxnsba {
-    overflow: clip !important;
-}
-}
-
-._uxnsba {
-    line-height: 18px !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-    display: -webkit-box !important;
-    -webkit-line-clamp: 2 !important;
 }
