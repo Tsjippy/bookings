@@ -159,7 +159,16 @@ class Bookings{
                     ?>
                     <div id="<?php echo $subjectName;?>_room_<?php echo $index;?>" class="tabcontent <?php if($index > 0){echo 'hidden';}?>">
                         <?php
-                        echo do_shortcode($room['description']);
+                        $content    = force_balance_tags(do_shortcode($subject['description']));
+                        $content    = preg_replace('/<!--(.|\s)*?-->/', '', $content);
+
+                        if(empty($content)){
+                            $manager        = get_userdata($subject['managers'][0]);
+                            if($manager){
+                                $content = "No details found, sorry.<br> Contact <a href='mailto:$manager->user_email?subject=Please add some description for {$subject['name']} room {$room['name']}&body=Dear $manager->display_name,'>the manager</a>";
+                            }
+                        }
+                        echo $content;
                         ?>
                     </div>
                     <?php
@@ -410,7 +419,17 @@ class Bookings{
                         <div class="hidden room-description" data-room_name="<?php echo $room['name'];?>" >
                             <h4>Room <?php echo $room['name'];?></h4>
                             <?php
-                            echo do_shortcode($room['description']);
+                            // Make sure we have valid content, balanced and comments removed.
+                            $content    = force_balance_tags(do_shortcode($room['description']));
+                            $content    = preg_replace('/<!--(.|\s)*?-->/', '', $content);
+                            if(empty($content)){
+                                $manager        = get_userdata($subject['managers'][0]);
+                                if($manager){
+                                    echo "No details found, sorry.<br> Contact <a href='mailto:$manager->user_email?subject=Please add some description for {$subject['name']} room {$room['name']}&body=Dear $manager->display_name,'>the manager</a>";
+                                }
+                            }else{
+                                echo $content;
+                            }
                             ?>
                         </div>
                         <?php

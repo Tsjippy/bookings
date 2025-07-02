@@ -397,7 +397,10 @@ function elementHtml($html, $element, $object){
             }
 
             $details        .= "<div id='$subjectName' class='tabcontent $hidden'>";
-                $content    = do_shortcode($subject['description']);
+                // Make sure we have valid content, balanced and comments removed.
+                $content    = force_balance_tags(do_shortcode($subject['description']));
+                $content    = preg_replace('/<!--(.|\s)*?-->/', '', $content);
+                
                 if(empty($content)){
                     $manager        = get_userdata($subject['managers'][0]);
                     if($manager){
