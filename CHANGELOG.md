@@ -2,15 +2,22 @@
 ## [Unreleased] - yyyy-mm-dd
 
 ### Added
-- location and room descriptions
 
 ### Changed
 
 ### Fixed
-- room problem
-- potential bugs in location descriptions
 
 ### Updated
+
+## [8.3.1] - 2025-07-02
+
+
+### Added
+- location and room descriptions
+
+### Fixed
+- room problem
+- potential bugs in location descriptions
 
 ## [8.2.9] - 2025-04-28
 
