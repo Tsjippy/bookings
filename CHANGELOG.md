@@ -8,6 +8,7 @@
 
 ### Fixed
 - room problem
+- potential bugs in location descriptions
 
 ### Updated
 
