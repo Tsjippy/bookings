@@ -4,6 +4,7 @@
 ### Added
 
 ### Changed
+- bookings display
 
 ### Fixed
 
