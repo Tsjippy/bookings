@@ -82,11 +82,15 @@ function getNextMonth(){
 }
 
 function approveBooking(){
-	$bookings	= new Bookings();
+	$bookingsObject	= new Bookings();
 
-	$bookings->forms->formId	= $_POST['formid'];
+	$bookingsObject->forms->formId	= $_POST['formid'];
 
-	$result	= $bookings->updateBooking($_POST['id'], ['pending' => 0]);
+	$bookings    				= $bookingsObject->getBookingsBySubmission($_POST['id']);
+
+	foreach($bookings as $booking){
+		$result	= $bookingsObject->updateBooking($booking, ['pending' => 0]);
+	}
 
 	if(is_wp_error($result)){
 		return $result;

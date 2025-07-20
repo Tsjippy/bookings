@@ -1265,6 +1265,10 @@ class Bookings{
         // Get the booking
         if(is_numeric($booking)){
             $booking        = $this->getBookingById($booking);
+
+            if(!$booking){
+                return new WP_Error('Invalid Booking id', 'Invalid Booking Id submitted');
+            }
         }
 
         // only keep valid values
@@ -1855,8 +1859,8 @@ class Bookings{
      * Adds the buttons to approve or delete a pending booking
      */
     public function pendingButtons($buttonsHtml, $values, $subId, $object){
-        $buttonsHtml['approve'] = "<button class='button approve' type='button' data-id='{$values['booking-id']}' data-formid='{$object->submission->form_id}'>Approve</button>";
-        $buttonsHtml['delete']  = "<button class='button delete' type='button' data-id='{$values['booking-id']}' data-formid='{$object->submission->form_id}'>Delete</button><br>";
+        $buttonsHtml['approve'] = "<button class='button approve' type='button' data-id='{$values['id']}' data-formid='{$object->submission->form_id}'>Approve</button>";
+        $buttonsHtml['delete']  = "<button class='button delete' type='button' data-id='{$values['id']}' data-formid='{$object->submission->form_id}'>Delete</button><br>";
         unset($buttonsHtml['archive']);
 
         return $buttonsHtml;
