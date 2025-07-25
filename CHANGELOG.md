@@ -6,9 +6,14 @@
 ### Changed
 
 ### Fixed
-- issue with updaing bookings
 
 ### Updated
+
+## [8.3.4] - 2025-07-25
+
+
+### Fixed
+- issue with updaing bookings
 
 ## [8.3.3] - 2025-07-24
 
