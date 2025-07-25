@@ -51,8 +51,16 @@ class Bookings{
         if(empty($this->forms->formData->split)){
             $this->forms->formData->split   = [];
         }
-        $this->forms->formData->split[] = $this->forms->getElementByName('booking-startdate', 'id');
-        $this->forms->formData->split[] = $this->forms->getElementByName('booking-enddate', 'id');
+
+        $splitId  = $this->forms->getElementByName('booking-startdate', 'id');
+        if(!in_array($splitId, $this->forms->formData->split)){
+            $this->forms->formData->split[] = $splitId;
+        }
+
+        $splitId  = $this->forms->getElementByName('booking-enddate', 'id');
+        if(!in_array($splitId, $this->forms->formData->split)){
+            $this->forms->formData->split[] = $splitId;
+        }
     }
 
     /**

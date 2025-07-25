@@ -217,13 +217,20 @@ function formdataRetrieved($submissions, $userId, $object){
     $bookings->getSubjectManagers($bookings->user->ID);
 
     $subjectsToKeep  = array_keys($bookings->managers);
+
+    // find the user id element
+	$userIdKey	= $bookings->forms->findUserIdElementName();
     
     // Loop over all booking selctors in the form
     foreach($bookingSelectors as $bookingSelector){
         // loop over all submissions
         foreach($submissions as $index=>$submission){
-            // remove any submission not belonging to the  $subjectsToKeep
-            if(!in_array($submission->formresults[$bookingSelector->name], $subjectsToKeep)){
+            // remove any submission not belonging to the $subjectsToKeep
+            if(
+                !in_array($submission->formresults[$bookingSelector->name], $subjectsToKeep)    &&  // Not managed by us
+                $submission->formresults[$userIdKey]    != $bookings->user->ID                      // Not our own sumissionn
+
+            ){
                 unset($submissions[$index]);
             }
         }
