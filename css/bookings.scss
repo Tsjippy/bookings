@@ -41,20 +41,20 @@
 
 .calendar.day{
     &.available:not(.unavailable, .inbetween, .startdate, .enddate):hover, &.inbetween{
-        background-color: $primary_color;
+        background-color: $primary_color !important;
         color: white;
         border-radius: 30px;
     }
 
     &.startdate{
-        background: linear-gradient(to right,rgba(189, 41, 25, 1) 0%, rgba(189, 41, 25, 1) 30%, rgba(189, 41, 25, 0.7) 100%);
+        background: linear-gradient(to right,rgba(189, 41, 25, 1) 0%, rgba(189, 41, 25, 1) 30%, rgba(189, 41, 25, 0.7) 100%) !important;
         color: white;
         border-bottom-left-radius: 30px;
         border-top-left-radius: 30px;
     } 
 
     &.enddate{
-        background: linear-gradient(to right,rgba(189, 41, 25, 0.7) 0%, rgba(189, 41, 25, 1) 70%, rgba(189, 41, 25, 1) 100%);
+        background: linear-gradient(to right,rgba(189, 41, 25, 0.7) 0%, rgba(189, 41, 25, 1) 70%, rgba(189, 41, 25, 1) 100%)  !important;
         color: white;
         border-bottom-right-radius: 30px;
         border-top-right-radius: 30px;
@@ -78,6 +78,8 @@
         float: right;
 
         border-radius: 10px;
+
+        margin: 5px;
 
         &.disabled{
             background-color: #ddd;
