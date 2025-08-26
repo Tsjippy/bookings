@@ -4,6 +4,13 @@ use SIM;
 
 add_action('sim-forms-extra-form-settings', __NAMESPACE__.'\extraFormSettings');
 function extraFormSettings($object){
+    // check if the form has a booking selector eement
+    $bookingElements   = $object->getElementByType('booking_selector');
+
+    if(!$bookingElements || is_wp_error($bookingElements)){
+        return;
+    }
+
     ?>
     <br>
     <h4>Payment Indicator Element</h4>
