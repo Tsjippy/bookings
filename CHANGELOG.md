@@ -4,6 +4,7 @@
 ### Added
 
 ### Changed
+- only show payment settings when a booking element is present
 
 ### Fixed
 
