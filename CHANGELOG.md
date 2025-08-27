@@ -4,11 +4,16 @@
 ### Added
 
 ### Changed
-- only show payment settings when a booking element is present
 
 ### Fixed
 
 ### Updated
+
+## [8.3.6] - 2025-08-27
+
+
+### Changed
+- only show payment settings when a booking element is present
 
 ## [8.3.5] - 2025-08-13
 
