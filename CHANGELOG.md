@@ -6,6 +6,7 @@
 ### Changed
 
 ### Fixed
+- issue when non-booking selector had booking details
 
 ### Updated
 
