@@ -22,13 +22,13 @@ function addFormElementOptions($element){
     asort($userRoles);
 
     $bookingDetails = [];
-    if($element != null && !empty($element->booking_details)){
+    if($element != null && $element->type == 'booking_selector' && !empty($element->booking_details)){
         $bookingDetails = maybe_unserialize($element->booking_details);
     }else{
         return;
     }
 
-    if(!isset($bookingDetails['subjects'])){
+    if(empty($bookingDetails['subjects'])){
         $bookingDetails['subjects'] = ['No Subjects defined yet'];
     }
 

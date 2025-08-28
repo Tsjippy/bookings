@@ -1699,7 +1699,7 @@ class Bookings{
         // loop over all booking selector elements of this form
         foreach($els as $el){
             // find the subject
-            if($el->booking_details && !empty($el->booking_details['subjects'])){
+            if($el->booking_details && is_array($el->booking_details['subjects'])){
                 // Loop over all subjects
                 foreach($el->booking_details['subjects'] as $subject){
                     $managerIds  = $subject['managers'];
