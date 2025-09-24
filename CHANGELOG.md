@@ -6,9 +6,14 @@
 ### Changed
 
 ### Fixed
-- issue when non-booking selector had booking details
 
 ### Updated
+
+## [8.3.7] - 2025-09-24
+
+
+### Fixed
+- issue when non-booking selector had booking details
 
 ## [8.3.6] - 2025-08-27
 
