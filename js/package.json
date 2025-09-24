@@ -4,7 +4,7 @@
   "description": "bookings",
   "main": "./bookings.js",
   "scripts": {
-    "build": "webpack --watch --entry ./bookings.js --output-path . --output-filename bookings.min.js --progress --mode=production --devtool source-map"
+    "bookings": "webpack --watch --entry ./bookings.js --output-path . --output-filename bookings.min.js --progress --mode=production --devtool source-map"
   },
   "author": "Ewald Harmsen",
   "license": "ISC",

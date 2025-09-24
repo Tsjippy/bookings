@@ -65,13 +65,8 @@ async function getMonth(target){
             formData.append('shortcode_id', wrapper.dataset.shortcodeid);
         }
 
-        let loaderWrapper	= document.createElement("DIV");
-        loaderWrapper.setAttribute('class','loaderwrapper');
-
-        let loader	= document.createElement("IMG");
-        loader.setAttribute("src", sim.loadingGif);
-
-        loaderWrapper.insertAdjacentElement('beforeEnd', loader);
+        let loader	= document.createElement("DIV");
+        loader.innerHTML    = sim.loaderHtml;
 
         let position    = '';
         if(type == 'prev'){
@@ -81,7 +76,7 @@ async function getMonth(target){
             position    = 'beforeEnd';
         }
         wrapper.querySelectorAll('.calendar.table .roomwrapper>div').forEach(div=>{
-            let clone   = loaderWrapper.cloneNode(true);
+            let clone   = loader.cloneNode(true);
             div.insertAdjacentElement(position, clone);
         });
             
