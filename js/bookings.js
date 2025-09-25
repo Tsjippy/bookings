@@ -1,3 +1,5 @@
+import { showLoader } from "../../../plugins/sim-plugin/includes/js/imports";
+
 function reset(modal, onlyEnd=false, skipRoomSelector=true){
     if(!onlyEnd){
         modal.querySelector('.booking-startdate').value     = '';
@@ -65,10 +67,6 @@ async function getMonth(target){
             formData.append('shortcode_id', wrapper.dataset.shortcodeid);
         }
 
-        let loader	= document.createElement("DIV");
-        loader.innerHTML    = sim.loaderHtml;
-
-        let position    = '';
         if(type == 'prev'){
             // insert the loader at the left
             position    = 'afterBegin';
@@ -76,8 +74,8 @@ async function getMonth(target){
             position    = 'beforeEnd';
         }
         wrapper.querySelectorAll('.calendar.table .roomwrapper>div').forEach(div=>{
-            let clone   = loader.cloneNode(true);
-            div.insertAdjacentElement(position, clone);
+            let loader  = Main.showLoader(div, false);
+            div.insertAdjacentElement(position, loader);
         });
             
         let response = await FormSubmit.fetchRestApi('bookings/get_next_month', formData);
