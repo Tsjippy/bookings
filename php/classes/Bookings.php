@@ -1388,6 +1388,10 @@ class Bookings{
     protected function retrieveMonthBookings($month, $year, $subject, $room, $extraDays=0){
         global $wpdb;
 
+        if(is_array($room)){
+            $room   = $room['name'];
+        }
+
 		//select all bookings of this month
         $startDate  = "$year-$month-01";
         $endDate    = date("Y-m-t", strtotime($startDate));
