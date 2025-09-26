@@ -6,6 +6,7 @@
 ### Changed
 
 ### Fixed
+- error with displaying reservations
 
 ### Updated
 
