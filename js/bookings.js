@@ -18,7 +18,7 @@ function reset(modal, onlyEnd=false, skipRoomSelector=true){
         modal.querySelectorAll('.room-selector').forEach(el => el.checked=false);    
 
         if(modal.querySelectorAll('.room-selector').length > 1){
-            modal.querySelectorAll('.roomwrapper:not(.hidden)').forEach(el => el.classList.add('hidden'));
+            modal.querySelectorAll('.room-wrapper:not(.hidden)').forEach(el => el.classList.add('hidden'));
         }
     }
 }
@@ -60,45 +60,49 @@ async function getMonth(target){
         formData.append('subject', wrapper.dataset.subject);
         formData.append('formid', wrapper.dataset.formid);
         formData.append('type', type);
+
         if(wrapper.dataset.elid != undefined){
             formData.append('elid', wrapper.dataset.elid);
         }
+
         if(wrapper.dataset.shortcodeid != undefined){
             formData.append('shortcode_id', wrapper.dataset.shortcodeid);
         }
 
+        let position;
         if(type == 'prev'){
             // insert the loader at the left
             position    = 'afterBegin';
         }else{
             position    = 'beforeEnd';
         }
-        wrapper.querySelectorAll('.calendar.table .roomwrapper>div').forEach(div=>{
-            let loader  = Main.showLoader(div, false);
-            div.insertAdjacentElement(position, loader);
+
+        wrapper.querySelectorAll('.room-wrapper .month-wrapper').forEach(monthWrapper => {
+            let loader  = Main.showLoader(monthWrapper, false, 100);
+            monthWrapper.insertAdjacentElement(position, loader);
+
+            loader.style.marginLeft = '75px';
+            loader.style.marginTop  = '75px';
         });
             
         let response = await FormSubmit.fetchRestApi('bookings/get_next_month', formData);
 
         if(response){
             // add the new months to each room
-            wrapper.querySelectorAll('.roomwrapper').forEach((el, index)=>{
-                el.querySelector('.loaderwrapper').outerHTML        = response.months[index];
+            wrapper.querySelectorAll('.room-wrapper .loader-wrapper').forEach((el, index) => {
+                el.outerHTML        = response.months[index];
             });
 
             // hide current navigator and add new one
             wrapper.querySelector('.navigators .navigator:not(.hidden)').classList.add('hidden');
             wrapper.querySelector('.navigators').insertAdjacentHTML('beforeEnd', response.navigator);
-            wrapper.querySelector('.booking.details-wrapper').insertAdjacentHTML('beforeEnd', response.details);
+            wrapper.querySelectorAll('.booking.details-wrapper').forEach(el => el.insertAdjacentHTML('beforeEnd', response.details));
         }
     }else{
-        console.log(monthContainers);
         // hide the current navigator
         wrapper.querySelector('.navigators .navigator:not(.hidden)').classList.add('hidden');
 
         // show the new one
-        console.log(wrapper);
-        console.log(target);
         wrapper.querySelector(`.navigator[data-month="${target.dataset.month}"][data-year="${target.dataset.year}"]`).classList.remove('hidden');
         
         // Show the month calendar
@@ -138,7 +142,7 @@ async function approve(target){
         let querySelector   = `.bookings-wrap[data-subject='${building}']`;
 
         if(room != undefined){
-            querySelector   += ` .roomwrapper[data-room='${room}']`;
+            querySelector   += ` .room-wrapper[data-room='${room}']`;
         }
 
         let subjectWrapper  = document.querySelector(querySelector);
@@ -152,7 +156,7 @@ async function approve(target){
         subjectWrapper.closest('.bookings-wrap').querySelector(`.booking.details-wrapper`).insertAdjacentHTML('beforeEnd', response.details);
         
     }else{
-        row.querySelector('.loaderwrapper').outerHTML  = initContent;
+        row.querySelector('.loader-wrapper').outerHTML  = initContent;
     }
 }
 
@@ -195,14 +199,14 @@ function storeDates(target){
     let modal   = target.closest('.modal');
 
     // remove all previous dates
-    target.closest('form').querySelectorAll('.selected-booking-dates .clone_div').forEach((el, index)=>{
+    target.closest('form').querySelectorAll('.selected-booking-dates .clone-div').forEach((el, index)=>{
         if(index>0){
             el.remove();
         }
     });
 
     let parent          = target.closest('form').querySelector('.selected-booking-dates');
-    let original        = parent.querySelector('.clone_div');
+    let original        = parent.querySelector('.clone-div');
 
     // set values and create clones
     modal.querySelectorAll('.startdate').forEach((el, index)=>{
@@ -215,7 +219,7 @@ function storeDates(target){
         let startEl     = clone.querySelector('[name^="booking-startdate"]');
         let endEl       = clone.querySelector('[name^="booking-enddate"]');
         let roomEl      = clone.querySelector('[name^="booking-room"]');
-        let room        = el.closest('.roomwrapper').dataset.room;
+        let room        = el.closest('.room-wrapper').dataset.room;
 
         startEl.value   = el.dataset.isodate;
         endEl.value     = modal.querySelectorAll('.day.enddate')[index].dataset.isodate;
@@ -251,7 +255,7 @@ function daySelected(target){
         return;
     }
 
-    let roomWrapper = target.closest('.roomwrapper');
+    let roomWrapper = target.closest('.room-wrapper');
 
     // remove previous selection
     if(roomWrapper.querySelector('.calendar.day.startdate') != null && roomWrapper.querySelector('.calendar.day.enddate') != null){
@@ -279,7 +283,7 @@ function daySelected(target){
         // do not allow any date before the startdate to be the enddate
         let dts     = roomWrapper.querySelectorAll('dt.calendar.day:not(.head, .unavailable)');
         let skip    = false;
-        for (i = 0; i < dts.length; ++i) {
+        for (let i = 0; i < dts.length; ++i) {
             // all dates after the booked date are available
             if(dts[i] == target){
                 skip = true;
@@ -313,7 +317,7 @@ function daySelected(target){
         // color the dates between start and end
         let dts     = roomWrapper.querySelectorAll('dt.calendar.day:not(.head)');
         let skip    = true;
-        for (i = 0; i < dts.length; ++i) {
+        for (let i = 0; i < dts.length; ++i) {
             
             // until we encounter another booked date
             if(dts[i] == target){
@@ -385,8 +389,8 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelector(`.bookings-wrap[data-subject="${ev.target.value}"]`).classList.toggle('hidden');
     }));
 
-    document.querySelectorAll(".tables-wrapper").forEach(wrapper=>{
-        offset	= wrapper.getBoundingClientRect().x;
+    document.querySelectorAll(".tables-wrapper").forEach(wrapper => {
+        let offset	= wrapper.getBoundingClientRect().x;
         wrapper.style.marginLeft = `-${offset}px`;
     });
 

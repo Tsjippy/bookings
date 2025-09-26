@@ -277,8 +277,8 @@ article.booking{
             justify-content: center;
         }
 
-        .roomwrapper{
-            .flex{
+        .room-wrapper {
+            .flex {
                 @media (min-width: $tabletwidth){
                     display: flex;
                 }
@@ -288,8 +288,6 @@ article.booking{
                 }
             }
         }
-
-        
 
         .current{
             font-weight: 700;
@@ -373,7 +371,7 @@ article.booking{
             line-height: 1.1;
             margin: 0;
 
-            .booking_icon{
+            .booking-icon{
                 height: 15px;
             }
         }
@@ -381,7 +379,7 @@ article.booking{
         .booking-title{
             font-size: 20px;
         }
-        .booking_icon{
+        .booking-icon{
             height: 20px;
         }
 

@@ -16,7 +16,7 @@ function tableSettings($displayFormResults){
     }
 
     ?>
-    <div class="table_rights_wrapper">
+    <div class="table-rights-wrapper">
         <label>
             Select if you want to see the bookings as table or as calendar
         </label>

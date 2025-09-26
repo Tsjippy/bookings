@@ -39,7 +39,7 @@ function addFormElementOptions($element){
     <div class='elementoption booking_selector hidden'>
         <label>
             Specify the subjects to show a calendar for
-            <div class="clone_divs_wrapper">
+            <div class="clone-divs-wrapper">
                 <?php
                 // Render tab buttons
                 foreach($bookingDetails['subjects'] as $index => $subject){                    
@@ -70,7 +70,7 @@ function addFormElementOptions($element){
                     }
 
                     ?>
-                    <div id="subject_<?php echo $index;?>" class="clone_div tabcontent <?php echo $hidden;?>" data-divid="<?php echo $index;?>">
+                    <div id="subject_<?php echo $index;?>" class="clone-div tabcontent <?php echo $hidden;?>" data-divid="<?php echo $index;?>">
                         <label name="Subject" class=" formfield formfieldlabel" style='width: auto;margin-right: 20px;'>
                             <h4>Name</h4>
                             <input type="text" name="formfield[booking_details][subjects][<?php echo $index;?>][name]" class="subject-name formfield formfieldinput" value="<?php echo $subject['name'];?>" placeholder="Enter subject name" style='width: unset;'>
@@ -102,11 +102,11 @@ function addFormElementOptions($element){
                             <h4>Enable Payments</h4>
                             <div class="infobox" name="info">
                                 <div>
-                                    <p class="info_icon" style='float:right'>
+                                    <p class="info-icon" style='float:right'>
                                         <img draggable="false" role="img" class="emoji" alt="ℹ" src="<?php echo SIM\PICTURESURL."/info.png";?>" loading='lazy' >
                                     </p>
                                 </div>
-                                <span class="info_text">
+                                <span class="info-text">
                                     Enable to send payment reminders.<br>
                                     Make sure to set the payment options in the form settings.
                                 </span>
@@ -141,11 +141,11 @@ function addFormElementOptions($element){
                                     Minimum time between two bookings in days
                                     <div class="infobox" name="info">
                                         <div>
-                                            <p class="info_icon" style='float:right'>
+                                            <p class="info-icon" style='float:right'>
                                                 <img draggable="false" role="img" class="emoji" alt="ℹ" src="<?php echo SIM\PICTURESURL."/info.png";?>" loading='lazy' >
                                             </p>
                                         </div>
-                                        <span class="info_text">
+                                        <span class="info-text">
                                             Use 0 for allowing guests to arrive the next day.<br>
                                             1 means there is one full day between the previous and the next booking
                                         </span>
@@ -212,7 +212,7 @@ function addFormElementOptions($element){
                         </label>                          
                         <br>
                         <br>
-                        <div class="rooms clone_divs_wrapper <?php if($subject['amount'] == 1 || empty($subject['amount'])){echo 'hidden';}?>" style='background: lightgrey;padding-bottom: 10px;padding-left: 10px;margin-right:10px'>
+                        <div class="rooms clone-divs-wrapper <?php if($subject['amount'] == 1 || empty($subject['amount'])){echo 'hidden';}?>" style='background: lightgrey;padding-bottom: 10px;padding-left: 10px;margin-right:10px'>
                             <?php
                             if(empty($subject['rooms'])){
                                 $subject['rooms']   = ['1'];
@@ -240,7 +240,7 @@ function addFormElementOptions($element){
                                 }
 
                                 ?>
-                                <div class="clone_div" data-divid="<?php echo $i;?>">
+                                <div class="clone-div" data-divid="<?php echo $i;?>">
                                     <label name="roomname" class=" formfield formfieldlabel roomname">
                                         <h4>Room name</h4>
                                         <input type="text" name="formfield[booking_details][subjects][<?php echo $index;?>][rooms][<?php echo $i;?>][name]" class=" formfield formfieldinput" value="<?php echo $roomName;?>" placeholder="Enter room name" style='width: unset;'>
@@ -457,8 +457,8 @@ function elementHtml($html, $element, $object){
 
         ?>
         <div style='display:flex;align-items: center;'>
-            <div class="clone_divs_wrapper selected-booking-dates <?php echo $hidden;?>">
-                <div class="clone_div" data-divid="0">
+            <div class="clone-divs-wrapper selected-booking-dates <?php echo $hidden;?>">
+                <div class="clone-div" data-divid="0">
                     <div class="buttonwrapper">
                         <div class='hidden'>
                             <h4>Room</h4>
