@@ -36,7 +36,7 @@ function addFormElementOptions($element){
         $bookingDetails['subjects'] = explode("\n", $bookingDetails['subjects']);
     }
     ?>
-    <div class='element-option booking_selector hidden'>
+    <div class='element-option booking-selector hidden'>
         <label>
             Specify the subjects to show a calendar for
             <div class="clone-divs-wrapper">
@@ -265,7 +265,7 @@ function addFormElementOptions($element){
                                     );
                                     ?>
                                     
-                                    <div class="buttonwrapper" style="width:100%; display: flex;">
+                                    <div class="button-wrapper" style="width:100%; display: flex;">
                                         <button type="button" class="add button" style="max-width: 130px; flex: 1;margin-right: 3px;margin-left: 3px;">Add a room</button>
                                         <?php
                                         if(count($subject['rooms']) > 1){
@@ -285,7 +285,7 @@ function addFormElementOptions($element){
                         <br>
                         <br>
                         <br>
-                        <div class="buttonwrapper" style="display: flex;">
+                        <div class="button-wrapper" style="display: flex;">
                             <button type="button" class="add button" style="flex: 1; max-width: 150px; margin: 10px 5px 3px 0px;">Add a Subject</button>
                             <?php
                             if(count($bookingDetails['subjects']) > 1){
@@ -459,7 +459,7 @@ function elementHtml($html, $element, $object){
         <div style='display:flex;align-items: center;'>
             <div class="clone-divs-wrapper selected-booking-dates <?php echo $hidden;?>">
                 <div class="clone-div" data-divid="0">
-                    <div class="buttonwrapper">
+                    <div class="button-wrapper">
                         <div class='hidden'>
                             <h4>Room</h4>
                             <input type='text' name='booking-room[0]' disabled <?php echo $required;?>>

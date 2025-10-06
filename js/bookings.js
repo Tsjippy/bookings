@@ -457,9 +457,9 @@ document.addEventListener('click', (ev) => {
     }else if(target.matches('.confirmed-roles-switcher')){
         target.closest('.formfieldlabel').querySelectorAll('.confirmed-roles-wrapper').forEach(el=>el.classList.toggle('hidden'));
     }else if(target.matches(`.room-details`)){
-        target.closest(`.inputwrapper`).querySelector(`[name="${target.dataset.target}"]`).classList.toggle('hidden');
+        target.closest(`.input-wrapper`).querySelector(`[name="${target.dataset.target}"]`).classList.toggle('hidden');
     }else if(target.matches(`.location-details`)){
-        target.closest(`.inputwrapper`).querySelector(`[name="location-details-modal"]`).classList.toggle('hidden');
+        target.closest(`.input-wrapper`).querySelector(`[name="location-details-modal"]`).classList.toggle('hidden');
     }
 
     
