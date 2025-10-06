@@ -36,7 +36,7 @@ function addFormElementOptions($element){
         $bookingDetails['subjects'] = explode("\n", $bookingDetails['subjects']);
     }
     ?>
-    <div class='elementoption booking_selector hidden'>
+    <div class='element-option booking_selector hidden'>
         <label>
             Specify the subjects to show a calendar for
             <div class="clone-divs-wrapper">
@@ -627,6 +627,25 @@ function formElementUpdated($element, $instance, $oldElement){
             }
         }
     }
+}
+
+add_filter('forms-element-table-formats', __NAMESPACE__.'\addElementFormat', 10, 2);
+function addElementFormat($formats, $object){
+    $formats['booking_details']  = '%s'; // booking_details
+
+    return $formats;
+}
+
+add_filter('forms-form-table-formats', __NAMESPACE__.'\addFormFormat', 10, 2);
+function addFormFormat($formats, $object){
+    $formats['payment_indicator']       = '%d'; // payment_indicator
+    $formats['payment_amount_el']       = '%d'; // payment_amount_el
+    $formats['payment_details_el']      = '%d'; // payment_details_el
+    $formats['price_per_night_el']      = '%d'; // price_per_night_el
+    $formats['default_booking_state']   = '%s'; // default_booking_state
+    $formats['confirmed_booking_roles'] = '%s'; // confirmed_booking_roles
+
+    return $formats;
 }
 
 function getSubjectNames($v){
