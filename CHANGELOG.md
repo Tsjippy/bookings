@@ -4,12 +4,19 @@
 ### Added
 
 ### Changed
+
+### Fixed
+
+### Updated
+
+## [8.4.0] - 2025-10-06
+
+
+### Changed
 - classname
 
 ### Fixed
 - error with displaying reservations
-
-### Updated
 
 ## [8.3.9] - 2025-09-26
 
