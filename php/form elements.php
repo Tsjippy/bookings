@@ -5,7 +5,7 @@ use SIM;
 // Add a new type to the element choice dropdown
 add_filter('sim-special-form-elements', __NAMESPACE__.'\specialFormElements');
 function specialFormElements($options){
-    $options['booking_selector']    = 'Booking selector';
+    $options['booking-selector']    = 'Booking selector';
 
     return $options;
 }
@@ -22,7 +22,7 @@ function addFormElementOptions($element){
     asort($userRoles);
 
     $bookingDetails = [];
-    if($element != null && $element->type == 'booking_selector' && !empty($element->booking_details)){
+    if($element != null && $element->type == 'booking-selector' && !empty($element->booking_details)){
         $bookingDetails = maybe_unserialize($element->booking_details);
     }else{
         return;
@@ -56,7 +56,7 @@ function addFormElementOptions($element){
                     }
 
                     ?>
-                    <button class='button tablink formbuilderform <?php echo $active;?>' type='button' id='show_subject_<?php echo $index;?>' data-target='subject_<?php echo $index;?>' style='margin-right:4px;'>
+                    <button class='button tablink formbuilderform <?php echo $active;?>' type='button' id='show-subject-<?php echo $index;?>' data-target='subject-<?php echo $index;?>' style='margin-right:4px;'>
                         <?php echo $subject['name'];?>
                     </button>
                     <?php
@@ -70,15 +70,15 @@ function addFormElementOptions($element){
                     }
 
                     ?>
-                    <div id="subject_<?php echo $index;?>" class="clone-div tabcontent <?php echo $hidden;?>" data-divid="<?php echo $index;?>">
-                        <label name="Subject" class=" formfield formfieldlabel" style='width: auto;margin-right: 20px;'>
+                    <div id="subject-<?php echo $index;?>" class="clone-div tabcontent <?php echo $hidden;?>" data-divid="<?php echo $index;?>">
+                        <label name="Subject" class=" formfield form-label" style='width: auto;margin-right: 20px;'>
                             <h4>Name</h4>
-                            <input type="text" name="formfield[booking_details][subjects][<?php echo $index;?>][name]" class="subject-name formfield formfieldinput" value="<?php echo $subject['name'];?>" placeholder="Enter subject name" style='width: unset;'>
+                            <input type="text" name="formfield[booking-details][subjects][<?php echo $index;?>][name]" class="subject-name formfield formfield-input" value="<?php echo $subject['name'];?>" placeholder="Enter subject name" style='width: unset;'>
                             <br>
                             <br>
                             <h4>Manager(s)</h4>
                             <?php
-                            echo SIM\userSelect('', false, false, '', "formfield[booking_details][subjects][$index][managers][]", [], $subject['managers'], [], 'select', '', true);
+                            echo SIM\userSelect('', false, false, '', "formfield[booking-details][subjects][$index][managers][]", [], $subject['managers'], [], 'select', '', true);
                             ?>
 
                             <h4>Location Description</h4>
@@ -94,7 +94,7 @@ function addFormElementOptions($element){
                         
                             echo wp_editor(
                                 $subject['description'],
-                                "subjects_{$index}_description",
+                                "subjects-{$index}-description",
                                 $settings
                             );
                             ?>
@@ -113,25 +113,25 @@ function addFormElementOptions($element){
                             </div>
 
                             <label>
-                                <input type="radio" name="formfield[booking_details][subjects][<?php echo $index;?>][payments]" class=" formfield formfieldinput" value="1" <?php if($subject['payments']){echo 'checked';}?>>
+                                <input type="radio" name="formfield[booking-details][subjects][<?php echo $index;?>][payments]" class=" formfield formfield-input" value="1" <?php if($subject['payments']){echo 'checked';}?>>
                                 Yes
                             </label>
                             <label>
-                                <input type="radio" name="formfield[booking_details][subjects][<?php echo $index;?>][payments]" class=" formfield formfieldinput" value="0" <?php if(!$subject['payments']){echo 'checked';}?>>
+                                <input type="radio" name="formfield[booking-details][subjects][<?php echo $index;?>][payments]" class=" formfield formfield-input" value="0" <?php if(!$subject['payments']){echo 'checked';}?>>
                                 No
                             </label>
                         </label>
 
-                        <label class="formfield formfieldlabel">
-                            <h4 class="labeltext">Allow overlap</h4>
+                        <label class="formfield form-label">
+                            <h4 class="label-text">Allow overlap</h4>
                             Allow new arrivals on the day the previous people leave<br>
                             <label>
-                                <input type='radio' class='overlap' name='formfield[booking_details][subjects][<?php echo $index;?>][overlap]' value='yes' <?php if($subject['overlap'] == 'yes'){echo 'checked';}?>>
+                                <input type='radio' class='overlap' name='formfield[booking-details][subjects][<?php echo $index;?>][overlap]' value='yes' <?php if($subject['overlap'] == 'yes'){echo 'checked';}?>>
                                 Yes
                             </label>    
 
                             <label>
-                                <input type='radio' class='overlap' name='formfield[booking_details][subjects][<?php echo $index;?>][overlap]' value='no' <?php if($subject['overlap'] == 'no'){echo 'checked';}?>>
+                                <input type='radio' class='overlap' name='formfield[booking-details][subjects][<?php echo $index;?>][overlap]' value='no' <?php if($subject['overlap'] == 'no'){echo 'checked';}?>>
                                 No
                             </label>
                             <br>
@@ -150,37 +150,37 @@ function addFormElementOptions($element){
                                             1 means there is one full day between the previous and the next booking
                                         </span>
                                     </div>
-                                    <input type='number' name='formfield[booking_details][subjects][<?php echo $index;?>][overlap-period]' value='<?php echo $subject['overlap-period'];?>' min='0'>
+                                    <input type='number' name='formfield[booking-details][subjects][<?php echo $index;?>][overlap-period]' value='<?php echo $subject['overlap-period'];?>' min='0'>
                                 </label>
                             </div>
                         </label>
 
-                        <label class="formfield formfieldlabel">
+                        <label class="formfield form-label">
                             <h4>Default status for new bookings</h4>
                             <label>
-                                <input type='radio' name='formfield[booking_details][subjects][<?php echo $index;?>][default_booking_state]' value='pending' <?php if($subject['default_booking_state'] == 'pending'){echo 'checked';}?>>
+                                <input type='radio' name='formfield[booking-details][subjects][<?php echo $index;?>][default-booking-state]' value='pending' <?php if($subject['default-booking-state'] == 'pending'){echo 'checked';}?>>
                                 Pending
                             </label>
                             <br>
                             <label>
-                                <input type='radio' name='formfield[booking_details][subjects][<?php echo $index;?>][default_booking_state]' value='confimed' <?php if($subject['default_booking_state'] == 'confimed'){echo 'checked';}?>>
+                                <input type='radio' name='formfield[booking-details][subjects][<?php echo $index;?>][default-booking-state]' value='confimed' <?php if($subject['default-booking-state'] == 'confimed'){echo 'checked';}?>>
                                 Confimed
                             </label>
                             <br>
                             <br>
-                            <button class="button sim small confirmed-roles-switcher <?php if($subject['default_booking_state'] != 'pending'){echo 'hidden';}?>" type="button" style='max-width: unset;'>Advanced</button>
+                            <button class="button sim small confirmed-roles-switcher <?php if($subject['default-booking-state'] != 'pending'){echo 'hidden';}?>" type="button" style='max-width: unset;'>Advanced</button>
                             <div class='confirmed-roles-wrapper hidden'>
                                 <h4>Select roles for which bookings are confirmed by default</h4>
-                                <div class="role_info">
+                                <div class="role-info">
                                     <?php
                                     foreach($userRoles as $key=>$roleName){
-                                        if(!empty($subject['confirmed_booking_roles'][$key])){
+                                        if(!empty($subject['confirmed-booking-roles'][$key])){
                                             $checked = 'checked';
                                         }else{
                                             $checked = '';
                                         }
                                         echo "<label class='option-label'>";
-                                            echo "<input type='checkbox' class='formbuilder formfieldsetting' name='formfield[booking_details][subjects][$index][confirmed_booking_roles][$key]' value='$roleName' $checked>";
+                                            echo "<input type='checkbox' class='formbuilder formfieldsetting' name='formfield[booking-details][subjects][$index][confirmed-booking-roles][$key]' value='$roleName' $checked>";
                                             echo $roleName;
                                         echo"</label><br>";
                                     }
@@ -190,24 +190,24 @@ function addFormElementOptions($element){
                         </label>
                         
                         <br>
-                        <label class="amount formfield formfieldlabel">
+                        <label class="amount formfield form-label">
                             <h4>Room amount</h4>
-                            <input type="number" name="formfield[booking_details][subjects][<?php echo $index;?>][amount]" class=" formfield formfieldinput" value="<?php echo $subject['amount'];?>" placeholder="Enter subject amount" style='width: unset;'>
+                            <input type="number" name="formfield[booking-details][subjects][<?php echo $index;?>][amount]" class=" formfield formfield-input" value="<?php echo $subject['amount'];?>" placeholder="Enter subject amount" style='width: unset;'>
                         </label>  
                         <br>
 
                         <br>
-                        <label class=" formfield formfieldlabel room-numbering <?php if($subject['amount'] == 1 || empty($subject['amount'])){echo 'hidden';}?>">
+                        <label class=" formfield form-label room-numbering <?php if($subject['amount'] == 1 || empty($subject['amount'])){echo 'hidden';}?>">
                             <h4>Room numbering type</h4>
-                            <input type='radio' class='numbering-type' name='formfield[booking_details][subjects][<?php echo $index;?>][nrtype]' value='numbers' <?php if($subject['nrtype'] == 'numbers'){echo 'checked';}?>>
+                            <input type='radio' class='numbering-type' name='formfield[booking-details][subjects][<?php echo $index;?>][nrtype]' value='numbers' <?php if($subject['nrtype'] == 'numbers'){echo 'checked';}?>>
                             Numbers
                             <br>
 
-                            <input type='radio' class='numbering-type' name='formfield[booking_details][subjects][<?php echo $index;?>][nrtype]' value='letters' <?php if($subject['nrtype'] == 'letters'){echo 'checked';}?>>
+                            <input type='radio' class='numbering-type' name='formfield[booking-details][subjects][<?php echo $index;?>][nrtype]' value='letters' <?php if($subject['nrtype'] == 'letters'){echo 'checked';}?>>
                             Letters
                             <br>
 
-                            <input type='radio' class='numbering-type' name='formfield[booking_details][subjects][<?php echo $index;?>][nrtype]' value='custom' <?php if($subject['nrtype'] == 'custom'){echo 'checked';}?>>
+                            <input type='radio' class='numbering-type' name='formfield[booking-details][subjects][<?php echo $index;?>][nrtype]' value='custom' <?php if($subject['nrtype'] == 'custom'){echo 'checked';}?>>
                             Custom
                         </label>                          
                         <br>
@@ -241,9 +241,9 @@ function addFormElementOptions($element){
 
                                 ?>
                                 <div class="clone-div" data-divid="<?php echo $i;?>">
-                                    <label name="roomname" class=" formfield formfieldlabel roomname">
+                                    <label name="roomname" class=" formfield form-label roomname">
                                         <h4>Room name</h4>
-                                        <input type="text" name="formfield[booking_details][subjects][<?php echo $index;?>][rooms][<?php echo $i;?>][name]" class=" formfield formfieldinput" value="<?php echo $roomName;?>" placeholder="Enter room name" style='width: unset;'>
+                                        <input type="text" name="formfield[booking-details][subjects][<?php echo $index;?>][rooms][<?php echo $i;?>][name]" class=" formfield formfield-input" value="<?php echo $roomName;?>" placeholder="Enter room name" style='width: unset;'>
                                     </label>
                                     <br>
                                     <br>
@@ -254,13 +254,13 @@ function addFormElementOptions($element){
                                         'media_buttons' => false,
                                         'forced_root_block' => true,
                                         'convert_newlines_to_brs'=> true,
-                                        'textarea_name' => "formfield[booking_details][subjects][$index][rooms][$i][description]",
+                                        'textarea_name' => "formfield[booking-details][subjects][$index][rooms][$i][description]",
                                         'textarea_rows' => 10
                                     );
                                 
                                     echo wp_editor(
                                         $room['description'],
-                                        "subjects_{$index}_rooms_{$i}_description",
+                                        "subjects-{$index}-rooms-{$i}-description",
                                         $settings
                                     );
                                     ?>
@@ -303,7 +303,7 @@ function addFormElementOptions($element){
         </label>
         <br>
         <label>
-            <input type='checkbox' name='formfield[booking_details][oneday]' value='yes' <?php if(isset($bookingDetails['oneday']) && $bookingDetails['oneday'] == 'yes'){echo 'checked';}?>>
+            <input type='checkbox' name='formfield[booking-details][oneday]' value='yes' <?php if(isset($bookingDetails['oneday']) && $bookingDetails['oneday'] == 'yes'){echo 'checked';}?>>
             Allow one day events
         </label>
         <br>
@@ -326,7 +326,7 @@ function formElements($elements, $displayFormResults, $force){
     // We cannot use getElementByType here as we have not gotten all elements yet.
     $element    = false;
     foreach($elements as $el){
-        if($el->type == 'booking_selector'){
+        if($el->type == 'booking-selector'){
             $element    = $el;
             break;
         }
@@ -364,11 +364,11 @@ function formElements($elements, $displayFormResults, $force){
 add_filter('sim-forms-element-html', __NAMESPACE__.'\elementHtml', 10, 3);
 function elementHtml($html, $element, $object){
      // Check if the form has a booking selector
-     if(empty($object->getElementByType('booking_selector'))){
+     if(empty($object->getElementByType('booking-selector'))){
         return $html;
     }
 
-    if($element->type == 'booking_selector'){
+    if($element->type == 'booking-selector'){
         $bookingDetails = maybe_unserialize($element->booking_details);
 
         if(!isset($bookingDetails['subjects'])){
@@ -501,7 +501,7 @@ function elementHtml($html, $element, $object){
             $subjects   = $bookingDetails['subjects'];
         }
 
-        $elementName    = $object->getElementByType('booking_selector')[0]->name;
+        $elementName    = $object->getElementByType('booking-selector')[0]->name;
 
         foreach($subjects as $subject){
             if($subject['name'] == $object->submission->formresults[$elementName]){
@@ -517,7 +517,7 @@ function elementHtml($html, $element, $object){
         global $wpdb;
 
         // Get the subject
-        $subject    = $object->submission->formresults[$object->getElementByType('booking_selector')[0]->name];
+        $subject    = $object->submission->formresults[$object->getElementByType('booking-selector')[0]->name];
             
         $startDates = (array) $object->submission->formresults['booking-startdate'];
         $endDates   = (array) $object->submission->formresults['booking-enddate'];
@@ -590,7 +590,7 @@ add_action('sim-after-formelement-updated', __NAMESPACE__.'\formElementUpdated',
 function formElementUpdated($element, $instance, $oldElement){
     global $wpdb;
 
-    if($element->type != 'booking_selector'){
+    if($element->type != 'booking-selector'){
         return;
     }
 

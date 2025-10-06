@@ -6,7 +6,7 @@ use SIM;
 add_action('sim-formstable-after-table-settings', __NAMESPACE__.'\tableSettings');
 function tableSettings($displayFormResults){
     // Check if it has an booking selector
-    if(empty($displayFormResults->getElementByType('booking_selector'))){
+    if(empty($displayFormResults->getElementByType('booking-selector'))){
         return;
     }
 
@@ -22,11 +22,11 @@ function tableSettings($displayFormResults){
         </label>
         <br>
         <label>
-            <input type='radio' name='table_settings[booking-display]' value='table' <?php if($setting == 'table'){echo 'checked';}?>>
+            <input type='radio' name='table-settings[booking-display]' value='table' <?php if($setting == 'table'){echo 'checked';}?>>
             Table
         </label>
         <label>
-            <input type='radio' name='table_settings[booking-display]' value='calendar'<?php if($setting == 'calendar'){echo 'checked';}?>>
+            <input type='radio' name='table-settings[booking-display]' value='calendar'<?php if($setting == 'calendar'){echo 'checked';}?>>
             Calendar
         </label>
     </div>
@@ -204,7 +204,7 @@ function formdataRetrieved($submissions, $userId, $object){
         return $submissions;
     }
 
-    $bookingSelectors   = $object->getElementByType('booking_selector');
+    $bookingSelectors   = $object->getElementByType('booking-selector');
     if(!$bookingSelectors){
         return $submissions;
     }
@@ -286,7 +286,7 @@ function alterQuery($query, $userId, $instance){
 
     $bookings   = new Bookings($instance);
 
-    if(empty($instance->getElementByType('booking_selector'))){
+    if(empty($instance->getElementByType('booking-selector'))){
         return $query;
     }
 

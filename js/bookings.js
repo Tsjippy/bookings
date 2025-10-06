@@ -431,9 +431,9 @@ document.addEventListener('click', (ev) => {
         storeDates(target);
     }else if(target.matches('.booking-subject-selector.overlap')){
         if(target.value == 'yes'){
-            target.closest(`.formfieldlabel`).querySelector(`.min-bookking-gap-time`).classList.add('hidden');
+            target.closest(`.form-label`).querySelector(`.min-bookking-gap-time`).classList.add('hidden');
         }else{
-            target.closest(`.formfieldlabel`).querySelector(`.min-bookking-gap-time`).classList.remove('hidden');
+            target.closest(`.form-label`).querySelector(`.min-bookking-gap-time`).classList.remove('hidden');
         }
     }
     
@@ -455,7 +455,7 @@ document.addEventListener('click', (ev) => {
     }else if(target.matches('.room-selector')){
         roomSelected(target);
     }else if(target.matches('.confirmed-roles-switcher')){
-        target.closest('.formfieldlabel').querySelectorAll('.confirmed-roles-wrapper').forEach(el=>el.classList.toggle('hidden'));
+        target.closest('.form-label').querySelectorAll('.confirmed-roles-wrapper').forEach(el=>el.classList.toggle('hidden'));
     }else if(target.matches(`.room-details`)){
         target.closest(`.input-wrapper`).querySelector(`[name="${target.dataset.target}"]`).classList.toggle('hidden');
     }else if(target.matches(`.location-details`)){
@@ -468,11 +468,11 @@ document.addEventListener('click', (ev) => {
 document.addEventListener('change', (ev) => {
     let target  = ev.target;
 
-    if(target.name.includes('default_booking_state')){
+    if(target.name.includes('default-booking-state')){
         if(target.value == 'pending' && target.checked){
-            target.closest('.formfield.formfieldlabel').querySelectorAll('button.confirmed-roles-switcher.hidden').forEach(but=>but.classList.remove('hidden'));
+            target.closest('.formfield.form-label').querySelectorAll('button.confirmed-roles-switcher.hidden').forEach(but=>but.classList.remove('hidden'));
         }else{
-            target.closest('.formfield.formfieldlabel').querySelectorAll('button.confirmed-roles-switcher:not(.hidden)').forEach(but=>but.classList.add('hidden'));
+            target.closest('.formfield.form-label').querySelectorAll('button.confirmed-roles-switcher:not(.hidden)').forEach(but=>but.classList.add('hidden'));
         }
     }else if(target.name.includes('amount')){
         let numberingType   = target.closest('.tabcontent').querySelector(`.room-numbering`);

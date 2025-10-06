@@ -5,7 +5,7 @@ use SIM;
 add_action('sim-forms-extra-form-settings', __NAMESPACE__.'\extraFormSettings');
 function extraFormSettings($object){
     // check if the form has a booking selector eement
-    $bookingElements   = $object->getElementByType('booking_selector');
+    $bookingElements   = $object->getElementByType('booking-selector');
 
     if(!$bookingElements || is_wp_error($bookingElements)){
         return;
@@ -14,7 +14,7 @@ function extraFormSettings($object){
     ?>
     <br>
     <h4>Payment Indicator Element</h4>
-    <select name="payment_indicator">
+    <select name="payment-amount-el">
         <option value=''>---</option>
         <?php
         foreach($object->formElements as $element){
@@ -30,7 +30,7 @@ function extraFormSettings($object){
 
     <br>
     <h4>Payment Amount Element</h4>
-    <select name="payment_amount_el">
+    <select name="payment-amount-el">
         <option value=''>---</option>
         <?php
         foreach($object->formElements as $element){
@@ -46,7 +46,7 @@ function extraFormSettings($object){
 
     <br>
     <h4>Payment Details Element</h4>
-    <select name="payment_details_el">
+    <select name="payment-details-el">
         <option value=''>---</option>
         <?php
         foreach($object->formElements as $element){
@@ -62,7 +62,7 @@ function extraFormSettings($object){
 
     <br>
     <h4>Price Per Night Element</h4>
-    <select name="price_per_night_el">
+    <select name="price-per-night-el">
         <option value=''>---</option>
         <?php
         foreach($object->formElements as $element){
@@ -80,13 +80,13 @@ function extraFormSettings($object){
 
 add_filter('sim-forms-before-saving-settings', __NAMESPACE__.'\beforeSavingSettings', 10, 3);
 function beforeSavingSettings($newSettings, $object, $formId){
-    $newSettings['payment_amount_el']	= is_numeric($_POST['payment_amount_el'])   ? $_POST['payment_amount_el'] : false;
+    $newSettings['payment_amount_el']	= is_numeric($_POST['payment-amount-el'])   ? $_POST['payment-amount-el'] : false;
 
-    $newSettings['payment_indicator']	= is_numeric($_POST['payment_indicator'])   ? $_POST['payment_indicator'] : false;
+    $newSettings['payment_indicator']	= is_numeric($_POST['payment-amount-el'])   ? $_POST['payment-amount-el'] : false;
 
-    $newSettings['payment_details_el']	= is_numeric($_POST['payment_details_el'])   ? $_POST['payment_details_el'] : false;
+    $newSettings['payment_details_el']	= is_numeric($_POST['payment-details-el'])   ? $_POST['payment-details-el'] : false;
 
-    $newSettings['price_per_night_el']	= is_numeric($_POST['price_per_night_el'])   ? $_POST['price_per_night_el'] : false;
+    $newSettings['price_per_night_el']	= is_numeric($_POST['price-per-night-el'])   ? $_POST['price-per-night-el'] : false;
 
     return $newSettings;
 }

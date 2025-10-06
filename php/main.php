@@ -88,7 +88,7 @@ function beforeSavingFormData($formResults, $object){
 // Calculate the payable for the booking
 add_filter('sim_after_saving_formdata', __NAMESPACE__.'\afterSavingFormData', 10, 2);
 function afterSavingFormData($message, $object){
-    $bookingElements   = $object->getElementByType('booking_selector');
+    $bookingElements   = $object->getElementByType('booking-selector');
 
     if(!$bookingElements || is_wp_error($bookingElements)){
         return $message;
@@ -111,7 +111,7 @@ function onSubmissionUpdate($message, $formTable, $elementName, $oldValue, $newV
     }
 
     // Get the subject
-    $elements    = $bookings->forms->getElementByType('booking_selector');
+    $elements    = $bookings->forms->getElementByType('booking-selector');
     if(!$elements){
         return $message;
     }
@@ -324,7 +324,7 @@ function transformArray($string, $replaceValue, $forms, $match){
 // add the booking details to the drop down for use in e-mails
 add_action('sim-add-email-placeholder-option', __NAMESPACE__.'\placeholderOption');
 function placeholderOption($formBuilderForm){
-    if($formBuilderForm->getElementByType('booking_selector')){
+    if($formBuilderForm->getElementByType('booking-selector')){
         echo "<option>%booking-startdate%</option>";
         echo "<option>%booking-enddate%</option>";
         echo "<option>%booking-room%</option>";

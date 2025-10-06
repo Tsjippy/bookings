@@ -13,7 +13,7 @@ function getNextMonth(){
 		$element						= $bookings->forms->getElementById($_POST['elid']);
 	}else{
 		foreach($bookings->forms->formElements as $element){
-			if($element->type == 'booking_selector'){
+			if($element->type == 'booking-selector'){
 				break;
 			}
 		}

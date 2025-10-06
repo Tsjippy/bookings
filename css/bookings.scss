@@ -41,7 +41,7 @@
 
 .calendar.day{
     &.available:not(.unavailable, .inbetween, .startdate, .enddate):hover, &.inbetween{
-        background-color: $primary_color !important;
+        background-color: $primaryColor !important;
         color: white;
         border-radius: 30px;
     }
@@ -118,7 +118,7 @@ button.change-booking-date{
         position: absolute;
         top: 50%;
         left: 0;
-        background: $primary_color;
+        background: $primaryColor;
     }
 
     &.own .day-nr{
@@ -217,7 +217,7 @@ article.booking{
     border: none;
 
     a{
-        color: $primary_color;
+        color: $primaryColor;
         color: #a9a9a9;
         font-size: 12px;
         font-weight: 400;
@@ -227,7 +227,7 @@ article.booking{
         cursor: pointer;
 
         span{
-            color: $primary_color;
+            color: $primaryColor;
         }
     }
 
@@ -348,11 +348,11 @@ article.booking{
             position: relative;
             text-align: center;
             line-height: 46px;
-            border: 1px solid $primary_color;
-            border-top-color: $primary_color;
-            border-right-color: $primary_color;
-            border-bottom-color: $primary_color;
-            border-left-color: $primary_color;
+            border: 1px solid $primaryColor;
+            border-top-color: $primaryColor;
+            border-right-color: $primaryColor;
+            border-bottom-color: $primaryColor;
+            border-left-color: $primaryColor;
             border-radius: 50%;
             font-size: 12px;
             font-weight: 600;

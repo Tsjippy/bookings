@@ -907,7 +907,7 @@ class Bookings{
             return $this->bookingElements;
         }
 
-        $this->bookingElements   = $this->forms->getElementByType('booking_selector');
+        $this->bookingElements   = $this->forms->getElementByType('booking-selector');
 
         if(!$this->bookingElements || is_wp_error($this->bookingElements)){
             $this->bookingElements  = [];
