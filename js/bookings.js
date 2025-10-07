@@ -58,7 +58,7 @@ async function getMonth(target){
         formData.append('month', target.dataset.month);
         formData.append('year', target.dataset.year);
         formData.append('subject', wrapper.dataset.subject);
-        formData.append('form-id', wrapper.dataset.form-id);
+        formData.append('form-id', wrapper.dataset.form_id);
         formData.append('type', type);
 
         if(wrapper.dataset.elid != undefined){
@@ -113,7 +113,7 @@ async function getMonth(target){
 async function approve(target){    
     let formData    = new FormData();
     formData.append('id', target.dataset.id);
-    formData.append('form-id', target.dataset.form-id);
+    formData.append('form-id', target.dataset.form_id);
 
     let row         = target.closest('tr');
 

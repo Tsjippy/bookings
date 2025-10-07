@@ -123,9 +123,9 @@ function onSubmissionUpdate($message, $formTable, $elementName, $oldValue, $newV
         return $message;
     }
 
-    if(isset($_POST['booking_id']) && is_numeric($_POST['booking_id'])){
+    if(isset($_POST['booking-id']) && is_numeric($_POST['booking-id'])){
         foreach($currentBookings as $booking){
-            if($booking->id == $_POST['booking_id']){
+            if($booking->id == $_POST['booking-id']){
                 $currentBooking  = $booking;
                 break;
             }

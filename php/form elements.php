@@ -180,7 +180,7 @@ function addFormElementOptions($element){
                                             $checked = '';
                                         }
                                         echo "<label class='option-label'>";
-                                            echo "<input type='checkbox' class='formbuilder formfieldsetting' name='formfield[booking-details][subjects][$index][confirmed-booking-roles][$key]' value='$roleName' $checked>";
+                                            echo "<input type='checkbox' class='formbuilder form-element-setting' name='formfield[booking-details][subjects][$index][confirmed-booking-roles][$key]' value='$roleName' $checked>";
                                             echo $roleName;
                                         echo"</label><br>";
                                     }
@@ -384,7 +384,7 @@ function elementHtml($html, $element, $object){
             if($index === 0 ){
                 $active = 'active';
             }
-            $details        .= "<button class='button tablink $active' type='button' id='show_{$subjectName}' data-target='$subjectName' style='margin-right:4px;'>
+            $details        .= "<button class='button tablink $active' type='button' id='show-{$subjectName}' data-target='$subjectName' style='margin-right:4px;'>
                 {$subject['name']}
             </button>";
         }
@@ -535,8 +535,8 @@ function elementHtml($html, $element, $object){
             }
         }
 
-        if(isset($_POST['booking_id']) && is_numeric($_POST['booking_id'])){
-            $html   = str_replace('>', " data-booking_id='{$_POST['booking_id']}'>", $html);
+        if(isset($_POST['booking-id']) && is_numeric($_POST['booking-id'])){
+            $html   = str_replace('>', " data-booking_id='{$_POST['booking-id']}'>", $html);
         }
 
         if($element->name == 'booking-enddate'){

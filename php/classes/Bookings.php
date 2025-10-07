@@ -153,7 +153,7 @@ class Bookings{
                     // Render tablink buttons
                     foreach($subject['rooms'] as $index=>$room){
                         ?>
-                        <button class='button tablink formbuilderform <?php if($index === 0){echo 'active';}?>' type='button' id='show_<?php echo $subjectName;?>_room_<?php echo $index;?>' data-target='<?php echo $subjectName;?>_room_<?php echo $index;?>' style='margin-right:4px;'>
+                        <button class='button tablink formbuilderform <?php if($index === 0){echo 'active';}?>' type='button' id='show-<?php echo $subjectName;?>_room_<?php echo $index;?>' data-target='<?php echo $subjectName;?>_room_<?php echo $index;?>' style='margin-right:4px;'>
                             <?php echo $room['name'];?>
                         </button>
                         <?php
@@ -342,7 +342,7 @@ class Bookings{
         }
 
         ?>
-        <div class="bookings-wrap <?php if($hidden){echo 'hidden';}?>" data-date="<?php echo "$yearStr-$monthStr";?>" data-subject="<?php echo $cleanSubject;?>" data-form-id="<?php echo $this->forms->formData->id;?>" <?php echo $extraString;?>>
+        <div class="bookings-wrap <?php if($hidden){echo 'hidden';}?>" data-date="<?php echo "$yearStr-$monthStr";?>" data-subject="<?php echo $cleanSubject;?>" data-form_id="<?php echo $this->forms->formData->id;?>" <?php echo $extraString;?>>
             <div class="booking overview">
                 <div class='header mobile-sticky'>
                     <h4 style='text-align:center;'><?php echo ucfirst($cleanSubject);?> Calendar</h4>
@@ -787,7 +787,7 @@ class Bookings{
                 <article class='booking'>
                     <h4 class='booking-title'><?php echo $submission['name'];?></h4>
                     <div class='booking-detail'>
-                        <table data-form-id='<?php echo $submission['form-id'];?>' style='width: unset;'>
+                        <table data-form_id='<?php echo $submission['form-id'];?>' style='width: unset;'>
                             <thead></thead>
                             <tbody>
                                 <tr class='<?php $this->bookingElements[0]->name;?>' data-id='<?php echo $submission['id'];?>'>
@@ -803,7 +803,7 @@ class Bookings{
                                         <img src='<?php echo $baseUrl;?>/date.png' loading='lazy' alt='date' class='booking-icon'>
                                     </td>
                                     <td class='booking-data-wrapper edit-forms-table'>
-                                        <table data-form-id='<?php echo $submission['form-id'];?>' style='margin-bottom: 0px; width:unset;'>
+                                        <table data-form_id='<?php echo $submission['form-id'];?>' style='margin-bottom: 0px; width:unset;'>
                                             <tr data-id='<?php echo $submission['id'];?>'>
                                                 <td data-name='booking-startdate' data-id='<?php echo $this->forms->getElementByName('booking-startdate')->id;?>' data-subid='<?php echo $subId;?>' data-oldvalue='<?php echo json_encode($booking->startdate);?>' data-booking_id='<?php echo $booking->id;?>' class='edit-forms-table'>
                                                     <?php echo date(DATEFORMAT, strtotime($booking->startdate));?>
@@ -1871,8 +1871,8 @@ class Bookings{
      * Adds the buttons to approve or delete a pending booking
      */
     public function pendingButtons($buttonsHtml, $values, $subId, $object){
-        $buttonsHtml['approve'] = "<button class='button approve' type='button' data-id='{$values['id']}' data-form-id='{$object->submission->form_id}'>Approve</button>";
-        $buttonsHtml['delete']  = "<button class='button delete' type='button' data-id='{$values['id']}' data-form-id='{$object->submission->form_id}'>Delete</button><br>";
+        $buttonsHtml['approve'] = "<button class='button approve' type='button' data-id='{$values['id']}' data-form_id='{$object->submission->form_id}'>Approve</button>";
+        $buttonsHtml['delete']  = "<button class='button delete' type='button' data-id='{$values['id']}' data-form_id='{$object->submission->form_id}'>Delete</button><br>";
         unset($buttonsHtml['archive']);
 
         return $buttonsHtml;
