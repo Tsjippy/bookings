@@ -10,6 +10,7 @@
 
 ### Fixed
 - error with displaying reservations
+- bugs
 
 ### Updated
 
