@@ -658,8 +658,8 @@ class Bookings{
                                         $submission     = $this->forms->getSubmissions(null, $submissionId)[0];
 
                                         $userId         = $submission->userid;
-                                        if(!empty($submission->formresults['userid'])){
-                                            $userId     = $submission->formresults['userid'];
+                                        if(!empty($submission->formresults['user-id'])){
+                                            $userId     = $submission->formresults['user-id'];
                                         }elseif(!empty($submission->formresults['user_id'])){
                                             $userId     = $submission->formresults['user_id'];
                                         }
@@ -874,7 +874,7 @@ class Bookings{
                                     foreach($buttonsHtml as $action=>$button){
                                         if(
                                             $this->tableEditPermissions || 																			//if we are allowed to do all actions
-                                            $submission['userid'] == $this->user->ID || 															//or this is our own entry
+                                            $submission['user-id'] == $this->user->ID || 															//or this is our own entry
                                             array_intersect($this->userRoles, (array)$this->forms->columnSettings[$action]['edit-right-roles'])		//or we have permission for this specific button
                                         ){
                                             $buttons .= $button;
@@ -1016,7 +1016,7 @@ class Bookings{
                 }
 
                 // user who submitted the form
-                $submittingUser = get_userdata($this->forms->submission->userid);
+                $submittingUser = get_userdata($this->forms->submission->user-id);
 
                 if(
                     (
@@ -1807,7 +1807,7 @@ class Bookings{
             if($userIdElName){
                 $userId     = $submission->formresults[$userIdElName];
             }else{
-                $userId     = $submission->userid;
+                $userId     = $submission->user-id;
             }
 
             $phonenumber    = $userId;
