@@ -30,12 +30,12 @@ function moduleOptions($optionsHtml, $settings){
     ?>
 	<br>
 	<br>
-	<label for="reminder_freq">
+	<label for="reminder-freq">
 		How often should people be reminded to pay?
 	</label>
-	<select name="payment_reminder_freq">
+	<select name="payment-reminder-freq">
 		<?php
-		SIM\ADMIN\recurrenceSelector($settings['payment_reminder_freq']);
+		SIM\ADMIN\recurrenceSelector($settings['payment-reminder-freq']);
 		?>
 	</select>
 

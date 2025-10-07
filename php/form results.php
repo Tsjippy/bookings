@@ -69,8 +69,8 @@ function shouldShow($shouldShow, $displayFormResults, $type){
             isset($displayFormResults->tableSettings['booking-display']) &&         // option chosen
             $displayFormResults->tableSettings['booking-display'] != 'calendar'     // but choose table view
         )      ||
-        isset($_REQUEST['export_xls'])  ||                                          // exporting an excel
-        isset($_REQUEST['export_pdf'])                                              // exporting a pdf
+        isset($_REQUEST['export-xls'])  ||                                          // exporting an excel
+        isset($_REQUEST['export-pdf'])                                              // exporting a pdf
     ){
         if($type == 'own' && $displayFormResults->tableSettings['booking-display'] == 'calendar'){
             $bookings    = new Bookings($displayFormResults);
@@ -167,14 +167,14 @@ function shouldShow($shouldShow, $displayFormResults, $type){
         $html   .= "</div>";
 
         // Export buttons
-        if(array_intersect($bookings->forms->userRoles, array_keys($bookings->forms->tableSettings['view_right_roles']))){
+        if(array_intersect($bookings->forms->userRoles, array_keys($bookings->forms->tableSettings['view-right-roles']))){
             $html   .= "<div>";
-                $html   .= "<form method='post' class='exportform' id='export_xls'>";
-                    $html   .= "<button class='button button-primary' type='submit' name='export_xls'>Export data to excel</button>'";
+                $html   .= "<form method='post' class='export-form' id='export-xls'>";
+                    $html   .= "<button class='button button-primary' type='submit' name='export-xls'>Export data to excel</button>'";
                 $html   .= "</form>";
                 if(SIM\getModuleOption('pdf', 'enable')){
-                    $html   .= "<form method='post' class='exportform' id='export_pdf'>";
-                        $html   .= "<button class=button button-primary type='submit' name='export_pdf'>Export data to pdf</button>";
+                    $html   .= "<form method='post' class='export-form' id='export-pdf'>";
+                        $html   .= "<button class=button button-primary type='submit' name='export-pdf'>Export data to pdf</button>";
                     $html   .= "</form>";
                 }
             $html   .= "</div>";

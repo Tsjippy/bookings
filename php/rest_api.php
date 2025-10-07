@@ -7,7 +7,7 @@ function getNextMonth(){
 
 	$bookings->forms->getForm($_POST['formid']);
 
-	$bookings->forms->shortcodeId		= $_POST['shortcode_id'];
+	$bookings->forms->shortcodeId		= $_POST['shortcode-id'];
 
 	if(isset($_POST['elid']) && is_numeric($_POST['elid'])){
 		$element						= $bookings->forms->getElementById($_POST['elid']);
@@ -62,7 +62,7 @@ function getNextMonth(){
 	}
 	$navigator	= $bookings->getNavigator($navDate);
 	$detail		= '';
-	if(!empty($_POST['shortcode_id'])){
+	if(!empty($_POST['shortcode-id'])){
 		$detail		= $bookings->detailHtml();
 	}
 

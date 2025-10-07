@@ -466,7 +466,7 @@ class Bookings{
         ?>
         <div class="booking-date-wrapper <?php if($hide){echo 'hidden';}?>">
             <div class="booking-dates-input-wrapper">
-                <div class="_h0i9fjw">
+                <div class="-h0i9fjw">
                     <div class="booking-date-label-wrapper">
                         <label class="booking-date-label" for="booking-startdate">
                             <div class="booking-date-label-text">Arrival</div>
@@ -495,7 +495,7 @@ class Bookings{
                 <div>
                     <div class="sewcpu6 dir dir-ltr" style="--spacingBottom:0;">
                         <div class="s1bh1tge dir dir-ltr">
-                            <div class="_uxnsba" data-testid="availability-calendar-date-range">Next, select your arrival date.<br>Then click again to select your departure date.</div>
+                            <div class="-uxnsba" data-testid="availability-calendar-date-range">Next, select your arrival date.<br>Then click again to select your departure date.</div>
                         </div>
                     </div>
                 </div>
@@ -752,7 +752,7 @@ class Bookings{
                 // we are not the manager of this subject
                 !in_array($this->user, (array) $this->managers[$subject]) &&
                 // we do not have permissions
-                !array_intersect($this->forms->userRoles, array_keys($this->forms->tableSettings['view_right_roles']))  &&      // we do not have the right to see others submissions
+                !array_intersect($this->forms->userRoles, array_keys($this->forms->tableSettings['view-right-roles']))  &&      // we do not have the right to see others submissions
                 // This is not our own booking
                 (
                     isset($submission[$userIdElName])                      &&
@@ -847,9 +847,9 @@ class Bookings{
 
                                     echo "<tr class='$name' data-id='{$submission['id']}'>";
                                         if(file_exists(SIM\urlToPath("$baseUrl/$name.png"))){
-                                            echo "<td><img src='$baseUrl/$name.png' loading='lazy' alt='{$setting['nice_name']}' class='booking-icon' title='{$setting['nice_name']}'></td>";
+                                            echo "<td><img src='$baseUrl/$name.png' loading='lazy' alt='{$setting['nice-name']}' class='booking-icon' title='{$setting['nice-name']}'></td>";
                                         }else{
-                                            echo "<td>{$setting['nice_name']}:</td>";
+                                            echo "<td>{$setting['nice-name']}:</td>";
                                         }
                                         echo "<td class='booking-data-wrapper edit-forms-table' data-id='$element->id' data-name='$name' data-oldvalue='".json_encode($data)."' data-booking_id='$booking->id'>";
                                             echo $transformedData;
@@ -866,7 +866,7 @@ class Bookings{
                                         if($action == 'archive' && $this->showArchived == 'true' && $this->forms->submissions->archived){
                                             $action = 'unarchive';
                                         }
-                                        $buttonsHtml[$action]	= "<button class='$action button forms-table-action' name='{$action}_action' value='$action'>".ucfirst($action)."</button>";
+                                        $buttonsHtml[$action]	= "<button class='$action button forms-table-action' name='{$action}-action' value='$action'>".ucfirst($action)."</button>";
                                     }
                                     $buttonsHtml = apply_filters('sim_form_actions_html', $buttonsHtml, $submission, $name, $this, $this->forms->submission);
                                     
@@ -875,7 +875,7 @@ class Bookings{
                                         if(
                                             $this->tableEditPermissions || 																			//if we are allowed to do all actions
                                             $submission['userid'] == $this->user->ID || 															//or this is our own entry
-                                            array_intersect($this->userRoles, (array)$this->forms->columnSettings[$action]['edit_right_roles'])		//or we have permission for this specific button
+                                            array_intersect($this->userRoles, (array)$this->forms->columnSettings[$action]['edit-right-roles'])		//or we have permission for this specific button
                                         ){
                                             $buttons .= $button;
                                         }
@@ -1088,7 +1088,7 @@ class Bookings{
             $event['enddate']				= $endDate;
             $event['endtime']				= '12:00';
             $event['location']				= $subjectWithRoom;
-            $event['organizer_id']			= $userId;
+            $event['organizer-id']			= $userId;
             $event['onlyfor']               = $userId;
             update_post_meta($eventId, 'eventdetails', json_encode($event));
             update_post_meta($eventId, 'onlyfor', $userId);

@@ -12,9 +12,9 @@ function initTasks(){
 function scheduleTasks(){
 	SIM\scheduleTask('booking_emails_action', 'daily');
 
-    $freq   = SIM\getModuleOption(MODULE_SLUG, 'payment_reminder_freq');
+    $freq   = SIM\getModuleOption(MODULE_SLUG, 'payment-reminder-freq');
     if($freq){
-        SIM\scheduleTask('payment_reminder_action', $freq);
+        SIM\scheduleTask('payment-reminder_action', $freq);
     }
 }
 

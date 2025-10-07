@@ -7,7 +7,7 @@ class BookingEmail extends ADMIN\MailSetting{
 
     public function __construct(object $booking) {
         // call parent constructor
-		parent::__construct('payment_reminder', MODULE_SLUG);
+		parent::__construct('payment-reminder', MODULE_SLUG);
 
         $this->replaceArray['%id%']                         = $booking->id;  
         $this->replaceArray['%subject%']                    = $booking->subject;

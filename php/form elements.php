@@ -100,7 +100,7 @@ function addFormElementOptions($element){
                             ?>
 
                             <h4>Enable Payments</h4>
-                            <div class="infobox" name="info">
+                            <div class="info-box" name="info">
                                 <div>
                                     <p class="info-icon" style='float:right'>
                                         <img draggable="false" role="img" class="emoji" alt="ℹ" src="<?php echo SIM\PICTURESURL."/info.png";?>" loading='lazy' >
@@ -139,7 +139,7 @@ function addFormElementOptions($element){
                             <div class='min-bookking-gap-time <?php if(!isset($subject['overlap']) || $subject['overlap'] == 'yes'){echo 'hidden';}?>'>
                                 <label>
                                     Minimum time between two bookings in days
-                                    <div class="infobox" name="info">
+                                    <div class="info-box" name="info">
                                         <div>
                                             <p class="info-icon" style='float:right'>
                                                 <img draggable="false" role="img" class="emoji" alt="ℹ" src="<?php echo SIM\PICTURESURL."/info.png";?>" loading='lazy' >

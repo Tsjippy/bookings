@@ -66,7 +66,7 @@ async function getMonth(target){
         }
 
         if(wrapper.dataset.shortcodeid != undefined){
-            formData.append('shortcode_id', wrapper.dataset.shortcodeid);
+            formData.append('shortcode-id', wrapper.dataset.shortcodeid);
         }
 
         let position;
