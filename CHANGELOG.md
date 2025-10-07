@@ -5,6 +5,7 @@
 
 ### Changed
 - classname
+- more classnames
 
 ### Fixed
 - error with displaying reservations
