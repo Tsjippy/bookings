@@ -6,6 +6,7 @@
 ### Changed
 - classname
 - more classnames
+- bump
 
 ### Fixed
 - error with displaying reservations
