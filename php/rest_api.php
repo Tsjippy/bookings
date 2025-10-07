@@ -5,7 +5,7 @@ use SIM;
 function getNextMonth(){
 	$bookings	= new Bookings();
 
-	$bookings->forms->getForm($_POST['formid']);
+	$bookings->forms->getForm($_POST['form-id']);
 
 	$bookings->forms->shortcodeId		= $_POST['shortcode-id'];
 
@@ -84,7 +84,7 @@ function getNextMonth(){
 function approveBooking(){
 	$bookingsObject	= new Bookings();
 
-	$bookingsObject->forms->formId	= $_POST['formid'];
+	$bookingsObject->forms->formId	= $_POST['form-id'];
 
 	$bookings    				= $bookingsObject->getBookingsBySubmission($_POST['id']);
 

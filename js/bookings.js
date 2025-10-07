@@ -58,15 +58,15 @@ async function getMonth(target){
         formData.append('month', target.dataset.month);
         formData.append('year', target.dataset.year);
         formData.append('subject', wrapper.dataset.subject);
-        formData.append('formid', wrapper.dataset.formid);
+        formData.append('form-id', wrapper.dataset.form-id);
         formData.append('type', type);
 
         if(wrapper.dataset.elid != undefined){
             formData.append('elid', wrapper.dataset.elid);
         }
 
-        if(wrapper.dataset.shortcodeid != undefined){
-            formData.append('shortcode-id', wrapper.dataset.shortcodeid);
+        if(wrapper.dataset.shortcode_id != undefined){
+            formData.append('shortcode-id', wrapper.dataset.shortcode_id);
         }
 
         let position;
@@ -113,7 +113,7 @@ async function getMonth(target){
 async function approve(target){    
     let formData    = new FormData();
     formData.append('id', target.dataset.id);
-    formData.append('formid', target.dataset.formid);
+    formData.append('form-id', target.dataset.form-id);
 
     let row         = target.closest('tr');
 
