@@ -7,6 +7,7 @@
 - classname
 - more classnames
 - bump
+- data attribute names
 
 ### Fixed
 - error with displaying reservations
