@@ -335,7 +335,7 @@ class Bookings{
 
         $extraString   = '';
         if(isset($this->forms->currentElement->id)){
-            $extraString   = "data-elid='{$this->forms->currentElement->id}'";
+            $extraString   = "data-element_id='{$this->forms->currentElement->id}'";
         }
         if(isset($this->forms->shortcodeId)){
             $extraString   .= "data-shortcode_id='{$this->forms->shortcodeId}'";
@@ -1593,13 +1593,13 @@ class Bookings{
             $emails     = $form->emails;
 		
             foreach($emails as $mail){
-                if($mail['emailtrigger'] == 'before-stay' || $mail['emailtrigger'] == 'after-stay'){
-                    if($mail['emailtrigger'] == 'before-stay'){
+                if($mail['email-trigger'] == 'before-stay' || $mail['email-trigger'] == 'after-stay'){
+                    if($mail['email-trigger'] == 'before-stay'){
                         $date       = date('Y-m-d', strtotime("+{$mail['days-before']} days", time()));
                         $bookings   = $this->retrieveBookingsByStartDate($date);
                     }
 
-                    elseif($mail['emailtrigger'] == 'after-stay'){
+                    elseif($mail['email-trigger'] == 'after-stay'){
                         $date       = date('Y-m-d', strtotime("-{$mail['days-after']} days", time()));
                         $bookings   = $this->retrieveBookingsByEndDate($date);
                     }
@@ -1630,7 +1630,7 @@ class Bookings{
                         wp_mail($to , $subject, $message, $headers);
                         remove_filter('wp_mail', [$this->forms, 'addFormData'], 1);
 
-                        if($mail['emailtrigger'] == 'before-stay'){
+                        if($mail['email-trigger'] == 'before-stay'){
                             $this->getSubjectManagers();
 
                             $bookingSubject    =  $this->forms->submission->formresults[$subjectKey];

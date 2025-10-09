@@ -70,7 +70,7 @@ function addFormElementOptions($element){
                     }
 
                     ?>
-                    <div id="subject-<?php echo $index;?>" class="clone-div tabcontent <?php echo $hidden;?>" data-divid="<?php echo $index;?>">
+                    <div id="subject-<?php echo $index;?>" class="clone-div tabcontent <?php echo $hidden;?>" data-div-id="<?php echo $index;?>">
                         <label name="Subject" class=" formfield form-label" style='width: auto;margin-right: 20px;'>
                             <h4>Name</h4>
                             <input type="text" name="formfield[booking-details][subjects][<?php echo $index;?>][name]" class="subject-name formfield formfield-input" value="<?php echo $subject['name'];?>" placeholder="Enter subject name" style='width: unset;'>
@@ -240,7 +240,7 @@ function addFormElementOptions($element){
                                 }
 
                                 ?>
-                                <div class="clone-div" data-divid="<?php echo $i;?>">
+                                <div class="clone-div" data-div-id="<?php echo $i;?>">
                                     <label name="roomname" class=" formfield form-label roomname">
                                         <h4>Room name</h4>
                                         <input type="text" name="formfield[booking-details][subjects][<?php echo $index;?>][rooms][<?php echo $i;?>][name]" class=" formfield formfield-input" value="<?php echo $roomName;?>" placeholder="Enter room name" style='width: unset;'>
@@ -458,7 +458,7 @@ function elementHtml($html, $element, $object){
         ?>
         <div style='display:flex;align-items: center;'>
             <div class="clone-divs-wrapper selected-booking-dates <?php echo $hidden;?>">
-                <div class="clone-div" data-divid="0">
+                <div class="clone-div" data-div-id="0">
                     <div class="button-wrapper">
                         <div class='hidden'>
                             <h4>Room</h4>

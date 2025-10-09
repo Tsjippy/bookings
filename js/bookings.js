@@ -58,15 +58,15 @@ async function getMonth(target){
         formData.append('month', target.dataset.month);
         formData.append('year', target.dataset.year);
         formData.append('subject', wrapper.dataset.subject);
-        formData.append('form-id', wrapper.dataset.form_id);
+        formData.append('form-id', wrapper.dataset.formId);
         formData.append('type', type);
 
-        if(wrapper.dataset.elid != undefined){
-            formData.append('elid', wrapper.dataset.elid);
+        if(wrapper.dataset.elementId != undefined){
+            formData.append('element_id', wrapper.dataset.elementId);
         }
 
-        if(wrapper.dataset.shortcode_id != undefined){
-            formData.append('shortcode-id', wrapper.dataset.shortcode_id);
+        if(wrapper.dataset.shortcodeId != undefined){
+            formData.append('shortcode-id', wrapper.dataset.shortcodeId);
         }
 
         let position;
@@ -113,7 +113,7 @@ async function getMonth(target){
 async function approve(target){    
     let formData    = new FormData();
     formData.append('id', target.dataset.id);
-    formData.append('form-id', target.dataset.form_id);
+    formData.append('form-id', target.dataset.formId);
 
     let row         = target.closest('tr');
 
@@ -396,7 +396,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.querySelectorAll('.booking-detail tr.actions').forEach(row=>row.addEventListener('submissionArchived', ev => {
         let wrapper     = ev.target.closest('.booking-detail-wrapper');
-        let bookingId   = wrapper.dataset.booking_id;
+        let bookingId   = wrapper.dataset.bookingId;
 
         // mark dates as available again
         document.querySelectorAll(`.calendar.day.booked[data-booking_id="${bookingId}"]`).forEach(el=>{
@@ -444,7 +444,7 @@ document.addEventListener('click', (ev) => {
         target.closest('.bookings-wrap').querySelectorAll(`.booking-detail-wrapper:not(.hidden)`).forEach(el=>el.classList.add('hidden'));
         
         // Show the details
-        target.closest('.bookings-wrap').querySelectorAll(`.booking-detail-wrapper[data-booking_id="${target.dataset.booking_id}"]`).forEach(el=>{
+        target.closest('.bookings-wrap').querySelectorAll(`.booking-detail-wrapper[data-booking_id="${target.dataset.bookingId}"]`).forEach(el=>{
             el.classList.remove('hidden');
             el.scrollIntoView({block: "center"});
         });

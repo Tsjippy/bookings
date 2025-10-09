@@ -9,8 +9,8 @@ function getNextMonth(){
 
 	$bookings->forms->shortcodeId		= $_POST['shortcode-id'];
 
-	if(isset($_POST['elid']) && is_numeric($_POST['elid'])){
-		$element						= $bookings->forms->getElementById($_POST['elid']);
+	if(isset($_POST['element_id']) && is_numeric($_POST['element_id'])){
+		$element						= $bookings->forms->getElementById($_POST['element_id']);
 	}else{
 		foreach($bookings->forms->formElements as $element){
 			if($element->type == 'booking-selector'){
