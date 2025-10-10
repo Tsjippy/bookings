@@ -153,7 +153,7 @@ class Bookings{
                     // Render tablink buttons
                     foreach($subject['rooms'] as $index=>$room){
                         ?>
-                        <button class='button tablink formbuilderform <?php if($index === 0){echo 'active';}?>' type='button' id='show-<?php echo $subjectName;?>_room_<?php echo $index;?>' data-target='<?php echo $subjectName;?>_room_<?php echo $index;?>' style='margin-right:4px;'>
+                        <button class='button tablink formbuilder-form <?php if($index === 0){echo 'active';}?>' type='button' id='show-<?php echo $subjectName;?>-room-<?php echo $index;?>' data-target='<?php echo $subjectName;?>-room-<?php echo $index;?>' style='margin-right:4px;'>
                             <?php echo $room['name'];?>
                         </button>
                         <?php
@@ -752,7 +752,7 @@ class Bookings{
                 // we are not the manager of this subject
                 !in_array($this->user, (array) $this->managers[$subject]) &&
                 // we do not have permissions
-                !array_intersect($this->forms->userRoles, array_keys($this->forms->tableSettings['view-right-roles']))  &&      // we do not have the right to see others submissions
+                !array_intersect($this->forms->userRoles, array_keys($this->forms->tableSettings->view_right_roles))  &&      // we do not have the right to see others submissions
                 // This is not our own booking
                 (
                     isset($submission[$userIdElName])                      &&
@@ -829,8 +829,8 @@ class Bookings{
                                 <?php
                                 foreach($this->forms->columnSettings as $key=>$setting){
                                     if(
-                                        $setting['show'] == 'hide' || 
-                                        !is_numeric($key) || 
+                                        !$setting->show     || 
+                                        !is_numeric($key)   || 
                                         in_array($setting['name'], ['form-id', 'formurl', '_wpnonce', 'id', 'submissiontime', 'edittime', 'booking-startdate', 'booking-enddate', 'booking-room', 'name', $this->bookingElements[0]->name])
                                     ){
                                         continue;
@@ -875,7 +875,7 @@ class Bookings{
                                         if(
                                             $this->tableEditPermissions || 																			//if we are allowed to do all actions
                                             $submission['user-id'] == $this->user->ID || 															//or this is our own entry
-                                            array_intersect($this->userRoles, (array)$this->forms->columnSettings[$action]['edit-right-roles'])		//or we have permission for this specific button
+                                            array_intersect($this->userRoles, (array)$this->forms->columnSettings[$action]->edit_right_roles)		//or we have permission for this specific button
                                         ){
                                             $buttons .= $button;
                                         }

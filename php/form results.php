@@ -11,8 +11,8 @@ function tableSettings($displayFormResults){
     }
 
     $setting    = '';
-    if(isset($displayFormResults->tableSettings['booking-display'])){
-        $setting    = $displayFormResults->tableSettings['booking-display'];
+    if(isset($displayFormResults->tableSettings->booking_display)){
+        $setting    = $displayFormResults->tableSettings->booking_display;
     }
 
     ?>
@@ -64,15 +64,15 @@ function shouldShow($shouldShow, $displayFormResults, $type){
     // Check if we should show the table view
     if(
         $type == 'own'                                                  ||          // own is always an table
-        !isset($displayFormResults->tableSettings['booking-display'])   ||          // no option choosen
+        !isset($displayFormResults->tableSettings->booking_display)   ||          // no option choosen
         (
-            isset($displayFormResults->tableSettings['booking-display']) &&         // option chosen
-            $displayFormResults->tableSettings['booking-display'] != 'calendar'     // but choose table view
+            isset($displayFormResults->tableSettings->booking_display) &&         // option chosen
+            $displayFormResults->tableSettings->booking_display != 'calendar'     // but choose table view
         )      ||
         isset($_REQUEST['export-xls'])  ||                                          // exporting an excel
         isset($_REQUEST['export-pdf'])                                              // exporting a pdf
     ){
-        if($type == 'own' && $displayFormResults->tableSettings['booking-display'] == 'calendar'){
+        if($type == 'own' && $displayFormResults->tableSettings->booking_display == 'calendar'){
             $bookings    = new Bookings($displayFormResults);
             
             echo $bookings->pendingBookingsHtml('approval');
@@ -167,7 +167,7 @@ function shouldShow($shouldShow, $displayFormResults, $type){
         $html   .= "</div>";
 
         // Export buttons
-        if(array_intersect($bookings->forms->userRoles, array_keys($bookings->forms->tableSettings['view-right-roles']))){
+        if(array_intersect($bookings->forms->userRoles, array_keys($bookings->forms->tableSettings->view_right_roles))){
             $html   .= "<div>";
                 $html   .= "<form method='post' class='export-form' id='export-xls'>";
                     $html   .= "<button class='button button-primary' type='submit' name='export-xls'>Export data to excel</button>'";
@@ -256,16 +256,16 @@ add_filter('sim-form-result-table-value', __NAMESPACE__.'\adjustCellValue', 10, 
 function adjustCellValue($value, $columnSetting, $values){
     if(
         (
-            $columnSetting['name'] != 'booking-startdate' &&
-            $columnSetting['name'] != 'booking-enddate' &&
-            $columnSetting['name'] != 'booking-room' 
+            $columnSetting->name != 'booking-startdate' &&
+            $columnSetting->name != 'booking-enddate' &&
+            $columnSetting->name != 'booking-room' 
         ) || 
         !isset($values['subid'])
     ){
         return $value;
     }
 
-    if($columnSetting['name'] == 'booking-room' ){
+    if($columnSetting->name == 'booking-room' ){
         return $values['subid'];
     }
 

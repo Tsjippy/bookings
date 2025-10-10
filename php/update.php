@@ -54,4 +54,9 @@ function moduleUpdate($oldVersion){
             );
         }
     }
+
+    if($oldVersion < '8.4.1'){
+        maybe_add_column($forms->formEmailTable, 'days_before', "ALTER TABLE $forms->formEmailTable ADD COLUMN `days_before` int");
+        maybe_add_column($forms->formEmailTable, 'days_after', "ALTER TABLE $forms->formEmailTable ADD COLUMN `days_after` int");
+    }
 }

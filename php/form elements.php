@@ -56,7 +56,7 @@ function addFormElementOptions($element){
                     }
 
                     ?>
-                    <button class='button tablink formbuilderform <?php echo $active;?>' type='button' id='show-subject-<?php echo $index;?>' data-target='subject-<?php echo $index;?>' style='margin-right:4px;'>
+                    <button class='button tablink formbuilder-form <?php echo $active;?>' type='button' id='show-subject-<?php echo $index;?>' data-target='subject-<?php echo $index;?>' style='margin-right:4px;'>
                         <?php echo $subject['name'];?>
                     </button>
                     <?php
