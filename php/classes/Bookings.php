@@ -47,23 +47,30 @@ class Bookings{
      * @param   int     $elementId  The id of the booking element
      */
     public function getSubjects(){
-        
+        if(!empty($this->subjects)){
+            return;
+        }
+
         $posts = get_posts([
-            'post_type' => 'booking subject', // Replace with your custom post type slug
-            'posts_per_page' => -1, // Retrieve all posts of this type, or specify a number
-            'post_status' => 'publish',
-            'orderby' => 'title'
+            'post_type'         => 'booking subject', 
+            'posts_per_page'    => -1, 
+            'post_status'       => 'publish',
+            'orderby'           => 'title'
         ]);
         
-        $this->subjects = [];
-        
         foreach($posts as $post){
-            $metas = get_post_meta($post->ID);
-            $elementId = $metas['element-id'];
-            $this->subjects[$elementId] = $metas;
-             $this->subjects[$elementId]['title'] = $post->post_title;
-            $this->subjects[$elementId]['description'] = $post->post_content;
-            $this->subjects[$elementId]['rooms'] = get_children( [
+            $metas                                      = get_post_meta($post->ID);
+
+            foreach($metas as $key => $value){
+                if(count($value) == 1){
+                    $this->subjects[$post->post_title][$key]    = maybe_unserialize($value[0]);
+                }else{
+                    $this->subjects[$post->post_title][$key]    = array_map('maybe_unserialize', $value);
+                }
+            }
+            $this->subjects[$post->post_title]['name']         = $post->post_title;
+            $this->subjects[$post->post_title]['description']  = $post->post_content;
+            $this->subjects[$post->post_title]['rooms']        = get_children( [
                 'post_parent' => $post->ID,
                 'post_type' => 'any',
                 'numberposts' => -1, // Get all children
@@ -71,6 +78,25 @@ class Bookings{
                 'orderby' => 'title'
             ]);
         }
+    }
+
+     /**
+     * Retrieves the subjects of a specific element from the database
+     * @param   int     $elementId  The id of the booking element
+     */
+    public function getElementSubjects($elementId){
+        if(empty($this->subjects)){
+            $this->getSubjects();
+        }
+
+        $subjects   = [];
+        foreach($this->subjects as $subject){
+            if(isset($subject['element-id']) && $subject['element-id'] == $elementId){
+                $subjects[] = $subject;
+            }
+        }
+
+        return $subjects;
     }
 
     /**
@@ -125,26 +151,6 @@ class Bookings{
 		) $charsetCollate;";
 
 		maybe_create_table($this->tableName, $sql );
-
-        $sql = "CREATE TABLE {$this->bookingSubjectsTable}(
-			id mediumint(9) NOT NULL AUTO_INCREMENT,
-            element_id mediumint(9) NOT NULL,
-            post_id mediumint(9) NOT NULL,
-			name tinytext NOT NULL,
-            managers longtext,
-            payments longtext,
-            overlap boolean,
-            overlap_period tinytext,
-            default_booking_state tinytext,
-            confirmed_booking_roles longtext,
-            amount float,
-            nrtype tinytext,
-            rooms longtext,
-            oneday boolean,
-			PRIMARY KEY  (id)
-		) $charsetCollate;";
-
-		maybe_create_table($this->bookingSubjectsTable, $sql );
 	}
 
     /**
@@ -207,7 +213,7 @@ class Bookings{
                     foreach($subject['rooms'] as $index => $room){
                         ?>
                         <button class='button tablink formbuilder-form <?php if($index === 0){echo 'active';}?>' type='button' id='show-<?php echo $subjectName;?>-room-<?php echo $index;?>' data-target='<?php echo $subjectName;?>-room-<?php echo $index;?>' style='margin-right:4px;'>
-                            <?php echo $room['name'];?>
+                            <?php echo $room->post_title;?>
                         </button>
                         <?php
                     }
@@ -216,17 +222,22 @@ class Bookings{
                 <?php
 
                 // Room description
+                $i = 0;
                 foreach($subject['rooms'] as $index => $room){
+                    $i++;
+                    $name   = $room->post_title;
                     ?>
-                    <div id="<?php echo $subjectName;?>-room-<?php echo $index;?>" class="tabcontent <?php if($index > 0){echo 'hidden';}?>">
+                    <div id="<?php echo $subjectName;?>-room-<?php echo $name;?>" class="tabcontent <?php if($i > 1){echo 'hidden';}?>">
                         <?php
-                        $content    = force_balance_tags(do_shortcode($subject['description']));
-                        $content    = preg_replace('/<!--(.|\s)*?-->/', '', $content);
+                        //$content    = force_balance_tags(do_shortcode($subject['description']));
+                        //$content    = preg_replace('/<!--(.|\s)*?-->/', '', $content);
 
+                        $content    = get_the_content(null, false, $room->ID);
+                        $content    = apply_filters( 'the_content', $content );
                         if(empty($content)){
                             $manager        = get_userdata($subject['managers'][0]);
                             if($manager){
-                                $content = "No details found, sorry.<br> Contact <a href='mailto:$manager->user_email?subject=Please add some description for {$subject['name']} room {$room['name']}&body=Dear $manager->display_name,'>the manager</a>";
+                                $content = "No details found, sorry.<br> Contact <a href='mailto:$manager->user_email?subject=Please add some description for {$subject['name']} room {$room->post_title}&body=Dear $manager->display_name,'>the manager</a>";
                             }
                         }
                         echo $content;
@@ -295,21 +306,14 @@ class Bookings{
                 }
             }elseif(isset($subject['nrtype']) && $subject['nrtype'] == 'custom'){
                 foreach($subject['rooms'] as $room){
-                    if(!is_array($room)){
-                        $room   = [
-                            "name"          => $room,
-                            "description"   => ''
-                        ];
-                    }
-
                     $checked    = '';
-                    if(is_array($this->forms->submission->formresults['booking-room']) && in_array($room['name'], $this->forms->submission->formresults['booking-room'])){
+                    if(is_array($this->forms->submission->formresults['booking-room']) && in_array($room->post_title, $this->forms->submission->formresults['booking-room'])){
                         $checked    = 'checked';
                     }
                     ?>
-                    <input type='<?php echo $type;?>' name='room' class='room-selector' value='<?php echo $room['name'];?>' <?php echo $checked;?>>
+                    <input type='<?php echo $type;?>' name='room' class='room-selector' value='<?php echo $room->post_title;?>' <?php echo $checked;?>>
                     <?php
-                    echo $room['name'];
+                    echo $room->post_title;
                 }
             }else{
                 for ($x = 1; $x <= $subject['amount']; $x++) {
@@ -342,27 +346,20 @@ class Bookings{
         foreach($rooms as $room){
             $roomHidden = 'hidden';
 
-            if(!is_array($room)){
-                $room   = [
-                    "name"          => $room,
-                    "description"   => ''
-                ];
-            }
-
             if(
                 isset($_REQUEST['id'])                                  &&              // We should display a specific submission
                 is_array($this->forms->submission->formresults['booking-room'])   &&    // and a room is set
-                in_array($room['name'], $this->forms->submission->formresults['booking-room'])  // and it is this room
+                in_array($room->post_title, $this->forms->submission->formresults['booking-room'])  // and it is this room
             ){
                 $roomHidden = '';
             }
             ?>
-            <div class='room-wrapper <?php echo $roomHidden;?>'data-room='<?php echo $room['name'];?>'>
-                <h4>Room <?php echo $room['name']?></h4>
+            <div class='room-wrapper <?php echo $roomHidden;?>'data-room='<?php echo $room->post_title;?>'>
+                <h4>Room <?php echo $room->post_title?></h4>
                 <div class='month-wrapper flex'>
                     <?php
-                    echo $this->monthCalendar($subject, $room['name'], $date);
-                    echo $this->monthCalendar($subject, $room['name'], strtotime('first day of next month', $date));
+                    echo $this->monthCalendar($subject, $room->post_title, $date);
+                    echo $this->monthCalendar($subject, $room->post_title, strtotime('first day of next month', $date));
                     ?>
                 </div>
             </div>
@@ -477,16 +474,20 @@ class Bookings{
                     // Room description
                     foreach($subject['rooms'] as $index=>$room){
                         ?>
-                        <div class="hidden room-description" data-room-name="<?php echo $room['name'];?>" >
-                            <h4>Room <?php echo $room['name'];?></h4>
+                        <div class="hidden room-description" data-room-name="<?php echo $room->post_title;?>" >
+                            <h4>Room <?php echo $room->post_title;?></h4>
                             <?php
+
                             // Make sure we have valid content, balanced and comments removed.
-                            $content    = force_balance_tags(do_shortcode($room['description']));
-                            $content    = preg_replace('/<!--(.|\s)*?-->/', '', $content);
+                            //$content    = force_balance_tags(do_shortcode($room['description']));
+                            //$content    = preg_replace('/<!--(.|\s)*?-->/', '', $content);
+
+                            $content    = get_the_content(null, false, $room);
+                            $content    = apply_filters( 'the_content', $content );
                             if(empty($content)){
                                 $manager        = get_userdata($subject['managers'][0]);
                                 if($manager){
-                                    echo "No details found, sorry.<br> Contact <a href='mailto:$manager->user_email?subject=Please add some description for {$subject['name']} room {$room['name']}&body=Dear $manager->display_name,'>the manager</a>";
+                                    echo "No details found, sorry.<br> Contact <a href='mailto:$manager->user_email?subject=Please add some description for {$subject['name']} room {$room->post_title}&body=Dear $manager->display_name,'>the manager</a>";
                                 }
                             }else{
                                 echo $content;
@@ -963,7 +964,7 @@ class Bookings{
         }
 
         foreach($this->bookingElements as $element){
-            $this->getSubject($element->id);
+            $this->getElementSubjects($element->id);
         }
 
         return $this->bookingElements;

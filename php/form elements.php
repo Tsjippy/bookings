@@ -25,7 +25,7 @@ function addFormElementOptions($element){
 
     $bookingDetails = [];
     if($element != null && $element->type == 'booking-selector'){
-        $bookingDetails = $bookings->getSubject($element->id);
+        $bookingDetails = $bookings->getElementSubjects($element->id);
     }else{
         return;
     }
@@ -369,7 +369,7 @@ function elementHtml($html, $element, $object){
 
     if($element->type == 'booking-selector'){
         $bookings       = new Bookings($object);
-        $bookingDetails = $bookings->getSubject($element->id);
+        $bookingDetails = $bookings->getElementSubjects($element->id);
 
         if(!isset($bookingDetails)){
            return '<div class="warning">Please add one or more subjects</div>';
@@ -377,8 +377,9 @@ function elementHtml($html, $element, $object){
         
         $details        = '';
 
+        // Render tab buttons
         foreach($bookingDetails as $index => $subject){
-            $subjectName    = strtolower(str_replace(' ', '_', $subject['name']));
+            $subjectName    = strtolower(str_replace(' ', '-', $subject['name']));
             $active = '';
             if($index === 0 ){
                 $active = 'active';
@@ -388,8 +389,9 @@ function elementHtml($html, $element, $object){
             </button>";
         }
 
-        foreach($bookingDetails as $index=>$subject){
-            $subjectName    = strtolower(str_replace(' ', '_', $subject['name']));
+        // Render tab contents
+        foreach($bookingDetails as $index => $subject){
+            $subjectName    = strtolower(str_replace(' ', '-', $subject['name']));
             $hidden = 'hidden';
             if($index === 0 ){
                 $hidden = '';
@@ -602,8 +604,8 @@ function formElementUpdated($element, $instance, $oldElement){
         $newBookingDetails  = ['subjects' => []];
     }
 
-    $oldSubjects        = array_map(__NAMESPACE__.'\getSubjectNames', $oldBookingDetails);
-    $newSubjects        = array_map(__NAMESPACE__.'\getSubjectNames', $newBookingDetails);
+    $oldSubjects        = array_map(__NAMESPACE__.'\getElementSubjectsNames', $oldBookingDetails);
+    $newSubjects        = array_map(__NAMESPACE__.'\getElementSubjectsNames', $newBookingDetails);
 
     $changedNames       = array_diff($newSubjects, $oldSubjects);
 
@@ -619,8 +621,8 @@ function formElementUpdated($element, $instance, $oldElement){
     }
 
     // Check if the payment option is changed
-    $oldPayments        = array_map(__NAMESPACE__.'\getSubjectPayments', $oldBookingDetails);
-    $newPayments        = array_map(__NAMESPACE__.'\getSubjectPayments', $newBookingDetails);
+    $oldPayments        = array_map(__NAMESPACE__.'\getElementSubjectsPayments', $oldBookingDetails);
+    $newPayments        = array_map(__NAMESPACE__.'\getElementSubjectsPayments', $newBookingDetails);
 
     foreach($oldPayments as $index => $old){
         // If we enable payments
@@ -652,14 +654,14 @@ function addFormFormat($formats, $object){
     return $formats;
 }
 
-function getSubjectNames($v){
+function getElementSubjectsNames($v){
     if(is_array($v) && isset($v['name'])){
         return $v['name'];
     }
     return '';
 }
 
-function getSubjectPayments($v){
+function getElementSubjectsPayments($v){
     if(is_array($v) && isset($v['payments'])){
         return $v['payments'];
     }

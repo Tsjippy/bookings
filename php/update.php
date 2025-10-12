@@ -56,20 +56,34 @@ function moduleUpdate($oldVersion){
     }
 
     if($oldVersion < '8.4.1'){
-        $bookings->createTables();
-
         maybe_add_column($forms->formEmailTable, 'days_before', "ALTER TABLE $forms->formEmailTable ADD COLUMN `days_before` int");
         maybe_add_column($forms->formEmailTable, 'days_after', "ALTER TABLE $forms->formEmailTable ADD COLUMN `days_after` int");
 
         $results    = $wpdb->get_results("SELECT * FROM $forms->elTableName WHERE type = 'booking_selector'");
+        foreach($results as $element){
+            $wpdb->update(
+                $forms->elTableName,
+                [
+                    'type'  => 'booking-selector'
+                ],
+                array(
+                    'id'		=> $element->id
+                ),
+            );
+        }
+
+        $results    = $wpdb->get_results("SELECT * FROM $forms->elTableName WHERE type = 'booking-selector'");
 
         foreach($results as $element){
             $bookingDetails  = maybe_unserialize($element->booking_details);
+
             if(!is_array($bookingDetails)){
                 continue;
             }
 
             foreach($bookingDetails['subjects'] as $subject){
+
+                $subject['element-id'] = $element->id;
 
                 // insert a post for subject description
                 $postId  = wp_insert_post([
@@ -80,37 +94,35 @@ function moduleUpdate($oldVersion){
                 ]);
 
                 unset($subject['description']);
+                unset($subject['name']);
 
-                if(isset($subject['rooms']) && is_array($subject['rooms'])){
+                if(isset($subject['rooms']) && is_array($subject['rooms']) && count($subject['rooms']) > 1){
                     foreach($subject['rooms'] as $room){
-                            $roomId = wp_insert_post([
-                                'post_title'    => $subject['name']." Room $room",
-                                'post_type'     => 'booking room',
-                                'post_status'   => 'publish',
-                                'post_content'  => '',
-                                'post_parent' => $postId
-                            ]);
-                            
-                            update_post_meta($postId, 'room', [$roomId => $room]);
+                        if(isset($room['name'])){
+                            $room = $room['name'];
                         }
+
+                        $roomId = wp_insert_post([
+                            'post_title'    => $subject['name']." Room $room",
+                            'post_type'     => 'booking room',
+                            'post_status'   => 'publish',
+                            'post_content'  => '',
+                            'post_parent'   => $postId
+                        ]);
+                        
+                        add_post_meta($postId, 'room', [$roomId => $room]);
                     } 
                 }  
                 unset($subject['rooms']);
+
+                $subject['confirmed_booking_roles'] = array_keys(array_filter($subject['confirmed_booking_roles']));
                 
                 foreach($subject as $key => $value){
+                    $key = str_replace('_', '-', strtolower($key));
+
                     update_post_meta($postId, $key, $value);
                 }
             }
-
-            $wpdb->update(
-                $forms->elTableName,
-                [
-                    'type'  => 'booking-selector'
-                ],
-                array(
-                    'id'		=> $element->id
-                ),
-            );
         }
     }
 }

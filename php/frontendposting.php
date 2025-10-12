@@ -11,8 +11,8 @@ function postingModals($types){
 add_action('sim_frontend_post_content_title', __NAMESPACE__.'\contentTitle');
 function contentTitle($postType){
     // Book content title
-    $class = 'property book';
-    if($postType != 'book'){
+    $class = 'property booking subject';
+    if($postType != 'booking subject'){
         $class .= ' hidden';
     }
 
@@ -23,65 +23,46 @@ function contentTitle($postType){
 
 add_action('sim_after_post_save', __NAMESPACE__.'\afterPostSave', 10, 2);
 function afterPostSave($post, $frontEndPost){
-    if($post->post_type != 'subject description'){
+    if($post->post_type != 'booking subject'){
         return;
     }
 
-    foreach(METAS as $meta=>$type){
-        if(isset($_POST[$meta])){
-            if(empty($_POST[$meta])){
-                delete_post_meta($post->ID, $meta);
-            }elseif($type == 'array'){
-                $curValues = get_post_meta($post->ID, $meta);
-                $newValues = array_map('sanitize_text_field', $_POST[$meta]);
+    foreach($_POST as $meta => $value){
+        if(empty($_POST[$meta])){
+            delete_post_meta($post->ID, $meta);
+        }elseif($type == 'array'){
+            $curValues = get_post_meta($post->ID, $meta);
+            $newValues = array_map('sanitize_text_field', $value);
 
-                $deleted  = array_diff($curValues, $newValues);
-                foreach($deleted as $value){
-                    delete_metadata( 'post', $post->ID, $meta, $value);
-
-                    if($meta == 'author' || $meta == 'location'){
-                        $taxonomy = $meta == 'author' ? 'authors' : 'book-locations';
-                        
-                        //Remove author or location from the post
-                        $term = get_term_by('name', $value, $taxonomy);
-
-                        wp_remove_object_terms($post->ID, $term->term_id, $taxonomy);
-                    }
-                }
-
-                $added    = array_diff($newValues, $curValues);
-                foreach($added as $value){
-                    if($meta == 'author'){
-                        $library->processAuthor($value, $post->ID);
-                    }else{
-                        add_metadata( 'post', $post->ID, $meta, $value);
-
-                        if($meta == 'location'){
-                            wp_set_post_terms($post->ID, [$value], 'book-locations', true);
-                        }
-                    }
-                }
-            }else{
-                //Store value
-                update_metadata( 'post', $post->ID, $meta, sanitize_text_field($_POST[$meta]));
+            $deleted  = array_diff($curValues, $newValues);
+            foreach($deleted as $value){
+                delete_metadata( 'post', $post->ID, $meta, $value);
             }
+
+            $added    = array_diff($newValues, $curValues);
+            foreach($added as $value){
+                add_metadata( 'post', $post->ID, $meta, $value);
+            }
+        }else{
+            //Store value
+            update_metadata( 'post', $post->ID, $meta, sanitize_text_field($value));
         }
     }
 }
 
 //add meta data fields
 add_action('sim_frontend_post_after_content', __NAMESPACE__.'\afterPostContent', 10, 2);
-function afterPostContent($frontendcontend){
+function afterPostContent($object){
 
-    if(!empty($frontendcontend->post) && $frontendcontend->post->post_type != 'book'){
+    if(!empty($object->post) && $object->post->post_type != 'booking subject'){
         return;
     }
 
     //Load js
-    wp_enqueue_script('sim_book_script');
+    //wp_enqueue_script('sim_book_script');
 
-    $postId     = $frontendcontend->postId;
-    $postName   = $frontendcontend->postName;
+    $postId     = $object->postId;
+    $postName   = $object->postName;
     
     ?>
     <style>
@@ -92,43 +73,29 @@ function afterPostContent($frontendcontend){
             text-align: left;
         }
     </style>
-    <div id="book-attributes" class="property book<?php if($postName != 'book'){echo ' hidden';} ?>">
+    <div id="booking-subject-attributes" class="property booking-subject<?php if($postName != 'booking subject'){echo ' hidden';} ?>">
         <input type='hidden' name='static-content' value='static-content'>
             
-        <fieldset id="book" class="frontend-form">
+        <fieldset id="booking-subject" class="frontend-form">
             <legend>
-                <h4>Book details</h4>
+                <h4>Subject details</h4>
             </legend>
 
             <table class="form-table">
                 <?php
-                foreach(METAS as $meta=>$type){
-                    if($type=='url'){
-                        $type   = 'text';
-                    }
-
-                    switch ($meta){
-                        default:
-                            $text   = $meta;
-                    }
-
+                foreach(get_post_meta($postId) as $index => $meta){
+                    $key    = $meta;
+                    $values = $meta;
                     ?>
                     <tr>
-                        <th><label for="<?php echo $meta;?>"><?php echo ucfirst($text);?></label></th>
+                        <th><label><?php echo ucfirst($key);?></label></th>
                         <td>
                             <?php
-                            if($type == 'array'){
-                                $type   = 'text';
-
-                                $values = get_post_meta($postId, $meta);
-                                if(empty($values)){
-                                    $values[] = '';
-                                }
-
+                            if(is_array($values)){
                                 ?>
                                 <div class="clone-divs-wrapper">
                                     <?php
-                                    foreach($values as $index=>$value){
+                                    foreach($values as $index => $value){
                                         if(is_array($value)){
                                             $value = implode(',', $value);
                                         } 
@@ -136,7 +103,7 @@ function afterPostContent($frontendcontend){
                                         ?>
                                         <div id="<?php echo $meta;?>-div-<?php echo $index;?>" class="clone-div" data-div-id="<?php echo $index;?>">
                                             <div class='button-wrapper'>
-                                                <input type='<?php echo $type;?>' class='formbuilder' name='<?php echo $meta;?>[]' value='<?php echo $value; ?>' style='width: calc(100% - 70px);'>
+                                                <input type='text' class='formbuilder' name='<?php echo $meta;?>[]' value='<?php echo $value; ?>' style='width: calc(100% - 70px);'>
                                                 <button type="button" class="add button" style="flex: 1;">+</button>
                                                 <button type="button" class="remove button" style="flex: 1;">-</button>
                                             </div>
@@ -147,7 +114,11 @@ function afterPostContent($frontendcontend){
                                 </div>
                                 <?php
                             }else{
-                                $value = get_post_meta($postId, $meta, true);
+                                $value = $values;
+                                $type ='text';
+                                if(is_numeric($value)){
+                                    $type ='number';
+                                }
                                 ?>
                                 <input type='<?php echo $type;?>' class='formbuilder' name='<?php echo $meta;?>' value='<?php echo $value; ?>'>
                                 <?php
