@@ -335,14 +335,14 @@ class Bookings{
 
         $extraString   = '';
         if(isset($this->forms->currentElement->id)){
-            $extraString   = "data-element_id='{$this->forms->currentElement->id}'";
+            $extraString   = "data-element-id='{$this->forms->currentElement->id}'";
         }
         if(isset($this->forms->shortcodeId)){
-            $extraString   .= "data-shortcode_id='{$this->forms->shortcodeId}'";
+            $extraString   .= "data-shortcode-id='{$this->forms->shortcodeId}'";
         }
 
         ?>
-        <div class="bookings-wrap <?php if($hidden){echo 'hidden';}?>" data-date="<?php echo "$yearStr-$monthStr";?>" data-subject="<?php echo $cleanSubject;?>" data-form_id="<?php echo $this->forms->formData->id;?>" <?php echo $extraString;?>>
+        <div class="bookings-wrap <?php if($hidden){echo 'hidden';}?>" data-date="<?php echo "$yearStr-$monthStr";?>" data-subject="<?php echo $cleanSubject;?>" data-form-id="<?php echo $this->forms->formData->id;?>" <?php echo $extraString;?>>
             <div class="booking overview">
                 <div class='header mobile-sticky'>
                     <h4 style='text-align:center;'><?php echo ucfirst($cleanSubject);?> Calendar</h4>
@@ -424,7 +424,7 @@ class Bookings{
                     // Room description
                     foreach($subject['rooms'] as $index=>$room){
                         ?>
-                        <div class="hidden room-description" data-room_name="<?php echo $room['name'];?>" >
+                        <div class="hidden room-description" data-room-name="<?php echo $room['name'];?>" >
                             <h4>Room <?php echo $room['name'];?></h4>
                             <?php
                             // Make sure we have valid content, balanced and comments removed.
@@ -647,7 +647,7 @@ class Bookings{
                                 $class	.= ' booked';
                             }
 
-                            $data   .= "data-booking_id='$bookingId'";
+                            $data   .= "data-booking-id='$bookingId'";
 
                             if(method_exists($this->forms, 'getSubmissions')){
                                 // check if this is our own booking
@@ -760,7 +760,7 @@ class Bookings{
                 )
             ){
                 // no right to see this
-                echo "<div class='booking-detail-wrapper warning hidden' data-booking_id='$booking->id'>";
+                echo "<div class='booking-detail-wrapper warning hidden' data-booking-id='$booking->id'>";
                     echo "No Permission to see this booking";
                 echo "</div>";
                 continue;
@@ -779,7 +779,7 @@ class Bookings{
             }            
 
             ?>
-            <div class='booking-detail-wrapper <?php echo $hidden;?>' data-booking_id='<?php echo $booking->id;?>'>
+            <div class='booking-detail-wrapper <?php echo $hidden;?>' data-booking-id='<?php echo $booking->id;?>'>
                 <h6 class='booking-title'>
                     Booking details
                 </h6>
@@ -787,14 +787,14 @@ class Bookings{
                 <article class='booking'>
                     <h4 class='booking-title'><?php echo $submission['name'];?></h4>
                     <div class='booking-detail'>
-                        <table data-form_id='<?php echo $submission['form-id'];?>' style='width: unset;'>
+                        <table data-form-id='<?php echo $submission['form-id'];?>' style='width: unset;'>
                             <thead></thead>
                             <tbody>
                                 <tr class='<?php $this->bookingElements[0]->name;?>' data-id='<?php echo $submission['id'];?>'>
                                     <td>
                                         <img src='<?php echo $baseUrl;?>/subject.png' loading='lazy' alt='<?php echo $this->bookingElements[0]->nicename;?>' class='booking-icon' title='<?php echo $this->bookingElements[0]->nicename;?>'>
                                     </td>
-                                    <td class='booking-data-wrapper edit-forms-table' data-id='<?php echo $this->bookingElements[0]->id;?>' data-name='<?php echo $this->bookingElements[0]->name;?>' data-oldvalue='<?php echo json_encode($submission[$this->bookingElements[0]->name]);?>' data-booking_id='<?php echo $booking->id;?>'>
+                                    <td class='booking-data-wrapper edit-forms-table' data-id='<?php echo $this->bookingElements[0]->id;?>' data-name='<?php echo $this->bookingElements[0]->name;?>' data-oldvalue='<?php echo json_encode($submission[$this->bookingElements[0]->name]);?>' data-booking-id='<?php echo $booking->id;?>'>
                                         <?php echo $submission[$this->bookingElements[0]->name];?>
                                     </td>
                                 </tr>
@@ -803,14 +803,14 @@ class Bookings{
                                         <img src='<?php echo $baseUrl;?>/date.png' loading='lazy' alt='date' class='booking-icon'>
                                     </td>
                                     <td class='booking-data-wrapper edit-forms-table'>
-                                        <table data-form_id='<?php echo $submission['form-id'];?>' style='margin-bottom: 0px; width:unset;'>
+                                        <table data-form-id='<?php echo $submission['form-id'];?>' style='margin-bottom: 0px; width:unset;'>
                                             <tr data-id='<?php echo $submission['id'];?>'>
-                                                <td data-name='booking-startdate' data-id='<?php echo $this->forms->getElementByName('booking-startdate')->id;?>' data-subid='<?php echo $subId;?>' data-oldvalue='<?php echo json_encode($booking->startdate);?>' data-booking_id='<?php echo $booking->id;?>' class='edit-forms-table'>
+                                                <td data-name='booking-startdate' data-id='<?php echo $this->forms->getElementByName('booking-startdate')->id;?>' data-subid='<?php echo $subId;?>' data-oldvalue='<?php echo json_encode($booking->startdate);?>' data-booking-id='<?php echo $booking->id;?>' class='edit-forms-table'>
                                                     <?php echo date(DATEFORMAT, strtotime($booking->startdate));?>
                                                 </td>
                                             </tr>
                                             <tr data-id='<?php echo $submission['id'];?>'>
-                                                <td data-name='booking-enddate' data-id='<?php echo  $this->forms->getElementByName('booking-enddate')->id;?>' data-subid='<?php echo $subId;?>' data-oldvalue='<?php echo json_encode($booking->enddate);?>' data-booking_id='<?php echo $booking->id;?>' class='edit-forms-table'>
+                                                <td data-name='booking-enddate' data-id='<?php echo  $this->forms->getElementByName('booking-enddate')->id;?>' data-subid='<?php echo $subId;?>' data-oldvalue='<?php echo json_encode($booking->enddate);?>' data-booking-id='<?php echo $booking->id;?>' class='edit-forms-table'>
                                                     <?php echo date(DATEFORMAT, strtotime($booking->enddate));?>
                                                 </td>
                                             </tr>
@@ -821,7 +821,7 @@ class Bookings{
                                     <td>
                                         <img src='<?php echo $baseUrl;?>/room.png' loading='lazy' alt='Room' class='booking-icon' title='Room'>
                                     </td>
-                                    <td class='booking-data-wrapper edit-forms-table' data-id='-104' data-subid='<?php echo $subId;?>' data-name='booking-room' data-oldvalue='<?php echo json_encode($submission['booking-room']);?>' data-booking_id='<?php echo $booking->id;?>'>
+                                    <td class='booking-data-wrapper edit-forms-table' data-id='-104' data-subid='<?php echo $subId;?>' data-name='booking-room' data-oldvalue='<?php echo json_encode($submission['booking-room']);?>' data-booking-id='<?php echo $booking->id;?>'>
                                         <?php echo $booking->room;?>
                                     </td>
                                 </tr>
@@ -851,7 +851,7 @@ class Bookings{
                                         }else{
                                             echo "<td>{$setting['nice-name']}:</td>";
                                         }
-                                        echo "<td class='booking-data-wrapper edit-forms-table' data-id='$element->id' data-name='$name' data-oldvalue='".json_encode($data)."' data-booking_id='$booking->id'>";
+                                        echo "<td class='booking-data-wrapper edit-forms-table' data-id='$element->id' data-name='$name' data-oldvalue='".json_encode($data)."' data-booking-id='$booking->id'>";
                                             echo $transformedData;
                                         echo "</td>";
                                     echo "</tr>";
@@ -863,7 +863,7 @@ class Bookings{
                                     $buttonsHtml	= [];
                                     $buttons		= '';
                                     foreach($this->forms->formData->actions as $action){
-                                        if($action == 'archive' && $this->showArchived == 'true' && $this->forms->submissions->archived){
+                                        if($action == 'archive' && $this->showArchived && $this->forms->submissions->archived){
                                             $action = 'unarchive';
                                         }
                                         $buttonsHtml[$action]	= "<button class='$action button forms-table-action' name='{$action}-action' value='$action'>".ucfirst($action)."</button>";
@@ -1871,8 +1871,8 @@ class Bookings{
      * Adds the buttons to approve or delete a pending booking
      */
     public function pendingButtons($buttonsHtml, $values, $subId, $object){
-        $buttonsHtml['approve'] = "<button class='button approve' type='button' data-id='{$values['id']}' data-form_id='{$object->submission->form_id}'>Approve</button>";
-        $buttonsHtml['delete']  = "<button class='button delete' type='button' data-id='{$values['id']}' data-form_id='{$object->submission->form_id}'>Delete</button><br>";
+        $buttonsHtml['approve'] = "<button class='button approve' type='button' data-id='{$values['id']}' data-form-id='{$object->submission->form_id}'>Approve</button>";
+        $buttonsHtml['delete']  = "<button class='button delete' type='button' data-id='{$values['id']}' data-form-id='{$object->submission->form_id}'>Delete</button><br>";
         unset($buttonsHtml['archive']);
 
         return $buttonsHtml;

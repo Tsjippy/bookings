@@ -536,7 +536,7 @@ function elementHtml($html, $element, $object){
         }
 
         if(isset($_POST['booking-id']) && is_numeric($_POST['booking-id'])){
-            $html   = str_replace('>', " data-booking_id='{$_POST['booking-id']}'>", $html);
+            $html   = str_replace('>', " data-booking-id='{$_POST['booking-id']}'>", $html);
         }
 
         if($element->name == 'booking-enddate'){

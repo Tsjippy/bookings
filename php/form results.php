@@ -256,16 +256,16 @@ add_filter('sim-form-result-table-value', __NAMESPACE__.'\adjustCellValue', 10, 
 function adjustCellValue($value, $columnSetting, $values){
     if(
         (
-            $columnSetting->name != 'booking-startdate' &&
-            $columnSetting->name != 'booking-enddate' &&
-            $columnSetting->name != 'booking-room' 
+            $columnSetting['name'] != 'booking-startdate' &&
+            $columnSetting['name'] != 'booking-enddate' &&
+            $columnSetting['name'] != 'booking-room' 
         ) || 
         !isset($values['subid'])
     ){
         return $value;
     }
 
-    if($columnSetting->name == 'booking-room' ){
+    if($columnSetting['name'] == 'booking-room' ){
         return $values['subid'];
     }
 

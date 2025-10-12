@@ -62,7 +62,7 @@ async function getMonth(target){
         formData.append('type', type);
 
         if(wrapper.dataset.elementId != undefined){
-            formData.append('element_id', wrapper.dataset.elementId);
+            formData.append('element-id', wrapper.dataset.elementId);
         }
 
         if(wrapper.dataset.shortcodeId != undefined){
@@ -372,7 +372,7 @@ function roomSelected(target){
     modal.querySelectorAll(`[data-room="${target.value}"]`).forEach(el=>el.classList.toggle('hidden'));
 
     // Show selected room description
-    modal.querySelectorAll(`.room-description[data-room_name="${target.value}"]`).forEach(el=>el.classList.toggle('hidden'));
+    modal.querySelectorAll(`.room-description[data-room-name="${target.value}"]`).forEach(el=>el.classList.toggle('hidden'));
     
 }
 
@@ -399,7 +399,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let bookingId   = wrapper.dataset.bookingId;
 
         // mark dates as available again
-        document.querySelectorAll(`.calendar.day.booked[data-booking_id="${bookingId}"]`).forEach(el=>{
+        document.querySelectorAll(`.calendar.day.booked[data-booking-id="${bookingId}"]`).forEach(el=>{
             el.classList.remove('booked');
             el.classList.add('available');
         });
@@ -444,7 +444,7 @@ document.addEventListener('click', (ev) => {
         target.closest('.bookings-wrap').querySelectorAll(`.booking-detail-wrapper:not(.hidden)`).forEach(el=>el.classList.add('hidden'));
         
         // Show the details
-        target.closest('.bookings-wrap').querySelectorAll(`.booking-detail-wrapper[data-booking_id="${target.dataset.bookingId}"]`).forEach(el=>{
+        target.closest('.bookings-wrap').querySelectorAll(`.booking-detail-wrapper[data-booking-id="${target.dataset.bookingId}"]`).forEach(el=>{
             el.classList.remove('hidden');
             el.scrollIntoView({block: "center"});
         });
