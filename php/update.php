@@ -66,13 +66,13 @@ function moduleUpdate($oldVersion){
         foreach($results as $element){
             $bookingDetails  = maybe_unserialize($element->booking_details);
             if(!is_array($bookingDetails)){
-                $continue;
+                continue;
             }
 
             foreach($bookingDetails['subjects'] as $subject){
 
                 // insert a post for subject description
-                $subject['post_id']  = wp_insert_post([
+                $postId  = wp_insert_post([
                     'post_title'    => $subject['name'],
                     'post_type'     => 'booking subject',
                     'post_status'   => 'publish',
@@ -81,38 +81,25 @@ function moduleUpdate($oldVersion){
 
                 unset($subject['description']);
 
-                foreach($subject as $key => $value){
-                    if(is_array($value)){
-                        $subject[$key] = maybe_serialize($value);
-                    }
-                
-                    $newKey = str_replace('-', '_', $key);
-                    if($newKey != $key){
-                        unset($subject[$key]);
-                        $subject[$newKey] = maybe_serialize($value);
-                    } 
-                }
-
-                $wpdb->insert(
-                    $bookings->bookingSubjectsTable,
-                    $subject
-                );
-
-                if(isset($value['rooms']) && is_array($value['rooms'])){
-                    foreach($value['rooms'] as $room){
-                        //$roomId = SIM\getPostIdByTitle($room, 'booking room');
-                        if(empty($roomId)){
+                if(isset($subject['rooms']) && is_array($subject['rooms'])){
+                    foreach($subject['rooms'] as $room){
                             $roomId = wp_insert_post([
-                                'post_title'    => $room,
+                                'post_title'    => $subject['name']." Room $room",
                                 'post_type'     => 'booking room',
                                 'post_status'   => 'publish',
-                                'post_content'  => ''
+                                'post_content'  => '',
+                                'post_parent' => $postId
                             ]);
+                            
+                            update_post_meta($postId, 'room', [$roomId => $room]);
                         }
-
-                        wp_set_object_terms($roomId, [$subjectId], 'booking subjects', true);
-                    }
+                    } 
                 }  
+                unset($subject['rooms']);
+                
+                foreach($subject as $key => $value){
+                    update_post_meta($postId, $key, $value);
+                }
             }
 
             $wpdb->update(
