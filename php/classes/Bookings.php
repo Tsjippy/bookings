@@ -7,7 +7,6 @@ use WP_Error;
 
 class Bookings{
     public $tableName;
-    public $bookingSubjectsTable;
     public $bookings;
     public $forms;
     public $unavailable;
@@ -23,7 +22,6 @@ class Bookings{
     public function __construct($displayFormResults=''){
         global $wpdb;
 		$this->tableName		            = $wpdb->prefix.'sim_bookings';
-        $this->bookingSubjectsTable         = $wpdb->prefix.'sim_booking_subjects';
         $this->bookings                     = [];
         $this->user                         = wp_get_current_user();
         $this->userRoles	                = $this->user->roles;
@@ -48,15 +46,31 @@ class Bookings{
      * Retrieves the subjects of a specific element from the database
      * @param   int     $elementId  The id of the booking element
      */
-    public function getSubject($elementId){
-        global $wpdb;
-
-        $query      = "SELECT * FROM $this->bookingSubjectsTable WHERE element_id = %d ORDER BY name ASC";
-        $prepared   = $wpdb->prepare($query, $elementId);
-
-        $this->subjects[$elementId] = $wpdb->get_results($prepared);
-
-        return $this->subjects[$elementId];
+    public function getSubjects(){
+        
+        $posts = get_posts([
+            'post_type' => 'booking subject', // Replace with your custom post type slug
+            'posts_per_page' => -1, // Retrieve all posts of this type, or specify a number
+            'post_status' => 'publish',
+            'orderby' => 'title'
+        ]);
+        
+        $this->subjects = [];
+        
+        foreach($posts as $post){
+            $metas = get_post_meta($post->ID);
+            $elementId = $metas['element-id'];
+            $this->subjects[$elementId] = $metas;
+             $this->subjects[$elementId]['title'] = $post->post_title;
+            $this->subjects[$elementId]['description'] = $post->post_content;
+            $this->subjects[$elementId]['rooms'] = get_children( [
+                'post_parent' => $post->ID,
+                'post_type' => 'any',
+                'numberposts' => -1, // Get all children
+                'post_status' => 'publish',
+                'orderby' => 'title'
+            ]);
+        }
     }
 
     /**
