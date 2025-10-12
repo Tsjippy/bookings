@@ -8,6 +8,7 @@
 - more classnames
 - bump
 - data attribute names
+- array to object
 
 ### Fixed
 - error with displaying reservations
