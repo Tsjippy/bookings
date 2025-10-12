@@ -71,7 +71,7 @@ class Bookings{
             }
             $this->subjects[$post->post_title]['name']         = $post->post_title;
             $this->subjects[$post->post_title]['description']  = $post->post_content;
-            $this->subjects[$post->post_title]['rooms']        = get_children( [
+            $rooms       = get_children( [
                 'post_parent'   => $post->ID,
                 'post_type'     => 'any',
                 'numberposts'   => -1, // Get all children
@@ -79,6 +79,16 @@ class Bookings{
                 'orderby'       => 'title',
                 'order'         => 'ASC',
             ]);
+            
+            // add the name to each room
+            $this->subjects[$post->post_title]['rooms'] = [];
+            foreach($rooms as $roomPost){
+                $this->subjects[$post->post_title]['rooms'][] = [
+                    'id' => $roomPost->ID,
+                    'name' => get_post_meta($roomPost->ID, 'name'),
+                    'description' => $roomPost->post_content
+                ];
+            }
         }
     }
 
