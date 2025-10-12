@@ -10,6 +10,7 @@
 - data attribute names
 - array to object
 - dataset names
+- store booking subjects in seperate table
 
 ### Fixed
 - error with displaying reservations
