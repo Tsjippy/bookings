@@ -19,7 +19,7 @@ function beforeSavingFormData($formResults, $object){
 
     // loop over all booking selectors (usually one)
     foreach($elements as $element){
-        $bookingDetails = $bookings->subjects[$element->id];
+        $bookingDetails = $bookings->getElementSubjects($element->id);
         $subjectName    = $formResults[$element->name];
 
         // somehow we do not have any data
@@ -28,7 +28,7 @@ function beforeSavingFormData($formResults, $object){
         }
 
         // Same start and end date
-        foreach($formResults['booking-startdate'] as $index=>$startdate){
+        foreach($formResults['booking-startdate'] as $index => $startdate){
             if($startdate == $formResults['booking-enddate'][$index]){
                 return new \WP_Error('bookings', "End date cannot be the same as the start date");
             }

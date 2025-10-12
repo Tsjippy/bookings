@@ -47,7 +47,7 @@ function changeTableViewPermissions($tableViewPermissions, $object){
 
     // Loop over all subjects
     foreach($elements as $element){
-        foreach($bookings->subjects[$element->id] as $subject){
+        foreach($bookings->getElementSubjects($element->id) as $subject){
             // if we are the manager of one of the subjects
             if(is_array($subject['managers']) && in_array($object->user->ID, $subject['managers'])){
                 return true;
@@ -124,7 +124,7 @@ function shouldShow($shouldShow, $displayFormResults, $type){
 
         // Find the subject names
         foreach($elements as $element){
-            foreach($bookings->subjects[$element->id] as $subject){
+            foreach($bookings->getElementSubjects($element->id) as $subject){
                 // Only show the subjects we are manager of
                 if(!is_array($subject['managers']) || !in_array($bookings->user->ID, $subject['managers'])){
                     continue;

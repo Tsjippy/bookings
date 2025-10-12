@@ -430,11 +430,11 @@ function elementHtml($html, $element, $object){
             $required   = 'required';
         }
 
-        if(empty($subjects)){
+        if(empty($bookingDetails)){
             $hidden     = "";
             $buttonText = 'Select dates';
-        }elseif(count($subjects) < 6){
-            foreach($subjects as $subject){
+        }elseif(count($bookingDetails) < 6){
+            foreach($bookingDetails as $subject){
                 $cleanSubject    = trim($subject['name']);
                 $checked    = '';
                 if(isset($object->submission->formresults[$element->name]) && $object->submission->formresults[$element->name] == $cleanSubject){
@@ -447,7 +447,7 @@ function elementHtml($html, $element, $object){
             }
         }else{
             $html   .= "<select class='booking-subject-selector' name='$element->name' $required>";
-                foreach($subjects as $subject){
+                foreach($bookingDetails as $subject){
                     $cleanSubject    = trim($subject['name']);
                     $html   .= "<option value='$cleanSubject'>$cleanSubject</option>";
                 }

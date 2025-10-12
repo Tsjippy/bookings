@@ -17,7 +17,7 @@ class Bookings{
     public $managers;
     public $payables;
     public $bookingElements;
-    public $subjects;
+    protected $subjects;
 
     public function __construct($displayFormResults=''){
         global $wpdb;
@@ -55,7 +55,8 @@ class Bookings{
             'post_type'         => 'booking subject', 
             'posts_per_page'    => -1, 
             'post_status'       => 'publish',
-            'orderby'           => 'title'
+            'orderby'           => 'title',
+            'order'             => 'ASC',
         ]);
         
         foreach($posts as $post){
@@ -71,11 +72,12 @@ class Bookings{
             $this->subjects[$post->post_title]['name']         = $post->post_title;
             $this->subjects[$post->post_title]['description']  = $post->post_content;
             $this->subjects[$post->post_title]['rooms']        = get_children( [
-                'post_parent' => $post->ID,
-                'post_type' => 'any',
-                'numberposts' => -1, // Get all children
-                'post_status' => 'publish',
-                'orderby' => 'title'
+                'post_parent'   => $post->ID,
+                'post_type'     => 'any',
+                'numberposts'   => -1, // Get all children
+                'post_status'   => 'publish',
+                'orderby'       => 'title',
+                'order'         => 'ASC',
             ]);
         }
     }
