@@ -9,6 +9,7 @@
 - bump
 - data attribute names
 - array to object
+- dataset names
 
 ### Fixed
 - error with displaying reservations
