@@ -81,7 +81,7 @@ add_action('sim_module_bookings_activated', __NAMESPACE__.'\moduleActivated');
 function moduleActivated($options){
 	// Create the table
 	$bookings	= new Bookings();
-	$bookings->createBookingsTable();
+	$bookings->createTables();
 
 	// Add columns to forms element table
 	$forms	= new SIM\FORMS\SimForms();

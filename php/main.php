@@ -8,7 +8,7 @@ function beforeSavingFormData($formResults, $object){
     $bookings                   = new Bookings($object);
 
     // find the subject
-    $elements             = $bookings->getSubjectData();
+    $elements             = $bookings->getBookingElements();
     if(is_wp_error($elements)){
         return $elements;
     }
@@ -19,11 +19,11 @@ function beforeSavingFormData($formResults, $object){
 
     // loop over all booking selectors (usually one)
     foreach($elements as $element){
-        $bookingDetails = $element->booking_details;
+        $bookingDetails = $bookings->subjects[$element->id];
         $subjectName    = $formResults[$element->name];
 
         // somehow we do not have any data
-        if(empty($bookingDetails['subjects'])){
+        if(empty($bookingDetails)){
             return new \WP_Error('bookings', "No booking details found");
         }
 
@@ -35,7 +35,7 @@ function beforeSavingFormData($formResults, $object){
         }
 
         // find the selected subject
-        foreach($bookingDetails['subjects'] as $subject){
+        foreach($bookingDetails as $subject){
             if(
                 !empty($subject['name']) &&             // Subjects name is set 
                 $subject['name'] == $subjectName &&     // and this is the selected subject
@@ -374,4 +374,12 @@ function transformEmpty($replaceValue, $instance, $match){
     }
 
     return $replaceValue;
+}
+
+
+add_action('init', __NAMESPACE__.'\addEventPostType', 999);
+function addEventPostType(){
+	SIM\registerPostTypeAndTax('booking subject', 'booking subjects');
+	SIM\registerPostTypeAndTax('booking room', 'booking rooms');
+
 }

@@ -56,7 +56,74 @@ function moduleUpdate($oldVersion){
     }
 
     if($oldVersion < '8.4.1'){
+        $bookings->createTables();
+
         maybe_add_column($forms->formEmailTable, 'days_before', "ALTER TABLE $forms->formEmailTable ADD COLUMN `days_before` int");
         maybe_add_column($forms->formEmailTable, 'days_after', "ALTER TABLE $forms->formEmailTable ADD COLUMN `days_after` int");
+
+        $results    = $wpdb->get_results("SELECT * FROM $forms->elTableName WHERE type = 'booking_selector'");
+
+        foreach($results as $element){
+            $bookingDetails  = maybe_unserialize($element->booking_details);
+            if(!is_array($bookingDetails)){
+                $continue;
+            }
+
+            foreach($bookingDetails['subjects'] as $subject){
+
+                // insert a post for subject description
+                $subject['post_id']  = wp_insert_post([
+                    'post_title'    => $subject['name'],
+                    'post_type'     => 'booking subject',
+                    'post_status'   => 'publish',
+                    'post_content'  => isset($subject['description']) ? $subject['description'] : ''
+                ]);
+
+                unset($subject['description']);
+
+                foreach($subject as $key => $value){
+                    if(is_array($value)){
+                        $subject[$key] = maybe_serialize($value);
+                    }
+                
+                    $newKey = str_replace('-', '_', $key);
+                    if($newKey != $key){
+                        unset($subject[$key]);
+                        $subject[$newKey] = maybe_serialize($value);
+                    } 
+                }
+
+                $wpdb->insert(
+                    $bookings->bookingSubjectsTable,
+                    $subject
+                );
+
+                if(isset($value['rooms']) && is_array($value['rooms'])){
+                    foreach($value['rooms'] as $room){
+                        //$roomId = SIM\getPostIdByTitle($room, 'booking room');
+                        if(empty($roomId)){
+                            $roomId = wp_insert_post([
+                                'post_title'    => $room,
+                                'post_type'     => 'booking room',
+                                'post_status'   => 'publish',
+                                'post_content'  => ''
+                            ]);
+                        }
+
+                        wp_set_object_terms($roomId, [$subjectId], 'booking subjects', true);
+                    }
+                }  
+            }
+
+            $wpdb->update(
+                $forms->elTableName,
+                [
+                    'type'  => 'booking-selector'
+                ],
+                array(
+                    'id'		=> $element->id
+                ),
+            );
+        }
     }
 }

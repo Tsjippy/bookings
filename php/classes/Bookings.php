@@ -7,6 +7,7 @@ use WP_Error;
 
 class Bookings{
     public $tableName;
+    public $bookingSubjectsTable;
     public $bookings;
     public $forms;
     public $unavailable;
@@ -17,14 +18,17 @@ class Bookings{
     public $managers;
     public $payables;
     public $bookingElements;
+    public $subjects;
 
     public function __construct($displayFormResults=''){
         global $wpdb;
-		$this->tableName		= $wpdb->prefix.'sim_bookings';
-        $this->bookings         = [];
-        $this->user             = wp_get_current_user();
-        $this->userRoles	    = $this->user->roles;
-        $this->payables         = [];
+		$this->tableName		            = $wpdb->prefix.'sim_bookings';
+        $this->bookingSubjectsTable         = $wpdb->prefix.'sim_booking_subjects';
+        $this->bookings                     = [];
+        $this->user                         = wp_get_current_user();
+        $this->userRoles	                = $this->user->roles;
+        $this->payables                     = [];
+        $this->subjects                     = [];
 
         if(getType($displayFormResults) == 'object'){
             $this->forms        = $displayFormResults;
@@ -38,6 +42,21 @@ class Bookings{
         wp_enqueue_style( 'sim_bookings_style');
 
         $this->addSplitEl();
+    }
+
+    /**
+     * Retrieves the subjects of a specific element from the database
+     * @param   int     $elementId  The id of the booking element
+     */
+    public function getSubject($elementId){
+        global $wpdb;
+
+        $query      = "SELECT * FROM $this->bookingSubjectsTable WHERE element_id = %d ORDER BY name ASC";
+        $prepared   = $wpdb->prepare($query, $elementId);
+
+        $this->subjects[$elementId] = $wpdb->get_results($prepared);
+
+        return $this->subjects[$elementId];
     }
 
     /**
@@ -66,7 +85,7 @@ class Bookings{
     /**
 	 * Creates the table holding all bookings if it does not exist
 	 */
-	public function createBookingsTable(){
+	public function createTables(){
 		if ( !function_exists( 'maybe_create_table' ) ) {
 			require_once ABSPATH . '/wp-admin/install-helper.php';
 		}
@@ -92,6 +111,26 @@ class Bookings{
 		) $charsetCollate;";
 
 		maybe_create_table($this->tableName, $sql );
+
+        $sql = "CREATE TABLE {$this->bookingSubjectsTable}(
+			id mediumint(9) NOT NULL AUTO_INCREMENT,
+            element_id mediumint(9) NOT NULL,
+            post_id mediumint(9) NOT NULL,
+			name tinytext NOT NULL,
+            managers longtext,
+            payments longtext,
+            overlap boolean,
+            overlap_period tinytext,
+            default_booking_state tinytext,
+            confirmed_booking_roles longtext,
+            amount float,
+            nrtype tinytext,
+            rooms longtext,
+            oneday boolean,
+			PRIMARY KEY  (id)
+		) $charsetCollate;";
+
+		maybe_create_table($this->bookingSubjectsTable, $sql );
 	}
 
     /**
@@ -151,7 +190,7 @@ class Bookings{
                 <div class='tablink-wrapper'>
                     <?php
                     // Render tablink buttons
-                    foreach($subject['rooms'] as $index=>$room){
+                    foreach($subject['rooms'] as $index => $room){
                         ?>
                         <button class='button tablink formbuilder-form <?php if($index === 0){echo 'active';}?>' type='button' id='show-<?php echo $subjectName;?>-room-<?php echo $index;?>' data-target='<?php echo $subjectName;?>-room-<?php echo $index;?>' style='margin-right:4px;'>
                             <?php echo $room['name'];?>
@@ -163,9 +202,9 @@ class Bookings{
                 <?php
 
                 // Room description
-                foreach($subject['rooms'] as $index=>$room){
+                foreach($subject['rooms'] as $index => $room){
                     ?>
-                    <div id="<?php echo $subjectName;?>_room_<?php echo $index;?>" class="tabcontent <?php if($index > 0){echo 'hidden';}?>">
+                    <div id="<?php echo $subjectName;?>-room-<?php echo $index;?>" class="tabcontent <?php if($index > 0){echo 'hidden';}?>">
                         <?php
                         $content    = force_balance_tags(do_shortcode($subject['description']));
                         $content    = preg_replace('/<!--(.|\s)*?-->/', '', $content);
@@ -579,22 +618,17 @@ class Bookings{
         $overlap            = false;
         $gapDays            = 0;
 
-        // get the details of all subjects
-        $bookingDetails     = maybe_unserialize($this->forms->currentElement->booking_details);
-        if(!empty($bookingDetails) && is_array($bookingDetails['subjects'])){
-            // find the details of the current subject
-            foreach($bookingDetails['subjects'] as $s){
-                // check if overlap is enabled
-                if($s['name'] == $subject && !empty($s['overlap'])){
-                    if($s['overlap'] == 'yes'){
-                        $overlap    = true;
-                    }elseif(!empty($s['overlap-period']) && is_numeric($s['overlap-period'])){
-                        $gapDays    = $s['overlap-period'];
-                    }
+        foreach($this->subjects as $s){
+            // check if overlap is enabled
+            if($s['name'] == $subject && !empty($s['overlap'])){
+                if($s['overlap'] == 'yes'){
+                    $overlap    = true;
+                }elseif(!empty($s['overlap-period']) && is_numeric($s['overlap-period'])){
+                    $gapDays    = $s['overlap-period'];
+                }
 
-                    break;
-                } 
-            }
+                break;
+            } 
         }
 
         //get the bookings for this month
@@ -902,7 +936,7 @@ class Bookings{
      * Retrieve the subject data
      * @param   bool    $force      Do not send cacheg data, default false
      */
-    public function getSubjectData($force = false){
+    public function getBookingElements($force = false){
         if(!empty($this->bookingElements) && !$force){
             return $this->bookingElements;
         }
@@ -915,11 +949,7 @@ class Bookings{
         }
 
         foreach($this->bookingElements as $element){
-            $element->booking_details = maybe_unserialize($element->booking_details);
-
-            if(!isset($element->booking_details['subjects'])){
-                return new WP_Error('no subject', 'Please add one or more booking subjects');
-            }
+            $this->getSubject($element->id);
         }
 
         return $this->bookingElements;
@@ -950,22 +980,19 @@ class Bookings{
 
         $overlap            = false;
 
-        $bookingEls         = $this->getSubjectData();
+        $bookingEls         = $this->getBookingElements();
 
         if(is_wp_error($bookingEls)){
             return $bookingEls;
         }
 
-        $bookingDetails     = $bookingEls[0]->booking_details;
-        if(!empty($bookingDetails) && is_array($bookingDetails['subjects'])){
-            foreach($bookingDetails['subjects'] as $detail){
-                if(
-                    $detail['name'] == $subject && 
-                    !empty($detail['overlap']) && 
-                    $detail['overlap'] == 'yes'
-                ){
-                    $overlap    = true;
-                }
+        foreach($this->subjects as $detail){
+            if(
+                $detail['name'] == $subject && 
+                !empty($detail['overlap']) && 
+                $detail['overlap'] == 'yes'
+            ){
+                $overlap    = true;
             }
         }
 
@@ -995,12 +1022,12 @@ class Bookings{
      * @return  bool                true if is should be pending, false otherwise
      */
     public function checkPending($user, $subject){
-        $els = $this->getSubjectData();
+        $els = $this->getBookingElements();
         if(!$els){
             return true;
         }
 
-        foreach($els[0]->booking_details['subjects'] as $subjectSettings){
+        foreach($this->subjects as $subjectSettings){
             if(!str_contains($subject, $subjectSettings['name'])){
                 continue;
             }
@@ -1582,7 +1609,7 @@ class Bookings{
 
             $this->forms->formData  = $form;
 
-            $this->getSubjectData(true);
+            $this->getBookingElements(true);
 
             if(empty($this->bookingElements)){
                 continue;
@@ -1692,7 +1719,7 @@ class Bookings{
         }
 
         // get the booking selector element
-        $els     = $this->getSubjectData();
+        $els     = $this->getBookingElements();
         if(!$els || is_wp_error($els)){
             return;
         }
@@ -1700,41 +1727,35 @@ class Bookings{
         $this->managers = [];
         $this->payables = [];
 
-        // loop over all booking selector elements of this form
-        foreach($els as $el){
-            // find the subject
-            if($el->booking_details && is_array($el->booking_details['subjects'])){
-                // Loop over all subjects
-                foreach($el->booking_details['subjects'] as $subject){
-                    $managerIds  = $subject['managers'];
+        // Loop over all subjects
+        foreach($this->subjects as $subject){
+            $managerIds  = $subject['managers'];
 
-                    // loop over all the managers of this subject
-                    foreach($managerIds as $managerId){
+            // loop over all the managers of this subject
+            foreach($managerIds as $managerId){
 
-                        if(!is_numeric($managerId)){
-                            continue;
-                        }
+                if(!is_numeric($managerId)){
+                    continue;
+                }
 
-                        // Check if this useraccount exists
-                        $manager    = get_userdata($managerId);
+                // Check if this useraccount exists
+                $manager    = get_userdata($managerId);
 
-                        // this manager is not the current user
-                        if(( is_numeric($userId) && $managerId != $userId) || !$manager ){
-                            continue;
-                        }
+                // this manager is not the current user
+                if(( is_numeric($userId) && $managerId != $userId) || !$manager ){
+                    continue;
+                }
 
-                        // create an empty array if needed for this subject 
-                        if(empty($this->managers[$subject['name'] ] )){
-                            $this->managers[$subject['name'] ]  = [];
-                        }
+                // create an empty array if needed for this subject 
+                if(empty($this->managers[$subject['name'] ] )){
+                    $this->managers[$subject['name'] ]  = [];
+                }
 
-                        // add the manager to the subject
-                        $this->managers[$subject['name'] ][$manager->ID]    = $manager;
+                // add the manager to the subject
+                $this->managers[$subject['name'] ][$manager->ID]    = $manager;
 
-                        if($subject['payments']){
-                            $this->payables[]   = $subject['name'];
-                        }
-                    }
+                if($subject['payments']){
+                    $this->payables[]   = $subject['name'];
                 }
             }
         }
@@ -1752,7 +1773,7 @@ class Bookings{
             foreach($this->forms->forms as $form){
                 $this->forms->getForm($form->id);
 
-                $result = $this->getSubjectData(true);
+                $result = $this->getBookingElements(true);
 
                 // this form has booking selector in it
                 if(!is_wp_error($result) && !empty($result)){
@@ -1782,12 +1803,12 @@ class Bookings{
             // Load the form
             $this->forms->getForm($submission->form_id);
 
-            $el             = $this->getSubjectData()[0];
+            $el             = $this->getBookingElements()[0];
 
             $accommodation  = $booking->subject;
 
             // check if payment is enabled for this subject
-            foreach($el->booking_details['subjects'] as $subject){
+            foreach($this->subjects[$el->id] as $subject){
                 // this is the current subject
                 if($subject['name'] == $accommodation){
                     if(!$subject['payments']){

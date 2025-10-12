@@ -23,10 +23,9 @@ function getNextMonth(){
 	$subjectName	= sanitize_text_field($_POST['subject']);
 	$date			= strtotime($_POST['year'].'-'.$_POST['month'].'-01');
 
-	$bookingDetails	= maybe_unserialize($element->booking_details);
 	$months			= [];
-	if(isset($bookingDetails['subjects'])){
-		foreach($bookingDetails['subjects'] as $subject){
+	if(isset($bookings->subjects[$element->id])){
+		foreach($bookings->subjects[$element->id] as $subject){
 			if($subject['name'] == $subjectName){
 				if($subject['amount'] > 1){									
 					if(isset($subject['nrtype']) && $subject['nrtype'] == 'letters'){
