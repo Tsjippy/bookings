@@ -23,15 +23,15 @@ function addFormElementOptions($element){
 
     $bookings       = new Bookings();
 
-    $bookingDetails = [];
+    $subjects = [];
     if($element != null && $element->type == 'booking-selector'){
-        $bookingDetails = $bookings->getElementSubjects($element->id);
+        $subjects = $bookings->getElementSubjects($element->id);
     }else{
         return;
     }
 
-    if(empty($bookingDetails)){
-        $bookingDetails = ['No Subjects defined yet'];
+    if(empty($subjects)){
+        $subjects = ['No Subjects defined yet'];
     }
 
     ?>
@@ -41,11 +41,13 @@ function addFormElementOptions($element){
             <div class="clone-divs-wrapper">
                 <?php
                 // Render tab buttons
-                foreach($bookingDetails as $index => $subject){                    
+                foreach($subjects as $index => $subject){                    
                     if(!is_array($subject)){
-                        $subject = $bookingDetails[$index]    = [
-                            'name'   => $subject,
-                            'amount' => 1
+                        $subject = $subjects[$index]    = [
+                            'post-id'                   => -1,
+                            'name'                      => $subject,
+                            'amount'                    => 1,
+                            'confirmed-booking-roles'   => [],
                         ];
                     }
                     $active	= '';
@@ -62,7 +64,7 @@ function addFormElementOptions($element){
                 }
                     
                 // Render tab contents
-                foreach($bookingDetails as $index=>$subject){
+                foreach($subjects as $index => $subject){
                     $hidden	= 'hidden';
                     if($index === 0){
                         $hidden = '';
@@ -70,34 +72,41 @@ function addFormElementOptions($element){
 
                     ?>
                     <div id="subject-<?php echo $index;?>" class="clone-div tabcontent <?php echo $hidden;?>" data-div-id="<?php echo $index;?>">
+                        <input type="hidden" class="no-reset" name="formfield[booking-details][<?php echo $index;?>][post-id]" value="<?php echo $subject['post-id'];?>" >
+                        <input type="hidden" class="no-reset" name="formfield[booking-details][<?php echo $index;?>][element-id]" value="<?php echo $element->id;?>" >
+                        
                         <label name="Subject" class=" formfield form-label" style='width: auto;margin-right: 20px;'>
                             <h4>Name</h4>
                             <input type="text" name="formfield[booking-details][<?php echo $index;?>][name]" class="subject-name formfield formfield-input" value="<?php echo $subject['name'];?>" placeholder="Enter subject name" style='width: unset;'>
-                            <br>
-                            <br>
+                        </label>
+                        <br>
+                        <br>
+                        <label class=" formfield form-label" style='width: auto;margin-right: 20px;'>
                             <h4>Manager(s)</h4>
                             <?php
                             echo SIM\userSelect('', false, false, '', "formfield[booking-details][$index][managers][]", [], $subject['managers'], [], 'select', '', true);
                             ?>
+                        </label>
 
-                            <h4>Location Description</h4>
-                            <?php
-                            $settings = array(
-                                'wpautop' => false,
-                                'media_buttons' => false,
-                                'forced_root_block' => true,
-                                'convert_newlines_to_brs'=> true,
-                                'textarea_name' => "formfield[booking_details][$index][description]",
-                                'textarea_rows' => 10
-                            );
-                        
-                            echo wp_editor(
-                                $subject['description'],
-                                "subjects-{$index}-description",
-                                $settings
-                            );
-                            ?>
+                        <h4>Location Description</h4>
+                        <?php
+                        $settings = array(
+                            'wpautop' => false,
+                            'media_buttons' => false,
+                            'forced_root_block' => true,
+                            'convert_newlines_to_brs'=> true,
+                            'textarea_name' => "formfield[booking-details][$index][description]",
+                            'textarea_rows' => 10
+                        );
+                    
+                        echo wp_editor(
+                            $subject['description'],
+                            "subjects-{$index}-description",
+                            $settings
+                        );
+                        ?>
 
+                        <label class=" formfield form-label" style='width: auto;margin-right: 20px;'>
                             <h4>Enable Payments</h4>
                             <div class="info-box" name="info">
                                 <div>
@@ -155,7 +164,7 @@ function addFormElementOptions($element){
                         </label>
 
                         <label>
-                            <input type='checkbox' name='formfield[booking-details][<?php echo $index;?>][oneday]' value='1' <?php if(isset($bookingDetails['oneday']) && $bookingDetails['oneday'] == 'yes'){echo 'checked';}?>>
+                            <input type='checkbox' name='formfield[booking-details][<?php echo $index;?>][oneday]' value='1' <?php if(isset($subjects['oneday']) && $subjects['oneday'] == 'yes'){echo 'checked';}?>>
                             Allow one day events
                         </label>
 
@@ -177,14 +186,14 @@ function addFormElementOptions($element){
                                 <h4>Select roles for which bookings are confirmed by default</h4>
                                 <div class="role-info">
                                     <?php
-                                    foreach($userRoles as $key=>$roleName){
-                                        if(!empty($subject['confirmed-booking-roles'][$key])){
+                                    foreach($userRoles as $key => $roleName){
+                                        if(in_array($key, $subject['confirmed-booking-roles'])){
                                             $checked = 'checked';
                                         }else{
                                             $checked = '';
                                         }
                                         echo "<label class='option-label'>";
-                                            echo "<input type='checkbox' class='formbuilder form-element-setting' name='formfield[booking-details][$index][confirmed-booking-roles][$key]' value='$roleName' $checked>";
+                                            echo "<input type='checkbox' class='formbuilder form-element-setting' name='formfield[booking-details][$index][confirmed-booking-roles][]' value='$key' $checked>";
                                             echo $roleName;
                                         echo"</label><br>";
                                     }
@@ -219,17 +228,39 @@ function addFormElementOptions($element){
                         <div class="rooms clone-divs-wrapper <?php if($subject['amount'] == 1 || empty($subject['amount'])){echo 'hidden';}?>" style='background: lightgrey;padding-bottom: 10px;padding-left: 10px;margin-right:10px'>
                             <?php
                             if(empty($subject['rooms'])){
-                                $subject['rooms']   = ['1'];
+                                $subject['rooms']   = ['0'];
                             }
 
                             ?>
                             <h3>Room details</h3>
                             <?php
 
-                            foreach($subject['rooms'] as $i=>$room){
+                            // Tab buttons
+                            foreach($subject['rooms'] as $i => $room){
+                                if(empty($room['name'])){
+                                    continue;
+                                }
+
+                                $active	= '';
+
+                                if($i === 0){
+                                    $active = 'active';
+                                }
+
+                                $subjectName    = strtolower(str_replace(' ', '-', $subject['name']));
+
+                                ?>
+                                <button class='button tablink formbuilder-form <?php echo $active;?>' type='button' id='show-<?php echo $subjectName;?>-room-<?php echo $i;?>' data-target='<?php echo $subjectName;?>-room-<?php echo $i;?>' style='margin-right:4px;max-width: 100px;'>
+                                    Room <?php echo $room['name'];?>
+                                </button>
+                                <?php
+                            }
+
+                            // Tab contents
+                            foreach($subject['rooms'] as $i => $room){
                                 if(!is_array($room)){
                                     $room   = [
-                                        "name"          => $room,
+                                        "name"          => '',
                                         "description"   => ''
                                     ];
                                 }
@@ -240,11 +271,19 @@ function addFormElementOptions($element){
                                     $alphabet   = range('A', 'Z');
                                     $roomName   = $alphabet[$i];
                                 }else{
-                                    $roomName   =  $i+1;
+                                    $roomName   =  $i + 1;
+                                }
+
+                                $subjectName    = strtolower(str_replace(' ', '-', $subject['name']));
+
+                                $hidden	= 'hidden';
+                                if($i === 0){
+                                    $hidden = '';
                                 }
 
                                 ?>
-                                <div class="clone-div" data-div-id="<?php echo $i;?>">
+                                <div id="<?php echo $subjectName;?>-room-<?php echo $i;?>" class="clone-div tabcontent <?php echo $hidden;?>" data-div-id="<?php echo $i;?>">
+                                    <input type="hidden" name="formfield[booking-details][<?php echo $index;?>][rooms][<?php echo $i;?>][post-id]" value="<?php echo $room['post-id'];?>">
                                     <label name="roomname" class=" formfield form-label roomname">
                                         <h4>Room name</h4>
                                         <input type="text" name="formfield[booking-details][<?php echo $index;?>][rooms][<?php echo $i;?>][name]" class=" formfield formfield-input" value="<?php echo $roomName;?>" placeholder="Enter room name" style='width: unset;'>
@@ -280,19 +319,15 @@ function addFormElementOptions($element){
                                         ?>
                                     </div>
                                 </div>
-                                <br>
-                                <br>
                                 <?php
                             }
                             ?>
                         </div>
-                        <br>
-                        <br>
-                        <br>
+
                         <div class="button-wrapper" style="display: flex;">
                             <button type="button" class="add button" style="flex: 1; max-width: 150px; margin: 10px 5px 3px 0px;">Add a Subject</button>
                             <?php
-                            if(count($bookingDetails) > 1){
+                            if(count($subjects) > 1){
                                 ?>
                                 <button type="button" class="remove button" style="flex: 1; max-width: 220px;margin-top: 10px">Remove this Subject</button>
                                 <?php
@@ -369,16 +404,16 @@ function elementHtml($html, $element, $object){
 
     if($element->type == 'booking-selector'){
         $bookings       = new Bookings($object);
-        $bookingDetails = $bookings->getElementSubjects($element->id);
+        $subjects = $bookings->getElementSubjects($element->id);
 
-        if(!isset($bookingDetails)){
+        if(!isset($subjects)){
            return '<div class="warning">Please add one or more subjects</div>';
         }
         
         $details        = '';
 
         // Render tab buttons
-        foreach($bookingDetails as $index => $subject){
+        foreach($subjects as $index => $subject){
             $subjectName    = strtolower(str_replace(' ', '-', $subject['name']));
             $active = '';
             if($index === 0 ){
@@ -390,7 +425,7 @@ function elementHtml($html, $element, $object){
         }
 
         // Render tab contents
-        foreach($bookingDetails as $index => $subject){
+        foreach($subjects as $index => $subject){
             $subjectName    = strtolower(str_replace(' ', '-', $subject['name']));
             $hidden = 'hidden';
             if($index === 0 ){
@@ -430,11 +465,11 @@ function elementHtml($html, $element, $object){
             $required   = 'required';
         }
 
-        if(empty($bookingDetails)){
+        if(empty($subjects)){
             $hidden     = "";
             $buttonText = 'Select dates';
-        }elseif(count($bookingDetails) < 6){
-            foreach($bookingDetails as $subject){
+        }elseif(count($subjects) < 6){
+            foreach($subjects as $subject){
                 $cleanSubject    = trim($subject['name']);
                 $checked    = '';
                 if(isset($object->submission->formresults[$element->name]) && $object->submission->formresults[$element->name] == $cleanSubject){
@@ -447,7 +482,7 @@ function elementHtml($html, $element, $object){
             }
         }else{
             $html   .= "<select class='booking-subject-selector' name='$element->name' $required>";
-                foreach($bookingDetails as $subject){
+                foreach($subjects as $subject){
                     $cleanSubject    = trim($subject['name']);
                     $html   .= "<option value='$cleanSubject'>$cleanSubject</option>";
                 }
@@ -486,7 +521,7 @@ function elementHtml($html, $element, $object){
         $booking   = new Bookings($object);
 
         // Find the subject names
-        foreach($bookingDetails as $subject){
+        foreach($subjects as $subject){
             $html   .= $booking->dateSelectorModal($subject);
         }
     }
@@ -494,15 +529,15 @@ function elementHtml($html, $element, $object){
     elseif($element->name == 'booking-room'){
         $bookings       = new Bookings($object);
 
-        $bookingDetails = maybe_unserialize($element->booking_details);
+        $subjects = maybe_unserialize($element->booking_details);
 
-        if(empty($bookingDetails)){
+        if(empty($subjects)){
             return 'Please add one or more subjects';
         }
 
         $elementName    = $object->getElementByType('booking-selector')[0]->name;
 
-        foreach($bookingDetails as $subject){
+        foreach($subjects as $subject){
             if($subject['name'] == $object->submission->formresults[$elementName]){
                 break;
             }
@@ -593,53 +628,145 @@ function formElementUpdated($element, $instance, $oldElement){
         return;
     }
 
-    // Check if a subject name is changed
-    $oldBookingDetails  = maybe_unserialize($oldElement->booking_details);
-    if(!$oldBookingDetails){
-        $oldBookingDetails  = ['subjects' => []];
+    $bookings       = new Bookings($instance);
+    $bookings->getSubjects();
+
+    // Get the updated subject data
+    $newSubjects  = $_POST['formfield']['booking-details'];
+    if(!$newSubjects){
+        $newSubjects  = [];
     }
 
-    $newBookingDetails  = maybe_unserialize($element->booking_details);
-    if(!$newBookingDetails){
-        $newBookingDetails  = ['subjects' => []];
+    // index by post ids
+    foreach($newSubjects as $index => $subject){
+        unset($newSubjects[$index]);
+        $newSubjects[$subject['post-id']]  = $subject;
     }
 
-    $oldSubjects        = array_map(__NAMESPACE__.'\getElementSubjectsNames', $oldBookingDetails);
-    $newSubjects        = array_map(__NAMESPACE__.'\getElementSubjectsNames', $newBookingDetails);
+    // Previous subject data
+    $oldSubjects        = $bookings->getElementSubjects($oldElement->id);
 
-    $changedNames       = array_diff($newSubjects, $oldSubjects);
-
-    $bookings           = new Bookings($instance);
-
-    foreach($changedNames as $index=>$newName){
-        $oldName    = $oldSubjects[$index];
-
-        // update existing bookings
-        $query  = "UPDATE `$bookings->tableName` SET subject = REPLACE( `subject`, '$oldName', '$newName' ) WHERE `subject` LIKE '$oldName%'";
-        
-        $wpdb->query($query);
+    // index by post ids
+    foreach($oldSubjects as $postId => $subject){
+        unset($oldSubjects[$postId]);
+        $oldSubjects[$subject['post-id']]  = $subject;
     }
 
-    // Check if the payment option is changed
-    $oldPayments        = array_map(__NAMESPACE__.'\getElementSubjectsPayments', $oldBookingDetails);
-    $newPayments        = array_map(__NAMESPACE__.'\getElementSubjectsPayments', $newBookingDetails);
+    // Loop over old subjects to see what changed
+    foreach($oldSubjects as $postId => $subject){
+        // This subject is removed
+        if(!isset($newSubjects[$postId])){
+            $bookings->removeSubject($subject);
+            continue;
+        }
 
-    foreach($oldPayments as $index => $old){
-        // If we enable payments
-        if($newPayments[$index] && $old != $newPayments[$index]){
-            // mark old bookings as paid
-            foreach($bookings->retrieveUnPaidBookings(true, true) as $unpaidBooking){
-                $bookings->updateBooking($unpaidBooking, ['paid' => 1]);
+        // This subject is changed
+        if($subject != $newSubjects[$postId]){
+
+            // Check what changed
+            foreach($subject as $key => $value){
+                // Remove empty array values
+                if(is_array($newSubjects[$postId][$key])){
+                    $newSubjects[$postId][$key] = array_filter($newSubjects[$postId][$key]);
+                }
+
+                // Delete this one
+                if(!isset($newSubjects[$postId][$key])){
+                    delete_post_meta($postId, $key);
+
+                    continue;
+                }
+                
+                // Nothing has changed
+                elseif( $newSubjects[$postId][$key] == $value){
+                    continue;
+                }
+
+                // Subject detail changed
+                if($key == 'name'){
+                    // update existing bookings
+                    $query  = "UPDATE `$bookings->tableName` SET subject = REPLACE( `subject`, '$value', '$newSubjects[$postId][$key]' ) WHERE `subject` LIKE '$value%'";
+                    
+                    $wpdb->query($query);
+
+                    // Update post title
+                    wp_update_post([
+                        'ID'            => $postId,
+                        'post_title'    => $newSubjects[$postId][$key]
+                    ]);
+                }elseif($key == 'description'){
+                    wp_update_post([
+                        'ID'            => $postId,
+                        'post_content'  => $newSubjects[$postId][$key]
+                    ]);
+                }elseif($key == 'rooms'){
+
+                    // index old rooms by post ids
+                    $oldRooms   = [];
+                    foreach($value as $index => $v){
+                        unset($v[$index]);
+
+                        if($v['post-id'] != -1){
+                            $oldRooms[$v['post-id']]  = $v;
+                        }
+                    }
+
+                    // index new rooms by post ids
+                    $newRooms   = [];
+                    foreach($newSubjects[$postId][$key] as $index => $v){
+                        unset($newSubjects[$postId][$key][$index]);
+                        
+                        if($v['name'] != ''){
+                            $newRooms[$v['post-id']]  = $v;
+                        }
+                    }
+
+                    $addedRooms     = array_diff_key($newRooms, $oldRooms);
+                    $subjectName    = ucfirst($subject['name']);
+                    foreach($addedRooms as $room){
+                        $name          = ucfirst($room['name']);
+                        $description   = isset($room['description']) ? $room['description'] : '';
+
+                        $roomId = wp_insert_post([
+                            'post_title'    => "$subjectName Room $name",
+                            'post_type'     => 'booking room',
+                            'post_status'   => 'publish',
+                            'post_content'  => $description,
+                            'post_parent'   => $postId
+                        ]);
+                        
+                        add_post_meta($postId, 'room', [$roomId => $name]);
+                        add_post_meta($roomId, 'name', $name);
+                    }
+
+                    $removedRooms  = array_diff_key($oldRooms, $newRooms);
+                    foreach($removedRooms as $room){
+                        wp_delete_post($room['post-id']);
+
+                        $name          = ucfirst($room['name']);
+                        delete_post_meta($postId, 'room', [$room['post-id'] => $name]);
+                    }
+                }elseif($key == 'payments'){
+                    // We enabled payments
+                    if($newSubjects[$postId][$key]){
+                        // mark old bookings as paid
+                        foreach($bookings->retrieveUnPaidBookings(true, true) as $unpaidBooking){
+                            $bookings->updateBooking($unpaidBooking, ['paid' => 1]);
+                        }
+                    }
+
+                    update_post_meta($postId, $key, $newSubjects[$postId][$key]);
+                }else{
+                    update_post_meta($postId, $key, $newSubjects[$postId][$key]);
+                }
             }
         }
     }
-}
 
-add_filter('forms-element-table-formats', __NAMESPACE__.'\addElementFormat', 10, 2);
-function addElementFormat($formats, $object){
-    $formats['booking_details']  = '%s'; // booking_details
-
-    return $formats;
+    $addedSubjects      = array_diff_key($newSubjects, $oldSubjects);
+    foreach($addedSubjects as $newSubject){
+        $bookings->addSubject($newSubject);
+    }
 }
 
 add_filter('forms-form-table-formats', __NAMESPACE__.'\addFormFormat', 10, 2);
@@ -653,10 +780,12 @@ function addFormFormat($formats, $object){
 
     return $formats;
 }
-
-function getElementSubjectsNames($v){
-    if(is_array($v) && isset($v['name'])){
-        return $v['name'];
+/**
+ * Helper functions for array_map to filter the post-ids
+ */
+function getPostIds($v){
+    if(is_array($v) && isset($v['post-id'])){
+        return $v['post-id'];
     }
     return '';
 }

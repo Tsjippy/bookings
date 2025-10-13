@@ -83,46 +83,22 @@ function moduleUpdate($oldVersion){
 
             foreach($bookingDetails['subjects'] as $subject){
 
-                $subject['element-id'] = $element->id;
-
-                // insert a post for subject description
-                $postId  = wp_insert_post([
-                    'post_title'    => $subject['name'],
-                    'post_type'     => 'booking subject',
-                    'post_status'   => 'publish',
-                    'post_content'  => isset($subject['description']) ? $subject['description'] : ''
-                ]);
-
-                unset($subject['description']);
-                unset($subject['name']);
-
-                if(isset($subject['rooms']) && is_array($subject['rooms']) && count($subject['rooms']) > 1){
-                    foreach($subject['rooms'] as $room){
-                        if(isset($room['name'])){
-                            $room = $room['name'];
-                        }
-
-                        $roomId = wp_insert_post([
-                            'post_title'    => $subject['name']." Room $room",
-                            'post_type'     => 'booking room',
-                            'post_status'   => 'publish',
-                            'post_content'  => '',
-                            'post_parent'   => $postId
-                        ]);
-                        
-                        add_post_meta($postId, 'room', [$roomId => $room]);
-                        add_post_meta($roomId, 'name', $room);
-                    } 
-                }  
-                unset($subject['rooms']);
-
                 $subject['confirmed_booking_roles'] = array_keys(array_filter($subject['confirmed_booking_roles']));
                 
                 foreach($subject as $key => $value){
-                    $key = str_replace('_', '-', strtolower($key));
+                    $newKey = str_replace('_', '-', strtolower($key));
 
-                    update_post_meta($postId, $key, $value);
+                    unset($subject[$key]);
+                    $subject[$newKey] = $value;
                 }
+
+                if(count($subject['rooms']) < 2){
+                    unset($subject['rooms']);
+                }
+
+                $subject['element-id']  = $element->id;
+
+                $bookings->addSubject($subject);
             }
         }
     }
