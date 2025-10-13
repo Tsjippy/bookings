@@ -387,6 +387,26 @@ add_filter('sim-template-filter', __NAMESPACE__.'\renameModule');
 function  renameModule($templateFile){
     $templateFile   = str_replace('/booking-subjects/', '/bookings/', $templateFile);
     $templateFile   = str_replace('/booking-rooms/', '/bookings/', $templateFile);
-    
+
     return $templateFile;
 }
+
+add_filter('sim-post-type-creation-args', function($args, $single){
+    if($single == 'booking-room'){
+        $args['hierarchical']   = false;
+
+        $args['rewrite']    = [
+            'slug'  => 'accomodation-rooms',
+        ];
+    }
+
+    if($single == 'booking-subject'){
+        $args['hierarchical']   = false;
+
+        $args['rewrite']    = [
+            'slug'  => 'accomodations',
+        ];
+    }
+
+    return $args;
+}, 10, 2);

@@ -64,14 +64,25 @@ if(is_tax() || is_archive()){
 			global $wpdb;
 		
 			$elementId	= get_post_meta(get_the_ID(), 'element-id', true);
+			if(empty($elementId)){
+				$parentId	= wp_get_post_parent_id();
 
-			$bookings	= new Bookings();
+				if($parentId){
+					$elementId	= get_post_meta($parentId, 'element-id', true);
+				}
+			}
 
-			$bookings->forms->formId		= $wpdb->get_var($wpdb->prepare("SELECT form_id FROM {$bookings->forms->elTableName} WHERE ID=%d", $elementId));
+			if(!empty($elementId)){
+				$bookings	= new Bookings();
 
-			$bookings->forms->getForm();
+				$bookings->forms->formId		= $wpdb->get_var($wpdb->prepare("SELECT form_id FROM {$bookings->forms->elTableName} WHERE ID=%d", $elementId));
+
+				$bookings->forms->getForm();
+				?>
+				<a href='<?php echo $bookings->forms->formData->form_url; ?>' class='sim button' target='_blank'>Book this accomodation</a>
+				<?php
+			}
 			?>
-			<a href='<?php echo $bookings->forms->formData->form_url; ?>' class='sim button' target='_blank'>Book this accomodation</a>
 		</div>
 	</div>
 </article>
