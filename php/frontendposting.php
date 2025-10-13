@@ -4,15 +4,15 @@ use SIM;
 
 add_filter('sim_frontend_posting_modals', __NAMESPACE__.'\postingModals');
 function postingModals($types){
-    $types[]	= 'booking subject';
+    $types[]	= 'booking-subject';
     return $types;
 }
 
 add_action('sim_frontend_post_content_title', __NAMESPACE__.'\contentTitle');
 function contentTitle($postType){
     // Book content title
-    $class = 'property booking subject';
-    if($postType != 'booking subject'){
+    $class = 'property booking-subject';
+    if($postType != 'booking-subject'){
         $class .= ' hidden';
     }
 
@@ -21,9 +21,9 @@ function contentTitle($postType){
     echo "</h4>";
 }
 
-add_action('sim_after_post_save', __NAMESPACE__.'\afterPostSave', 10, 2);
+//add_action('sim_after_post_save', __NAMESPACE__.'\afterPostSave', 10, 2);
 function afterPostSave($post, $frontEndPost){
-    if($post->post_type != 'booking subject'){
+    if($post->post_type != 'booking-subject'){
         return;
     }
 
@@ -51,10 +51,10 @@ function afterPostSave($post, $frontEndPost){
 }
 
 //add meta data fields
-add_action('sim_frontend_post_after_content', __NAMESPACE__.'\afterPostContent', 10, 2);
+//add_action('sim_frontend_post_after_content', __NAMESPACE__.'\afterPostContent', 10, 2);
 function afterPostContent($object){
 
-    if(!empty($object->post) && $object->post->post_type != 'booking subject'){
+    if(!empty($object->post) && $object->post->post_type != 'booking-subject'){
         return;
     }
 
@@ -73,7 +73,7 @@ function afterPostContent($object){
             text-align: left;
         }
     </style>
-    <div id="booking-subject-attributes" class="property booking-subject<?php if($postName != 'booking subject'){echo ' hidden';} ?>">
+    <div id="booking-subject-attributes" class="property booking-subject<?php if($postName != 'booking-subject'){echo ' hidden';} ?>">
         <input type='hidden' class='no-reset' class='no-reset' class='no-reset' name='static-content' value='static-content'>
             
         <fieldset id="booking-subject" class="frontend-form">
@@ -83,9 +83,13 @@ function afterPostContent($object){
 
             <table class="form-table">
                 <?php
-                foreach(get_post_meta($postId) as $index => $meta){
-                    $key    = $meta;
-                    $values = $meta;
+                foreach(get_post_meta($postId) as $key => $values){
+                    if(is_array($values) && count($values) > 1){
+                        $values = $values[0];
+                    }
+
+                    $values  = maybe_unserialize($values[0]);
+
                     ?>
                     <tr>
                         <th><label><?php echo ucfirst($key);?></label></th>
@@ -101,9 +105,9 @@ function afterPostContent($object){
                                         } 
 
                                         ?>
-                                        <div id="<?php echo $meta;?>-div-<?php echo $index;?>" class="clone-div" data-div-id="<?php echo $index;?>">
+                                        <div id="<?php echo $key;?>-div-<?php echo $index;?>" class="clone-div" data-div-id="<?php echo $index;?>">
                                             <div class='button-wrapper'>
-                                                <input type='text' class='formbuilder' name='<?php echo $meta;?>[]' value='<?php echo $value; ?>' style='width: calc(100% - 70px);'>
+                                                <input type='text' class='formbuilder' name='<?php echo $key;?>[]' value='<?php echo $value; ?>' style='width: calc(100% - 70px);'>
                                                 <button type="button" class="add button" style="flex: 1;">+</button>
                                                 <button type="button" class="remove button" style="flex: 1;">-</button>
                                             </div>
@@ -120,7 +124,7 @@ function afterPostContent($object){
                                     $type ='number';
                                 }
                                 ?>
-                                <input type='<?php echo $type;?>' class='formbuilder' name='<?php echo $meta;?>' value='<?php echo $value; ?>'>
+                                <input type='<?php echo $type;?>' class='formbuilder' name='<?php echo $key;?>' value='<?php echo $value; ?>'>
                                 <?php
                             }
                             ?>
@@ -133,4 +137,20 @@ function afterPostContent($object){
         </fieldset>
     </div>
     <?php
+}
+
+add_filter('sim-frontendcontent-posttype', __NAMESPACE__.'\filterPostType');
+function filterPostType($postType){
+    if($postType == 'booking-subject' || $postType == 'booking-room'){
+        return 'page';
+    }
+    return $postType;
+}
+
+add_filter('sim-frontendcontent-posttypes', __NAMESPACE__.'\filterPostTypes');
+function filterPostTypes($postTypes){
+    unset($postTypes['booking-subject']);
+    unset($postTypes['booking-room']);
+    
+    return $postTypes;
 }

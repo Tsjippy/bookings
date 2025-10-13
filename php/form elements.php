@@ -619,7 +619,7 @@ function elementHtml($html, $element, $object){
 
 }
 
-// Update the booking subjects name if the form name has changed
+// Update the booking-subjects name if the form name has changed
 add_action('sim-after-formelement-updated', __NAMESPACE__.'\formElementUpdated', 10, 3);
 function formElementUpdated($element, $instance, $oldElement){
     global $wpdb;
@@ -716,7 +716,7 @@ function formElementUpdated($element, $instance, $oldElement){
                     foreach($newSubjects[$postId][$key] as $index => $v){
                         unset($newSubjects[$postId][$key][$index]);
                         
-                        if($v['name'] != ''){
+                        if($v['postid'] != -1){
                             $newRooms[$v['post-id']]  = $v;
                         }
                     }
@@ -729,7 +729,7 @@ function formElementUpdated($element, $instance, $oldElement){
 
                         $roomId = wp_insert_post([
                             'post_title'    => "$subjectName Room $name",
-                            'post_type'     => 'booking room',
+                            'post_type'     => 'booking-room',
                             'post_status'   => 'publish',
                             'post_content'  => $description,
                             'post_parent'   => $postId
@@ -767,6 +767,14 @@ function formElementUpdated($element, $instance, $oldElement){
     foreach($addedSubjects as $newSubject){
         $bookings->addSubject($newSubject);
     }
+}
+
+
+add_filter('forms-shortcode-table-formats', __NAMESPACE__.'\addShortcodeFormat', 10, 2);
+function addShortcodeFormat($formats, $object){
+    $formats['booking_display']       = '%s';
+
+    return $formats;
 }
 
 add_filter('forms-form-table-formats', __NAMESPACE__.'\addFormFormat', 10, 2);

@@ -52,7 +52,7 @@ class Bookings{
         }
 
         $posts = get_posts([
-            'post_type'         => 'booking subject', 
+            'post_type'         => 'booking-subject', 
             'posts_per_page'    => -1, 
             'post_status'       => 'publish',
             'orderby'           => 'title',
@@ -1487,7 +1487,7 @@ class Bookings{
         // insert a post for subject description
         $postId  = wp_insert_post([
             'post_title'    => $subjectName,
-            'post_type'     => 'booking subject',
+            'post_type'     => 'booking-subject',
             'post_status'   => 'publish',
             'post_content'  => isset($subjectData['description']) ? $subjectData['description'] : ''
         ]);
@@ -1499,7 +1499,7 @@ class Bookings{
 
                 $roomId = wp_insert_post([
                     'post_title'    => "$subjectName Room $name",
-                    'post_type'     => 'booking room',
+                    'post_type'     => 'booking-room',
                     'post_status'   => 'publish',
                     'post_content'  => $description,
                     'post_parent'   => $postId

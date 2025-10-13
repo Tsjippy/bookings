@@ -4,6 +4,8 @@ use SIM;
 
 add_action('sim_bookings_module_update', __NAMESPACE__.'\moduleUpdate');
 function moduleUpdate($oldVersion){
+    global $wpdb;
+
     require_once ABSPATH . 'wp-admin/includes/upgrade.php';
     require_once ABSPATH . 'wp-admin/install-helper.php';
 
@@ -58,6 +60,25 @@ function moduleUpdate($oldVersion){
     if($oldVersion < '8.4.1'){
         maybe_add_column($forms->formEmailTable, 'days_before', "ALTER TABLE $forms->formEmailTable ADD COLUMN `days_before` int");
         maybe_add_column($forms->formEmailTable, 'days_after', "ALTER TABLE $forms->formEmailTable ADD COLUMN `days_after` int");
+
+        maybe_add_column($forms->shortcodeTable, 'booking_display', "ALTER TABLE $forms->shortcodeTable ADD COLUMN `booking_display` tinytext");
+        $shortcodes   = $wpdb->get_results("SELECT * FROM $forms->shortcodeTable");
+        
+        foreach($shortcodes as &$shortcode){
+            $tableSettings  = maybe_unserialize($shortcode->table_settings);
+
+            if(!empty($tableSettings['booking-display'])){
+                $data = [
+                    'booking_display'   => $tableSettings['booking-display']
+                ];
+
+                $wpdb->update(
+                    $forms->shortcodeTable, 
+                    $data, 
+                    ['id' => $shortcode->id]
+                );
+            }
+        }
 
         $results    = $wpdb->get_results("SELECT * FROM $forms->elTableName WHERE type = 'booking_selector'");
         foreach($results as $element){

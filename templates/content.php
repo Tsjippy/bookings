@@ -1,0 +1,77 @@
+<?php
+namespace SIM\BOOKINGS;
+use SIM;
+
+/**
+ * The content of a book shared between a single post, archive or the recipes page.
+**/
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // Exit if accessed directly.
+}
+
+$archive	= false;
+if(is_tax() || is_archive()){
+	$archive	= true;
+}
+
+?>
+<style>
+
+</style>
+<article id="post-<?php the_ID(); ?>" <?php post_class(); ?>>
+	<div class="cat-card<?php if($archive){echo ' inside-article';}?>">
+		
+		<?php
+		if($archive){
+			$url = get_permalink(get_the_ID());
+			echo the_title( "<h3 class='archivetitle'><a href='$url'>", '</a></h3>' );
+		}else{
+			do_action( 'sim_before_content');
+		}
+		?>
+		<div class="description">
+			<?php
+			//Only show summary on archive pages
+			if($archive){
+				$excerpt = force_balance_tags(wp_kses_post( get_the_excerpt()));
+				if(empty($excerpt)){
+					$url = get_permalink();
+					echo "<br><a href='$url'>View description »</a>";
+				}else{
+					echo $excerpt;
+				}
+			//Show everything including category specific content
+			}else{
+				if(empty($post->post_content)){
+					echo apply_filters('sim_empty_description', 'No content found...', $post);
+				}
+
+				the_content();
+			}
+
+			wp_link_pages(
+				array(
+					'before' => '<div class="page-links">Pages:',
+					'after'  => '</div>',
+				)
+			);
+			?>
+		</div>
+
+		<div class='actions'>
+			<?php
+			global $wpdb;
+		
+			$elementId	= get_post_meta(get_the_ID(), 'element-id', true);
+
+			$bookings	= new Bookings();
+
+			$bookings->forms->formId		= $wpdb->get_var($wpdb->prepare("SELECT form_id FROM {$bookings->forms->elTableName} WHERE ID=%d", $elementId));
+
+			$bookings->forms->getForm();
+			?>
+			<a href='<?php echo $bookings->forms->formData->form_url; ?>' class='sim button' target='_blank'>Book this accomodation</a>
+		</div>
+	</div>
+</article>
