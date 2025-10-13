@@ -2,6 +2,7 @@
 ## [Unreleased] - yyyy-mm-dd
 
 ### Added
+- template for single subjects
 
 ### Changed
 - classname
