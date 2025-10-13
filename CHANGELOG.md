@@ -3,6 +3,7 @@
 
 ### Added
 - template for single subjects
+- booking link on bottom of subject and room page
 
 ### Changed
 - classname
