@@ -82,7 +82,7 @@ class Bookings{
         }
     }
 
-     /**
+    /**
      * Retrieves the subjects of a specific element from the database
      * @param   int     $elementId  The id of the booking element
      */
