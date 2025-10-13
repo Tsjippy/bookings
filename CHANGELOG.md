@@ -11,6 +11,7 @@
 - array to object
 - dataset names
 - store booking subjects in seperate table
+- add and remove rooms
 
 ### Fixed
 - error with displaying reservations
