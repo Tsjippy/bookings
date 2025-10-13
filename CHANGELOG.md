@@ -2,6 +2,17 @@
 ## [Unreleased] - yyyy-mm-dd
 
 ### Added
+
+### Changed
+
+### Fixed
+
+### Updated
+
+## [8.4.1] - 2025-10-13
+
+
+### Added
 - template for single subjects
 - booking link on bottom of subject and room page
 
@@ -18,8 +29,6 @@
 ### Fixed
 - error with displaying reservations
 - bugs
-
-### Updated
 
 ## [8.3.9] - 2025-09-26
 
