@@ -111,6 +111,7 @@ function moduleUpdate($oldVersion){
                         ]);
                         
                         add_post_meta($postId, 'room', [$roomId => $room]);
+                        add_post_meta($roomId, 'name', $room);
                     } 
                 }  
                 unset($subject['rooms']);
