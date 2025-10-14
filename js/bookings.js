@@ -182,6 +182,26 @@ async function remove(target){
     }
 }
 
+async function loadPost(target){    
+    let formData    = new FormData();
+    formData.append('post-id', target.dataset.postId);
+
+    Main.showLoader(target.firstElementChild);
+        
+    let response = await FormSubmit.fetchRestApi('bookings/load_post', formData);
+
+    if(response){
+        // Remove table if empty
+        target.innerHTML    = response;
+
+        document.querySelectorAll('.page-edit.hidden').forEach(el=>{
+            el.classList.remove('hidden');
+        });
+    }else{
+        target.innerHTML    = "Description not available";
+    }
+}
+
 function changeBookingData(target){
     let selector;
     let el  = document.querySelector(`.booking-subject-selector:checked`);
@@ -409,6 +429,8 @@ document.addEventListener('DOMContentLoaded', () => {
         
         Main.displayMessage('Succesfully archived');
     }));
+
+    document.querySelectorAll(`.lazy-post`).forEach(div => loadPost(div));
 });
 
 document.addEventListener('click', (ev) => {

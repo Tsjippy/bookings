@@ -72,7 +72,6 @@ class Bookings{
             $this->subjects[$post->post_title]['element-id']   = get_post_meta($post->ID, 'element-id', true);
             $this->subjects[$post->post_title]['post-id']      = $post->ID;
             $this->subjects[$post->post_title]['name']         = $post->post_title;
-            $this->subjects[$post->post_title]['description']  = $post->post_content;
             $rooms       = get_children( [
                 'post_parent'   => $post->ID,
                 'post_type'     => 'any',
@@ -87,8 +86,7 @@ class Bookings{
             foreach($rooms as $roomPost){
                 $this->subjects[$post->post_title]['rooms'][] = [
                     'post-id'       => $roomPost->ID,
-                    'name'          => get_post_meta($roomPost->ID, 'name', true),
-                    'description'   => $roomPost->post_content
+                    'name'          => get_post_meta($roomPost->ID, 'name', true)
                 ];
             }
 
@@ -96,8 +94,7 @@ class Bookings{
             if(empty($rooms)){
                 $this->subjects[$post->post_title]['rooms'][] = [
                     'post-id'       => -1,
-                    'name'          => '',
-                    'description'   => ''
+                    'name'          => ''
                 ];
             }
         }
@@ -250,21 +247,7 @@ class Bookings{
                     $i++;
                     $name   = $room['name'];
                     ?>
-                    <div id="<?php echo $subjectName;?>-room-<?php echo $name;?>" class="tabcontent <?php if($i > 1){echo 'hidden';}?>">
-                        <?php
-                        //$content    = force_balance_tags(do_shortcode($subject['description']));
-                        //$content    = preg_replace('/<!--(.|\s)*?-->/', '', $content);
-
-                        $content    = get_the_content(null, false, $room['post-id']);
-                        $content    = apply_filters( 'the_content', $content );
-                        if(empty($content)){
-                            $manager        = get_userdata($subject['managers'][0]);
-                            if($manager){
-                                $content = "No details found, sorry.<br> Contact <a href='mailto:$manager->user_email?subject=Please add some description for {$subject['name']} room {$room['name']}&body=Dear $manager->display_name,'>the manager</a>";
-                            }
-                        }
-                        echo $content;
-                        ?>
+                    <div id="<?php echo $subjectName;?>-room-<?php echo $name;?>" class="tabcontent <?php if($i > 1){echo 'hidden';}?> lazy-post" data-post-id='<?php echo $room['post-id'];?>' >
                     </div>
                     <?php
                 }
@@ -400,6 +383,8 @@ class Bookings{
      * @return  string                  The html
      */
     public function modalContent($subject, $date, $isAdmin = false, $hidden = false, $isResult=false){
+        global $post;
+
 		$monthStr		= date('m', $date);
 		$yearStr		= date('Y', $date);
         $cleanSubject   = trim($subject['name']);
@@ -495,27 +480,15 @@ class Bookings{
                 <div>
                     <?php
                     // Room description
-                    foreach($subject['rooms'] as $index=>$room){
+                    foreach($subject['rooms'] as $room){
+                        if($room['post-id'] == -1){
+                            continue;
+                        }
                         ?>
-                        <div class="hidden room-description" data-room-name="<?php echo $room['name'];?>" >
+                        <div class="hidden room-description" data-room-name="<?php echo $room['name'];?>">
                             <h4>Room <?php echo $room['name'];?></h4>
-                            <?php
-
-                            // Make sure we have valid content, balanced and comments removed.
-                            //$content    = force_balance_tags(do_shortcode($room['description']));
-                            //$content    = preg_replace('/<!--(.|\s)*?-->/', '', $content);
-
-                            $content    = get_the_content(null, false, $room['post-id']);
-                            $content    = apply_filters( 'the_content', $content );
-                            if(empty($content)){
-                                $manager        = get_userdata($subject['managers'][0]);
-                                if($manager){
-                                    echo "No details found, sorry.<br> Contact <a href='mailto:$manager->user_email?subject=Please add some description for {$subject['name']} room {$room['name']}&body=Dear $manager->display_name,'>the manager</a>";
-                                }
-                            }else{
-                                echo $content;
-                            }
-                            ?>
+                            <div class="lazy-post" data-post-id='<?php echo $room['post-id'];?>'>
+                            </div>
                         </div>
                         <?php
                     }
@@ -615,7 +588,7 @@ class Bookings{
         ob_start();
         $cleanSubject    = trim($subject['name']);
 
-        echo $this->roomDescription($subject);
+        //echo $this->roomDescription($subject);
 
 		?>
         <div name='<?php echo $cleanSubject;?>-modal' class="booking modal hidden" style="display:unset;">
@@ -1847,7 +1820,7 @@ class Bookings{
             }
 
             // loop over all the managers of this subject
-            foreach($subject['managers'] as $managerId){
+            foreach($subject['manager'] as $managerId){
 
                 if(!is_numeric($managerId)){
                     continue;

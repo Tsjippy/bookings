@@ -123,4 +123,26 @@ function moduleUpdate($oldVersion){
             }
         }
     }
+
+    if($oldVersion < '8.4.2'){
+        $posts = get_posts([
+            'post_type'         => 'booking-subject', 
+            'posts_per_page'    => -1, 
+            'post_status'       => 'publish',
+            'orderby'           => 'title',
+            'order'             => 'ASC',
+        ]);
+        
+        foreach($posts as $post){
+            $managers   = get_post_meta($post->ID, 'managers', true);
+
+            delete_post_meta($post->ID, 'managers');
+
+            foreach($managers as $key => $manager){
+                if(is_numeric($manager)){
+                    add_post_meta($post->ID, 'managers', $manager);
+                }
+            }
+        }
+    }
 }

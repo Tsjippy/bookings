@@ -432,19 +432,7 @@ function elementHtml($html, $element, $object){
                 $hidden = '';
             }
 
-            $details        .= "<div id='$subjectName' class='tabcontent $hidden'>";
-                // Make sure we have valid content, balanced and comments removed.
-                $content    = force_balance_tags(do_shortcode($subject['description']));
-                $content    = preg_replace('/<!--(.|\s)*?-->/', '', $content);
-                
-                if(empty($content)){
-                    $manager        = get_userdata($subject['managers'][0]);
-                    if($manager){
-                        $details        .= "No details found, sorry.<br> Contact <a href='mailto:$manager->user_email?subject=Please add some description for {$subject['name']}&body=Dear $manager->display_name,'>the manager</a>";
-                    }
-                }else{
-                    $details        .= $content;
-                }
+            $details        .= "<div id='$subjectName' class='tabcontent $hidden lazy-post' data-post-id='{$subject['post-id']}'>";
             $details        .= "</div>";
         }
 
@@ -756,6 +744,14 @@ function formElementUpdated($element, $instance, $oldElement){
                     }
 
                     update_post_meta($postId, $key, $newSubjects[$postId][$key]);
+                }elseif(is_array($newSubjects[$postId][$key])){
+                    // first delete all
+                    delete_post_meta($postId, $key);
+
+                    // Then add the new ones
+                    foreach($newSubjects[$postId][$key] as $k => $v){
+                        add_post_meta($postId, $key, $v);
+                    }
                 }else{
                     update_post_meta($postId, $key, $newSubjects[$postId][$key]);
                 }
@@ -787,15 +783,6 @@ function addFormFormat($formats, $object){
     $formats['confirmed_booking_roles'] = '%s'; // confirmed_booking_roles
 
     return $formats;
-}
-/**
- * Helper functions for array_map to filter the post-ids
- */
-function getPostIds($v){
-    if(is_array($v) && isset($v['post-id'])){
-        return $v['post-id'];
-    }
-    return '';
 }
 
 function getElementSubjectsPayments($v){

@@ -175,5 +175,44 @@ function restapiInit() {
 			)
 		)
 	);
+
+	// Load room and subject pages
+	register_rest_route(
+		RESTAPIPREFIX.'/bookings',
+		'/load_post',
+		array(
+			'methods' 				=> 'POST',
+			'callback' 				=> __NAMESPACE__.'\loadPost',
+			'permission_callback' 	=> '__return_true',
+			'args'					=> array(
+				'post-id'	=> array(
+					'required'	=> true,
+					'validate_callback' => function($postId){
+						return is_numeric($postId);
+					}
+				)
+			)
+		)
+	);
 }
 
+function loadPost(){
+	global $post;
+
+	$post		= get_post($_POST['post-id']);
+
+	// Make sure we have valid content, balanced and comments removed.                            
+	$content    = get_the_content();
+	$content    = apply_filters( 'the_content', $content );
+
+	if(empty($content)){
+		$managers        = get_post_meta($post->ID, 'managers');
+		if($managers){
+			echo "No details found, sorry.<br> Contact <a href='mailto:$managers[0]->user_email?subject=Please add some description for {$post->title}}&body=Dear $managers[0]->display_name,'>the manager</a>";
+		}
+
+		return "No details found, sorry.";
+	}else{
+		return $content;
+	}
+}
