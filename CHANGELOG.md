@@ -2,6 +2,7 @@
 ## [Unreleased] - yyyy-mm-dd
 
 ### Added
+- lazy load subject and room descriptions
 
 ### Changed
 
