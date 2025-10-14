@@ -2,13 +2,18 @@
 ## [Unreleased] - yyyy-mm-dd
 
 ### Added
-- lazy load subject and room descriptions
 
 ### Changed
 
 ### Fixed
 
 ### Updated
+
+## [8.4.2] - 2025-10-14
+
+
+### Added
+- lazy load subject and room descriptions
 
 ## [8.4.1] - 2025-10-13
 
