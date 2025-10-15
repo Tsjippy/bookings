@@ -311,12 +311,12 @@ function addFormElementOptions($element){
                                     <div class="button-wrapper" style="width:100%; display: flex;">
                                         <button type="button" class="add button" style="max-width: 130px; flex: 1;margin-right: 3px;margin-left: 3px;">Add a room</button>
                                         <?php
+                                        $hidden = 'hidden';
                                         if(count($subject['rooms']) > 1){
-                                            ?>
-                                            <button type="button" class="remove button" style="max-width: 190px;flex: 1;margin-right: 5px;">Remove this room</button>
-                                            <?php
+                                            $hidden = '';
                                         }
                                         ?>
+                                        <button type="button" class="remove button <?php echo $hidden;?>" style="max-width: 190px;flex: 1;margin-right: 5px;">Remove this room</button>
                                     </div>
                                 </div>
                                 <?php
@@ -327,12 +327,12 @@ function addFormElementOptions($element){
                         <div class="button-wrapper" style="display: flex;">
                             <button type="button" class="add button" style="flex: 1; max-width: 150px; margin: 10px 5px 3px 0px;">Add a Subject</button>
                             <?php
+                            $hidden = 'hidden';
                             if(count($subjects) > 1){
-                                ?>
-                                <button type="button" class="remove button" style="flex: 1; max-width: 220px;margin-top: 10px">Remove this Subject</button>
-                                <?php
+                                $hidden = '';
                             }
                             ?>
+                            <button type="button" class="remove button <?php echo $hidden;?>" style="flex: 1; max-width: 220px;margin-top: 10px">Remove this Subject</button>
                         </div>
                     </div>
                     <?php
