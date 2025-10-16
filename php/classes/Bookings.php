@@ -132,12 +132,12 @@ class Bookings{
         }
 
         $splitId  = $this->forms->getElementByName('booking-startdate', 'id');
-        if(!in_array($splitId, $this->forms->formData->split)){
+        if(!empty($splitId) && !in_array($splitId, $this->forms->formData->split)){
             $this->forms->formData->split[] = $splitId;
         }
 
         $splitId  = $this->forms->getElementByName('booking-enddate', 'id');
-        if(!in_array($splitId, $this->forms->formData->split)){
+        if(!empty($splitId) && !in_array($splitId, $this->forms->formData->split)){
             $this->forms->formData->split[] = $splitId;
         }
     }
