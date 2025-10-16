@@ -1819,8 +1819,12 @@ class Bookings{
                 $this->payables[]   = $subject['name'];
             }
 
+            if(!is_array($subject['managers'])){
+                $subject['managers']    = [$subject['managers']];
+            }
+
             // loop over all the managers of this subject
-            foreach($subject['manager'] as $managerId){
+            foreach($subject['managers'] as $managerId){
 
                 if(!is_numeric($managerId)){
                     continue;

@@ -497,8 +497,13 @@ document.addEventListener('change', (ev) => {
             target.closest('.formfield.form-label').querySelectorAll('button.confirmed-roles-switcher:not(.hidden)').forEach(but=>but.classList.add('hidden'));
         }
     }else if(target.name.includes('amount')){
-        let numberingType   = target.closest('.tabcontent').querySelector(`.room-numbering`);
-        let rooms           = target.closest('.tabcontent').querySelector(`.rooms`);
+        let tabContent      = target.closest('.tabcontent');
+        if(tabContent == null){
+            return;
+        }
+
+        let numberingType   = tabContent.querySelector(`.room-numbering`);
+        let rooms           = tabContent.querySelector(`.rooms`);
 
         if(target.value < 2){
             numberingType.classList.add('hidden');
@@ -508,7 +513,12 @@ document.addEventListener('change', (ev) => {
             rooms.classList.remove('hidden');
         }
     }else if(target.matches('.numbering-type')){
-        target.closest(`.tabcontent`).querySelectorAll('.roomname').forEach(el =>{
+        let tabContent      = target.closest('.tabcontent');
+        if(tabContent == null){
+            return;
+        }
+
+        tabContent.querySelectorAll('.roomname').forEach(el =>{
             if(target.value == 'custom'){
                 el.classList.remove('hidden');
             }else{

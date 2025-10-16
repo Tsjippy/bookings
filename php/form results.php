@@ -216,10 +216,10 @@ function formdataRetrieved($submissions, $userId, $object){
     // Get the subjects for the current user
     $bookings->getSubjectManagers($bookings->user->ID);
 
-    $subjectsToKeep  = array_keys($bookings->managers);
+    $subjectsToKeep = array_keys($bookings->managers);
 
     // find the user id element
-	$userIdKey	= $bookings->forms->findUserIdElementName();
+	$userIdKey	    = $bookings->forms->findUserIdElementName();
     
     // Loop over all booking selctors in the form
     foreach($bookingSelectors as $bookingSelector){
