@@ -6,6 +6,7 @@
 ### Changed
 
 ### Fixed
+- bug in updating bookings
 
 ### Updated
 
