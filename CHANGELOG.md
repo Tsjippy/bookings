@@ -4,6 +4,7 @@
 ### Added
 
 ### Changed
+- get info box from code
 
 ### Fixed
 
