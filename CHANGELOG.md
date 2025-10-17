@@ -4,11 +4,16 @@
 ### Added
 
 ### Changed
-- get info box from code
 
 ### Fixed
 
 ### Updated
+
+## [8.4.5] - 2025-10-17
+
+
+### Changed
+- get info box from code
 
 ## [8.4.3] - 2025-10-16
 
