@@ -108,17 +108,9 @@ function addFormElementOptions($element){
 
                         <label class=" formfield form-label" style='width: auto;margin-right: 20px;'>
                             <h4>Enable Payments</h4>
-                            <div class="info-box" name="info">
-                                <div>
-                                    <p class="info-icon" style='float:right'>
-                                        <img draggable="false" role="img" class="emoji" alt="ℹ" src="<?php echo SIM\PICTURESURL."/info.png";?>" loading='lazy' >
-                                    </p>
-                                </div>
-                                <span class="info-text">
-                                    Enable to send payment reminders.<br>
-                                    Make sure to set the payment options in the form settings.
-                                </span>
-                            </div>
+                            <?php
+                            echo $bookings->forms->infoBoxHtml("Enable to send payment reminders.<br>Make sure to set the payment options in the form settings.");
+                            ?>
 
                             <label>
                                 <input type="radio" name="formfield[booking-details][<?php echo $index;?>][payments]" class=" formfield formfield-input" value="1" <?php if($subject['payments']){echo 'checked';}?>>
@@ -147,17 +139,9 @@ function addFormElementOptions($element){
                             <div class='min-bookking-gap-time <?php if(!isset($subject['overlap']) || $subject['overlap'] == 'yes'){echo 'hidden';}?>'>
                                 <label>
                                     Minimum time between two bookings in days
-                                    <div class="info-box" name="info">
-                                        <div>
-                                            <p class="info-icon" style='float:right'>
-                                                <img draggable="false" role="img" class="emoji" alt="ℹ" src="<?php echo SIM\PICTURESURL."/info.png";?>" loading='lazy' >
-                                            </p>
-                                        </div>
-                                        <span class="info-text">
-                                            Use 0 for allowing guests to arrive the next day.<br>
-                                            1 means there is one full day between the previous and the next booking
-                                        </span>
-                                    </div>
+                                    <?php
+                                    echo $bookings->forms->infoBoxHtml("Use 0 for allowing guests to arrive the next day.<br>1 means there is one full day between the previous and the next booking");
+                                    ?>
                                     <input type='number' name='formfield[booking-details][<?php echo $index;?>][overlap-period]' value='<?php echo $subject['overlap-period'];?>' min='0'>
                                 </label>
                             </div>
@@ -395,16 +379,16 @@ function formElements($elements, $displayFormResults, $force){
 }
 
 // Display the date selector in the form
-add_filter('sim-forms-element-html', __NAMESPACE__.'\elementHtml', 10, 3);
-function elementHtml($html, $element, $object){
+add_filter('sim-form-element-html', __NAMESPACE__.'\elementHtml', 10, 2);
+function elementHtml($html, $object){
      // Check if the form has a booking selector
      if(empty($object->getElementByType('booking-selector'))){
         return $html;
     }
 
-    if($element->type == 'booking-selector'){
+    if($object->element->type == 'booking-selector'){
         $bookings       = new Bookings($object);
-        $subjects = $bookings->getElementSubjects($element->id);
+        $subjects = $bookings->getElementSubjects($object->element->id);
 
         if(!isset($subjects)){
            return '<div class="warning">Please add one or more subjects</div>';
@@ -449,7 +433,7 @@ function elementHtml($html, $element, $object){
         $hidden     = 'hidden';
         $buttonText = 'Change';
         $required   = '';
-        if($element->required){
+        if($object->element->required){
             $required   = 'required';
         }
 
@@ -460,16 +444,16 @@ function elementHtml($html, $element, $object){
             foreach($subjects as $subject){
                 $cleanSubject    = trim($subject['name']);
                 $checked    = '';
-                if(isset($object->submission->formresults[$element->name]) && $object->submission->formresults[$element->name] == $cleanSubject){
+                if(isset($object->submission->formresults[$object->element->name]) && $object->submission->formresults[$object->element->name] == $cleanSubject){
                     $checked    = 'checked';
                 }
                 $html   .= "<label style='margin-right:5px;'>";
-                    $html   .= "<input type='radio' class='booking-subject-selector' name='$element->name' value='$cleanSubject' $checked>";
+                    $html   .= "<input type='radio' class='booking-subject-selector' name='{$object->element->name}' value='$cleanSubject' $checked>";
                     $html   .= "$cleanSubject";
                 $html   .= "</label>";
             }
         }else{
-            $html   .= "<select class='booking-subject-selector' name='$element->name' $required>";
+            $html   .= "<select class='booking-subject-selector' name='$object->element->name' $required>";
                 foreach($subjects as $subject){
                     $cleanSubject    = trim($subject['name']);
                     $html   .= "<option value='$cleanSubject'>$cleanSubject</option>";
@@ -514,10 +498,10 @@ function elementHtml($html, $element, $object){
         }
     }
 
-    elseif($element->name == 'booking-room'){
+    elseif($object->element->name == 'booking-room'){
         $bookings       = new Bookings($object);
 
-        $subjects = maybe_unserialize($element->booking_details);
+        $subjects = maybe_unserialize($object->element->booking_details);
 
         if(empty($subjects)){
             return 'Please add one or more subjects';
@@ -561,7 +545,7 @@ function elementHtml($html, $element, $object){
             $html   = str_replace('>', " data-booking-id='{$_POST['booking-id']}'>", $html);
         }
 
-        if($element->name == 'booking-enddate'){
+        if($object->element->name == 'booking-enddate'){
             // get the first event after this one
             $query  = "SELECT startdate FROM {$wpdb->prefix}sim_bookings WHERE subject = '$subject' AND startdate > '$late' ORDER BY startdate LIMIT 1";
             $max    = $wpdb->get_var($query);
@@ -571,7 +555,7 @@ function elementHtml($html, $element, $object){
             }
 
             $min    = "min='$early'";
-        }elseif($element->name == 'booking-startdate'){
+        }elseif($object->element->name == 'booking-startdate'){
             // get the first event before this one
             $query  = "SELECT enddate FROM {$wpdb->prefix}sim_bookings WHERE subject = '$subject' AND enddate <= '$early' ORDER BY enddate LIMIT 1";
             $min    = $wpdb->get_var($query);
@@ -589,17 +573,17 @@ function elementHtml($html, $element, $object){
     }
 
     // Add a class for payment_amount_el
-    elseif($element->id == $object->formData->payment_amount_el){
+    elseif($object->element->id == $object->formData->payment_amount_el){
         $html   = str_replace("class='", "class='payment-amount ", $html);
     } 
 
     // Add a class for payment_details_el
-    elseif($element->id == $object->formData->payment_details_el){
+    elseif($object->element->id == $object->formData->payment_details_el){
         $html   = str_replace("class='", "class='payment-details ", $html);
     } 
 
     // Add a class for payment_details_el
-    elseif($element->id == $object->formData->price_per_night_el){
+    elseif($object->element->id == $object->formData->price_per_night_el){
         $html   = str_replace("class='", "class='price-per-night ", $html);
     }
 
