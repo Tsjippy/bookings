@@ -1044,7 +1044,7 @@ class Bookings{
             }
 
             if(isset($subjectSettings['default_booking_state']) && $subjectSettings['default_booking_state'] == 'pending'){
-                SIM\cleanUpNestedArray($subjectSettings['confirmed_booking_roles']);
+                array_filter($subjectSettings['confirmed_booking_roles']);
 
                 $confirmRoles   = array_keys($subjectSettings['confirmed_booking_roles']);
 
