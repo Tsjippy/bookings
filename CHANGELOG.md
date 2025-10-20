@@ -6,6 +6,7 @@
 ### Changed
 
 ### Fixed
+- display bookings when manager
 
 ### Updated
 
