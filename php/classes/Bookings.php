@@ -63,7 +63,7 @@ class Bookings{
             $metas                                              = get_post_meta($post->ID);
 
             foreach($metas as $key => $value){
-                if(count($value) == 1){
+                if(count($value) == 1 && $key != 'managers'){
                     $this->subjects[$post->post_title][$key]    = maybe_unserialize($value[0]);
                 }else{
                     $this->subjects[$post->post_title][$key]    = array_map('maybe_unserialize', $value);
@@ -795,9 +795,11 @@ class Bookings{
 
             if(
                 // we are not the manager of this subject
-                !in_array($this->user, (array) $this->managers[$subject]) &&
+                !in_array($this->user->ID, array_keys((array) $this->managers[$subject])) &&
+
                 // we do not have permissions
                 !array_intersect($this->forms->userRoles, array_keys($this->forms->tableSettings->view_right_roles))  &&      // we do not have the right to see others submissions
+                
                 // This is not our own booking
                 (
                     isset($submission[$userIdElName])                      &&
