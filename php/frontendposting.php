@@ -2,12 +2,6 @@
 namespace SIM\BOOKINGS;
 use SIM;
 
-add_filter('sim_frontend_posting_modals', __NAMESPACE__.'\postingModals');
-function postingModals($types){
-    $types[]	= 'booking-subject';
-    return $types;
-}
-
 add_action('sim_frontend_post_content_title', __NAMESPACE__.'\contentTitle');
 function contentTitle($postType){
     // Book content title
@@ -147,7 +141,7 @@ function filterPostType($postType){
     return $postType;
 }
 
-add_filter('sim-frontendcontent-posttypes', __NAMESPACE__.'\filterPostTypes');
+add_filter('sim_frontend_post_types_and_tax', __NAMESPACE__.'\filterPostTypes');
 function filterPostTypes($postTypes){
     unset($postTypes['booking-subject']);
     unset($postTypes['booking-room']);
