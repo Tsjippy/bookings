@@ -4,21 +4,14 @@
 ### Added
 
 ### Changed
-
-### Fixed
-
-### Updated
-
-## [8.4.7] - 2025-10-28
-
-
-### Changed
 - new format for frontendcontent
 
 ### Fixed
 - display bookings when manager
 - booking details
 - booking actions default permissions
+
+### Updated
 
 ## [8.4.6] - 2025-10-20
 
