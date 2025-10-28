@@ -9,6 +9,7 @@
 ### Fixed
 - display bookings when manager
 - booking details
+- booking actions default permissions
 
 ### Updated
 
