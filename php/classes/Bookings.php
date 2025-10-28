@@ -874,9 +874,9 @@ class Bookings{
                                 </tr>
 
                                 <?php
-                                foreach($this->forms->columnSettings as $key=>$setting){
+                                foreach($this->forms->columnSettings as $key => $setting){
                                     if(
-                                        !$setting->show     || 
+                                        !$setting['show']     || 
                                         !is_numeric($key)   || 
                                         in_array($setting['name'], ['form-id', 'formurl', '_wpnonce', 'id', 'submissiontime', 'edittime', 'booking-startdate', 'booking-enddate', 'booking-room', 'name', $this->bookingElements[0]->name])
                                     ){
@@ -1991,7 +1991,7 @@ class Bookings{
     }
 
     /**
-     * shows the html to list, approve and or delete pending bookings
+     * Shows the html to list, approve and or delete pending bookings
      * 
      * @param   string  $type       One of approval or payment to show bookings that are pending approval or pending payment
      */
