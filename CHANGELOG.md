@@ -8,6 +8,7 @@
 
 ### Fixed
 - display bookings when manager
+- booking details
 
 ### Updated
 
