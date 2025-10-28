@@ -884,6 +884,7 @@ class Bookings{
                                     }
 
                                     $name       = $setting['name'];
+                                    $niceName   = empty($setting['nice_name']) ? $name : $setting['nice_name'];
                                     $element    = $this->forms->getElementByName($name);
                                     $data       = $submission[$name];
 
@@ -894,9 +895,9 @@ class Bookings{
 
                                     echo "<tr class='$name' data-id='{$submission['id']}'>";
                                         if(file_exists(SIM\urlToPath("$baseUrl/$name.png"))){
-                                            echo "<td><img src='$baseUrl/$name.png' loading='lazy' alt='{$setting['nice-name']}' class='booking-icon' title='{$setting['nice-name']}'></td>";
+                                            echo "<td><img src='$baseUrl/$name.png' loading='lazy' alt='$niceName' class='booking-icon' title='$niceName'></td>";
                                         }else{
-                                            echo "<td>{$setting['nice-name']}:</td>";
+                                            echo "<td>$niceName:</td>";
                                         }
                                         echo "<td class='booking-data-wrapper edit-forms-table' data-id='$element->id' data-name='$name' data-oldvalue='".json_encode($data)."' data-booking-id='$booking->id'>";
                                             echo $transformedData;
@@ -918,11 +919,17 @@ class Bookings{
                                     $buttonsHtml = apply_filters('sim_form_actions_html', $buttonsHtml, $submission, $name, $this, $this->forms->submission);
                                     
                                     //we have te html now, check for which one we have permission
-                                    foreach($buttonsHtml as $action=>$button){
+                                    foreach($buttonsHtml as $action => $button){
+                                        $editRoles  = (array)$this->forms->columnSettings[$action]['edit_right_roles'];
+                                        // Use the table settings if no specific rights are set
+                                        if(empty($editRoles)){
+                                            $editRoles  = $this->forms->tableSettings->edit_right_roles;
+                                        }
+
                                         if(
                                             $this->tableEditPermissions || 																			//if we are allowed to do all actions
                                             $submission['user-id'] == $this->user->ID || 															//or this is our own entry
-                                            array_intersect($this->userRoles, (array)$this->forms->columnSettings[$action]->edit_right_roles)		//or we have permission for this specific button
+                                            array_intersect($this->userRoles, $editRoles)		//or we have permission for this specific button
                                         ){
                                             $buttons .= $button;
                                         }
