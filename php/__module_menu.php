@@ -8,8 +8,8 @@ DEFINE(__NAMESPACE__.'\MODULE_PATH', plugin_dir_path(__DIR__));
 
 DEFINE(__NAMESPACE__.'\MODULE_SLUG', strtolower(basename(dirname(__DIR__))));
 
-add_filter('sim_module_bookings_after_save', __NAMESPACE__.'\moduleUpdated');
-function moduleUpdated($newOptions){
+add_filter('sim_module_bookings_after_save', __NAMESPACE__.'\afterSettingsSave');
+function afterSettingsSave($newOptions){
 	// enable forms and events modules
 	if(!SIM\getModuleOption('forms', 'enable')){
 		SIM\ADMIN\enableModule('forms');
@@ -86,9 +86,6 @@ function moduleActivated($options){
 	// Add columns to forms element table
 	$forms	= new SIM\FORMS\SimForms();
 
-	require_once ABSPATH . 'wp-admin/includes/upgrade.php';
-    require_once ABSPATH . 'wp-admin/install-helper.php';
-
 	// add columns to the forms table
     maybe_add_column($forms->tableName, 'payment_indicator', "ALTER TABLE $forms->tableName ADD COLUMN `payment_indicator` int");
     maybe_add_column($forms->tableName, 'payment_amount_el', "ALTER TABLE $forms->tableName ADD COLUMN `payment_amount_el` int");
@@ -103,5 +100,4 @@ function moduleActivated($options){
 	// Add column to the form email table
 	maybe_add_column($forms->formEmailTable, 'days_before', "ALTER TABLE $forms->formEmailTable ADD COLUMN `days_before` int");
 	maybe_add_column($forms->formEmailTable, 'days_after', "ALTER TABLE $forms->formEmailTable ADD COLUMN `days_after` int");
-
 }

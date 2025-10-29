@@ -391,6 +391,8 @@ function  renameModule($templateFile){
     return $templateFile;
 }
 
+
+// Alters the arguments used to register the booking post types
 add_filter('sim-post-type-creation-args', function($args, $single){
     if($single == 'booking-room'){
         $args['hierarchical']   = false;

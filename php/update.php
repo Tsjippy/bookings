@@ -7,7 +7,6 @@ function moduleUpdate($oldVersion){
     global $wpdb;
 
     require_once ABSPATH . 'wp-admin/includes/upgrade.php';
-    require_once ABSPATH . 'wp-admin/install-helper.php';
 
     SIM\printArray($oldVersion);
 
