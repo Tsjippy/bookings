@@ -10,6 +10,7 @@
 - display bookings when manager
 - booking details
 - booking actions default permissions
+- store email settings
 
 ### Updated
 
