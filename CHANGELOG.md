@@ -4,6 +4,15 @@
 ### Added
 
 ### Changed
+
+### Fixed
+
+### Updated
+
+## [8.4.8] - 2025-10-30
+
+
+### Changed
 - new format for frontendcontent
 
 ### Fixed
@@ -11,8 +20,6 @@
 - booking details
 - booking actions default permissions
 - store email settings
-
-### Updated
 
 ## [8.4.6] - 2025-10-20
 
