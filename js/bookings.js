@@ -1,5 +1,3 @@
-import { showLoader } from "../../../plugins/sim-plugin/includes/js/imports";
-
 function reset(modal, onlyEnd=false, skipRoomSelector=true){
     if(!onlyEnd){
         modal.querySelector('.booking-startdate').value     = '';
