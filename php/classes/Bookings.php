@@ -302,7 +302,11 @@ class Bookings{
                 $alphabet = range('A', 'Z');
                 for ($x = 0; $x < $subject['amount']; $x++) {
                     $checked    = '';
-                    if(is_array($this->forms->submission->formresults['booking-room']) && in_array($alphabet[$x], $this->forms->submission->formresults['booking-room'])){
+                    if(
+                        !empty($_REQUEST['id']) &&
+                        is_array($this->forms->submission->formresults['booking-room']) && 
+                        in_array($alphabet[$x], $this->forms->submission->formresults['booking-room'])
+                    ){
                         $checked    = 'checked';
                     }
                     ?>
@@ -313,7 +317,11 @@ class Bookings{
             }elseif(isset($subject['nrtype']) && $subject['nrtype'] == 'custom'){
                 foreach($subject['rooms'] as $room){
                     $checked    = '';
-                    if(is_array($this->forms->submission->formresults['booking-room']) && in_array($room['name'], $this->forms->submission->formresults['booking-room'])){
+                    if(
+                        !empty($_REQUEST['id']) &&
+                        is_array($this->forms->submission->formresults['booking-room']) && 
+                        in_array($room['name'], $this->forms->submission->formresults['booking-room'])
+                    ){
                         $checked    = 'checked';
                     }
                     ?>
@@ -324,7 +332,11 @@ class Bookings{
             }else{
                 for ($x = 1; $x <= $subject['amount']; $x++) {
                     $checked    = '';
-                    if(isset($this->forms->submission->formresults['booking-room']) && in_array($x, $this->forms->submission->formresults['booking-room'])){
+                    if(
+                        !empty($_REQUEST['id']) &&
+                        isset($this->forms->submission->formresults['booking-room']) && 
+                        in_array($x, $this->forms->submission->formresults['booking-room'])
+                    ){
                         $checked    = 'checked';
                     }
                     ?>
