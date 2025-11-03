@@ -7,6 +7,7 @@
 - js import removed
 
 ### Fixed
+- bug whith pres electing rooms
 
 ### Updated
 
