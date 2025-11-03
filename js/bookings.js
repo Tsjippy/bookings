@@ -398,12 +398,14 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log("Bookings.js loaded");
 
     // show booking date selector
-    document.querySelectorAll(`.booking-subject-selector`).forEach(el=>el.addEventListener(`change`, (ev)=>{
+    document.querySelectorAll(`.booking-subject-selector`).forEach(el=>el.addEventListener(`change`, (ev) => {
+        ev.stopImmediatePropagation();
         Main.showModal(document.querySelector(`[name="${ev.target.value}-modal"]`));
     }));
 
     // show booking calendar
-    document.querySelectorAll(`.admin-booking-subject-selector`).forEach(el=>el.addEventListener(`change`, (ev)=>{
+    document.querySelectorAll(`.admin-booking-subject-selector`).forEach(el => el.addEventListener(`change`, (ev) => {
+        ev.stopImmediatePropagation();
         document.querySelector(`.bookings-wrap[data-subject="${ev.target.value}"]`).classList.toggle('hidden');
     }));
 
@@ -523,12 +525,18 @@ document.addEventListener('change', (ev) => {
                 el.classList.add('hidden');
             }
         });
+    }else{
+        return;
     }
+
+    ev.stopImmediatePropagation();
 });
 
 document.addEventListener('input', (ev) => {
     let target  = ev.target;
     if(target.matches(`.subject-name`)){
+        ev.stopImmediatePropagation();
+
         let tabId   = target.closest(`.tabcontent`).id;
         document.querySelector(`[data-target="${tabId}"`).textContent   = target.value;
     }

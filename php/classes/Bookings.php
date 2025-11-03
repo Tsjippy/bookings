@@ -31,7 +31,7 @@ class Bookings{
         if(getType($displayFormResults) == 'object'){
             $this->forms        = $displayFormResults;
         }else{
-            $this->forms        = new SIM\FORMS\DisplayFormResults();
+            $this->forms        = new SIM\FORMS\DisplayFormResults([]);
         }
 
         // Load the managers
@@ -853,7 +853,7 @@ class Bookings{
                                     <td>
                                         <img src='<?php echo $baseUrl;?>/subject.png' loading='lazy' alt='<?php echo $this->bookingElements[0]->nicename;?>' class='booking-icon' title='<?php echo $this->bookingElements[0]->nicename;?>'>
                                     </td>
-                                    <td class='booking-data-wrapper edit-forms-table' data-id='<?php echo $this->bookingElements[0]->id;?>' data-name='<?php echo $this->bookingElements[0]->name;?>' data-oldvalue='<?php echo json_encode($submission[$this->bookingElements[0]->name]);?>' data-booking-id='<?php echo $booking->id;?>'>
+                                    <td class='booking-data-wrapper edit forms-table' data-id='<?php echo $this->bookingElements[0]->id;?>' data-name='<?php echo $this->bookingElements[0]->name;?>' data-booking-id='<?php echo $booking->id;?>'>
                                         <?php echo $submission[$this->bookingElements[0]->name];?>
                                     </td>
                                 </tr>
@@ -861,15 +861,15 @@ class Bookings{
                                     <td>
                                         <img src='<?php echo $baseUrl;?>/date.png' loading='lazy' alt='date' class='booking-icon'>
                                     </td>
-                                    <td class='booking-data-wrapper edit-forms-table'>
+                                    <td class='booking-data-wrapper edit forms-table'>
                                         <table data-form-id='<?php echo $submission['form-id'];?>' style='margin-bottom: 0px; width:unset;'>
                                             <tr data-id='<?php echo $submission['id'];?>'>
-                                                <td data-name='booking-startdate' data-id='<?php echo $this->forms->getElementByName('booking-startdate')->id;?>' data-subid='<?php echo $subId;?>' data-oldvalue='<?php echo json_encode($booking->startdate);?>' data-booking-id='<?php echo $booking->id;?>' class='edit-forms-table'>
+                                                <td data-name='booking-startdate' data-id='<?php echo $this->forms->getElementByName('booking-startdate')->id;?>' data-subid='<?php echo $subId;?>' data-booking-id='<?php echo $booking->id;?>' class='edit forms-table'>
                                                     <?php echo date(DATEFORMAT, strtotime($booking->startdate));?>
                                                 </td>
                                             </tr>
                                             <tr data-id='<?php echo $submission['id'];?>'>
-                                                <td data-name='booking-enddate' data-id='<?php echo  $this->forms->getElementByName('booking-enddate')->id;?>' data-subid='<?php echo $subId;?>' data-oldvalue='<?php echo json_encode($booking->enddate);?>' data-booking-id='<?php echo $booking->id;?>' class='edit-forms-table'>
+                                                <td data-name='booking-enddate' data-id='<?php echo  $this->forms->getElementByName('booking-enddate')->id;?>' data-subid='<?php echo $subId;?>' data-booking-id='<?php echo $booking->id;?>' class='edit forms-table'>
                                                     <?php echo date(DATEFORMAT, strtotime($booking->enddate));?>
                                                 </td>
                                             </tr>
@@ -880,7 +880,7 @@ class Bookings{
                                     <td>
                                         <img src='<?php echo $baseUrl;?>/room.png' loading='lazy' alt='Room' class='booking-icon' title='Room'>
                                     </td>
-                                    <td class='booking-data-wrapper edit-forms-table' data-id='-104' data-subid='<?php echo $subId;?>' data-name='booking-room' data-oldvalue='<?php echo json_encode($submission['booking-room']);?>' data-booking-id='<?php echo $booking->id;?>'>
+                                    <td class='booking-data-wrapper edit forms-table' data-id='-104' data-subid='<?php echo $subId;?>' data-name='booking-room' data-booking-id='<?php echo $booking->id;?>'>
                                         <?php echo $booking->room;?>
                                     </td>
                                 </tr>
@@ -911,7 +911,7 @@ class Bookings{
                                         }else{
                                             echo "<td>$niceName:</td>";
                                         }
-                                        echo "<td class='booking-data-wrapper edit-forms-table' data-id='$element->id' data-name='$name' data-oldvalue='".json_encode($data)."' data-booking-id='$booking->id'>";
+                                        echo "<td class='booking-data-wrapper edit forms-table' data-id='$element->id' data-name='$name' data-booking-id='$booking->id'>";
                                             echo $transformedData;
                                         echo "</td>";
                                     echo "</tr>";
