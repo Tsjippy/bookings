@@ -849,7 +849,7 @@ class Bookings{
                         <table data-form-id='<?php echo $submission['form-id'];?>' style='width: unset;'>
                             <thead></thead>
                             <tbody>
-                                <tr class='<?php $this->bookingElements[0]->name;?>' data-id='<?php echo $submission['id'];?>'>
+                                <tr class='<?php $this->bookingElements[0]->name;?>' data-submission-id='<?php echo $submission['id'];?>'>
                                     <td>
                                         <img src='<?php echo $baseUrl;?>/subject.png' loading='lazy' alt='<?php echo $this->bookingElements[0]->nicename;?>' class='booking-icon' title='<?php echo $this->bookingElements[0]->nicename;?>'>
                                     </td>
@@ -863,12 +863,12 @@ class Bookings{
                                     </td>
                                     <td class='booking-data-wrapper edit forms-table'>
                                         <table data-form-id='<?php echo $submission['form-id'];?>' style='margin-bottom: 0px; width:unset;'>
-                                            <tr data-id='<?php echo $submission['id'];?>'>
+                                            <tr data-submission-id='<?php echo $submission['id'];?>'>
                                                 <td data-name='booking-startdate' data-id='<?php echo $this->forms->getElementByName('booking-startdate')->id;?>' data-subid='<?php echo $subId;?>' data-booking-id='<?php echo $booking->id;?>' class='edit forms-table'>
                                                     <?php echo date(DATEFORMAT, strtotime($booking->startdate));?>
                                                 </td>
                                             </tr>
-                                            <tr data-id='<?php echo $submission['id'];?>'>
+                                            <tr data-submission-id='<?php echo $submission['id'];?>'>
                                                 <td data-name='booking-enddate' data-id='<?php echo  $this->forms->getElementByName('booking-enddate')->id;?>' data-subid='<?php echo $subId;?>' data-booking-id='<?php echo $booking->id;?>' class='edit forms-table'>
                                                     <?php echo date(DATEFORMAT, strtotime($booking->enddate));?>
                                                 </td>
@@ -876,7 +876,7 @@ class Bookings{
                                         </table>
                                     </td>
                                 </tr>
-                                <tr class='room' data-id='<?php echo $submission['id'];?>'>
+                                <tr class='room' data-submission-id='<?php echo $submission['id'];?>'>
                                     <td>
                                         <img src='<?php echo $baseUrl;?>/room.png' loading='lazy' alt='Room' class='booking-icon' title='Room'>
                                     </td>
@@ -905,7 +905,7 @@ class Bookings{
                                         $transformedData    = 'X';
                                     }
 
-                                    echo "<tr class='$name' data-id='{$submission['id']}'>";
+                                    echo "<tr class='$name' data-submission-id='{$submission['id']}'>";
                                         if(file_exists(SIM\urlToPath("$baseUrl/$name.png"))){
                                             echo "<td><img src='$baseUrl/$name.png' loading='lazy' alt='$niceName' class='booking-icon' title='$niceName'></td>";
                                         }else{
@@ -947,7 +947,7 @@ class Bookings{
                                         }
                                     }
                                     if(!empty($buttons)){
-                                        echo "<tr class='actions' data-id='{$submission['id']}'>";
+                                        echo "<tr class='actions' data-submission-id='{$submission['id']}'>";
                                             echo "<td  colspan='2'>$buttons</td>";
                                         echo "</tr>";
                                     }
