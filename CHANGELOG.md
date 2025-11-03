@@ -4,13 +4,20 @@
 ### Added
 
 ### Changed
+
+### Fixed
+
+### Updated
+
+## [8.4.9] - 2025-11-03
+
+
+### Changed
 - js import removed
 - stop listening to events if we have a match
 
 ### Fixed
 - bug whith pres electing rooms
-
-### Updated
 
 ## [8.4.8] - 2025-10-30
 
