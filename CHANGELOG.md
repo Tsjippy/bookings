@@ -5,6 +5,7 @@
 
 ### Changed
 - js import removed
+- stop listening to events if we have a match
 
 ### Fixed
 - bug whith pres electing rooms
