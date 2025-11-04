@@ -4,12 +4,19 @@
 ### Added
 
 ### Changed
+
+### Fixed
+
+### Updated
+
+## [8.5.1] - 2025-11-04
+
+
+### Changed
 - data-id to data-submission-id
 
 ### Fixed
 - updating booking dates
-
-### Updated
 
 ## [8.4.9] - 2025-11-03
 
