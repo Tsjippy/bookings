@@ -4,6 +4,7 @@
 ### Added
 
 ### Changed
+- alter query from form results
 
 ### Fixed
 
