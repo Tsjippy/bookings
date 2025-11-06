@@ -4,6 +4,7 @@
 ### Added
 
 ### Changed
+- cleaner layout when adding booking selector
 
 ### Fixed
 
