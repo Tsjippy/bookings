@@ -9,6 +9,12 @@
 
 ### Updated
 
+## [8.5.2] - 2025-11-06
+
+
+### Changed
+- cleaner layout when adding booking selector
+
 ## [8.5.1] - 2025-11-04
 
 
