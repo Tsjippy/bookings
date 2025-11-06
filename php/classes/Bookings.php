@@ -801,6 +801,10 @@ class Bookings{
             $this->forms->parseSubmissions(null, $booking->submission_id);
             $submission     = $this->forms->submission->formresults;
 
+            if(empty($submission)){
+                continue;
+            }
+
             $userIdElName   = $this->forms->findUserIdElementName();
 
             $subject        = $submission[$this->bookingElements[0]->name];
@@ -1565,7 +1569,12 @@ class Bookings{
     public function retrievePendingBookings(){
         global $wpdb;
 
-        $query	    = "SELECT * FROM $this->tableName WHERE pending=1 AND startdate >= '".date('Y-m-d')."'";
+        $values     = [
+            $this->tableName,
+            date('Y-m-d')
+        ];
+
+        $query	    = "SELECT * FROM %i WHERE pending = 1 AND startdate >= %s";
 
         $this->getSubjectManagers($this->user->ID);
 
@@ -1580,13 +1589,16 @@ class Bookings{
                 $query	.= " OR";
             }
 
-            $query	.= " subject LIKE '%$subject%'";
+            $query	    .= " subject LIKE %s";
+            $values[]    = "\%$subject\%";
         }
 
         //sort on startdate
 		$query	.= ") ORDER BY id ASC";
 
-		return $wpdb->get_results($query);
+		return $wpdb->get_results(
+            $wpdb->prepare( $query, ...$values )
+        );
     }
 
     /**
@@ -1597,12 +1609,18 @@ class Bookings{
      */
     public function retrieveUnPaidBookings($onlyFinished, $all=false){
         global $wpdb;
+        
+        $values     = [
+            $this->tableName
+        ];
 
-        $query	    = "SELECT * FROM $this->tableName WHERE (`paid` IS NULL OR `paid` = 0)";
+        $query	    = "SELECT * FROM %i WHERE (`paid` IS NULL OR `paid` = 0)";
 
         // only show finished bookings
         if($onlyFinished){
-            $query	.= " AND enddate < '".date('Y-m-d')."'";
+            $query	.= " AND enddate < %s";
+
+            $values[]   = date('Y-m-d');
         }
 
         if($all){
@@ -1624,13 +1642,16 @@ class Bookings{
                 $query	.= " OR";
             }
 
-            $query	.= " subject LIKE '%$subject%'";
+            $query	    .= " subject LIKE %s";
+            $values[]    = "\%$subject\%";
         }
 
         //sort on startdate
 		$query	.= ") ORDER BY id ASC";
 
-		return $wpdb->get_results($query);
+		return $wpdb->get_results(
+            $wpdb->prepare($query, ...$values)
+        );
     }
 
     /**

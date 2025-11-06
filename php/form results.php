@@ -224,9 +224,10 @@ function formdataRetrieved($submissions, $userId, $object){
     // Loop over all booking selctors in the form
     foreach($bookingSelectors as $bookingSelector){
         // loop over all submissions
-        foreach($submissions as $index=>$submission){
+        foreach($submissions as $index => $submission){
             // remove any submission not belonging to the $subjectsToKeep
             if(
+                !empty($submission->formresults[$bookingSelector->name])    &&
                 !in_array($submission->formresults[$bookingSelector->name], $subjectsToKeep)    &&  // Not managed by us
                 $submission->formresults[$userIdKey]    != $bookings->user->ID                      // Not our own sumissionn
 
@@ -279,20 +280,20 @@ function adjustCellValue($value, $columnSetting, $values){
 
 // only show future bookings in table view
 add_filter('sim_formdata_retrieval_query', __NAMESPACE__.'\alterQuery', 10, 3);
-function alterQuery($query, $userId, $instance){
-    if(str_contains($query, " id='")){
-        return $query;
+function alterQuery($params, $userId, $instance){
+    if(str_contains($params['query'], " id='")){
+        return $params;
     }
 
     $bookings   = new Bookings($instance);
 
     if(empty($instance->getElementByType('booking-selector'))){
-        return $query;
+        return $params;
     }
 
-    $date   = date('Y-m-d');
+    $params['query']   .= " and id IN(SELECT submission_id FROM %i WHERE enddate >= %s ORDER BY 'startdate')";
+    $params['values'][] = $bookings->tableName;
+    $params['values'][] = date('Y-m-d');
 
-    $query      .= " and id IN(SELECT submission_id FROM `$bookings->tableName` WHERE enddate >= '$date' ORDER BY 'startdate')";
-
-    return $query;
+    return $params;
 }

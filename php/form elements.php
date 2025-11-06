@@ -37,299 +37,296 @@ function addFormElementOptions($html, $object, $element){
     ob_start();
 
     ?>
-    <div class='element-option booking-selector hidden'>
-        <label>
-            Specify the subjects to show a calendar for
-            <div class="clone-divs-wrapper">
-                <button class='button tablink formbuilder-form active' type='button' id='show-element-settings' data-target='element-settings' style='margin-right:4px;'>
-                    Element Settings
+    <div class='element-option booking-selector hidden'>      
+        <div class="clone-divs-wrapper">
+            <button class='button tablink formbuilder-form active' type='button' id='show-element-settings' data-target='element-settings' style='margin-right:4px;'>
+                Element Settings
+            </button>
+            <?php
+            // Render tab buttons
+            foreach($subjects as $index => $subject){                    
+                if(!is_array($subject)){
+                    $subject = $subjects[$index]    = [
+                        'post-id'                   => -1,
+                        'name'                      => $subject,
+                        'amount'                    => 1,
+                        'confirmed-booking-roles'   => [],
+                    ];
+                }
+
+                ?>
+                <button class='button tablink formbuilder-form' type='button' id='show-subject-<?php echo $index;?>' data-target='subject-<?php echo $index;?>' style='margin-right:4px;'>
+                    <?php echo $subject['name'];?>
                 </button>
                 <?php
-                // Render tab buttons
-                foreach($subjects as $index => $subject){                    
-                    if(!is_array($subject)){
-                        $subject = $subjects[$index]    = [
-                            'post-id'                   => -1,
-                            'name'                      => $subject,
-                            'amount'                    => 1,
-                            'confirmed-booking-roles'   => [],
-                        ];
-                    }
+            }
+                
+            // Render tab contents
+            ?>
+            <div id="element-settings" class="tabcontent">
+                <?php echo $html;?>
+            </div>
+            <?php
 
-                    ?>
-                    <button class='button tablink formbuilder-form' type='button' id='show-subject-<?php echo $index;?>' data-target='subject-<?php echo $index;?>' style='margin-right:4px;'>
-                        <?php echo $subject['name'];?>
-                    </button>
-                    <?php
+            foreach($subjects as $index => $subject){
+                $hidden	= 'hidden';
+                if($index === 0){
+                    //$hidden = '';
                 }
-                    
-                // Render tab contents
+
                 ?>
-                <div id="element-settings" class="tabcontent">
-                    <?php echo $html;?>
-                </div>
-                <?php
-
-                foreach($subjects as $index => $subject){
-                    $hidden	= 'hidden';
-                    if($index === 0){
-                        //$hidden = '';
-                    }
-
-                    ?>
-                    <div id="subject-<?php echo $index;?>" class="clone-div tabcontent <?php echo $hidden;?>" data-div-id="<?php echo $index;?>">
-                        <input type="hidden" class="no-reset" name="formfield[booking-details][<?php echo $index;?>][post-id]" value="<?php echo $subject['post-id'];?>" >
-                        <input type="hidden" class="no-reset" name="formfield[booking-details][<?php echo $index;?>][element-id]" value="<?php echo $element->id;?>" >
-                        
-                        <label name="Subject" class=" formfield form-label" style='width: auto;margin-right: 20px;'>
-                            <h4>Name</h4>
-                            <input type="text" name="formfield[booking-details][<?php echo $index;?>][name]" class="subject-name formfield formfield-input" value="<?php echo $subject['name'];?>" placeholder="Enter subject name" style='width: unset;'>
-                        </label>
-                        <br>
-                        <br>
-                        <label class=" formfield form-label" style='width: auto;margin-right: 20px;'>
-                            <h4>Manager(s)</h4>
-                            <?php
-                            echo SIM\userSelect('', false, false, '', "formfield[booking-details][$index][managers][]", [], $subject['managers'], [], 'select', '', true);
-                            ?>
-                        </label>
-
-                        <h4>Location Description</h4>
-                        <?php
-                        $settings = array(
-                            'wpautop' => false,
-                            'media_buttons' => false,
-                            'forced_root_block' => true,
-                            'convert_newlines_to_brs'=> true,
-                            'textarea_name' => "formfield[booking-details][$index][description]",
-                            'textarea_rows' => 10
-                        );
+                <div id="subject-<?php echo $index;?>" class="clone-div tabcontent <?php echo $hidden;?>" data-div-id="<?php echo $index;?>">
+                    <input type="hidden" class="no-reset" name="formfield[booking-details][<?php echo $index;?>][post-id]" value="<?php echo $subject['post-id'];?>" >
+                    <input type="hidden" class="no-reset" name="formfield[booking-details][<?php echo $index;?>][element-id]" value="<?php echo $element->id;?>" >
                     
-                        echo wp_editor(
-                            $subject['description'],
-                            "subjects-{$index}-description",
-                            $settings
-                        );
+                    <label name="Subject" class=" formfield form-label" style='width: auto;margin-right: 20px;'>
+                        <h4>Name</h4>
+                        <input type="text" name="formfield[booking-details][<?php echo $index;?>][name]" class="subject-name formfield formfield-input" value="<?php echo $subject['name'];?>" placeholder="Enter subject name" style='width: unset;'>
+                    </label>
+                    <br>
+                    <br>
+                    <label class=" formfield form-label" style='width: auto;margin-right: 20px;'>
+                        <h4>Manager(s)</h4>
+                        <?php
+                        echo SIM\userSelect('', false, false, '', "formfield[booking-details][$index][managers][]", [], $subject['managers'], [], 'select', '', true);
+                        ?>
+                    </label>
+
+                    <h4>Location Description</h4>
+                    <?php
+                    $settings = array(
+                        'wpautop' => false,
+                        'media_buttons' => false,
+                        'forced_root_block' => true,
+                        'convert_newlines_to_brs'=> true,
+                        'textarea_name' => "formfield[booking-details][$index][description]",
+                        'textarea_rows' => 10
+                    );
+                
+                    echo wp_editor(
+                        $subject['description'],
+                        "subjects-{$index}-description",
+                        $settings
+                    );
+                    ?>
+
+                    <label class=" formfield form-label" style='width: auto;margin-right: 20px;'>
+                        <h4>Enable Payments</h4>
+                        <?php
+                        echo $bookings->forms->infoBoxHtml("Enable to send payment reminders.<br>Make sure to set the payment options in the form settings.");
                         ?>
 
-                        <label class=" formfield form-label" style='width: auto;margin-right: 20px;'>
-                            <h4>Enable Payments</h4>
-                            <?php
-                            echo $bookings->forms->infoBoxHtml("Enable to send payment reminders.<br>Make sure to set the payment options in the form settings.");
-                            ?>
-
-                            <label>
-                                <input type="radio" name="formfield[booking-details][<?php echo $index;?>][payments]" class=" formfield formfield-input" value="1" <?php if($subject['payments']){echo 'checked';}?>>
-                                Yes
-                            </label>
-                            <label>
-                                <input type="radio" name="formfield[booking-details][<?php echo $index;?>][payments]" class=" formfield formfield-input" value="0" <?php if(!$subject['payments']){echo 'checked';}?>>
-                                No
-                            </label>
+                        <label>
+                            <input type="radio" name="formfield[booking-details][<?php echo $index;?>][payments]" class=" formfield formfield-input" value="1" <?php if($subject['payments']){echo 'checked';}?>>
+                            Yes
                         </label>
-
-                        <label class="formfield form-label">
-                            <h4 class="label-text">Allow overlap</h4>
-                            Allow new arrivals on the day the previous people leave<br>
-                            <label>
-                                <input type='radio' class='overlap' name='formfield[booking-details][<?php echo $index;?>][overlap]' value='yes' <?php if($subject['overlap'] == 'yes'){echo 'checked';}?>>
-                                Yes
-                            </label>    
-
-                            <label>
-                                <input type='radio' class='overlap' name='formfield[booking-details][<?php echo $index;?>][overlap]' value='no' <?php if($subject['overlap'] == 'no'){echo 'checked';}?>>
-                                No
-                            </label>
-                            <br>
-                            <br>
-                            <div class='min-bookking-gap-time <?php if(!isset($subject['overlap']) || $subject['overlap'] == 'yes'){echo 'hidden';}?>'>
-                                <label>
-                                    Minimum time between two bookings in days
-                                    <?php
-                                    echo $bookings->forms->infoBoxHtml("Use 0 for allowing guests to arrive the next day.<br>1 means there is one full day between the previous and the next booking");
-                                    ?>
-                                    <input type='number' name='formfield[booking-details][<?php echo $index;?>][overlap-period]' value='<?php echo $subject['overlap-period'];?>' min='0'>
-                                </label>
-                            </div>
+                        <label>
+                            <input type="radio" name="formfield[booking-details][<?php echo $index;?>][payments]" class=" formfield formfield-input" value="0" <?php if(!$subject['payments']){echo 'checked';}?>>
+                            No
                         </label>
+                    </label>
+
+                    <label class="formfield form-label">
+                        <h4 class="label-text">Allow overlap</h4>
+                        Allow new arrivals on the day the previous people leave<br>
+                        <label>
+                            <input type='radio' class='overlap' name='formfield[booking-details][<?php echo $index;?>][overlap]' value='yes' <?php if($subject['overlap'] == 'yes'){echo 'checked';}?>>
+                            Yes
+                        </label>    
 
                         <label>
-                            <input type='checkbox' name='formfield[booking-details][<?php echo $index;?>][oneday]' value='1' <?php if(isset($subjects['oneday']) && $subjects['oneday'] == 'yes'){echo 'checked';}?>>
-                            Allow one day events
+                            <input type='radio' class='overlap' name='formfield[booking-details][<?php echo $index;?>][overlap]' value='no' <?php if($subject['overlap'] == 'no'){echo 'checked';}?>>
+                            No
                         </label>
-
-                        <label class="formfield form-label">
-                            <h4>Default status for new bookings</h4>
+                        <br>
+                        <br>
+                        <div class='min-bookking-gap-time <?php if(!isset($subject['overlap']) || $subject['overlap'] == 'yes'){echo 'hidden';}?>'>
                             <label>
-                                <input type='radio' name='formfield[booking-details][<?php echo $index;?>][default-booking-state]' value='pending' <?php if($subject['default-booking-state'] == 'pending'){echo 'checked';}?>>
-                                Pending
-                            </label>
-                            <br>
-                            <label>
-                                <input type='radio' name='formfield[booking-details][<?php echo $index;?>][default-booking-state]' value='confimed' <?php if($subject['default-booking-state'] == 'confimed'){echo 'checked';}?>>
-                                Confimed
-                            </label>
-                            <br>
-                            <br>
-                            <button class="button sim small confirmed-roles-switcher <?php if($subject['default-booking-state'] != 'pending'){echo 'hidden';}?>" type="button" style='max-width: unset;'>Advanced</button>
-                            <div class='confirmed-roles-wrapper hidden'>
-                                <h4>Select roles for which bookings are confirmed by default</h4>
-                                <div class="role-info">
-                                    <?php
-                                    foreach($userRoles as $key => $roleName){
-                                        if(in_array($key, $subject['confirmed-booking-roles'])){
-                                            $checked = 'checked';
-                                        }else{
-                                            $checked = '';
-                                        }
-                                        echo "<label class='option-label'>";
-                                            echo "<input type='checkbox' class='formbuilder form-element-setting' name='formfield[booking-details][$index][confirmed-booking-roles][]' value='$key' $checked>";
-                                            echo $roleName;
-                                        echo"</label><br>";
-                                    }
-                                    ?>
-                                </div>
-                            </div>
-                        </label>
-                        
-                        <br>
-                        <label class="amount formfield form-label">
-                            <h4>Room amount</h4>
-                            <input type="number" name="formfield[booking-details][<?php echo $index;?>][amount]" class=" formfield formfield-input" value="<?php echo $subject['amount'];?>" placeholder="Enter subject amount" style='width: unset;'>
-                        </label>  
-                        <br>
-
-                        <br>
-                        <label class=" formfield form-label room-numbering <?php if($subject['amount'] == 1 || empty($subject['amount'])){echo 'hidden';}?>">
-                            <h4>Room numbering type</h4>
-                            <input type='radio' class='numbering-type' name='formfield[booking-details][<?php echo $index;?>][nrtype]' value='numbers' <?php if($subject['nrtype'] == 'numbers'){echo 'checked';}?>>
-                            Numbers
-                            <br>
-
-                            <input type='radio' class='numbering-type' name='formfield[booking-details][<?php echo $index;?>][nrtype]' value='letters' <?php if($subject['nrtype'] == 'letters'){echo 'checked';}?>>
-                            Letters
-                            <br>
-
-                            <input type='radio' class='numbering-type' name='formfield[booking-details][<?php echo $index;?>][nrtype]' value='custom' <?php if($subject['nrtype'] == 'custom'){echo 'checked';}?>>
-                            Custom
-                        </label>                          
-                        <br>
-                        <br>
-                        <div class="rooms clone-divs-wrapper <?php if($subject['amount'] == 1 || empty($subject['amount'])){echo 'hidden';}?>" style='background: lightgrey;padding-bottom: 10px;padding-left: 10px;margin-right:10px'>
-                            <?php
-                            if(empty($subject['rooms'])){
-                                $subject['rooms']   = ['0'];
-                            }
-
-                            ?>
-                            <h3>Room details</h3>
-                            <?php
-
-                            // Tab buttons
-                            foreach($subject['rooms'] as $i => $room){
-                                if(empty($room['name'])){
-                                    continue;
-                                }
-
-                                $active	= '';
-
-                                if($i === 0){
-                                    $active = 'active';
-                                }
-
-                                $subjectName    = strtolower(str_replace(' ', '-', $subject['name']));
-
-                                ?>
-                                <button class='button tablink formbuilder-form <?php echo $active;?>' type='button' id='show-<?php echo $subjectName;?>-room-<?php echo $i;?>' data-target='<?php echo $subjectName;?>-room-<?php echo $i;?>' style='margin-right:4px;max-width: 100px;'>
-                                    Room <?php echo $room['name'];?>
-                                </button>
+                                Minimum time between two bookings in days
                                 <?php
-                            }
-
-                            // Tab contents
-                            foreach($subject['rooms'] as $i => $room){
-                                if(!is_array($room)){
-                                    $room   = [
-                                        "name"          => '',
-                                        "description"   => ''
-                                    ];
-                                }
-
-                                if(!empty($room['name'])){
-                                    $roomName   = $room['name'];
-                                }elseif($subject['nrtype'] == 'letters'){
-                                    $alphabet   = range('A', 'Z');
-                                    $roomName   = $alphabet[$i];
-                                }else{
-                                    $roomName   =  $i + 1;
-                                }
-
-                                $subjectName    = strtolower(str_replace(' ', '-', $subject['name']));
-
-                                $hidden	= 'hidden';
-                                if($i === 0){
-                                    $hidden = '';
-                                }
-
+                                echo $bookings->forms->infoBoxHtml("Use 0 for allowing guests to arrive the next day.<br>1 means there is one full day between the previous and the next booking");
                                 ?>
-                                <div id="<?php echo $subjectName;?>-room-<?php echo $i;?>" class="clone-div tabcontent <?php echo $hidden;?>" data-div-id="<?php echo $i;?>">
-                                    <input type="hidden" name="formfield[booking-details][<?php echo $index;?>][rooms][<?php echo $i;?>][post-id]" value="<?php echo $room['post-id'];?>">
-                                    <label name="roomname" class=" formfield form-label roomname">
-                                        <h4>Room name</h4>
-                                        <input type="text" name="formfield[booking-details][<?php echo $index;?>][rooms][<?php echo $i;?>][name]" class=" formfield formfield-input" value="<?php echo $roomName;?>" placeholder="Enter room name" style='width: unset;'>
-                                    </label>
-                                    <br>
-                                    <br>
-                                    <h4>Room Description</h4>
-                                    <?php
-                                    $settings = array(
-                                        'wpautop' => false,
-                                        'media_buttons' => false,
-                                        'forced_root_block' => true,
-                                        'convert_newlines_to_brs'=> true,
-                                        'textarea_name' => "formfield[booking-details][$index][rooms][$i][description]",
-                                        'textarea_rows' => 10
-                                    );
-                                
-                                    echo wp_editor(
-                                        $room['description'],
-                                        "subjects-{$index}-rooms-{$i}-description",
-                                        $settings
-                                    );
-                                    ?>
-                                    
-                                    <div class="button-wrapper" style="width:100%; display: flex;">
-                                        <button type="button" class="add button" style="max-width: 130px; flex: 1;margin-right: 3px;margin-left: 3px;">Add a room</button>
-                                        <?php
-                                        $hidden = 'hidden';
-                                        if(count($subject['rooms']) > 1){
-                                            $hidden = '';
-                                        }
-                                        ?>
-                                        <button type="button" class="remove button <?php echo $hidden;?>" style="max-width: 190px;flex: 1;margin-right: 5px;">Remove this room</button>
-                                    </div>
-                                </div>
-                                <?php
-                            }
-                            ?>
+                                <input type='number' name='formfield[booking-details][<?php echo $index;?>][overlap-period]' value='<?php echo $subject['overlap-period'];?>' min='0'>
+                            </label>
                         </div>
+                    </label>
 
-                        <div class="button-wrapper" style="display: flex;">
-                            <button type="button" class="add button" style="flex: 1; max-width: 150px; margin: 10px 5px 3px 0px;">Add a Subject</button>
+                    <label>
+                        <input type='checkbox' name='formfield[booking-details][<?php echo $index;?>][oneday]' value='1' <?php if(isset($subjects['oneday']) && $subjects['oneday'] == 'yes'){echo 'checked';}?>>
+                        Allow one day events
+                    </label>
+
+                    <label class="formfield form-label">
+                        <h4>Default status for new bookings</h4>
+                        <label>
+                            <input type='radio' name='formfield[booking-details][<?php echo $index;?>][default-booking-state]' value='pending' <?php if($subject['default-booking-state'] == 'pending'){echo 'checked';}?>>
+                            Pending
+                        </label>
+                        <br>
+                        <label>
+                            <input type='radio' name='formfield[booking-details][<?php echo $index;?>][default-booking-state]' value='confimed' <?php if($subject['default-booking-state'] == 'confimed'){echo 'checked';}?>>
+                            Confimed
+                        </label>
+                        <br>
+                        <br>
+                        <button class="button sim small confirmed-roles-switcher <?php if($subject['default-booking-state'] != 'pending'){echo 'hidden';}?>" type="button" style='max-width: unset;'>Advanced</button>
+                        <div class='confirmed-roles-wrapper hidden'>
+                            <h4>Select roles for which bookings are confirmed by default</h4>
+                            <div class="role-info">
+                                <?php
+                                foreach($userRoles as $key => $roleName){
+                                    if(in_array($key, $subject['confirmed-booking-roles'])){
+                                        $checked = 'checked';
+                                    }else{
+                                        $checked = '';
+                                    }
+                                    echo "<label class='option-label'>";
+                                        echo "<input type='checkbox' class='formbuilder form-element-setting' name='formfield[booking-details][$index][confirmed-booking-roles][]' value='$key' $checked>";
+                                        echo $roleName;
+                                    echo"</label><br>";
+                                }
+                                ?>
+                            </div>
+                        </div>
+                    </label>
+                    
+                    <br>
+                    <label class="amount formfield form-label">
+                        <h4>Room amount</h4>
+                        <input type="number" name="formfield[booking-details][<?php echo $index;?>][amount]" class=" formfield formfield-input" value="<?php echo $subject['amount'];?>" placeholder="Enter subject amount" style='width: unset;'>
+                    </label>  
+                    <br>
+
+                    <br>
+                    <label class=" formfield form-label room-numbering <?php if($subject['amount'] == 1 || empty($subject['amount'])){echo 'hidden';}?>">
+                        <h4>Room numbering type</h4>
+                        <input type='radio' class='numbering-type' name='formfield[booking-details][<?php echo $index;?>][nrtype]' value='numbers' <?php if($subject['nrtype'] == 'numbers'){echo 'checked';}?>>
+                        Numbers
+                        <br>
+
+                        <input type='radio' class='numbering-type' name='formfield[booking-details][<?php echo $index;?>][nrtype]' value='letters' <?php if($subject['nrtype'] == 'letters'){echo 'checked';}?>>
+                        Letters
+                        <br>
+
+                        <input type='radio' class='numbering-type' name='formfield[booking-details][<?php echo $index;?>][nrtype]' value='custom' <?php if($subject['nrtype'] == 'custom'){echo 'checked';}?>>
+                        Custom
+                    </label>                          
+                    <br>
+                    <br>
+                    <div class="rooms clone-divs-wrapper <?php if($subject['amount'] == 1 || empty($subject['amount'])){echo 'hidden';}?>" style='background: lightgrey;padding-bottom: 10px;padding-left: 10px;margin-right:10px'>
+                        <?php
+                        if(empty($subject['rooms'])){
+                            $subject['rooms']   = ['0'];
+                        }
+
+                        ?>
+                        <h3>Room details</h3>
+                        <?php
+
+                        // Tab buttons
+                        foreach($subject['rooms'] as $i => $room){
+                            if(empty($room['name'])){
+                                continue;
+                            }
+
+                            $active	= '';
+
+                            if($i === 0){
+                                $active = 'active';
+                            }
+
+                            $subjectName    = strtolower(str_replace(' ', '-', $subject['name']));
+
+                            ?>
+                            <button class='button tablink formbuilder-form <?php echo $active;?>' type='button' id='show-<?php echo $subjectName;?>-room-<?php echo $i;?>' data-target='<?php echo $subjectName;?>-room-<?php echo $i;?>' style='margin-right:4px;max-width: 100px;'>
+                                Room <?php echo $room['name'];?>
+                            </button>
                             <?php
-                            $hidden = 'hidden';
-                            if(count($subjects) > 1){
+                        }
+
+                        // Tab contents
+                        foreach($subject['rooms'] as $i => $room){
+                            if(!is_array($room)){
+                                $room   = [
+                                    "name"          => '',
+                                    "description"   => ''
+                                ];
+                            }
+
+                            if(!empty($room['name'])){
+                                $roomName   = $room['name'];
+                            }elseif($subject['nrtype'] == 'letters'){
+                                $alphabet   = range('A', 'Z');
+                                $roomName   = $alphabet[$i];
+                            }else{
+                                $roomName   =  $i + 1;
+                            }
+
+                            $subjectName    = strtolower(str_replace(' ', '-', $subject['name']));
+
+                            $hidden	= 'hidden';
+                            if($i === 0){
                                 $hidden = '';
                             }
+
                             ?>
-                            <button type="button" class="remove button <?php echo $hidden;?>" style="flex: 1; max-width: 220px;margin-top: 10px">Remove this Subject</button>
-                        </div>
+                            <div id="<?php echo $subjectName;?>-room-<?php echo $i;?>" class="clone-div tabcontent <?php echo $hidden;?>" data-div-id="<?php echo $i;?>">
+                                <input type="hidden" name="formfield[booking-details][<?php echo $index;?>][rooms][<?php echo $i;?>][post-id]" value="<?php echo $room['post-id'];?>">
+                                <label name="roomname" class=" formfield form-label roomname">
+                                    <h4>Room name</h4>
+                                    <input type="text" name="formfield[booking-details][<?php echo $index;?>][rooms][<?php echo $i;?>][name]" class=" formfield formfield-input" value="<?php echo $roomName;?>" placeholder="Enter room name" style='width: unset;'>
+                                </label>
+                                <br>
+                                <br>
+                                <h4>Room Description</h4>
+                                <?php
+                                $settings = array(
+                                    'wpautop' => false,
+                                    'media_buttons' => false,
+                                    'forced_root_block' => true,
+                                    'convert_newlines_to_brs'=> true,
+                                    'textarea_name' => "formfield[booking-details][$index][rooms][$i][description]",
+                                    'textarea_rows' => 10
+                                );
+                            
+                                echo wp_editor(
+                                    $room['description'],
+                                    "subjects-{$index}-rooms-{$i}-description",
+                                    $settings
+                                );
+                                ?>
+                                
+                                <div class="button-wrapper" style="width:100%; display: flex;">
+                                    <button type="button" class="add button" style="max-width: 130px; flex: 1;margin-right: 3px;margin-left: 3px;">Add a room</button>
+                                    <?php
+                                    $hidden = 'hidden';
+                                    if(count($subject['rooms']) > 1){
+                                        $hidden = '';
+                                    }
+                                    ?>
+                                    <button type="button" class="remove button <?php echo $hidden;?>" style="max-width: 190px;flex: 1;margin-right: 5px;">Remove this room</button>
+                                </div>
+                            </div>
+                            <?php
+                        }
+                        ?>
                     </div>
-                    <?php
-                }
-                ?>
-            </div>
-        </label>
+
+                    <div class="button-wrapper" style="display: flex;">
+                        <button type="button" class="add button" style="flex: 1; max-width: 150px; margin: 10px 5px 3px 0px;">Add a Subject</button>
+                        <?php
+                        $hidden = 'hidden';
+                        if(count($subjects) > 1){
+                            $hidden = '';
+                        }
+                        ?>
+                        <button type="button" class="remove button <?php echo $hidden;?>" style="flex: 1; max-width: 220px;margin-top: 10px">Remove this Subject</button>
+                    </div>
+                </div>
+                <?php
+            }
+            ?>
+        </div>
         <br>
     </div>
     <?php
@@ -756,7 +753,6 @@ function formElementUpdated($element, $instance, $oldElement){
         $bookings->addSubject($newSubject);
     }
 }
-
 
 add_filter('forms-shortcode-table-formats', __NAMESPACE__.'\addShortcodeFormat', 10, 2);
 function addShortcodeFormat($formats, $object){
