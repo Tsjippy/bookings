@@ -11,9 +11,14 @@ function specialFormElements($options){
 }
 
 // add element options
-add_action('sim-after-formbuilder-element-options', __NAMESPACE__.'\addFormElementOptions');
-function addFormElementOptions($element){
+add_filter('sim-forms-element-form-content', __NAMESPACE__.'\addFormElementOptions', 10, 3);
+function addFormElementOptions($html, $object, $element){
     global $wp_roles;
+    
+
+    if($element == null || $element->type != 'booking-selector'){
+        return $html;
+    }
     
     //Get all available roles
     $userRoles = $wp_roles->role_names;
@@ -23,22 +28,22 @@ function addFormElementOptions($element){
 
     $bookings       = new Bookings();
 
-    $subjects = [];
-    if($element != null && $element->type == 'booking-selector'){
-        $subjects = $bookings->getElementSubjects($element->id);
-    }else{
-        return;
-    }
+    $subjects       = $bookings->getElementSubjects($element->id);
 
     if(empty($subjects)){
         $subjects = ['No Subjects defined yet'];
     }
+
+    ob_start();
 
     ?>
     <div class='element-option booking-selector hidden'>
         <label>
             Specify the subjects to show a calendar for
             <div class="clone-divs-wrapper">
+                <button class='button tablink formbuilder-form active' type='button' id='show-element-settings' data-target='element-settings' style='margin-right:4px;'>
+                    Element Settings
+                </button>
                 <?php
                 // Render tab buttons
                 foreach($subjects as $index => $subject){                    
@@ -50,24 +55,25 @@ function addFormElementOptions($element){
                             'confirmed-booking-roles'   => [],
                         ];
                     }
-                    $active	= '';
-
-                    if($index === 0){
-                        $active = 'active';
-                    }
 
                     ?>
-                    <button class='button tablink formbuilder-form <?php echo $active;?>' type='button' id='show-subject-<?php echo $index;?>' data-target='subject-<?php echo $index;?>' style='margin-right:4px;'>
+                    <button class='button tablink formbuilder-form' type='button' id='show-subject-<?php echo $index;?>' data-target='subject-<?php echo $index;?>' style='margin-right:4px;'>
                         <?php echo $subject['name'];?>
                     </button>
                     <?php
                 }
                     
                 // Render tab contents
+                ?>
+                <div id="element-settings" class="tabcontent">
+                    <?php echo $html;?>
+                </div>
+                <?php
+
                 foreach($subjects as $index => $subject){
                     $hidden	= 'hidden';
                     if($index === 0){
-                        $hidden = '';
+                        //$hidden = '';
                     }
 
                     ?>
@@ -327,6 +333,8 @@ function addFormElementOptions($element){
         <br>
     </div>
     <?php
+
+    return ob_get_clean();
 }
 
 // add extra elements for displaying in results table
