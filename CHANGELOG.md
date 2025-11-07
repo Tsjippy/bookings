@@ -5,6 +5,7 @@
 
 ### Changed
 - alter query from form results
+- prevent data malfunction
 
 ### Fixed
 
