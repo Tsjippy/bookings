@@ -236,7 +236,7 @@ function storeDates(target){
     
         let startEl     = clone.querySelector('[name^="booking-startdate"]');
         let endEl       = clone.querySelector('[name^="booking-enddate"]');
-        let roomEl      = clone.querySelector('[name^="booking-room"]');
+        let roomEl      = clone.querySelector('[name^="booking-rooms"]');
         let room        = el.closest('.room-wrapper').dataset.room;
 
         startEl.value   = el.dataset.isodate;

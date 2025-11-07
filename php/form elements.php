@@ -337,6 +337,7 @@ function addFormElementOptions($html, $object, $element){
 // add extra elements for displaying in results table
 add_filter('sim-forms-elements', __NAMESPACE__.'\formElements', 10, 3);
 function formElements($elements, $displayFormResults, $force){
+    // do not show on the form itself, only on the results
     if(!$force && !in_array(get_class($displayFormResults), ["SIM\FORMS\DisplayFormResults", "SIM\FORMS\SubmitForm", "SIM\FORMS\EditFormResults"])){
         return $elements;
     }
@@ -346,6 +347,10 @@ function formElements($elements, $displayFormResults, $force){
         return $elements;
     }
 
+    /**
+     * Check if this form has a booking-selector element
+     */
+    
     // We cannot use getElementByType here as we have not gotten all elements yet.
     $element    = false;
     foreach($elements as $el){
@@ -371,8 +376,8 @@ function formElements($elements, $displayFormResults, $force){
 
         $room               = clone $element;
         $room->type         = 'checkbox';
-        $room->name         = 'booking-room';
-        $room->nicename     = 'booking-room';
+        $room->name         = 'booking-rooms';
+        $room->nicename     = 'booking-rooms';
         $room->id           = -104;
         
         $elements[]         = $startdate;
@@ -381,6 +386,176 @@ function formElements($elements, $displayFormResults, $force){
     }
     
     return $elements;
+}
+
+function bookingSelectorHtml($object){
+    $bookings       = new Bookings($object);
+    $subjects = $bookings->getElementSubjects($object->element->id);
+
+    if(!isset($subjects)){
+        return '<div class="warning">Please add one or more subjects</div>';
+    }
+    
+    $details        = '';
+
+    // Render tab buttons
+    foreach($subjects as $index => $subject){
+        $subjectName    = strtolower(str_replace(' ', '-', $subject['name']));
+        $active = '';
+        if($index === 0 ){
+            $active = 'active';
+        }
+        $details        .= "<button class='button tablink $active' type='button' id='show-{$subjectName}' data-target='$subjectName' style='margin-right:4px;'>
+            {$subject['name']}
+        </button>";
+    }
+
+    // Render tab contents
+    foreach($subjects as $index => $subject){
+        $subjectName    = strtolower(str_replace(' ', '-', $subject['name']));
+        $hidden = 'hidden';
+        if($index === 0 ){
+            $hidden = '';
+        }
+
+        $details        .= "<div id='$subjectName' class='tabcontent $hidden lazy-post' data-post-id='{$subject['post-id']}'>";
+        $details        .= "</div>";
+    }
+
+    $html       = "
+    <div name='location-details-modal' class='modal hidden'>
+        <div class='modal-content'>
+            <span class='close mobile-sticky'>&times;</span>
+            $details
+        </div>
+    </div>
+    ";
+        
+    $html       .= "<button type='button' class='small sim button location-details'>Show Location Descriptions</button><br>";
+    $hidden     = 'hidden';
+    $buttonText = 'Change';
+    $required   = '';
+    if($object->element->required){
+        $required   = 'required';
+    }
+
+    if(empty($subjects)){
+        $hidden     = "";
+        $buttonText = 'Select dates';
+    }elseif(count($subjects) < 6){
+        foreach($subjects as $subject){
+            $cleanSubject    = trim($subject['name']);
+            $checked    = '';
+            if(isset($object->submission->formresults[$object->element->name]) && $object->submission->formresults[$object->element->name] == $cleanSubject){
+                $checked    = 'checked';
+            }
+            $html   .= "<label style='margin-right:5px;'>";
+                $html   .= "<input type='radio' class='booking-subject-selector' name='{$object->element->name}' value='$cleanSubject' $checked>";
+                $html   .= "$cleanSubject";
+            $html   .= "</label>";
+        }
+    }else{
+        $html   .= "<select class='booking-subject-selector' name='$object->element->name' $required>";
+            foreach($subjects as $subject){
+                $cleanSubject    = trim($subject['name']);
+                $html   .= "<option value='$cleanSubject'>$cleanSubject</option>";
+            }
+        $html   .= "</select>";
+    }
+
+    ob_start();
+
+    ?>
+    <div style='display:flex;align-items: center;'>
+        <div class="clone-divs-wrapper selected-booking-dates <?php echo $hidden;?>">
+            <div class="clone-div" data-div-id="0">
+                <div class="button-wrapper">
+                    <div class='hidden'>
+                        <h4>Room</h4>
+                        <input type='text' name='booking-rooms[0]' disabled <?php echo $required;?>>
+                    </div>
+                    <div>
+                        <h4>Arrival Date</h4>
+                        <input type='date' name='booking-startdate[0]' disabled <?php echo $required;?>>
+                    </div>
+                    <div>
+                        <h4>Departure Date</h4>
+                        <input type='date' name='booking-enddate[0]' disabled <?php echo $required;?>>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <button class='button change-booking-date hidden' type='button' style='margin-left: 20px;'><?php echo $buttonText;?></button>
+    </div>
+    <?php
+    $html   .= ob_get_clean();
+
+    wp_enqueue_script('sim-bookings');
+
+    $booking   = new Bookings($object);
+
+    // Find the subject names
+    foreach($subjects as $subject){
+        $html   .= $booking->dateSelectorModal($subject);
+    }
+
+    return $html;
+}
+
+function bookingDateElementHtml($object, $html){
+    global $wpdb;
+
+    if(isset($_POST['booking-id']) && is_numeric($_POST['booking-id'])){
+        $html   = str_replace('>', " data-booking-id='{$_POST['booking-id']}'>", $html);
+    }
+
+    if($object->element->name != 'booking-enddate' && $object->element->name != 'booking-startdate'){
+        return $html;
+    }
+
+    // Get the subject
+    $subject    = $object->submission->formresults[$object->getElementByType('booking-selector')[0]->name];
+        
+    $startDates = (array) $object->submission->formresults['booking-startdate'];
+    $endDates   = (array) $object->submission->formresults['booking-enddate'];
+
+    $early      = array_values($startDates)[0];
+    $late       = array_values($endDates)[0];
+
+    foreach($startDates as $index=>$date){
+        if($date < $early){
+            $early  = $date;
+        }
+
+        if($endDates[$index] > $late){
+            $late   = $endDates[$index];
+        }
+    }
+    
+
+    if($object->element->name == 'booking-enddate'){
+        // get the first event after this one
+        $query  = "SELECT startdate FROM {$wpdb->prefix}sim_bookings WHERE subject = '$subject' AND startdate > '$late' ORDER BY startdate LIMIT 1";
+        $max    = $wpdb->get_var($query);
+
+        if(!empty($max)){
+            $max    = "max='$max'";
+        }
+
+        $min    = "min='$early'";
+    }elseif($object->element->name == 'booking-startdate'){
+        // get the first event before this one
+        $query  = "SELECT enddate FROM {$wpdb->prefix}sim_bookings WHERE subject = '$subject' AND enddate <= '$early' ORDER BY enddate LIMIT 1";
+        $min    = $wpdb->get_var($query);
+
+        if(!empty($min)){
+            $min    = "min='$min'";
+        }
+
+        $max    = $late;
+    }
+
+    return str_replace('>', " $min max='$max'>", $html);
 }
 
 // Display the date selector in the form
@@ -392,121 +567,13 @@ function elementHtml($html, $object){
     }
 
     if($object->element->type == 'booking-selector'){
-        $bookings       = new Bookings($object);
-        $subjects = $bookings->getElementSubjects($object->element->id);
-
-        if(!isset($subjects)){
-           return '<div class="warning">Please add one or more subjects</div>';
-        }
-        
-        $details        = '';
-
-        // Render tab buttons
-        foreach($subjects as $index => $subject){
-            $subjectName    = strtolower(str_replace(' ', '-', $subject['name']));
-            $active = '';
-            if($index === 0 ){
-                $active = 'active';
-            }
-            $details        .= "<button class='button tablink $active' type='button' id='show-{$subjectName}' data-target='$subjectName' style='margin-right:4px;'>
-                {$subject['name']}
-            </button>";
-        }
-
-        // Render tab contents
-        foreach($subjects as $index => $subject){
-            $subjectName    = strtolower(str_replace(' ', '-', $subject['name']));
-            $hidden = 'hidden';
-            if($index === 0 ){
-                $hidden = '';
-            }
-
-            $details        .= "<div id='$subjectName' class='tabcontent $hidden lazy-post' data-post-id='{$subject['post-id']}'>";
-            $details        .= "</div>";
-        }
-
-        $html       = "
-        <div name='location-details-modal' class='modal hidden'>
-			<div class='modal-content'>
-				<span class='close mobile-sticky'>&times;</span>
-                $details
-            </div>
-		</div>
-        ";
-            
-        $html       .= "<button type='button' class='small sim button location-details'>Show Location Descriptions</button><br>";
-        $hidden     = 'hidden';
-        $buttonText = 'Change';
-        $required   = '';
-        if($object->element->required){
-            $required   = 'required';
-        }
-
-        if(empty($subjects)){
-            $hidden     = "";
-            $buttonText = 'Select dates';
-        }elseif(count($subjects) < 6){
-            foreach($subjects as $subject){
-                $cleanSubject    = trim($subject['name']);
-                $checked    = '';
-                if(isset($object->submission->formresults[$object->element->name]) && $object->submission->formresults[$object->element->name] == $cleanSubject){
-                    $checked    = 'checked';
-                }
-                $html   .= "<label style='margin-right:5px;'>";
-                    $html   .= "<input type='radio' class='booking-subject-selector' name='{$object->element->name}' value='$cleanSubject' $checked>";
-                    $html   .= "$cleanSubject";
-                $html   .= "</label>";
-            }
-        }else{
-            $html   .= "<select class='booking-subject-selector' name='$object->element->name' $required>";
-                foreach($subjects as $subject){
-                    $cleanSubject    = trim($subject['name']);
-                    $html   .= "<option value='$cleanSubject'>$cleanSubject</option>";
-                }
-            $html   .= "</select>";
-        }
-
-        ob_start();
-
-        ?>
-        <div style='display:flex;align-items: center;'>
-            <div class="clone-divs-wrapper selected-booking-dates <?php echo $hidden;?>">
-                <div class="clone-div" data-div-id="0">
-                    <div class="button-wrapper">
-                        <div class='hidden'>
-                            <h4>Room</h4>
-                            <input type='text' name='booking-room[0]' disabled <?php echo $required;?>>
-                        </div>
-                        <div>
-                            <h4>Arrival Date</h4>
-                            <input type='date' name='booking-startdate[0]' disabled <?php echo $required;?>>
-                        </div>
-                        <div>
-                            <h4>Departure Date</h4>
-                            <input type='date' name='booking-enddate[0]' disabled <?php echo $required;?>>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <button class='button change-booking-date hidden' type='button' style='margin-left: 20px;'><?php echo $buttonText;?></button>
-        </div>
-        <?php
-        $html   .= ob_get_clean();
-
-        wp_enqueue_script('sim-bookings');
-
-        $booking   = new Bookings($object);
-
-        // Find the subject names
-        foreach($subjects as $subject){
-            $html   .= $booking->dateSelectorModal($subject);
-        }
+        $html   = bookingSelectorHtml($object);
     }
 
-    elseif($object->element->name == 'booking-room'){
+    elseif($object->element->name == 'booking-rooms'){
         $bookings       = new Bookings($object);
 
-        $subjects = maybe_unserialize($object->element->booking_details);
+        //$subjects = maybe_unserialize($object->element->booking_details);
 
         if(empty($subjects)){
             return 'Please add one or more subjects';
@@ -525,56 +592,7 @@ function elementHtml($html, $object){
 
     // Display existing form entry element element
     elseif(!empty($object->submission)){
-        global $wpdb;
-
-        // Get the subject
-        $subject    = $object->submission->formresults[$object->getElementByType('booking-selector')[0]->name];
-            
-        $startDates = (array) $object->submission->formresults['booking-startdate'];
-        $endDates   = (array) $object->submission->formresults['booking-enddate'];
-
-        $early      = array_values($startDates)[0];
-        $late       = array_values($endDates)[0];
-
-        foreach($startDates as $index=>$date){
-            if($date < $early){
-                $early  = $date;
-            }
-
-            if($endDates[$index] > $late){
-                $late   = $endDates[$index];
-            }
-        }
-
-        if(isset($_POST['booking-id']) && is_numeric($_POST['booking-id'])){
-            $html   = str_replace('>', " data-booking-id='{$_POST['booking-id']}'>", $html);
-        }
-
-        if($object->element->name == 'booking-enddate'){
-            // get the first event after this one
-            $query  = "SELECT startdate FROM {$wpdb->prefix}sim_bookings WHERE subject = '$subject' AND startdate > '$late' ORDER BY startdate LIMIT 1";
-            $max    = $wpdb->get_var($query);
-
-            if(!empty($max)){
-                $max    = "max='$max'";
-            }
-
-            $min    = "min='$early'";
-        }elseif($object->element->name == 'booking-startdate'){
-            // get the first event before this one
-            $query  = "SELECT enddate FROM {$wpdb->prefix}sim_bookings WHERE subject = '$subject' AND enddate <= '$early' ORDER BY enddate LIMIT 1";
-            $min    = $wpdb->get_var($query);
-
-            if(!empty($min)){
-                $min    = "min='$min'";
-            }
-
-            $max    = $late;
-        }else{
-            return $html;
-        }
-
-        $html   = str_replace('>', " $min max='$max'>", $html);
+        $html   = bookingDateElementHtml($object, $html);
     }
 
     // Add a class for payment_amount_el

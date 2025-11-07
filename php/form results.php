@@ -196,30 +196,115 @@ function actionHtml($buttonsHtml, $bookingData, $index, $instance){
     return $buttonsHtml;
 }
 
-// only show upcoming bookings for own bookings
-add_filter('sim_retrieved_formdata', __NAMESPACE__.'\formdataRetrieved', 10, 3);
-function formdataRetrieved($submissions, $userId, $object){
-    // Do not filter if this is for a specific user
-    if(is_numeric($userId)){
-        return $submissions;
+// Show the possible booking rooms
+add_filter('sim-forms-checkbox-options', function ($options, $object){
+    if(!isset($object->element) || $object->element->name != 'booking-rooms[]'){
+        return $options;
+    }
+    
+    $bookingSelectors   = $object->getElementByType('booking-selector');
+    if(!$bookingSelectors){
+        return $options;
     }
 
+    // find the accomdation
+    foreach($bookingSelectors as $bookingSelector){
+        if(empty($object->submission->formresults[$bookingSelector->name])){
+            continue;
+        }
+
+        $accomodation   = $object->submission->formresults[$bookingSelector->name];
+
+        // Get the rooms of this accomodation
+        $bookings   = new Bookings($object);
+        $details    = $bookings->getElementSubjects($bookingSelector->id, $accomodation);
+
+        foreach($details['rooms'] as $room){
+            $options[$room['name']]  = $room['name'];
+        }
+
+        break;
+    }
+
+    return $options;
+}, 10, 2);
+
+// Alter form results
+add_filter('sim_retrieved_formdata', __NAMESPACE__.'\formdataRetrieved', 10, 3);
+function formdataRetrieved($submissions, $userId, $object){
     $bookingSelectors   = $object->getElementByType('booking-selector');
     if(!$bookingSelectors){
         return $submissions;
     }
 
-    $bookings   = new Bookings($object);
+    $booker   = new Bookings($object);
 
-    $bookings->getBookingElements();
+    $booker->getBookingElements();
+
+    /**
+     * Add the booking dates to the form results
+     * Split on dates, add extra results if necessary
+     */
+    foreach($submissions as $index => $submission){
+        // Get all the bookings belonging to this form submission
+        $bookings   = $booker->getBookingsBySubmission($submission->id);
+
+        $startDates = [];
+        $endDates   = [];
+        $rooms      = [];
+        $bookingIds = [];
+
+        // Store the dates
+        foreach($bookings as $booking){
+            $startDates[]   = $booking->startdate;
+            $endDates[]     = $booking->enddate;
+            $rooms[]        = $booking->room;
+            $bookingIds[]   = $booking->id;
+        }
+
+        unset($submission->formresults['booking-room']); // old format, delete
+
+        $newSubmissions      = [];
+
+        // Add submissions for each room, using the room name as sub id
+        foreach($startDates as $i => $date){
+            // Add the dates to the form results
+            $submission->formresults['booking-startdate']   = $date;
+            $submission->formresults['booking-enddate']     = $endDates[$i];
+            $submission->formresults['booking-rooms']       = $rooms[$i];
+            $submission->formresults['booking-id']          = $bookingIds[$i];
+
+            $submission->subId                              = $rooms[$i];
+
+            $newSubmissions[]                               = clone $submission;
+        }
+
+        // replace the original with the first
+        $submissions[$index]    = $newSubmissions[0];
+
+        // remove that one
+        unset($newSubmissions[0]);
+
+        // Add the extra submissions
+        $submissions    = array_merge($submissions, $newSubmissions);
+    }
+
+    /**
+     * Only show upcoming bookings for own bookings
+     */
+
+    // Do not filter if this is for a specific user
+    if(is_numeric($userId)){
+        return $submissions;
+    }
 
     // Get the subjects for the current user
-    $bookings->getSubjectManagers($bookings->user->ID);
+    $booker->getSubjectManagers($booker->user->ID);
 
-    $subjectsToKeep = array_keys($bookings->managers);
+    $subjectsToKeep = array_keys($booker->managers);
 
     // find the user id element
-	$userIdKey	    = $bookings->forms->findUserIdElementName();
+	$userIdKey	    = $booker->forms->findUserIdElementName();
     
     // Loop over all booking selctors in the form
     foreach($bookingSelectors as $bookingSelector){
@@ -229,7 +314,7 @@ function formdataRetrieved($submissions, $userId, $object){
             if(
                 !empty($submission->formresults[$bookingSelector->name])    &&
                 !in_array($submission->formresults[$bookingSelector->name], $subjectsToKeep)    &&  // Not managed by us
-                $submission->formresults[$userIdKey]    != $bookings->user->ID                      // Not our own sumissionn
+                $submission->formresults[$userIdKey]    != $booker->user->ID                      // Not our own sumissionn
 
             ){
                 unset($submissions[$index]);
@@ -240,33 +325,21 @@ function formdataRetrieved($submissions, $userId, $object){
     return $submissions;
 }
 
-// Use room as subId in table view
-add_filter('sim-formresults-split-subid', __NAMESPACE__.'\adjustSubId', 10, 3);
-function adjustSubId($x, $newSubmission, $object){
-    // Return if this is not a booking
-    if(!isset($newSubmission->formresults['booking-startdate']) || !is_array($newSubmission->formresults['booking-startdate'])){
-        return $x;
-    }
-
-    // find the number to be used
-    return array_keys($newSubmission->formresults['booking-startdate'])[$x];
-}
-
 // only show the date for the current room
-add_filter('sim-form-result-table-value', __NAMESPACE__.'\adjustCellValue', 10, 3);
+//add_filter('sim-form-result-table-value', __NAMESPACE__.'\adjustCellValue', 10, 3);
 function adjustCellValue($value, $columnSetting, $values){
     if(
         (
             $columnSetting['name'] != 'booking-startdate' &&
             $columnSetting['name'] != 'booking-enddate' &&
-            $columnSetting['name'] != 'booking-room' 
+            $columnSetting['name'] != 'booking-rooms' 
         ) || 
         !isset($values['subid'])
     ){
         return $value;
     }
 
-    if($columnSetting['name'] == 'booking-room' ){
+    if($columnSetting['name'] == 'booking-rooms' ){
         return $values['subid'];
     }
 
@@ -279,17 +352,16 @@ function adjustCellValue($value, $columnSetting, $values){
 }
 
 // only show future bookings in table view
-add_filter('sim_formdata_retrieval_query', __NAMESPACE__.'\alterQuery', 10, 3);
-function alterQuery($params, $userId, $instance){
-    if(str_contains($params['query'], " id='")){
+add_filter('sim_formdata_retrieval_query', __NAMESPACE__.'\alterQuery', 10, 4);
+function alterQuery($params, $userId, $submissionId, $instance){
+    if(
+        !empty($submissionId) ||
+        empty($instance->getElementByType('booking-selector'))
+    ){
         return $params;
     }
 
     $bookings   = new Bookings($instance);
-
-    if(empty($instance->getElementByType('booking-selector'))){
-        return $params;
-    }
 
     $params['query']   .= " and id IN(SELECT submission_id FROM %i WHERE enddate >= %s ORDER BY 'startdate')";
     $params['values'][] = $bookings->tableName;

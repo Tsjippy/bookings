@@ -95,7 +95,7 @@ function moduleActivated($options){
     maybe_add_column($forms->tableName, 'confirmed_booking_roles', "ALTER TABLE $forms->tableName ADD COLUMN `confirmed_booking_roles` text");
     
 	// Add column to the form element table
-	maybe_add_column($forms->elTableName, 'booking_details', "ALTER TABLE $forms->elTableName ADD COLUMN `booking_details` text");
+	//maybe_add_column($forms->elTableName, 'booking_details', "ALTER TABLE $forms->elTableName ADD COLUMN `booking_details` text");
 
 	// Add column to the form email table
 	maybe_add_column($forms->formEmailTable, 'days_before', "ALTER TABLE $forms->formEmailTable ADD COLUMN `days_before` int");

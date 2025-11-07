@@ -17,7 +17,7 @@ class BookingEmail extends ADMIN\MailSetting{
         $this->replaceArray['%price_per_night%']            = '';
 
         if(isset($booking->submission_id)){
-            $displayFormResults                             = new SIM\FORMS\DisplayFormResults();
+            $displayFormResults                             = new SIM\FORMS\DisplayFormResults([]);
             $displayFormResults->getSubmission($booking->submission_id);
 
             if(!$displayFormResults->submission->formresults){
@@ -28,8 +28,8 @@ class BookingEmail extends ADMIN\MailSetting{
             $displayFormResults->getForm($displayFormResults->submission->form_id);
 
             // Add rooms
-            if(!empty($booking->room) && is_array($displayFormResults->submission->formresults['booking-room'])){
-                $rooms      = $displayFormResults->submission->formresults['booking-room'];
+            if(!empty($booking->room) && is_array($displayFormResults->submission->formresults['booking-rooms'])){
+                $rooms      = $displayFormResults->submission->formresults['booking-rooms'];
                 if(count($rooms) == 1){
                     $this->replaceArray['%subject%']   .= " room ". array_values($rooms)[0];
                 }else{

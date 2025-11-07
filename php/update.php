@@ -144,4 +144,8 @@ function moduleUpdate($oldVersion){
             }
         }
     }
+
+    if($oldVersion < '8.5.3'){
+        maybe_drop_column($forms->elTableName, 'booking_details', "ALTER TABLE `$forms->elTableName` DROP `booking_details`;");
+    }
 }
