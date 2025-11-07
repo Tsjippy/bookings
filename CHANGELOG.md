@@ -4,13 +4,20 @@
 ### Added
 
 ### Changed
+
+### Fixed
+
+### Updated
+
+## [8.5.3] - 2025-11-07
+
+
+### Changed
 - alter query from form results
 - prevent data malfunction
 
 ### Fixed
 - bugs
-
-### Updated
 
 ## [8.5.2] - 2025-11-06
 
