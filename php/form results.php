@@ -209,11 +209,11 @@ add_filter('sim-forms-checkbox-options', function ($options, $object){
 
     // find the accomdation
     foreach($bookingSelectors as $bookingSelector){
-        if(empty($object->submission->formresults[$bookingSelector->name])){
+        if(empty($object->submissions[0]->formresults[$bookingSelector->name])){
             continue;
         }
 
-        $accomodation   = $object->submission->formresults[$bookingSelector->name];
+        $accomodation   = $object->submissions[0]->formresults[$bookingSelector->name];
 
         // Get the rooms of this accomodation
         $bookings   = new Bookings($object);
