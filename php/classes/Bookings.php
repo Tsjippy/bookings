@@ -790,8 +790,6 @@ class Bookings{
                 continue;
             }
 
-            $userIdElName   = $this->forms->findUserIdElementName();
-
             $subject        = $formResults[$this->bookingElements[0]->name];
 
             if(
@@ -802,10 +800,7 @@ class Bookings{
                 !array_intersect($this->forms->userRoles, array_keys($this->forms->tableSettings->view_right_roles))  &&      // we do not have the right to see others submissions
                 
                 // This is not our own booking
-                (
-                    isset($formResults[$userIdElName])                      &&
-                    $formResults[$userIdElName] != $this->forms->user->ID
-                )
+                $this->forms->submission->userid != $this->forms->user->ID
             ){
                 // no right to see this
                 ?>
@@ -1129,9 +1124,7 @@ class Bookings{
             return new \WP_Error('booking', "The booking for $subject overlaps with an existing one from $startDateString till $endDateString, try again");
         }
 
-        $userIdKey	        = $this->forms->findUserIdElementName();
-
-        $userId             = $this->forms->submission->formresults[$userIdKey];
+        $userId             = $this->forms->submission->userid;
 
         $subjectWithRoom    = $subject;
         if(!empty($room)){
@@ -1989,16 +1982,7 @@ class Bookings{
                 }
             }
 
-            $userIdElName    = $this->forms->findUserIdElementName();
-            if(is_wp_error($userIdElName)){
-                continue;
-            }
-
-            if($userIdElName){
-                $userId     = $submission->formresults[$userIdElName];
-            }else{
-                $userId     = $submission->user-id;
-            }
+            $userId     = $submission->userid;
 
             $phonenumber    = $userId;
             $email          = false;

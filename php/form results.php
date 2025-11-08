@@ -258,8 +258,16 @@ function formdataRetrieved($submissions, $userId, $object){
         foreach($bookings as $booking){
             $startDates[]   = $booking->startdate;
             $endDates[]     = $booking->enddate;
-            $rooms[]        = $booking->room;
+
+            if(!empty($booking->room)){
+                $rooms[]        = $booking->room;
+            }
+
             $bookingIds[]   = $booking->id;
+        }
+
+        if(!is_array($submission->formresults)){
+            continue;
         }
 
         unset($submission->formresults['booking-room']); // old format, delete
@@ -271,10 +279,12 @@ function formdataRetrieved($submissions, $userId, $object){
             // Add the dates to the form results
             $submission->formresults['booking-startdate']   = $date;
             $submission->formresults['booking-enddate']     = $endDates[$i];
-            $submission->formresults['booking-rooms']       = $rooms[$i];
             $submission->formresults['booking-id']          = $bookingIds[$i];
 
-            $submission->subId                              = $rooms[$i];
+            if(!empty($rooms)){
+                $submission->formresults['booking-rooms']   = $rooms[$i];
+                $submission->subId                          = $rooms[$i];
+            }
 
             $newSubmissions[]                               = clone $submission;
         }
@@ -302,9 +312,6 @@ function formdataRetrieved($submissions, $userId, $object){
     $booker->getSubjectManagers($booker->user->ID);
 
     $subjectsToKeep = array_keys($booker->managers);
-
-    // find the user id element
-	$userIdKey	    = $booker->forms->findUserIdElementName();
     
     // Loop over all booking selctors in the form
     foreach($bookingSelectors as $bookingSelector){
@@ -314,7 +321,7 @@ function formdataRetrieved($submissions, $userId, $object){
             if(
                 !empty($submission->formresults[$bookingSelector->name])    &&
                 !in_array($submission->formresults[$bookingSelector->name], $subjectsToKeep)    &&  // Not managed by us
-                $submission->formresults[$userIdKey]    != $booker->user->ID                      // Not our own sumissionn
+                $submission->userid    != $booker->user->ID                      // Not our own sumissionn
 
             ){
                 unset($submissions[$index]);

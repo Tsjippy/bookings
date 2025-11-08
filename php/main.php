@@ -20,7 +20,7 @@ function beforeSavingFormData($formResults, $object, $update){
     }
 
     $rooms  = [];
-    if(isset($formResults['booking-rooms'])){
+    if(isset($formResults['booking-rooms']) && is_array($formResults['booking-rooms'])){
         $rooms   = $formResults['booking-rooms'];
 
         unset($formResults['booking-rooms']);
@@ -94,9 +94,11 @@ function beforeSavingFormData($formResults, $object, $update){
             }
 
             // Add, update or remove rooms
-            $result = $bookings->updateRooms($rooms, $currentBookings);
-            if(is_wp_error($result)){
-                return $result;
+            if(!empty($rooms)){
+                $result = $bookings->updateRooms($rooms, $currentBookings);
+                if(is_wp_error($result)){
+                    return $result;
+                }
             }
         }
         
