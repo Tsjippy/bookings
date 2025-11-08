@@ -6,6 +6,7 @@
 ### Changed
 
 ### Fixed
+- booking without room
 
 ### Updated
 
