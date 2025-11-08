@@ -360,11 +360,8 @@ function adjustCellValue($value, $columnSetting, $values){
 
 // only show future bookings in table view
 add_filter('sim_formdata_retrieval_query', __NAMESPACE__.'\alterQuery', 10, 4);
-function alterQuery($params, $userId, $submissionId, $instance){
-    if(
-        !empty($submissionId) ||
-        empty($instance->getElementByType('booking-selector'))
-    ){
+function alterQuery($params, $userId, $instance){
+    if( empty($instance->getElementByType('booking-selector'))){
         return $params;
     }
 
