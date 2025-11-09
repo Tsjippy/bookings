@@ -110,7 +110,7 @@ async function getMonth(target){
 
 async function approve(target){    
     let formData    = new FormData();
-    formData.append('id', target.dataset.id);
+    formData.append('id', target.dataset.submissionId);
     formData.append('form-id', target.dataset.formId);
 
     let row         = target.closest('tr');
@@ -160,7 +160,7 @@ async function approve(target){
 
 async function remove(target){    
     let formData    = new FormData();
-    formData.append('id', target.dataset.id);
+    formData.append('id', target.dataset.submissionId);
     let row         = target.closest('tr');
 
     Main.showLoader(target.closest('td'));

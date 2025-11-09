@@ -2033,9 +2033,9 @@ class Bookings{
     /**
      * Adds the buttons to approve or delete a pending booking
      */
-    public function pendingButtons($buttonsHtml, $values, $subId, $object){
-        $buttonsHtml['approve'] = "<button class='button approve' type='button' data-id='{$values['id']}' data-form-id='{$object->submission->form_id}'>Approve</button>";
-        $buttonsHtml['delete']  = "<button class='button delete' type='button' data-id='{$values['id']}' data-form-id='{$object->submission->form_id}'>Delete</button><br>";
+    public function pendingButtons($buttonsHtml, $submission, $subId, $object){
+        $buttonsHtml['approve'] = "<button class='button approve' type='button' data-submission-id='{$submission->id}' data-form-id='{$object->submission->form_id}'>Approve</button>";
+        $buttonsHtml['delete']  = "<button class='button delete' type='button' data-submission-id='{$submission->id}' data-form-id='{$object->submission->form_id}'>Delete</button><br>";
         unset($buttonsHtml['archive']);
 
         return $buttonsHtml;

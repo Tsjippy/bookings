@@ -186,7 +186,7 @@ function shouldShow($shouldShow, $displayFormResults, $type){
 
 // Change Archive button text
 add_filter('sim_form_actions_html', __NAMESPACE__.'\actionHtml', 10, 4);
-function actionHtml($buttonsHtml, $bookingData, $index, $instance){
+function actionHtml($buttonsHtml, $submission, $index, $instance){
     if(get_class($instance) != 'SIM\BOOKINGS\Bookings' || !isset($buttonsHtml['archive'])){
         return $buttonsHtml;
     }
