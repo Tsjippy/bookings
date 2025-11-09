@@ -446,7 +446,7 @@ function bookingSelectorHtml($object){
         foreach($subjects as $subject){
             $cleanSubject    = trim($subject['name']);
             $checked    = '';
-            if(isset($object->submission->formresults[$object->element->name]) && $object->submission->formresults[$object->element->name] == $cleanSubject){
+            if(isset($object->submission->{$object->element->name}) && $object->submission->{$object->element->name} == $cleanSubject){
                 $checked    = 'checked';
             }
             $html   .= "<label style='margin-right:5px;'>";
@@ -514,10 +514,10 @@ function bookingDateElementHtml($object, $html){
     }
 
     // Get the subject
-    $subject    = $object->submission->formresults[$object->getElementByType('booking-selector')[0]->name];
+    $subject    = $object->submission->{$object->getElementByType('booking-selector')[0]->name};
         
-    $startDates = (array) $object->submission->formresults['booking-startdate'];
-    $endDates   = (array) $object->submission->formresults['booking-enddate'];
+    $startDates = (array) $object->submission->booking_startdate;
+    $endDates   = (array) $object->submission->booking_enddate;
 
     $early      = array_values($startDates)[0];
     $late       = array_values($endDates)[0];
@@ -582,7 +582,7 @@ function elementHtml($html, $object){
         $elementName    = $object->getElementByType('booking-selector')[0]->name;
 
         foreach($subjects as $subject){
-            if($subject['name'] == $object->submission->formresults[$elementName]){
+            if($subject['name'] == $object->submission->{$elementName}){
                 break;
             }
         }

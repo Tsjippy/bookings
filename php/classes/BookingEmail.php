@@ -20,7 +20,7 @@ class BookingEmail extends ADMIN\MailSetting{
             $displayFormResults                             = new SIM\FORMS\DisplayFormResults([]);
             $displayFormResults->getSubmission($booking->submission_id);
 
-            if(!$displayFormResults->submission->formresults){
+            if(!$displayFormResults->submission){
                 return;
             }
 
@@ -28,8 +28,8 @@ class BookingEmail extends ADMIN\MailSetting{
             $displayFormResults->getForm($displayFormResults->submission->form_id);
 
             // Add rooms
-            if(!empty($booking->room) && is_array($displayFormResults->submission->formresults['booking-rooms'])){
-                $rooms      = $displayFormResults->submission->formresults['booking-rooms'];
+            if(!empty($booking->room) && is_array($displayFormResults->submission->bookin_grooms)){
+                $rooms      = $displayFormResults->submission->booking_rooms;
                 if(count($rooms) == 1){
                     $this->replaceArray['%subject%']   .= " room ". array_values($rooms)[0];
                 }else{
@@ -38,8 +38,8 @@ class BookingEmail extends ADMIN\MailSetting{
                 }
             }
 
-            $startdates     = $displayFormResults->submission->formresults['booking-startdate'];
-            $enddates       = $displayFormResults->submission->formresults['booking-enddate'];
+            $startdates     = $displayFormResults->submission->booking_startdate;
+            $enddates       = $displayFormResults->submission->booking_enddate;
 
             // only change the duration string if more than one unique startdate or enddate
             if(count(array_unique($startdates)) > 1 || count(array_unique($enddates)) > 1){
@@ -57,22 +57,22 @@ class BookingEmail extends ADMIN\MailSetting{
 
             $name                                           = $displayFormResults->findUserNameElementName();
             if($name){
-                $this->replaceArray['%name%']               = $displayFormResults->submission->formresults[$name];
+                $this->replaceArray['%name%']               = $displayFormResults->submission->$name;
             }
 
             $amountName                                     = $displayFormResults->getElementById($displayFormResults->formData->payment_amount_el, 'name');
             if($amountName){
-                $this->replaceArray['%payable%']            = $displayFormResults->submission->formresults[$amountName];
+                $this->replaceArray['%payable%']            = $displayFormResults->submission->$amountName;
             }
 
             $detailsName                                    = $displayFormResults->getElementById($displayFormResults->formData->payment_details_el, 'name');
             if($detailsName){
-                $this->replaceArray['%payment_details%']    = $displayFormResults->submission->formresults[$detailsName];
+                $this->replaceArray['%payment_details%']    = $displayFormResults->submission->$detailsName;
             }
 
             $pricePerNightName                              = $displayFormResults->getElementById($displayFormResults->formData->price_per_night_el, 'name');
             if($pricePerNightName){
-                $this->replaceArray['%price_per_night%']    = $displayFormResults->submission->formresults[$pricePerNightName];
+                $this->replaceArray['%price_per_night%']    = $displayFormResults->submission->{$pricePerNightName};
             }
         }
 

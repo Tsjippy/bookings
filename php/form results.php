@@ -104,13 +104,13 @@ function shouldShow($shouldShow, $displayFormResults, $type){
         // Find the subject
         foreach($elements as $element){
             $elementName                = $element->name;
-            if(isset($bookings->forms->submission->formresults[$elementName])){
-                $bookedSubject          = $bookings->forms->submission->formresults[$elementName];
+            if(isset($bookings->forms->submission->{$elementName})){
+                $bookedSubject          = $bookings->forms->submission->{$elementName};
                 break;
             }
         }
 
-        $targetDate                     = strtotime(array_values($bookings->forms->submission->formresults['booking-startdate'])[0]);
+        $targetDate                     = strtotime(array_values($bookings->forms->submission->booking_startdate)[0]);
     }
     
     $html   = '<div class="tables-wrapper">';
@@ -209,11 +209,11 @@ add_filter('sim-forms-checkbox-options', function ($options, $object){
 
     // find the accomdation
     foreach($bookingSelectors as $bookingSelector){
-        if(empty($object->submissions[0]->formresults[$bookingSelector->name])){
+        if(empty($object->submissions[0]->{$bookingSelector->name})){
             continue;
         }
 
-        $accomodation   = $object->submissions[0]->formresults[$bookingSelector->name];
+        $accomodation   = $object->submissions[0]->{$bookingSelector->name};
 
         // Get the rooms of this accomodation
         $bookings   = new Bookings($object);
@@ -266,27 +266,21 @@ function formdataRetrieved($submissions, $userId, $object){
             $bookingIds[]   = $booking->id;
         }
 
-        if(!is_array($submission->formresults)){
-            continue;
-        }
-
-        unset($submission->formresults['booking-room']); // old format, delete
-
         $newSubmissions      = [];
 
         // Add submissions for each room, using the room name as sub id
         foreach($startDates as $i => $date){
             // Add the dates to the form results
-            $submission->formresults['booking-startdate']   = $date;
-            $submission->formresults['booking-enddate']     = $endDates[$i];
-            $submission->formresults['booking-id']          = $bookingIds[$i];
+            $submission->booking_startdate   = $date;
+            $submission->booking_enddate     = $endDates[$i];
+            $submission->booking_id          = $bookingIds[$i];
 
             if(!empty($rooms)){
-                $submission->formresults['booking-rooms']   = $rooms[$i];
-                $submission->subId                          = $rooms[$i];
+                $submission->booking_rooms   = $rooms[$i];
+                $submission->subId           = $rooms[$i];
             }
 
-            $newSubmissions[]                               = clone $submission;
+            $newSubmissions[]                = clone $submission;
         }
 
         // replace the original with the first
@@ -319,8 +313,8 @@ function formdataRetrieved($submissions, $userId, $object){
         foreach($submissions as $index => $submission){
             // remove any submission not belonging to the $subjectsToKeep
             if(
-                !empty($submission->formresults[$bookingSelector->name])    &&
-                !in_array($submission->formresults[$bookingSelector->name], $subjectsToKeep)    &&  // Not managed by us
+                !empty($submission->{$bookingSelector->name})    &&
+                !in_array($submission->{$bookingSelector->name}, $subjectsToKeep)    &&  // Not managed by us
                 $submission->userid    != $booker->user->ID                      // Not our own sumissionn
 
             ){
@@ -367,7 +361,7 @@ function alterQuery($params, $userId, $instance){
 
     $bookings   = new Bookings($instance);
 
-    $params['query']   .= " and id IN(SELECT submission_id FROM %i WHERE enddate >= %s ORDER BY 'startdate')";
+    $params['where']   .= "id IN(SELECT submission_id FROM %i WHERE enddate >= %s ORDER BY 'startdate')";
     $params['values'][] = $bookings->tableName;
     $params['values'][] = date('Y-m-d');
 

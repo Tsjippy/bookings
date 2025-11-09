@@ -284,8 +284,8 @@ class Bookings{
                     $checked    = '';
                     if(
                         !empty($_REQUEST['id']) &&
-                        is_array($this->forms->submission->formresults['booking-rooms']) && 
-                        in_array($alphabet[$x], $this->forms->submission->formresults['booking-rooms'])
+                        is_array($this->forms->submission->booking_rooms) && 
+                        in_array($alphabet[$x], $this->forms->submission->booking_rooms)
                     ){
                         $checked    = 'checked';
                     }
@@ -299,8 +299,8 @@ class Bookings{
                     $checked    = '';
                     if(
                         !empty($_REQUEST['id']) &&
-                        is_array($this->forms->submission->formresults['booking-rooms']) && 
-                        in_array($room['name'], $this->forms->submission->formresults['booking-rooms'])
+                        is_array($this->forms->submission->booking_rooms) && 
+                        in_array($room['name'], $this->forms->submission->booking_rooms)
                     ){
                         $checked    = 'checked';
                     }
@@ -314,8 +314,8 @@ class Bookings{
                     $checked    = '';
                     if(
                         !empty($_REQUEST['id']) &&
-                        isset($this->forms->submission->formresults['booking-rooms']) && 
-                        in_array($x, $this->forms->submission->formresults['booking-rooms'])
+                        isset($this->forms->submission->booking_rooms) && 
+                        in_array($x, $this->forms->submission->booking_rooms)
                     ){
                         $checked    = 'checked';
                     }
@@ -346,8 +346,8 @@ class Bookings{
 
             if(
                 isset($_REQUEST['id'])                                  &&              // We should display a specific submission
-                is_array($this->forms->submission->formresults['booking-rooms'])   &&    // and a room is set
-                in_array($room['name'], $this->forms->submission->formresults['booking-rooms'])  // and it is this room
+                is_array($this->forms->submission->booking_rooms)   &&    // and a room is set
+                in_array($room['name'], $this->forms->submission->booking_rooms)  // and it is this room
             ){
                 $roomHidden = '';
             }
@@ -693,11 +693,6 @@ class Bookings{
                                         $submission     = $this->forms->getSubmissions(null, $submissionId)[0];
 
                                         $userId         = $submission->userid;
-                                        if(!empty($submission->formresults['user-id'])){
-                                            $userId     = $submission->formresults['user-id'];
-                                        }elseif(!empty($submission->formresults['user_id'])){
-                                            $userId     = $submission->formresults['user_id'];
-                                        }
 
                                         if($userId == $this->forms->user->ID){
                                             $class	.= ' own';
@@ -784,13 +779,8 @@ class Bookings{
 
             // Retrieve booking details
             $this->forms->parseSubmissions(null, $booking->submission_id);
-            $formResults     = $this->forms->submission->formresults;
 
-            if(empty($formResults)){
-                continue;
-            }
-
-            $subject        = $formResults[$this->bookingElements[0]->name];
+            $subject        = $this->forms->submission->{$this->bookingElements[0]->name};
 
             if(
                 // we are not the manager of this subject
@@ -812,32 +802,31 @@ class Bookings{
             }
 
             $hidden         = 'hidden';
-            if(!empty($_REQUEST['id']) && $_REQUEST['id'] == $formResults['id']){
+            if(!empty($_REQUEST['id']) && $_REQUEST['id'] == $this->forms->submission->id){
                 $hidden = '';
             }
 
             foreach($this->forms->submissions as $submission){
-                $formResults    = $submission->formresults;
                 $subId          = $submission->subId;  
 
                 ?>
-                <div class='booking-detail-wrapper <?php echo $hidden;?>' data-booking-id='<?php echo esc_attr($submission->formresults['booking-id']);?>'>
+                <div class='booking-detail-wrapper <?php echo $hidden;?>' data-booking-id='<?php echo esc_attr($submission->booking_id);?>'>
                     <h6 class='booking-title'>
                         Booking details
                     </h6>
 
                     <article class='booking'>
-                        <h4 class='booking-title'><?php echo $formResults['name'];?></h4>
+                        <h4 class='booking-title'><?php echo $submission->name;?></h4>
                         <div class='booking-detail'>
-                            <table data-form-id='<?php echo $formResults['form-id'];?>' style='width: unset;'>
+                            <table data-form-id='<?php echo $submission->form_id;?>' style='width: unset;'>
                                 <thead></thead>
                                 <tbody>
-                                    <tr class='<?php $this->bookingElements[0]->name;?>' data-submission-id='<?php echo $formResults['id'];?>'>
+                                    <tr class='<?php $this->bookingElements[0]->name;?>' data-submission-id='<?php echo $submission->id;?>'>
                                         <td>
                                             <img src='<?php echo esc_url($baseUrl);?>/subject.png' loading='lazy' alt='<?php echo $this->bookingElements[0]->nicename;?>' class='booking-icon' title='<?php echo $this->bookingElements[0]->nicename;?>'>
                                         </td>
-                                        <td class='booking-data-wrapper edit forms-table' data-element-id='<?php echo $this->bookingElements[0]->id;?>' data-name='<?php echo $this->bookingElements[0]->name;?>' data-booking-id='<?php echo esc_attr($submission->formresults['booking-id']);?>'>
-                                            <?php echo $formResults[$this->bookingElements[0]->name];?>
+                                        <td class='booking-data-wrapper edit forms-table' data-element-id='<?php echo $this->bookingElements[0]->id;?>' data-name='<?php echo $this->bookingElements[0]->name;?>' data-booking-id='<?php echo esc_attr($submission->booking_id);?>'>
+                                            <?php echo $submission->{$this->bookingElements[0]->name};?>
                                         </td>
                                     </tr>
                                     <tr>
@@ -845,15 +834,15 @@ class Bookings{
                                             <img src='<?php echo esc_url($baseUrl);?>/date.png' loading='lazy' alt='date' class='booking-icon'>
                                         </td>
                                         <td class='booking-data-wrapper edit forms-table'>
-                                            <table data-form-id='<?php echo $formResults['form-id'];?>' data-shortcode-id='<?php echo $this->forms->shortcodeId;?>' style='margin-bottom: 0px; width:unset;'>
-                                                <tr data-submission-id='<?php echo $formResults['id'];?>'>
-                                                    <td data-name='booking-startdate' data-element-id='<?php echo $this->forms->getElementByName('booking-startdate')->id;?>' data-subid='<?php echo $subId;?>' data-booking-id='<?php echo esc_attr($submission->formresults['booking-id']);?>' class='edit forms-table'>
-                                                        <?php echo date(DATEFORMAT, strtotime($submission->formresults['booking-startdate']));?>
+                                            <table data-form-id='<?php echo $submission->form_id;?>' data-shortcode-id='<?php echo $this->forms->shortcodeId;?>' style='margin-bottom: 0px; width:unset;'>
+                                                <tr data-submission-id='<?php echo $submission->id;?>'>
+                                                    <td data-name='booking-startdate' data-element-id='<?php echo $this->forms->getElementByName('booking-startdate')->id;?>' data-subid='<?php echo $subId;?>' data-booking-id='<?php echo esc_attr($submission->booking_id);?>' class='edit forms-table'>
+                                                        <?php echo date(DATEFORMAT, strtotime($submission->booking_startdate));?>
                                                     </td>
                                                 </tr>
-                                                <tr data-submission-id='<?php echo $formResults['id'];?>'>
-                                                    <td data-name='booking-enddate' data-element-id='<?php echo  $this->forms->getElementByName('booking-enddate')->id;?>' data-subid='<?php echo $subId;?>' data-booking-id='<?php echo esc_attr($submission->formresults['booking-id']);?>' class='edit forms-table'>
-                                                        <?php echo date(DATEFORMAT, strtotime($submission->formresults['booking-enddate']));?>
+                                                <tr data-submission-id='<?php echo $submission->id;?>'>
+                                                    <td data-name='booking-enddate' data-element-id='<?php echo  $this->forms->getElementByName('booking-enddate')->id;?>' data-subid='<?php echo $subId;?>' data-booking-id='<?php echo esc_attr($submission->booking_id);?>' class='edit forms-table'>
+                                                        <?php echo date(DATEFORMAT, strtotime($submission->booking_enddate));?>
                                                     </td>
                                                 </tr>
                                             </table>
@@ -861,14 +850,14 @@ class Bookings{
                                     </tr>
 
                                     <?php 
-                                    if(!empty($submission->formresults['booking-rooms'])){
+                                    if(!empty($submission->booking_rooms)){
                                         ?>
-                                        <tr class='room' data-submission-id='<?php echo $formResults['id'];?>'>
+                                        <tr class='room' data-submission-id='<?php echo $submission->id;?>'>
                                             <td>
                                                 <img src='<?php echo esc_url($baseUrl);?>/room.png' loading='lazy' alt='Room' class='booking-icon' title='Room'>
                                             </td>
-                                            <td class='booking-data-wrapper edit forms-table' data-element-id='-104' data-subid='<?php echo $subId;?>' data-name='booking-rooms' data-booking-id='<?php echo esc_attr($submission->formresults['booking-id']);?>'>
-                                                <?php echo esc_attr($submission->formresults['booking-rooms']);?>
+                                            <td class='booking-data-wrapper edit forms-table' data-element-id='-104' data-subid='<?php echo $subId;?>' data-name='booking-rooms' data-booking-id='<?php echo esc_attr($submission->booking_id);?>'>
+                                                <?php echo esc_attr($submission->booking_rooms);?>
                                             </td>
                                         </tr>
                                         <?php
@@ -886,7 +875,7 @@ class Bookings{
                                         $name       = $setting['name'];
                                         $niceName   = empty($setting['nice_name']) ? $name : $setting['nice_name'];
                                         $element    = $this->forms->getElementByName($name);
-                                        $data       = $formResults[$name];
+                                        $data       = $submission->{$name};
 
                                         $transformedData   = $this->forms->transformInputData($data, $name, $submission);
                                         if(empty($transformedData)){
@@ -894,7 +883,7 @@ class Bookings{
                                         }
 
                                         ?>
-                                        <tr class='<?php echo esc_attr($name);?>' data-submission-id='<?php echo esc_attr($formResults['id']);?>'>
+                                        <tr class='<?php echo esc_attr($name);?>' data-submission-id='<?php echo esc_attr($submission->id);?>'>
                                             <?php
                                             if(file_exists(SIM\urlToPath("$baseUrl/$name.png"))){
                                                 ?>
@@ -940,7 +929,7 @@ class Bookings{
 
                                             if(
                                                 $this->tableEditPermissions || 																			//if we are allowed to do all actions
-                                                $formResults['user-id'] == $this->user->ID || 															//or this is our own entry
+                                                $submission->userid == $this->user->ID || 															//or this is our own entry
                                                 array_intersect($this->userRoles, $editRoles)		//or we have permission for this specific button
                                             ){
                                                 $buttons .= $button;
@@ -949,7 +938,7 @@ class Bookings{
 
                                         if(!empty($buttons)){
                                             ?>
-                                            <tr class='actions' data-submission-id='<?php echo esc_attr($formResults['id']);?>'>
+                                            <tr class='actions' data-submission-id='<?php echo esc_attr($submission->id);?>'>
                                                 <td  colspan='2'><?php echo $buttons;?></td>
                                             </tr>
                                             <?php
@@ -1822,7 +1811,7 @@ class Bookings{
                         if($mail['email-trigger'] == 'before-stay'){
                             $this->getSubjectManagers();
 
-                            $bookingSubject    =  $this->forms->submission->formresults[$subjectKey];
+                            $bookingSubject    =  $this->forms->submission->{$subjectKey};
 
                             if(!isset($this->managers[$bookingSubject])){
                                 SIM\printArray("No manager found for $bookingSubject");
@@ -1832,7 +1821,7 @@ class Bookings{
                             $managers    = (array) $this->managers[$bookingSubject];
 
                             foreach($managers as $manager){
-                                $name       = $this->forms->submission->formresults[$this->forms->findUserNameElementName()];
+                                $name       = $this->forms->submission->{[$this->forms->findUserNameElementName()]};
 
                                 // first repplace all occurences of the name for the manager name
                                 $newSubject = str_replace($name, $manager->display_name, $subject);
@@ -1993,7 +1982,7 @@ class Bookings{
 
                 $nameElName = $this->forms->findUserNameElementName();
                 if($nameElName){
-                    $name   = $submission->formresults[$nameElName];
+                    $name   = $submission->{$nameElName};
                     $user   = (object) ['display_name' => $name ];
                 }
 
@@ -2001,7 +1990,7 @@ class Bookings{
                 $phoneElName    = $this->forms->findPhoneNumberElementName();
 
                 if($phoneElName){
-                    foreach($submission->formresults[$phoneElName] as $number){
+                    foreach($submission->{$phoneElName} as $number){
                         if (str_starts_with($number, '+')) {
                             $phonenumber = $number;
                             break;
@@ -2012,7 +2001,7 @@ class Bookings{
                 // Find the e-mail
                 $emailElName        = $this->forms->findEmailElementName();
                 if($emailElName){
-                    $email          = $submission->formresults[$emailElName];
+                    $email          = $submission->{$emailElName};
                 }
             }else{
                 $user   = get_user($userId);
@@ -2133,7 +2122,7 @@ class Bookings{
             $nights     = $nights + $days;
         }
 
-        $pricePerNight      = $this->forms->submission->formresults[$pricePerNightName];
+        $pricePerNight      = $this->forms->submission->{$pricePerNightName};
         preg_match('/(.*?)([\d+|\.|,]+)/', "$pricePerNight", $matches);
         $amount             = $matches[2];
         $currency           = $matches[1];

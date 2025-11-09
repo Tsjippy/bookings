@@ -4,26 +4,26 @@ use SIM;
 
 // check if a booking request is ok
 add_filter('sim_before_saving_formdata', __NAMESPACE__.'\beforeSavingFormData', 99, 3);
-function beforeSavingFormData($formResults, $object, $update){
+function beforeSavingFormData($submission, $object, $update){
     $startDates = [];
-    if(isset($formResults['booking-startdate'])){
-        $startDates = (array)$formResults['booking-startdate'];
+    if(isset($submission->booking_startdate)){
+        $startDates = (array)$submission->booking_startdate;
 
-        unset($formResults['booking-startdate']);
+        unset($submission->booking_startdate);
     }
 
     $endDates   = [];
-    if(isset($formResults['booking-enddate'])){
-        $endDates   = (array)$formResults['booking-enddate'];
+    if(isset($submission->booking_enddate)){
+        $endDates   = (array)$submission->booking_enddate;
 
-        unset($formResults['booking-enddate']);
+        unset($submission->booking_enddate);
     }
 
     $rooms  = [];
-    if(isset($formResults['booking-rooms']) && is_array($formResults['booking-rooms'])){
-        $rooms   = $formResults['booking-rooms'];
+    if(isset($booking_rooms) && is_array($booking_rooms)){
+        $rooms   = $booking_rooms;
 
-        unset($formResults['booking-rooms']);
+        unset($booking_rooms);
     }
 
     $bookings                   = new Bookings($object);
@@ -31,13 +31,13 @@ function beforeSavingFormData($formResults, $object, $update){
     // find the subject
     $elements             = $bookings->getBookingElements();
     if(is_wp_error($elements) || empty($elements)){
-        return $formResults;
+        return $submission;
     }
 
     // loop over all booking selectors (usually one)
     foreach($elements as $element){
         $bookingDetails = $bookings->getElementSubjects($element->id);
-        $subjectName    = $formResults[$element->name];
+        $subjectName    = $submission->{$element->name};
 
         // somehow we do not have any data
         if(empty($bookingDetails)){
@@ -65,15 +65,15 @@ function beforeSavingFormData($formResults, $object, $update){
         }
 
         // Check for overlapping dates
-        $subject        = $formResults[$element->name];
-        $submissionId   = $formResults['id'];
+        $subject        = $submission->{$element->name};
+        $submissionId   = $submission->id;
 
         // We are updating an existing booking
         if($update){
             // Update booking dates
             if(!empty($startDates)){
                 // Get the booking to update
-                $currentBookings    = $bookings->getBookingsBySubmission($formResults['id']);
+                $currentBookings    = $bookings->getBookingsBySubmission($submission->id);
 
                 foreach($currentBookings as $index => $booking){
                     $values = [
@@ -88,8 +88,8 @@ function beforeSavingFormData($formResults, $object, $update){
             // Change to paid / unpaid
             $paymentIndicatorEl    = $object->formData->payment_indicator;
             $paymentIndicatorName  = $object->getElementById($paymentIndicatorEl, 'name');
-            if(!empty($formResults[$paymentIndicatorName])){
-                $paid   = $formResults[$paymentIndicatorName] != 'not paid';
+            if(!empty($submission->{$paymentIndicatorName})){
+                $paid   = $submission->{$paymentIndicatorName} != 'not paid';
                 $bookings->changePaymentStatus($paid, $booking);
             }
 
@@ -132,10 +132,10 @@ function beforeSavingFormData($formResults, $object, $update){
     $paymentAmountName  = $bookings->forms->getElementById($paymentAmountEl, 'name');
 
     if(!empty($paymentAmountName)){
-        $formResults[$paymentAmountName] = $amount;
+        $submission->{$paymentAmountName} = $amount;
     }
 
-    return $formResults;
+    return $submission;
 }
 
 add_action('sim-forms-entry-archived', __NAMESPACE__.'\removeBookings', 10, 2);
@@ -194,31 +194,31 @@ function transformEmpty($replaceValue, $instance, $match){
 
     if($match == "booking-details"){
         
-        if(!empty($instance->submission->formresults['booking-startdate'])){
-            $startDates     = $instance->submission->formresults['booking-startdate'];
-            $endDates       = $instance->submission->formresults['booking-enddate'];
+        if(!empty($instance->submission->booking_startdate)){
+            $startDates     = $instance->submission->booking_startdate;
+            $endDates       = $instance->submission->booking_enddate;
 
             // NO ROOMS
-            if(empty($instance->submission->formresults['booking-rooms'])){
+            if(empty($instance->submission->booking_rooms)){
                 $startDate      = date(DATEFORMAT, strtotime((string)$startDates[0]));
                 $endDate        = date(DATEFORMAT, strtotime((string)$endDates[0]));
                 $replaceValue   = "from $startDate till $endDate";
             }else{
-                if(!is_array($instance->submission->formresults['booking-rooms'])){
-                    SIM\printArray($instance->submission->formresults['booking-rooms']);
-                    $instance->submission->formresults['booking-rooms']  = [$instance->submission->formresults['booking-rooms']];
+                if(!is_array($instance->submission->booking_rooms)){
+                    SIM\printArray($instance->submission->booking_rooms);
+                    $instance->submission->booking_rooms  = [$instance->submission->booking_rooms];
                 }
 
                 if(count( array_unique($startDates)) == 1 && count(array_unique($endDates)) == 1){
                     $startDate      = array_values($startDates)[0];
                     $endDate        = array_values($endDates)[0];
-                    $rooms          = implode('&', $instance->submission->formresults['booking-rooms']);
+                    $rooms          = implode('&', $instance->submission->booking_rooms);
                     $startDate      = date(DATEFORMAT, strtotime((string)$startDate));
                     $endDate        = date(DATEFORMAT, strtotime((string)$endDate));
                     $replaceValue   = "room $rooms from $startDate till $endDate";
                 }else{
                     $replaceValue   = "room:<br>";
-                    foreach($instance->submission->formresults['booking-rooms'] as $room){
+                    foreach($instance->submission->booking_rooms as $room){
                         $startDate      = date(DATEFORMAT, strtotime((string)$startDates[$room]));
                         $endDate        = date(DATEFORMAT, strtotime((string)$endDates[$room]));
 
