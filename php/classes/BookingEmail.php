@@ -26,10 +26,23 @@ class BookingEmail extends ADMIN\MailSetting{
 
             // Load the formdata for this form
             $displayFormResults->getForm($displayFormResults->submission->form_id);
+            $booker = new Bookings($displayFormResults);
+
+            $bookings   = $booker->getBookingsBySubmission($booking->submission_id);
+
+            $startDates = [];
+            $endDates   = [];
+            $rooms      = [];
+
+            // Store the dates
+            foreach($bookings as $booking){
+                $startDates[]   = $booking->startdate;
+                $endDates[]     = $booking->enddate;
+                $rooms[]        = $booking->room;
+            }
 
             // Add rooms
-            if(!empty($booking->room) && is_array($displayFormResults->submission->bookin_grooms)){
-                $rooms      = $displayFormResults->submission->booking_rooms;
+            if(!empty($rooms)){
                 if(count($rooms) == 1){
                     $this->replaceArray['%subject%']   .= " room ". array_values($rooms)[0];
                 }else{
@@ -37,16 +50,12 @@ class BookingEmail extends ADMIN\MailSetting{
                     $this->replaceArray['%subject%']   .= " rooms $rooms";
                 }
             }
-
-            $startdates     = $displayFormResults->submission->booking_startdate;
-            $enddates       = $displayFormResults->submission->booking_enddate;
-
             // only change the duration string if more than one unique startdate or enddate
-            if(count(array_unique($startdates)) > 1 || count(array_unique($enddates)) > 1){
+            if(count(array_unique($startDates)) > 1 || count(array_unique($endDates)) > 1){
                 $this->replaceArray['%duration%']   = '';
-                foreach($startdates as $room => $d){
+                foreach($startDates as $room => $d){
                     $startDate  = date(DATEFORMAT, strtotime($d));
-                    $endDate    = date(DATEFORMAT, strtotime($enddates[$room]));
+                    $endDate    = date(DATEFORMAT, strtotime($endDates[$room]));
 
                     if(!empty($this->replaceArray['%duration%'])){
                         $this->replaceArray['%duration%']   .= " and ";

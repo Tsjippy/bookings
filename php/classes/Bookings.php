@@ -1971,9 +1971,7 @@ class Bookings{
                 }
             }
 
-            $userId     = $submission->userid;
-
-            $phonenumber    = $userId;
+            $userId         = $submission->userid;
             $email          = false;
             
             // Not an user
