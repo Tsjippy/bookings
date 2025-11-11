@@ -9,6 +9,7 @@
 ### Fixed
 - booking without room
 - element id datset value
+- booking e-mails
 
 ### Updated
 
