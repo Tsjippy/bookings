@@ -99,7 +99,7 @@ function shouldShow($shouldShow, $displayFormResults, $type){
 
     // Show a specific booking
     if(!empty($_REQUEST['id'])){
-        $bookings->forms->submission    = $bookings->forms->getSubmission($_REQUEST['id']);
+        $bookings->forms->submission    = $bookings->forms->getSubmissions('', $_REQUEST['id'])[0];
 
         // Find the subject
         foreach($elements as $element){

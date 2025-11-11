@@ -260,7 +260,7 @@ class Bookings{
         }
 
         if(!empty($_REQUEST['id']) && $this->forms->submission->id != $_REQUEST['id']){
-            $this->forms->submission = $this->forms->getSubmission($_REQUEST['id']);
+            $this->forms->submission = $this->forms->getSubmissions('', $_REQUEST['id']);
         }
 
         ?>
@@ -1784,7 +1784,7 @@ class Bookings{
 
                     foreach($bookings as $booking){
 
-                        $this->forms->getSubmission($booking->submission_id);
+                        $this->forms->getSubmissions('', $booking->submission_id);
     
                         $from       = $this->forms->processPlaceholders($mail['from']);
         
@@ -1943,16 +1943,16 @@ class Bookings{
                 continue;
             }
 
-            $submission = $this->forms->getSubmission($booking->submission_id);
+            $submissions = $this->forms->getSubmissions('', $booking->submission_id);
 
-            if(!$submission){
+            if(!$submissions){
                 continue;
             }
 
             $processed[]    = $booking->submission_id;
 
             // Load the form
-            $this->forms->getForm($submission->form_id);
+            $this->forms->getForm($submissions[0]->form_id);
 
             $el             = $this->getBookingElements()[0];
 
@@ -1971,7 +1971,7 @@ class Bookings{
                 }
             }
 
-            $userId         = $submission->userid;
+            $userId         = $submissions[0]->userid;
             $email          = false;
             
             // Not an user
@@ -1980,7 +1980,7 @@ class Bookings{
 
                 $nameElName = $this->forms->findUserNameElementName();
                 if($nameElName){
-                    $name   = $submission->{$nameElName};
+                    $name   = $submissions[0]->{$nameElName};
                     $user   = (object) ['display_name' => $name ];
                 }
 
@@ -1988,7 +1988,7 @@ class Bookings{
                 $phoneElName    = $this->forms->findPhoneNumberElementName();
 
                 if($phoneElName){
-                    foreach($submission->{$phoneElName} as $number){
+                    foreach($submissions[0]->{$phoneElName} as $number){
                         if (str_starts_with($number, '+')) {
                             $phonenumber = $number;
                             break;
@@ -1999,14 +1999,14 @@ class Bookings{
                 // Find the e-mail
                 $emailElName        = $this->forms->findEmailElementName();
                 if($emailElName){
-                    $email          = $submission->{$emailElName};
+                    $email          = $submissions[0]->{$emailElName};
                 }
             }else{
                 $user   = get_user($userId);
                 $email  = $user->user_email;
             }
 
-            if(apply_filters('sim-bookings-should-not-send-payment-reminder', false, $submission, $user, $email, $this)){
+            if(apply_filters('sim-bookings-should-not-send-payment-reminder', false, $submissions[0], $user, $email, $this)){
                 continue;
             }
 
@@ -2063,7 +2063,7 @@ class Bookings{
         foreach($bookings as $booking){
             // one submission can have multiple bookings, only load the submission once
             if(empty($submission) || $submission->id != $booking->submission_id){
-                $submission         = $this->forms->getSubmission($booking->submission_id);
+                $submission         = $this->forms->getSubmissions('', $booking->submission_id);
 
                 // Submission not found
                 if(!$submission ){

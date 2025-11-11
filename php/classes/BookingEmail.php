@@ -18,7 +18,7 @@ class BookingEmail extends ADMIN\MailSetting{
 
         if(isset($booking->submission_id)){
             $displayFormResults                             = new SIM\FORMS\DisplayFormResults([]);
-            $displayFormResults->getSubmission($booking->submission_id);
+            $displayFormResults->getSubmissions('', $booking->submission_id);
 
             if(!$displayFormResults->submission){
                 return;
