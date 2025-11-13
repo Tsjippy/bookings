@@ -103,9 +103,8 @@ function shouldShow($shouldShow, $displayFormResults, $type){
 
         // Find the subject
         foreach($elements as $element){
-            $elementName                = $element->name;
-            if(isset($bookings->forms->submission->{$elementName})){
-                $bookedSubject          = $bookings->forms->submission->{$elementName};
+            if(isset($bookings->forms->submission->{$element->id})){
+                $bookedSubject          = $bookings->forms->submission->{$element->id};
                 break;
             }
         }

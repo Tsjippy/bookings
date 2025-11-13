@@ -446,7 +446,7 @@ function bookingSelectorHtml($object){
         foreach($subjects as $subject){
             $cleanSubject    = trim($subject['name']);
             $checked    = '';
-            if(isset($object->submission->{$object->element->name}) && $object->submission->{$object->element->name} == $cleanSubject){
+            if(isset($object->submission->{$object->element->id}) && $object->submission->{$object->element->id} == $cleanSubject){
                 $checked    = 'checked';
             }
             $html   .= "<label style='margin-right:5px;'>";
@@ -455,7 +455,7 @@ function bookingSelectorHtml($object){
             $html   .= "</label>";
         }
     }else{
-        $html   .= "<select class='booking-subject-selector' name='$object->element->name' $required>";
+        $html   .= "<select class='booking-subject-selector' name='{$object->element->name}' $required>";
             foreach($subjects as $subject){
                 $cleanSubject    = trim($subject['name']);
                 $html   .= "<option value='$cleanSubject'>$cleanSubject</option>";

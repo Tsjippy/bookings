@@ -65,7 +65,7 @@ function beforeSavingFormData($submission, $object, $update){
         }
 
         // Check for overlapping dates
-        $subject        = $submission->{$element->name};
+        $subject        = $submission->{$element->id};
         $submissionId   = $submission->id;
 
         // We are updating an existing booking
