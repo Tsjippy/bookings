@@ -5,6 +5,7 @@
 
 ### Changed
 - formresults to submission
+- getSuubmissions
 
 ### Fixed
 - booking without room
