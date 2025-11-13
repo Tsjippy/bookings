@@ -6,6 +6,7 @@
 ### Changed
 - formresults to submission
 - getSuubmissions
+- get form results by element id
 
 ### Fixed
 - booking without room
