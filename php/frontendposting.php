@@ -68,7 +68,7 @@ function afterPostContent($object){
         }
     </style>
     <div id="booking-subject-attributes" class="property booking-subject<?php if($postName != 'booking-subject'){echo ' hidden';} ?>">
-        <input type='hidden' class='no-reset' class='no-reset' class='no-reset' name='static-content' value='static-content'>
+        <input type='hidden' class='no-reset' class='no-reset' name='static-content' value='static-content'>
             
         <fieldset id="booking-subject" class="frontend-form">
             <legend>

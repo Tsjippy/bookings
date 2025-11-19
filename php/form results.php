@@ -360,9 +360,15 @@ function alterQuery($params, $userId, $instance){
 
     $bookings   = new Bookings($instance);
 
-    $params['where']   .= "id IN(SELECT submission_id FROM %i WHERE enddate >= %s ORDER BY 'startdate')";
-    $params['values'][] = $bookings->tableName;
-    $params['values'][] = date('Y-m-d');
+    foreach($params['where'] as $i => $where){
+		if($where == "id=%d"){
+            unset($params['where'][$i]);
+			unset($params['values'][$i + 1]);
+            $params['where'][]   .= "id IN(SELECT submission_id FROM %i WHERE enddate >= %s ORDER BY 'startdate')";
+            $params['values'][] = $bookings->tableName;
+            $params['values'][] = date('Y-m-d');
+        }
+    }
 
     return $params;
 }

@@ -502,15 +502,15 @@ function bookingSelectorHtml($object){
     return $html;
 }
 
-function bookingDateElementHtml($object, $html){
+function bookingDateElementHtml(&$node, $object){
     global $wpdb;
 
     if(isset($_POST['booking-id']) && is_numeric($_POST['booking-id'])){
-        $html   = str_replace('>', " data-booking-id='{$_POST['booking-id']}'>", $html);
+        $node->setAttribute('data-booking-id', $_POST['booking-id']);
     }
 
     if($object->element->name != 'booking-enddate' && $object->element->name != 'booking-startdate'){
-        return $html;
+        return;
     }
 
     // Get the subject
@@ -539,38 +539,43 @@ function bookingDateElementHtml($object, $html){
         $max    = $wpdb->get_var($query);
 
         if(!empty($max)){
-            $max    = "max='$max'";
+            $node->setAttribute('max', $max);
         }
 
-        $min    = "min='$early'";
+        $node->setAttribute('min', $early);
     }elseif($object->element->name == 'booking-startdate'){
         // get the first event before this one
         $query  = "SELECT enddate FROM {$wpdb->prefix}sim_bookings WHERE subject = '$subject' AND enddate <= '$early' ORDER BY enddate LIMIT 1";
         $min    = $wpdb->get_var($query);
 
         if(!empty($min)){
-            $min    = "min='$min'";
+            $node->setAttribute('min', $min);
         }
 
-        $max    = $late;
+        $node->setAttribute('max', $late);
+    }
+}
+
+// Display the date selector in the form
+add_filter('sim-form-element-html-short-circuit', __NAMESPACE__.'\bookingSelectorElementHtml', 10, 2);
+function bookingSelectorElementHtml($node, $object){
+     // Check if the form has a booking selector
+    if($object->element->type != 'booking-selector'){
+        return $node;
     }
 
-    return str_replace('>', " $min max='$max'>", $html);
+    return $object->addRawHtml(bookingSelectorHtml($object), $object->dom);
 }
 
 // Display the date selector in the form
 add_filter('sim-form-element-html', __NAMESPACE__.'\elementHtml', 10, 2);
-function elementHtml($html, $object){
+function elementHtml($node, $object){
      // Check if the form has a booking selector
      if(empty($object->getElementByType('booking-selector'))){
-        return $html;
+        return $node;
     }
 
-    if($object->element->type == 'booking-selector'){
-        $html   = bookingSelectorHtml($object);
-    }
-
-    elseif($object->element->name == 'booking-rooms'){
+    if($object->element->name == 'booking-rooms'){
         $bookings       = new Bookings($object);
 
         //$subjects = maybe_unserialize($object->element->booking_details);
@@ -587,31 +592,42 @@ function elementHtml($html, $object){
             }
         }
 
-        $html   .= $bookings->roomSelector($subject, true);
+        $node   = $object->addRawHtml($bookings->roomSelector($subject, true), $node);
     }
 
     // Display existing form entry element element
     elseif(!empty($object->submission)){
-        $html   = bookingDateElementHtml($object, $html);
+        bookingDateElementHtml($node, $object);
     }
 
     // Add a class for payment_amount_el
     elseif($object->element->id == $object->formData->payment_amount_el){
-        $html   = str_replace("class='", "class='payment-amount ", $html);
+        $class  = $node->getAttribute('class')->value;
+
+        $class  .= ' payment-amount';
+
+        $node->setAttribute('class', $class);
     } 
 
     // Add a class for payment_details_el
     elseif($object->element->id == $object->formData->payment_details_el){
-        $html   = str_replace("class='", "class='payment-details ", $html);
+        $class  = $node->getAttribute('class')->value;
+
+        $class  .= ' payment-details';
+
+        $node->setAttribute('class', $class);
     } 
 
     // Add a class for payment_details_el
     elseif($object->element->id == $object->formData->price_per_night_el){
-        $html   = str_replace("class='", "class='price-per-night ", $html);
+        $class  = $node->getAttribute('class')->value;
+
+        $class  .= ' price-per-night';
+
+        $node->setAttribute('class', $class);
     }
 
-    return $html;
-
+    return $node;
 }
 
 // Update the booking-subjects name if the form name has changed
