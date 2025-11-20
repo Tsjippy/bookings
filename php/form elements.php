@@ -365,19 +365,19 @@ function formElements($elements, $displayFormResults, $force){
         $startdate          = clone $element;
         $startdate->type    = 'date';
         $startdate->name    = 'booking-startdate';
-        $startdate->nicename= 'booking-startdate';
+        $startdate->nicename= 'Startdate';
         $startdate->id      = -102;
 
         $enddate            = clone $element;
         $enddate->type      = 'date';
         $enddate->name      = 'booking-enddate';
-        $enddate->nicename  = 'booking-enddate';
+        $enddate->nicename  = 'Enddate';
         $enddate->id        = -103;
 
         $room               = clone $element;
         $room->type         = 'checkbox';
-        $room->name         = 'booking-rooms';
-        $room->nicename     = 'booking-rooms';
+        $room->name         = 'booking_rooms';
+        $room->nicename     = 'Room';
         $room->id           = -104;
         
         $elements[]         = $startdate;
@@ -388,118 +388,188 @@ function formElements($elements, $displayFormResults, $force){
     return $elements;
 }
 
-function bookingSelectorHtml($object){
+function bookingSelectorHtml($node, $object){
     $bookings       = new Bookings($object);
-    $subjects = $bookings->getElementSubjects($object->element->id);
+    $subjects       = $bookings->getElementSubjects($object->element->id);
 
-    if(!isset($subjects)){
-        return '<div class="warning">Please add one or more subjects</div>';
+    if(empty($subjects)){
+        return $object->addElement('div', $node, ['class'=>'warning'], 'Please add one or more subjects');
     }
-    
-    $details        = '';
+
+    /**
+     * Build the modal
+     */
+    $modal      = $object->addElement(
+        'div', 
+        $node, 
+        [
+            'name'  => 'location-details-modal',
+            'class' => 'modal hidden'
+        ]
+    );
+
+    $modalContent   = $object->addElement('div', $modal, ['class' => 'modal-content']);
+
+    $object->addElement('span', $modalContent, ['class' => 'close mobile-sticky'], '&times;');
 
     // Render tab buttons
     foreach($subjects as $index => $subject){
         $subjectName    = strtolower(str_replace(' ', '-', $subject['name']));
-        $active = '';
+        $attributes     = [
+            'class'         => 'button tablink',
+            'id'            => "show-{$subjectName}",
+            'data-target'   => $subjectName,
+            'style'         => 'margin-right:4px;',
+            'type'          => 'button'
+        ];
+
         if($index === 0 ){
-            $active = 'active';
+            $attributes['class'] .= ' active';
         }
-        $details        .= "<button class='button tablink $active' type='button' id='show-{$subjectName}' data-target='$subjectName' style='margin-right:4px;'>
-            {$subject['name']}
-        </button>";
+
+        $object->addElement('button', $modalContent, $attributes, $subject['name']);
     }
 
     // Render tab contents
     foreach($subjects as $index => $subject){
-        $subjectName    = strtolower(str_replace(' ', '-', $subject['name']));
-        $hidden = 'hidden';
-        if($index === 0 ){
-            $hidden = '';
+        $attributes     = [
+            'class'         => 'tabcontent lazy-post',
+            'id'            => strtolower(str_replace(' ', '-', $subject['name'])),
+            'data-post-id'  => $subject['post-id']
+        ];
+
+        if($index !== 0 ){
+            $attributes['class'] .= ' hidden';
         }
 
-        $details        .= "<div id='$subjectName' class='tabcontent $hidden lazy-post' data-post-id='{$subject['post-id']}'>";
-        $details        .= "</div>";
+        $object->addElement('div', $modalContent, $attributes, $subject['name']);
     }
+    
+    /**
+     * Build the element 
+     */   
+    $object->addElement('button', $node, ['class' => 'small sim button location-details', 'type' => 'button'], 'Show Location Descriptions');
+    $object->addElement('br', $node);
 
-    $html       = "
-    <div name='location-details-modal' class='modal hidden'>
-        <div class='modal-content'>
-            <span class='close mobile-sticky'>&times;</span>
-            $details
-        </div>
-    </div>
-    ";
-        
-    $html       .= "<button type='button' class='small sim button location-details'>Show Location Descriptions</button><br>";
     $hidden     = 'hidden';
     $buttonText = 'Change';
-    $required   = '';
-    if($object->element->required){
-        $required   = 'required';
-    }
-
+    
     if(empty($subjects)){
         $hidden     = "";
         $buttonText = 'Select dates';
     }elseif(count($subjects) < 6){
         foreach($subjects as $subject){
-            $cleanSubject    = trim($subject['name']);
-            $checked    = '';
-            if(isset($object->submission->{$object->element->id}) && $object->submission->{$object->element->id} == $cleanSubject){
-                $checked    = 'checked';
+            $attributes = [
+                'type'  => 'radio',
+                'class' =>  'booking-subject-selector',
+                'name'  => $object->element->name,
+                'value' => trim($subject['name'])
+            ];
+
+            if(isset($object->submission->{$object->element->id}) && $object->submission->{$object->element->id} == trim($subject['name'])){
+                $attributes['checked']    = 'checked';
             }
-            $html   .= "<label style='margin-right:5px;'>";
-                $html   .= "<input type='radio' class='booking-subject-selector' name='{$object->element->name}' value='$cleanSubject' $checked>";
-                $html   .= "$cleanSubject";
-            $html   .= "</label>";
+
+            $label  = $object->addElement('label', $node, ['style' => 'margin-right:5px;']);
+            $object->addElement(
+                'input', 
+                $label, 
+                $attributes
+            );
+
+            $textNode = $object->dom->createTextNode(trim($subject['name']));
+
+            $label->appendChild($textNode);
         }
     }else{
-        $html   .= "<select class='booking-subject-selector' name='{$object->element->name}' $required>";
-            foreach($subjects as $subject){
-                $cleanSubject    = trim($subject['name']);
-                $html   .= "<option value='$cleanSubject'>$cleanSubject</option>";
-            }
-        $html   .= "</select>";
+        $attributes = [
+            'class' =>  'booking-subject-selector',
+            'name'  => $object->element->name
+        ];
+
+        if($object->element->required){
+            $attributes['required']    = 'required';
+        }
+
+        $select  = $object->addElement('select', $node, $attributes);
+
+        foreach($subjects as $subject){
+            $object->addElement('option', $select, ['value' => trim($subject['name'])], trim($subject['name']));
+        }
     }
 
-    ob_start();
+    $flexDiv = $object->addElement('div', $node, ['style' => 'display:flex;align-items: center;']);
 
-    ?>
-    <div style='display:flex;align-items: center;'>
-        <div class="clone-divs-wrapper selected-booking-dates <?php echo $hidden;?>">
-            <div class="clone-div" data-div-id="0">
-                <div class="button-wrapper">
-                    <div class='hidden'>
-                        <h4>Room</h4>
-                        <input type='text' name='booking-rooms[0]' disabled <?php echo $required;?>>
-                    </div>
-                    <div>
-                        <h4>Arrival Date</h4>
-                        <input type='date' name='booking-startdate[0]' disabled <?php echo $required;?>>
-                    </div>
-                    <div>
-                        <h4>Departure Date</h4>
-                        <input type='date' name='booking-enddate[0]' disabled <?php echo $required;?>>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <button class='button change-booking-date hidden' type='button' style='margin-left: 20px;'><?php echo $buttonText;?></button>
-    </div>
-    <?php
-    $html   .= ob_get_clean();
+        $cloneDivsWrapper = $object->addElement('div', $flexDiv, [
+            'class' => "clone-divs-wrapper selected-booking-dates $hidden"
+        ]);
+
+            $cloneDiv       = $object->addElement('div', $cloneDivsWrapper, ['class' => 'clone-div', 'data-div-id' => '0']);
+
+                $buttonWrapper  = $object->addElement('div', $cloneDiv, ['class' => 'button-wrapper']);
+
+                    $roomDiv        = $object->addElement('div', $buttonWrapper, ['class' => 'hidden']);
+
+                        $object->addElement('h4', $roomDiv, [], 'Room');
+
+                        $attributes = [
+                            'type'      => 'text',
+                            'name'      => 'booking-rooms[0]',
+                            'disabled'  => 'disabled'
+                        ];
+
+                        if($object->element->required){
+                            $attributes['required']   = 'required';
+                        }
+
+                        $object->addElement('input', $roomDiv, $attributes);
+
+                    $arrivalDiv = $object->addElement('div', $buttonWrapper);
+                        
+                        $object->addElement('h4', $arrivalDiv, [], 'Arrival Date');
+
+                        $attributes = [
+                            'type'      => 'date',
+                            'name'      => 'booking-startdate[0]',
+                            'disabled'  => 'disabled'
+                        ];
+
+                        if($object->element->required){
+                            $attributes['required']   = 'required';
+                        }
+
+                        $object->addElement('input', $arrivalDiv, $attributes);
+
+                    $departureDiv   = $object->addElement('div', $buttonWrapper);
+                    
+                        $object->addElement('h4', $departureDiv, [], 'Departure Date');
+
+                        $attributes = [
+                            'type'      => 'date',
+                            'name'      => 'booking-enddate[0]',
+                            'disabled'  => 'disabled'
+                        ];
+
+                        if($object->element->required){
+                            $attributes['required']   = 'required';
+                        }
+
+                        $object->addElement('input', $departureDiv, $attributes);
+
+        $object->addElement('button', $flexDiv, [
+            'class' => 'button change-booking-date hidden',
+            'type'  => 'button',
+            'style' => 'margin-left: 20px;'
+        ], $buttonText);
 
     wp_enqueue_script('sim-bookings');
 
-    $booking   = new Bookings($object);
-
     // Find the subject names
     foreach($subjects as $subject){
-        $html   .= $booking->dateSelectorModal($subject);
+        $bookings->dateSelectorModal($node, $subject);
     }
 
-    return $html;
+    return $flexDiv;
 }
 
 function bookingDateElementHtml(&$node, $object){
@@ -509,7 +579,7 @@ function bookingDateElementHtml(&$node, $object){
         $node->setAttribute('data-booking-id', $_POST['booking-id']);
     }
 
-    if($object->element->name != 'booking-enddate' && $object->element->name != 'booking-startdate'){
+    if($object->element->name != 'booking_enddate' && $object->element->name != 'booking_startdate'){
         return;
     }
 
@@ -533,7 +603,7 @@ function bookingDateElementHtml(&$node, $object){
     }
     
 
-    if($object->element->name == 'booking-enddate'){
+    if($object->element->name == 'booking_enddate'){
         // get the first event after this one
         $query  = "SELECT startdate FROM {$wpdb->prefix}sim_bookings WHERE subject = '$subject' AND startdate > '$late' ORDER BY startdate LIMIT 1";
         $max    = $wpdb->get_var($query);
@@ -543,7 +613,7 @@ function bookingDateElementHtml(&$node, $object){
         }
 
         $node->setAttribute('min', $early);
-    }elseif($object->element->name == 'booking-startdate'){
+    }elseif($object->element->name == 'booking_startdate'){
         // get the first event before this one
         $query  = "SELECT enddate FROM {$wpdb->prefix}sim_bookings WHERE subject = '$subject' AND enddate <= '$early' ORDER BY enddate LIMIT 1";
         $min    = $wpdb->get_var($query);
@@ -557,14 +627,14 @@ function bookingDateElementHtml(&$node, $object){
 }
 
 // Display the date selector in the form
-add_filter('sim-form-element-html-short-circuit', __NAMESPACE__.'\bookingSelectorElementHtml', 10, 2);
-function bookingSelectorElementHtml($node, $object){
+add_filter('sim-form-element-html-short-circuit', __NAMESPACE__.'\bookingSelectorElementHtml', 10, 3);
+function bookingSelectorElementHtml($node, $parent, $object){
      // Check if the form has a booking selector
     if($object->element->type != 'booking-selector'){
         return $node;
     }
 
-    return $object->addRawHtml(bookingSelectorHtml($object), $object->dom);
+    return bookingSelectorHtml($parent, $object);
 }
 
 // Display the date selector in the form
@@ -575,7 +645,7 @@ function elementHtml($node, $object){
         return $node;
     }
 
-    if($object->element->name == 'booking-rooms'){
+    if($object->element->name == 'booking_rooms'){
         $bookings       = new Bookings($object);
 
         //$subjects = maybe_unserialize($object->element->booking_details);
@@ -592,7 +662,7 @@ function elementHtml($node, $object){
             }
         }
 
-        $node   = $object->addRawHtml($bookings->roomSelector($subject, true), $node);
+        $node   = $bookings->roomSelector($node, $subject, true);
     }
 
     // Display existing form entry element element

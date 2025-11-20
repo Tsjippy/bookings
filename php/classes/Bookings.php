@@ -242,11 +242,11 @@ class Bookings{
     /**
      * Function to get the room selector html
      * 
-     * @param   array   $subject   The name
+     * @param   array   $subject    The name
      * @param   boolean $isResult   Wheter we are looking at the form or the formresult
      * @param   bool    $radio      true for radio choice, false for checkboxes
      */
-    public function roomSelector($subject, $isResult, $radio=false){
+    public function roomSelector($node, $subject, $isResult, $radio=false){
         if(empty($subject['amount']) || $subject['amount'] == 1){
             return;
         }
@@ -263,74 +263,117 @@ class Bookings{
             $this->forms->submission = $this->forms->getSubmissions('', $_REQUEST['id']);
         }
 
-        ?>
-        <div class="rooms">
-            <?php
-            $s  = 's';
-            if($radio){
-                $s  = '';
-            }
+        $wrapper    = $this->forms->addElement('div', $node, ['class' => 'rooms']);
+        $s  = 's';
+        if($radio){
+            $s  = '';
+        }
 
-            if($isResult){
-                echo "Select the room$s you want to see the calendar for<br>";
-            }else{
-                $subjectName    = strtolower(str_replace(' ', '_', $subject['name']));
-                echo "Select one or more room(s) you want to book <button class='button sim small room-details' type='button' data-target='{$subjectName}-room-modal'>Show room details</button><br>";
-            }
+        /**
+         * Nodes for the form results vs the form itself
+         */
+        if($isResult){
+            $wrapper->textContent = "Select the room$s you want to see the calendar for";
+            $this->forms->addElement('br', $wrapper);            
+        }else{
+            $subjectName            = strtolower(str_replace(' ', '_', $subject['name']));
+            $wrapper->textContent   = "Select one or more room(s) you want to book";
             
-            if(isset($subject['nrtype']) && $subject['nrtype'] == 'letters'){
-                $alphabet = range('A', 'Z');
-                for ($x = 0; $x < $subject['amount']; $x++) {
-                    $checked    = '';
-                    if(
-                        !empty($_REQUEST['id']) &&
-                        is_array($this->forms->submission->booking_rooms) && 
-                        in_array($alphabet[$x], $this->forms->submission->booking_rooms)
-                    ){
-                        $checked    = 'checked';
-                    }
-                    ?>
-                    <input type='<?php echo $type;?>' name='room' class='room-selector' value='<?php echo $alphabet[$x];?>' <?php echo $checked;?>>
-                    <?php
-                    echo $alphabet[$x];
-                }
-            }elseif(isset($subject['nrtype']) && $subject['nrtype'] == 'custom'){
-                foreach($subject['rooms'] as $room){
-                    $checked    = '';
-                    if(
-                        !empty($_REQUEST['id']) &&
-                        is_array($this->forms->submission->booking_rooms) && 
-                        in_array($room['name'], $this->forms->submission->booking_rooms)
-                    ){
-                        $checked    = 'checked';
-                    }
-                    ?>
-                    <input type='<?php echo $type;?>' name='room' class='room-selector' value='<?php echo $room['name'];?>' <?php echo $checked;?>>
-                    <?php
-                    echo $room['name'];
-                }
-            }else{
-                for ($x = 1; $x <= $subject['amount']; $x++) {
-                    $checked    = '';
-                    if(
-                        !empty($_REQUEST['id']) &&
-                        isset($this->forms->submission->booking_rooms) && 
-                        in_array($x, $this->forms->submission->booking_rooms)
-                    ){
-                        $checked    = 'checked';
-                    }
-                    ?>
-                    <input type='<?php echo $type;?>' name='room' class='room-selector' value='<?php echo $x;?>' <?php echo $checked;?>>
-                    <?php
-                    echo $x;
-                }
-            }
-            ?>
-        </div>
-        <br>
-        <?php
+            $this->forms->addElement(
+                'button', 
+                $node,
+                [
+                    'class'         => 'button sim small room-details', 
+                    'type'          => 'button', 
+                    'data-target'   => "{$subjectName}-room-modal"
+                ],
+                "Show room details"
+            );
 
-        return ob_get_clean();
+            $this->forms->addElement('br', $wrapper); 
+        }
+            
+        /**
+         * Add inputs based on the room numbering
+         */
+        if(isset($subject['nrtype']) && $subject['nrtype'] == 'letters'){
+            $alphabet = range('A', 'Z');
+
+            for ($x = 0; $x < $subject['amount']; $x++) {
+                $attributes  = [
+                    'type'  => $type, 
+                    'name'  => 'room', 
+                    'class' => 'room-selector', 
+                    'value' => $alphabet[$x]
+                ];
+
+                if(
+                    !empty($_REQUEST['id']) &&
+                    is_array($this->forms->submission->booking_rooms) && 
+                    in_array($alphabet[$x], $this->forms->submission->booking_rooms)
+                ){
+                    $attributes['checked']    = 'checked';
+                }
+
+                $this->forms->addElement('input', $wrapper, $attributes); 
+
+                // Create a text node
+                $textNode = $this->forms->dom->createTextNode($alphabet[$x]);
+
+                // Append the text node to the element
+                $wrapper->appendChild($textNode);
+            }
+        }elseif(isset($subject['nrtype']) && $subject['nrtype'] == 'custom'){
+            foreach($subject['rooms'] as $room){
+                $attributes  = [
+                    'type'  => $type, 
+                    'name'  => 'room', 
+                    'class' => 'room-selector', 
+                    'value' => $room['name']
+                ];
+
+                if(
+                    !empty($_REQUEST['id']) &&
+                    is_array($this->forms->submission->booking_rooms) && 
+                    in_array($room['name'], $this->forms->submission->booking_rooms)
+                ){
+                    $attributes['checked']    = 'checked';
+                }
+
+                $this->forms->addElement('input', $wrapper, $attributes); 
+
+                // Create a text node
+                $textNode = $this->forms->dom->createTextNode($room['name']);
+
+                // Append the text node to the element
+                $wrapper->appendChild($textNode);
+            }
+        }else{
+            for ($x = 1; $x <= $subject['amount']; $x++) {
+                $attributes  = [
+                    'type'  => $type, 
+                    'name'  => 'room', 
+                    'class' => 'room-selector', 
+                    'value' => $x
+                ];
+
+                if(
+                    !empty($_REQUEST['id']) &&
+                    isset($this->forms->submission->booking_rooms) && 
+                    in_array($x, $this->forms->submission->booking_rooms)
+                ){
+                    $attributes['checked']    = 'checked';
+                }
+
+                $this->forms->addElement('input', $wrapper, $attributes); 
+
+                // Create a text node
+                $textNode = $this->forms->dom->createTextNode($x);
+
+                // Append the text node to the element
+                $wrapper->appendChild($textNode);
+            }
+        }
     }
 
     /**
@@ -341,6 +384,7 @@ class Bookings{
      * @param   int     $date       Date the calendar should start
      */
     private function roomCalendars($rooms, $subject, $date){
+        ob_start();
         foreach($rooms as $room){
             $roomHidden = 'hidden';
 
@@ -363,134 +407,124 @@ class Bookings{
             </div>
             <?php
         }
+
+        return ob_get_clean();
     }
 
     /**
      * Displays the booking calendars
+     * @param   object      $node       The node to append to
      * @param   array       $subject    The subject of the calendar
      * @param   int         $date       The date to retrieve the calendar for
-     * @param   boolean     $isAdmin    Wheter to show for admin puposes
+     * @param   boolean     $isAdmin    Wheter to show for admin purposes
      * @param   boolean     $hidden     Wheter to hide the calendar by default
      *
      * @return  string                  The html
      */
-    public function modalContent($subject, $date, $isAdmin = false, $hidden = false, $isResult=false){
+    public function modalContent($node, $subject, $date, $isAdmin = false, $hidden = false, $isResult=false){
+        if(empty($node)){
+			// Create a new DOMDocument object
+			$node 	    = $this->forms->dom;
+			
+   			$returnHtml = true;
+		}
+
         $monthStr		= date('m', $date);
 		$yearStr		= date('Y', $date);
         $cleanSubject   = trim($subject['name']);
 
-        ob_start();
+        $attributes     = [
+            'class'         => "bookings-wrap " . ($hidden ? 'hidden' : ''),
+            'data-date'     => "$yearStr-$monthStr",
+            'data-subject'  => $cleanSubject,
+            'data-form-id'  => $this->forms->formData->id,
+        ];
 
-        $extraString   = '';
         if(isset($this->forms->currentElement->id)){
-            $extraString   = "data-element-id='{$this->forms->currentElement->id}'";
+            $attributes["data-element-id"]  = $this->forms->currentElement->id;
         }
         if(isset($this->forms->shortcodeId)){
-            $extraString   .= "data-shortcode-id='{$this->forms->shortcodeId}'";
+            $attributes["data-shortcode-id"] = $this->forms->shortcodeId;
         }
 
-        ?>
-        <div class="bookings-wrap <?php if($hidden){echo 'hidden';}?>" data-date="<?php echo "$yearStr-$monthStr";?>" data-subject="<?php echo $cleanSubject;?>" data-form-id="<?php echo $this->forms->formData->id;?>" <?php echo $extraString;?>>
-            <div class="booking overview">
-                <div class='header mobile-sticky'>
-                    <h4 style='text-align:center;'><?php echo ucfirst($cleanSubject);?> Calendar</h4>
+        $wrapper        = $this->forms->addElement('div', $node, $attributes );
 
-                    <?php
-                    echo $this->roomSelector($subject, $isResult);
+        $overview       = $this->forms->addElement('div', $wrapper, ['class' => "booking overview"] );
 
-                    if(!$isAdmin){
-                        echo $this->showSelectedModalDates($subject['amount'] > 1);
-                    }
-                    ?>
-                    <div class="navigators <?php if($subject['amount'] > 1){echo 'hidden';}?>">
-                        <?php
-                        echo $this->getNavigator($date);
-                        ?>
-                    </div>
-                </div>
-                <div class="calendar table" <?php if(!empty($subject['amount']) && $subject['amount'] > 1){echo 'style="display:block;"';}?>>
-                    <?php
-                    if(empty($subject['nrtype']) || $subject['nrtype'] == 'none'){
-                        ?>
-                        <div class='room-wrapper'>
-                            <div class='month-wrapper flex'>
-                                <?php
-                                echo $this->monthCalendar($cleanSubject, '', $date);
-                                echo $this->monthCalendar($cleanSubject, '', strtotime('first day of next month', $date));
-                                ?>
-                            </div>
-                        </div>
-                        <?php
-                    }else{
-                        $rooms  = [];
+            $header         = $this->forms->addElement('div', $overview, ['class' => "header mobile-sticky"] );
 
-                        if(isset($subject['nrtype']) && $subject['nrtype'] == 'letters'){
-                            $alphabet = range('A', 'Z');
-                            for ($x = 0; $x < $subject['amount']; $x++) {
-                                $rooms[]    = $alphabet[$x];
-                            }
-                        }elseif(isset($subject['nrtype']) && $subject['nrtype'] == 'custom'){
-                            $rooms  = $subject['rooms'];
-                        }else{
-                            for ($x = 1; $x <= $subject['amount']; $x++) {
-                                $rooms[]    = $x;
-                            }
-                        }
+                $this->forms->addElement('h4', $header, ['style' => 'text-align:center;'], ucfirst($cleanSubject) . ' Calendar');
 
-                        $this->roomCalendars($rooms, $cleanSubject, $date);
-                    }
-                    ?>
-                </div>
-                <?php
+                $this->roomSelector($header, $subject, $isResult);
+
                 if(!$isAdmin){
-                    ?>
-                    <div class="actions mobile-sticky bottom">
-                        <button class="button action reset disabled" type='button'>Reset</button>
-                        <button class="button action confirm disabled" type='button'>Confirm</button>
-                    </div>
-                    <?php
+                    $this->showSelectedModalDates($header, $subject['amount'] > 1);
                 }
-                ?>
-            </div>
-            <?php
 
-            if($isAdmin){
-                ?>
-                <div class="booking details-wrapper">
-                    <?php
-                    echo $this->detailHtml();
-                    ?>
-                </div>
-                <?php
+                $navigators = $this->forms->addElement('div', $header, ['class' => "navigators ".( $subject['amount'] > 1 ? 'hidden': '')]);
+                
+                    $this->forms->addRawHtml($this->getNavigator($date), $navigators);
+
+            $calendarTable  = $this->forms->addElement('div', $overview, ['class' => "calendar table ".( !empty($subject['amount']) && $subject['amount'] > 1 ? 'style="display:block;"': '')]);
+
+                if(empty($subject['nrtype']) || $subject['nrtype'] == 'none'){
+                    $roomWrapper    = $this->forms->addElement('div', $calendarTable, ['class' => "room-wrapper"]);
+                        $monthWrapper   = $this->forms->addElement('div', $roomWrapper, ['class' => "month-wrapper flex"]);
+
+                            $this->forms->addRawHtml($this->monthCalendar($cleanSubject, '', $date), $monthWrapper);
+                            $this->forms->addRawHtml($this->monthCalendar($cleanSubject, '', strtotime('first day of next month', $date)), $monthWrapper);
+                }else{
+                    $rooms  = [];
+
+                    if(isset($subject['nrtype']) && $subject['nrtype'] == 'letters'){
+                        $alphabet = range('A', 'Z');
+                        for ($x = 0; $x < $subject['amount']; $x++) {
+                            $rooms[]    = $alphabet[$x];
+                        }
+                    }elseif(isset($subject['nrtype']) && $subject['nrtype'] == 'custom'){
+                        $rooms  = $subject['rooms'];
+                    }else{
+                        for ($x = 1; $x <= $subject['amount']; $x++) {
+                            $rooms[]    = $x;
+                        }
+                    }
+
+                    $this->forms->addRawHtml($this->roomCalendars($rooms, $cleanSubject, $date), $calendarTable);
+                }
+
+            if(!$isAdmin){
+
+                $actions         = $this->forms->addElement('div', $overview, ['class' => "actions mobile-sticky bottom"] );
+
+                    $this->forms->addElement('button', $actions, ['class' => "button action reset disabled", "type" => 'button'], 'Reset' );
+
+                    $this->forms->addElement('button', $actions, ['class' => "button action confirm disabled", "type" => 'button'], 'Confirm' );
+            }else{
+                $details         = $this->forms->addElement('div', $wrapper, ['class' => "booking details-wrapper"] );
+
+                    $this->forms->addRawHtml($this->detailHtml(), $details);
             }
 
             // We don't need this on mobile devices
-            elseif(!wp_is_mobile()){
-                ?>
-                <div>
-                    <?php
+            if(!wp_is_mobile()){
+                $roomDetails         = $this->forms->addElement('div', $wrapper);
                     // Room description
                     foreach($subject['rooms'] as $room){
                         if($room['post-id'] == -1){
                             continue;
                         }
-                        ?>
-                        <div class="hidden room-description" data-room-name="<?php echo $room['name'];?>">
-                            <h4>Room <?php echo $room['name'];?></h4>
-                            <div class="lazy-post" data-post-id='<?php echo $room['post-id'];?>'>
-                            </div>
-                        </div>
-                        <?php
+
+                        $roomDescription        = $this->forms->addElement('div', $roomDetails, ['class' => 'hidden room-description', 'data-room-name' => $room['name']]);
+                            $this->forms->addElement('h4', $roomDescription, [], "Room ".$room['name']);
+                            $this->forms->addElement('div', $roomDescription, ['class' => 'lazy-post', 'data-post-id' => $room['post-id']]);
                     }
-                    ?>
-                </div>
-                <?php
             }
-            ?>
-        </div>
         
-        <?php
-        return ob_get_clean();
+        if($returnHtml){
+			return $this->forms->dom->saveHtml();
+        }
+		
+        return;
     }
 
     /**
@@ -500,9 +534,8 @@ class Bookings{
      *
      * @return  string          The html
      */
-    protected function showSelectedModalDates($hide){
+    protected function showSelectedModalDates($node, $hide){
         ob_start();
-
         ?>
         <div class="booking-date-wrapper <?php if($hide){echo 'hidden';}?>">
             <div class="booking-dates-input-wrapper">
@@ -535,7 +568,7 @@ class Bookings{
                 <div>
                     <div class="sewcpu6 dir dir-ltr" style="--spacingBottom:0;">
                         <div class="s1bh1tge dir dir-ltr">
-                            <div class="-uxnsba" data-testid="availability-calendar-date-range">Next, select your arrival date.<br>Then click again to select your departure date.</div>
+                            <div class="-uxnsba" data-testid="availability-calendar-date-range">Select your arrival date.<br>Then click again to select your departure date.</div>
                         </div>
                     </div>
                 </div>
@@ -544,18 +577,17 @@ class Bookings{
 
         <?php
 
-        return ob_get_clean();
+        return $this->forms->addRawHtml(ob_get_clean(), $node);
     }
 
     /**
      *
      * Displays a date selector modal
      *
-     * @param   array  $subject    array with The name of the building/event and the amount of rooms
-     *
-     * @return  string              The html
+     * @param   object  $node       The node to append the modal to
+     * @param   array   $subject    array with The name of the building/event and the amount of rooms
      */
-    public function dateSelectorModal($subject){
+    public function dateSelectorModal($node, $subject){
         if(defined('REST_REQUEST') && isset($_POST['month']) && isset($_POST['year'])){
 			$month		= $_POST['month'];
 			$year		= $_POST['year'];
@@ -575,21 +607,24 @@ class Bookings{
 
         $date			= strtotime($dateStr);
 
-        ob_start();
         $cleanSubject    = trim($subject['name']);
 
-        //echo $this->roomDescription($subject);
 
-		?>
-        <div name='<?php echo $cleanSubject;?>-modal' class="booking modal hidden" style="display:unset;">
-			<div class="modal-content">
-				<span class="close mobile-sticky">&times;</span>
-                <?php echo $this->modalContent($subject, $date);?>
-            </div>
-		</div>
-        <?php
+        /** 
+         * Create the modal
+         */
+        $modal = $this->forms->addElement('div', $node, [
+            'name'  => "{$cleanSubject}-modal",
+            'class' => "booking modal hidden",
+            'style' => "display:unset;"
+        ]);
 
-        return ob_get_clean();
+        $modalContent = $this->forms->addElement('div', $modal, ['class' => "modal-content"]);
+
+        $this->forms->addElement('span', $modalContent, ['class' => "close mobile-sticky"], '&times;');
+
+        // Append the modal content HTML
+        $this->modalContent($modalContent, $subject, $date);
     }
 
     /**
@@ -856,7 +891,7 @@ class Bookings{
                                             <td>
                                                 <img src='<?php echo esc_url($baseUrl);?>/room.png' loading='lazy' alt='Room' class='booking-icon' title='Room'>
                                             </td>
-                                            <td class='booking-data-wrapper edit forms-table' data-element-id='-104' data-subid='<?php echo $subId;?>' data-name='booking-rooms' data-booking-id='<?php echo esc_attr($submission->booking_id);?>'>
+                                            <td class='booking-data-wrapper edit forms-table' data-element-id='-104' data-subid='<?php echo $subId;?>' data-name='booking_rooms' data-booking-id='<?php echo esc_attr($submission->booking_id);?>'>
                                                 <?php echo esc_attr($submission->booking_rooms);?>
                                             </td>
                                         </tr>
@@ -867,7 +902,7 @@ class Bookings{
                                         if(
                                             !$setting['show']     || 
                                             !is_numeric($key)   || 
-                                            in_array($setting['name'], ['form-id', 'formurl', '_wpnonce', 'id', 'submissiontime', 'edittime', 'booking-startdate', 'booking-enddate', 'booking-room', 'booking-rooms', 'name', $this->bookingElements[0]->name])
+                                            in_array($setting['name'], ['form-id', 'formurl', '_wpnonce', 'id', 'submissiontime', 'edittime', 'booking_startdate', 'booking_enddate', 'booking-room', 'booking_rooms', 'name', $this->bookingElements[0]->name])
                                         ){
                                             continue;
                                         }
@@ -2062,8 +2097,8 @@ class Bookings{
         // Add a sub id to bookings which is equal to the booked room
         foreach($bookings as $booking){
             // one submission can have multiple bookings, only load the submission once
-            if(empty($submission) || $submission->id != $booking->submission_id){
-                $submission         = $this->forms->getSubmissions('', $booking->submission_id);
+            if(empty($this->forms->submission) || $this->forms->submission->id != $booking->submission_id){
+                $submission         = $this->forms->getSubmissions('', $booking->submission_id)[0];
 
                 // Submission not found
                 if(!$submission ){

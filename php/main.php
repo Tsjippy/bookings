@@ -6,24 +6,24 @@ use SIM;
 add_filter('sim_before_saving_formdata', __NAMESPACE__.'\beforeSavingFormData', 99, 3);
 function beforeSavingFormData($submission, $object, $update){
     $startDates = [];
-    if(isset($submission->booking_startdate)){
-        $startDates = (array)$submission->booking_startdate;
+    if(isset($submission->{'booking-startdate'})){
+        $startDates = (array)$submission->{'booking-startdate'};
 
-        unset($submission->booking_startdate);
+        unset($submission->{'booking-startdate'});
     }
 
     $endDates   = [];
-    if(isset($submission->booking_enddate)){
-        $endDates   = (array)$submission->booking_enddate;
+    if(isset($submission->{'booking-enddate'})){
+        $endDates   = (array)$submission->{'booking-enddate'};
 
-        unset($submission->booking_enddate);
+        unset($submission->{'booking-enddate'});
     }
 
     $rooms  = [];
-    if(isset($booking_rooms) && is_array($booking_rooms)){
-        $rooms   = $booking_rooms;
+    if(isset($submission->{'booking-rooms'}) && is_array($submission->{'booking-rooms'})){
+        $rooms   = $submission->{'booking-rooms'};
 
-        unset($booking_rooms);
+        unset($submission->{'booking-rooms'});
     }
 
     $bookings                   = new Bookings($object);
@@ -65,8 +65,7 @@ function beforeSavingFormData($submission, $object, $update){
         }
 
         // Check for overlapping dates
-        $subject        = $submission->{$element->id};
-        $submissionId   = $submission->id;
+        $subject        = $submission->{$element->name};
 
         // We are updating an existing booking
         if($update){
@@ -101,28 +100,6 @@ function beforeSavingFormData($submission, $object, $update){
                 }
             }
         }
-        
-        // we are making a new booking
-        else{
-
-            if(!empty($rooms)){
-                foreach($rooms as $index => $room){
-                    // Create a booking for this room
-                    $result     = $bookings->insertBooking($startDates[$index], $endDates[$index], $subject, $room, $submissionId);
-
-                    if(is_wp_error($result)){
-                        return $result;
-                    }
-                }
-            }else{
-                // Create a booking
-                $result         = $bookings->insertBooking($startDates[0], $endDates[0], $subject, '', $submissionId);
-
-                if(is_wp_error($result)){
-                    return $result;
-                }
-            }
-        }
     }
 
     // Update the amount to be paid
@@ -136,6 +113,77 @@ function beforeSavingFormData($submission, $object, $update){
     }
 
     return $submission;
+}
+
+// Insert a new booking
+add_filter('sim_after_form_submission', __NAMESPACE__.'\afterFormSubmission', 99, 3);
+function afterFormSubmission($message, $submission, $object){
+    $startDates = [];
+    if(isset($submission['booking-startdate'])){
+        $startDates = (array)$submission['booking-startdate'];
+
+        unset($submission['booking-startdate']);
+    }
+
+    $endDates   = [];
+    if(isset($submission['booking-enddate'])){
+        $endDates   = (array)$submission['booking-enddate'];
+
+        unset($submission['booking-enddate']);
+    }
+
+    $rooms  = [];
+    if(isset($submission['booking-rooms']) && is_array($submission['booking-rooms'])){
+        $rooms   = $submission['booking-rooms'];
+
+        unset($submission['booking-rooms']);
+    }
+
+    $bookings                   = new Bookings($object);
+
+    // find the subject
+    $elements             = $bookings->getBookingElements();
+    if(is_wp_error($elements) || empty($elements)){
+        return $submission;
+    }
+
+    // loop over all booking selectors (usually one)
+    foreach($elements as $element){
+
+        $subject        = $submission[$element->name];
+        $submissionId   = $object->submission->id;
+        
+        //Create a booking for each room
+        if(!empty($rooms)){
+            foreach($rooms as $index => $room){
+                // Create a booking for this room
+                $result     = $bookings->insertBooking($startDates[$index], $endDates[$index], $subject, $room, $submissionId);
+
+                if(is_wp_error($result)){
+                    return $result;
+                }
+            }
+        }else{
+            // Create a booking
+            $result         = $bookings->insertBooking($startDates[0], $endDates[0], $subject, '', $submissionId);
+
+            if(is_wp_error($result)){
+                return $result;
+            }
+        }
+    }
+
+    // Update the amount to be paid
+    $amount             = $bookings->calculatePaymentAmount($startDates, $endDates, $rooms);
+
+    $paymentAmountEl    = $bookings->forms->formData->payment_amount_el;
+    $paymentAmountName  = $bookings->forms->getElementById($paymentAmountEl, 'name');
+
+    if(!empty($paymentAmountName)){
+        $submission[$paymentAmountName] = $amount;
+    }
+
+    return $message;
 }
 
 add_action('sim-forms-entry-archived', __NAMESPACE__.'\removeBookings', 10, 2);
@@ -232,11 +280,10 @@ function transformEmpty($replaceValue, $instance, $match){
     return $replaceValue;
 }
 
-
 add_action('init', __NAMESPACE__.'\addEventPostType', 999);
 function addEventPostType(){
 	SIM\registerPostTypeAndTax('booking-subject', 'booking-subjects');
-	SIM\registerPostTypeAndTax('booking-room', 'booking-rooms');
+	SIM\registerPostTypeAndTax('booking-room', 'booking_rooms');
 }
 
 add_filter('sim-template-filter', __NAMESPACE__.'\renameModule');
@@ -250,7 +297,7 @@ function  renameModule($templateFile){
 
 // Alters the arguments used to register the booking post types
 add_filter('sim-post-type-creation-args', function($args, $single){
-    if($single == 'booking-rooms'){
+    if($single == 'booking_rooms'){
         $args['hierarchical']   = false;
 
         $args['rewrite']    = [

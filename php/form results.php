@@ -157,7 +157,7 @@ function shouldShow($shouldShow, $displayFormResults, $type){
                 $checkboxes .= "</label>";
             }
 
-            $calendars  .= $bookings->modalContent($subject, $targetDate, true, $hidden, true);
+            $calendars  .= $bookings->modalContent('', $subject, $targetDate, true, $hidden, true);
         }
 
         $html   .= '<div class="form-data-table">';
@@ -197,7 +197,7 @@ function actionHtml($buttonsHtml, $submission, $index, $instance){
 
 // Show the possible booking rooms
 add_filter('sim-forms-checkbox-options', function ($options, $object){
-    if(!isset($object->element) || $object->element->name != 'booking-rooms[]'){
+    if(!isset($object->element) || $object->element->name != 'booking_rooms[]'){
         return $options;
     }
     
@@ -339,7 +339,7 @@ function adjustCellValue($value, $columnSetting, $values){
         return $value;
     }
 
-    if($columnSetting['name'] == 'booking-rooms' ){
+    if($columnSetting['name'] == 'booking_rooms' ){
         return $values['subid'];
     }
 
@@ -360,7 +360,7 @@ function alterQuery($params, $userId, $instance){
 
     $bookings   = new Bookings($instance);
 
-    foreach($params['where'] as $i => $where){
+    /* foreach($params['where'] as $i => $where){
 		if($where == "id=%d"){
             unset($params['where'][$i]);
 			unset($params['values'][$i + 1]);
@@ -368,6 +368,12 @@ function alterQuery($params, $userId, $instance){
             $params['values'][] = $bookings->tableName;
             $params['values'][] = date('Y-m-d');
         }
+    } */
+
+    if(!in_array("id=%d", $params['where'])){
+        $params['where'][]   .= "id IN(SELECT submission_id FROM %i WHERE enddate >= %s ORDER BY 'startdate')";
+        $params['values'][] = $bookings->tableName;
+        $params['values'][] = date('Y-m-d');
     }
 
     return $params;
