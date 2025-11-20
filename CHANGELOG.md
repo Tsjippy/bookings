@@ -8,6 +8,7 @@
 - getSuubmissions
 - get form results by element id
 - node based html
+- implemented forms module changes
 
 ### Fixed
 - booking without room
