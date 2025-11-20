@@ -815,7 +815,7 @@ class Bookings{
             // Retrieve booking details
             $this->forms->parseSubmissions(null, $booking->submission_id);
 
-            $subject        = $this->forms->submission->{$this->bookingElements[0]->name};
+            $subject        = $this->forms->submission->{$this->bookingElements[0]->id};
 
             if(
                 // we are not the manager of this subject
@@ -861,7 +861,7 @@ class Bookings{
                                             <img src='<?php echo esc_url($baseUrl);?>/subject.png' loading='lazy' alt='<?php echo $this->bookingElements[0]->nicename;?>' class='booking-icon' title='<?php echo $this->bookingElements[0]->nicename;?>'>
                                         </td>
                                         <td class='booking-data-wrapper edit forms-table' data-element-id='<?php echo $this->bookingElements[0]->id;?>' data-name='<?php echo $this->bookingElements[0]->name;?>' data-booking-id='<?php echo esc_attr($submission->booking_id);?>'>
-                                            <?php echo $submission->{$this->bookingElements[0]->name};?>
+                                            <?php echo $submission->{$this->bookingElements[0]->id};?>
                                         </td>
                                     </tr>
                                     <tr>
@@ -902,7 +902,7 @@ class Bookings{
                                         if(
                                             !$setting['show']     || 
                                             !is_numeric($key)   || 
-                                            in_array($setting['name'], ['form-id', 'formurl', '_wpnonce', 'id', 'submissiontime', 'edittime', 'booking_startdate', 'booking_enddate', 'booking-room', 'booking_rooms', 'name', $this->bookingElements[0]->name])
+                                            in_array($setting['name'], ['form-id', 'formurl', '_wpnonce', 'id', 'submissiontime', 'edittime', 'booking-startdate', 'booking-enddate', 'booking-room', 'booking_rooms', 'name', $this->bookingElements[0]->name])
                                         ){
                                             continue;
                                         }
@@ -910,7 +910,7 @@ class Bookings{
                                         $name       = $setting['name'];
                                         $niceName   = empty($setting['nice_name']) ? $name : $setting['nice_name'];
                                         $element    = $this->forms->getElementByName($name);
-                                        $data       = $submission->{$name};
+                                        $data       = $submission->{$element->id};
 
                                         $transformedData   = $this->forms->transformInputData($data, $name, $submission);
                                         if(empty($transformedData)){

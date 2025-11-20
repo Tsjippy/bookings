@@ -376,7 +376,7 @@ function formElements($elements, $displayFormResults, $force){
 
         $room               = clone $element;
         $room->type         = 'checkbox';
-        $room->name         = 'booking_rooms';
+        $room->name         = 'booking-rooms';
         $room->nicename     = 'Room';
         $room->id           = -104;
         

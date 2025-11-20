@@ -360,21 +360,79 @@ function alterQuery($params, $userId, $instance){
 
     $bookings   = new Bookings($instance);
 
-    /* foreach($params['where'] as $i => $where){
-		if($where == "id=%d"){
-            unset($params['where'][$i]);
-			unset($params['values'][$i + 1]);
-            $params['where'][]   .= "id IN(SELECT submission_id FROM %i WHERE enddate >= %s ORDER BY 'startdate')";
-            $params['values'][] = $bookings->tableName;
-            $params['values'][] = date('Y-m-d');
-        }
-    } */
-
     if(!in_array("id=%d", $params['where'])){
         $params['where'][]   .= "id IN(SELECT submission_id FROM %i WHERE enddate >= %s ORDER BY 'startdate')";
         $params['values'][] = $bookings->tableName;
         $params['values'][] = date('Y-m-d');
     }
 
+    // We are requesting an submission value and the element index is negative
+    if(
+        intval($params['values'][2]) < -101
+    ){
+        $elementId      = $params['values'][2];
+        $submissionId   = $_POST['submission-id'];
+        if(!is_numeric($submissionId)){
+            return $params;
+        }
+
+        switch($elementId){
+            case -102:
+                $column = 'startdate';
+                break;
+            case -103:
+                $column = 'enddate';
+                break;
+            case -104:
+                $column = 'room';
+                break;
+            default:
+                return $params;
+        }
+
+        $params['base']     = "select $column from %i WHERE ";
+
+        $params['where']    = [
+            "submission_id = %d"
+        ];
+
+        $params['values']   = [
+            $bookings->tableName,
+            $submissionId
+        ];
+    }
+
     return $params;
+}
+
+//Store updated date or room
+add_filter('sim-forms-should-update-form-data', __NAMESPACE__.'\updateBookingData', 10, 6);
+function updateBookingData($shouldContinue, $elementId, $submissionId, $subId, $value, $instance){
+    if( $elementId > -102  ){
+        return $shouldContinue;
+    }
+
+    switch($elementId){
+        case -102:
+            $column = 'startdate';
+            break;
+        case -103:
+            $column = 'enddate';
+            break;
+        case -104:
+            $column = 'room';
+            break;
+        default:
+            return $shouldContinue;
+    }
+    
+    $bookings   = new Bookings($instance);
+
+    foreach($bookings->getBookingsBySubmission($submissionId) as $booking){
+        if(empty($subId) || $booking->room == $subId){
+            $bookings->updateBooking($booking, [$column => $value], true);
+        }
+    }
+
+    return false;
 }
