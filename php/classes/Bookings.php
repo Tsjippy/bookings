@@ -250,8 +250,6 @@ class Bookings{
         if(empty($subject['amount']) || $subject['amount'] == 1){
             return;
         }
-
-        ob_start();
         
         if($radio){
             $type   = 'radio';
@@ -523,8 +521,6 @@ class Bookings{
         if($returnHtml){
 			return $this->forms->dom->saveHtml();
         }
-		
-        return;
     }
 
     /**
@@ -605,10 +601,9 @@ class Bookings{
 			$dateStr	= "$year-$month-$day";
 		}
 
-        $date			= strtotime($dateStr);
+        $date	        = strtotime($dateStr);
 
-        $cleanSubject    = trim($subject['name']);
-
+        $cleanSubject   = trim($subject['name']);
 
         /** 
          * Create the modal

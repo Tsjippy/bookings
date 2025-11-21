@@ -351,7 +351,9 @@ function adjustCellValue($value, $columnSetting, $values){
     return $value;
 }
 
-// only show future bookings in table view
+/**
+ * Change the fsubmission data retrieved 
+ */
 add_filter('sim_formdata_retrieval_query', __NAMESPACE__.'\alterQuery', 10, 4);
 function alterQuery($params, $userId, $instance){
     if( empty($instance->getElementByType('booking-selector'))){
@@ -360,13 +362,14 @@ function alterQuery($params, $userId, $instance){
 
     $bookings   = new Bookings($instance);
 
+    // only show future bookings in table view
     if(!in_array("id=%d", $params['where'])){
         $params['where'][]   .= "id IN(SELECT submission_id FROM %i WHERE enddate >= %s ORDER BY 'startdate')";
         $params['values'][] = $bookings->tableName;
         $params['values'][] = date('Y-m-d');
     }
 
-    // We are requesting an submission value and the element index is negative
+    // We are requesting a submission value and the element index is negative
     if(
         intval($params['values'][2]) < -101
     ){

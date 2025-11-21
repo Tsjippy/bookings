@@ -144,7 +144,7 @@ function afterFormSubmission($message, $submission, $object){
     // find the subject
     $elements             = $bookings->getBookingElements();
     if(is_wp_error($elements) || empty($elements)){
-        return $submission;
+        return $message;
     }
 
     // loop over all booking selectors (usually one)
@@ -240,39 +240,34 @@ function placeholderOption($formBuilderForm){
 add_filter('sim-forms-transform-empty', __NAMESPACE__.'\transformEmpty', 10, 3);
 function transformEmpty($replaceValue, $instance, $match){
 
-    if($match == "booking-details"){
-        
-        if(!empty($instance->submission->booking_startdate)){
-            $startDates     = $instance->submission->booking_startdate;
-            $endDates       = $instance->submission->booking_enddate;
+    if($match != "booking-details" || empty($instance->submission->booking_startdate)){
+        return $replaceValue;
+    }
 
-            // NO ROOMS
-            if(empty($instance->submission->booking_rooms)){
-                $startDate      = date(DATEFORMAT, strtotime((string)$startDates[0]));
-                $endDate        = date(DATEFORMAT, strtotime((string)$endDates[0]));
-                $replaceValue   = "from $startDate till $endDate";
-            }else{
-                if(!is_array($instance->submission->booking_rooms)){
-                    SIM\printArray($instance->submission->booking_rooms);
-                    $instance->submission->booking_rooms  = [$instance->submission->booking_rooms];
-                }
+    $startDates     = (array)$instance->submission->booking_startdate;
+    $endDates       = (array)$instance->submission->booking_enddate;
+    $rooms          = (array)$instance->submission->booking_rooms;
 
-                if(count( array_unique($startDates)) == 1 && count(array_unique($endDates)) == 1){
-                    $startDate      = array_values($startDates)[0];
-                    $endDate        = array_values($endDates)[0];
-                    $rooms          = implode('&', $instance->submission->booking_rooms);
-                    $startDate      = date(DATEFORMAT, strtotime((string)$startDate));
-                    $endDate        = date(DATEFORMAT, strtotime((string)$endDate));
-                    $replaceValue   = "room $rooms from $startDate till $endDate";
-                }else{
-                    $replaceValue   = "room:<br>";
-                    foreach($instance->submission->booking_rooms as $room){
-                        $startDate      = date(DATEFORMAT, strtotime((string)$startDates[$room]));
-                        $endDate        = date(DATEFORMAT, strtotime((string)$endDates[$room]));
+    // NO ROOMS
+    if(empty($rooms)){
+        $startDate      = date(DATEFORMAT, strtotime((string)$startDates[0]));
+        $endDate        = date(DATEFORMAT, strtotime((string)$endDates[0]));
+        $replaceValue   = "from $startDate till $endDate";
+    }else{
+        if(count( array_unique($startDates)) == 1 && count(array_unique($endDates)) == 1){
+            $startDate      = array_values($startDates)[0];
+            $endDate        = array_values($endDates)[0];
+            $rooms          = implode('&', $rooms);
+            $startDate      = date(DATEFORMAT, strtotime((string)$startDate));
+            $endDate        = date(DATEFORMAT, strtotime((string)$endDate));
+            $replaceValue   = "room $rooms from $startDate till $endDate";
+        }else{
+            $replaceValue   = "room:<br>";
+            foreach($rooms as $room){
+                $startDate      = date(DATEFORMAT, strtotime((string)$startDates[$room]));
+                $endDate        = date(DATEFORMAT, strtotime((string)$endDates[$room]));
 
-                        $replaceValue   .= "$room from $startDate till $endDate<br>";
-                    }
-                }
+                $replaceValue   .= "$room from $startDate till $endDate<br>";
             }
         }
     }

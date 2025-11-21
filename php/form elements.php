@@ -338,12 +338,7 @@ function addFormElementOptions($html, $object, $element){
 add_filter('sim-forms-elements', __NAMESPACE__.'\formElements', 10, 3);
 function formElements($elements, $displayFormResults, $force){
     // do not show on the form itself, only on the results
-    if(!$force && !in_array(get_class($displayFormResults), ["SIM\FORMS\DisplayFormResults", "SIM\FORMS\SubmitForm", "SIM\FORMS\EditFormResults"])){
-        return $elements;
-    }
-
-    // do not add to the formbuilder screen
-    if(str_contains($_SERVER['QUERY_STRING'], 'formbuilder=true')){
+    if(!$force && !in_array(get_class($displayFormResults), ["SIM\FORMS", "SIM\FORMS\DisplayFormResults", "SIM\FORMS\SubmitForm", "SIM\FORMS\EditFormResults"])){
         return $elements;
     }
 
