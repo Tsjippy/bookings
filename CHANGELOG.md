@@ -4,6 +4,15 @@
 ### Added
 
 ### Changed
+
+### Fixed
+
+### Updated
+
+## [8.6.0] - 2025-11-21
+
+
+### Changed
 - formresults to submission
 - getSuubmissions
 - get form results by element id
@@ -16,8 +25,6 @@
 - booking e-mails
 - update bookings
 - some bugs
-
-### Updated
 
 ## [8.5.3] - 2025-11-07
 
