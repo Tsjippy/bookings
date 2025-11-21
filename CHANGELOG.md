@@ -15,6 +15,7 @@
 - element id datset value
 - booking e-mails
 - update bookings
+- some bugs
 
 ### Updated
 
