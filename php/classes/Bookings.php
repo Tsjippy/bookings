@@ -302,7 +302,8 @@ class Bookings{
                     'type'  => $type, 
                     'name'  => 'room', 
                     'class' => 'room-selector', 
-                    'value' => $alphabet[$x]
+                    'value' => $alphabet[$x],
+                    'style' => 'margin-left: 5px;'
                 ];
 
                 if(
@@ -327,7 +328,8 @@ class Bookings{
                     'type'  => $type, 
                     'name'  => 'room', 
                     'class' => 'room-selector', 
-                    'value' => $room['name']
+                    'value' => $room['name'],
+                    'style' => 'margin-left: 5px;'
                 ];
 
                 if(
@@ -352,7 +354,8 @@ class Bookings{
                     'type'  => $type, 
                     'name'  => 'room', 
                     'class' => 'room-selector', 
-                    'value' => $x
+                    'value' => $x,
+                    'style' => 'margin-left: 5px;'
                 ];
 
                 if(
@@ -383,28 +386,34 @@ class Bookings{
      */
     private function roomCalendars($rooms, $subject, $date){
         ob_start();
-        foreach($rooms as $room){
-            $roomHidden = 'hidden';
-
-            if(
-                isset($_REQUEST['id'])                                  &&              // We should display a specific submission
-                is_array($this->forms->submission->booking_rooms)   &&    // and a room is set
-                in_array($room['name'], $this->forms->submission->booking_rooms)  // and it is this room
-            ){
-                $roomHidden = '';
-            }
-            ?>
-            <div class='room-wrapper <?php echo $roomHidden;?>'data-room='<?php echo $room['name'];?>'>
-                <h4>Room <?php echo $room['name']?></h4>
-                <div class='month-wrapper flex'>
-                    <?php
-                    echo $this->monthCalendar($subject, $room['name'], $date);
-                    echo $this->monthCalendar($subject, $room['name'], strtotime('first day of next month', $date));
-                    ?>
-                </div>
-            </div>
+        ?>
+        <div class='rooms-wrapper'>
             <?php
-        }
+            foreach($rooms as $room){
+                $roomHidden = 'hidden';
+
+                if(
+                    isset($_REQUEST['id'])                                  &&              // We should display a specific submission
+                    is_array($this->forms->submission->booking_rooms)   &&    // and a room is set
+                    in_array($room['name'], $this->forms->submission->booking_rooms)  // and it is this room
+                ){
+                    $roomHidden = '';
+                }
+                ?>
+                <div class='room-wrapper <?php echo $roomHidden;?>'data-room='<?php echo $room['name'];?>'>
+                    <h4>Room <?php echo $room['name']?></h4>
+                    <div class='month-wrapper flex'>
+                        <?php
+                        echo $this->monthCalendar($subject, $room['name'], $date);
+                        echo $this->monthCalendar($subject, $room['name'], strtotime('first day of next month', $date));
+                        ?>
+                    </div>
+                </div>
+                <?php
+            }
+        ?>
+        </div>
+        <?php
 
         return ob_get_clean();
     }
@@ -1593,18 +1602,26 @@ class Bookings{
     public function retrievePendingBookings(){
         global $wpdb;
 
-        $values     = [
-            $this->tableName,
-            date('Y-m-d')
-        ];
-
-        $query	    = "SELECT * FROM %i WHERE pending = 1 AND startdate >= %s";
-
+        /**
+         * Only show unpaid bookings this user has permissions for
+         */
         $this->getSubjectManagers($this->user->ID);
 
         if(empty($this->managers)){
             return [];
         }
+
+        $subjects       = array_keys($this->managers);
+
+        $placeholders   = implode(', ', array_fill(0, count($subjects), '%s'));
+
+        $query	    = "SELECT * FROM %i WHERE pending = 1 AND startdate >= %s AND subject IN ($placeholders)";
+
+        $values     = [
+            $this->tableName,
+            date('Y-m-d'),
+            ...$subjects
+        ];
 
         foreach(array_keys($this->managers) as $index => $subject){
             if($index == 0){
@@ -1633,12 +1650,26 @@ class Bookings{
      */
     public function retrieveUnPaidBookings($onlyFinished, $all=false){
         global $wpdb;
-        
-        $values     = [
-            $this->tableName
-        ];
 
-        $query	    = "SELECT * FROM %i WHERE (`paid` IS NULL OR `paid` = 0)";
+        /**
+         * Only show unpaid bookings this user has permissions for
+         */
+        $this->getSubjectManagers($this->user->ID);
+
+        if(empty($this->managers)){
+            return [];
+        }
+
+        $subjects       = array_keys($this->managers);
+
+        $placeholders   = implode(', ', array_fill(0, count($subjects), '%s'));
+
+        $query	        = "SELECT * FROM %i WHERE (`paid` IS NULL OR `paid` = 0) AND subject IN ($placeholders)";
+
+        $values         = [
+            $this->tableName,
+            ...$subjects
+        ];
 
         // only show finished bookings
         if($onlyFinished){
