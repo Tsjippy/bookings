@@ -6,9 +6,14 @@
 ### Changed
 
 ### Fixed
-- room selectors
 
 ### Updated
+
+## [8.6.1] - 2025-11-27
+
+
+### Fixed
+- room selectors
 
 ## [8.6.0] - 2025-11-21
 
