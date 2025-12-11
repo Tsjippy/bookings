@@ -6,10 +6,15 @@
 ### Changed
 
 ### Fixed
-- bug
-- booking-details paceholder
 
 ### Updated
+
+## [8.6.3] - 2025-12-11
+
+
+### Fixed
+- bug
+- booking-details paceholder
 
 ## [8.6.1] - 2025-11-27
 
