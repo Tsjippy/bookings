@@ -352,7 +352,7 @@ function adjustCellValue($value, $columnSetting, $values){
 }
 
 /**
- * Change the fsubmission data retrieved 
+ * Change the submission data retrieved 
  */
 add_filter('sim_formdata_retrieval_query', __NAMESPACE__.'\alterQuery', 10, 4);
 function alterQuery($params, $userId, $instance){

@@ -1646,7 +1646,7 @@ class Bookings{
      * Retrieve all the unpaid bookings
      *
      * @param   bool    $onlyFinished       True to only return bookings that are finished 
-     * @param   bool    $all                Whether to get unpaid bookings for the current user only. Default true;
+     * @param   bool    $all                Whether to get unpaid bookings for all users. Default false;
      */
     public function retrieveUnPaidBookings($onlyFinished, $all=false){
         global $wpdb;
@@ -1654,7 +1654,12 @@ class Bookings{
         /**
          * Only show unpaid bookings this user has permissions for
          */
-        $this->getSubjectManagers($this->user->ID);
+        if(wp_doing_cron()){
+            $userId = '';
+        }else{
+            $userId = $this->user->ID;
+        }
+        $this->getSubjectManagers($userId);
 
         if(empty($this->managers)){
             return [];
@@ -1827,38 +1832,39 @@ class Bookings{
                 continue;
             }
 
-            $subjectKey = $this->bookingElements[0]->name;
+            $subjectKey = $this->bookingElements[0]->id;
 
-            $emails     = $form->emails;
+            $this->forms->getEmailSettings();
 		
-            foreach($emails as $mail){
-                if($mail['email-trigger'] == 'before-stay' || $mail['email-trigger'] == 'after-stay'){
-                    if($mail['email-trigger'] == 'before-stay'){
-                        $date       = date('Y-m-d', strtotime("+{$mail['days-before']} days", time()));
+            foreach($this->forms->emailSettings as $mail){
+
+                if($mail->email_trigger == 'before-stay' || $mail->email_trigger == 'after-stay'){
+                    if($mail->email_trigger == 'before-stay'){
+                        $date       = date('Y-m-d', strtotime("+{$mail->days_before} days", time()));
                         $bookings   = $this->retrieveBookingsByStartDate($date);
                     }
 
-                    elseif($mail['email-trigger'] == 'after-stay'){
-                        $date       = date('Y-m-d', strtotime("-{$mail['days-after']} days", time()));
+                    elseif($mail->email_trigger == 'after-stay'){
+                        $date       = date('Y-m-d', strtotime("-{$mail->days_after} days", time()));
                         $bookings   = $this->retrieveBookingsByEndDate($date);
                     }
 
                     foreach($bookings as $booking){
 
-                        $this->forms->getSubmissions('', $booking->submission_id);
+                        $this->forms->parseSubmissions('', $booking->submission_id);
     
-                        $from       = $this->forms->processPlaceholders($mail['from']);
+                        $from       = $this->forms->processPlaceholders($mail->from);
         
-                        $to         = $this->forms->processPlaceholders($mail['to']);
+                        $to         = $this->forms->processPlaceholders($mail->to);
         
-                        $subject    = $this->forms->processPlaceholders($mail['subject']);
+                        $subject    = $this->forms->processPlaceholders($mail->subject);
         
-                        $message    = $this->forms->processPlaceholders($mail['message']);
+                        $message    = $this->forms->processPlaceholders($mail->message);
         
                         $headers	= [];
         
-                        if(!empty(trim($mail['headers']))){
-                            $headers	= explode("\n", trim($mail['headers']));
+                        if(!empty(trim($mail->headers))){
+                            $headers	= explode("\n", trim($mail->headers));
                         }
 
                         if(!empty($from)){
@@ -1869,7 +1875,7 @@ class Bookings{
                         wp_mail($to , $subject, $message, $headers);
                         remove_filter('wp_mail', [$this->forms, 'addFormData'], 1);
 
-                        if($mail['email-trigger'] == 'before-stay'){
+                        if($mail->email_trigger == 'before-stay'){
                             $this->getSubjectManagers();
 
                             $bookingSubject    =  $this->forms->submission->{$subjectKey};
@@ -1879,11 +1885,15 @@ class Bookings{
                                 return;
                             }
 
-                            $managers    = (array) $this->managers[$bookingSubject];
+                            $managers       = (array) $this->managers[$bookingSubject];
+
+                            $elementName    = $this->forms->findUserNameElementName();
+
+                            $elementId      = $this->forms->getElementByName($elementName, 'id');
+
+                            $name           = $this->forms->submission->{$elementId};
 
                             foreach($managers as $manager){
-                                $name       = $this->forms->submission->{[$this->forms->findUserNameElementName()]};
-
                                 // first repplace all occurences of the name for the manager name
                                 $newSubject = str_replace($name, $manager->display_name, $subject);
                                 $newMessage = str_replace($name, $manager->display_name, $message);
@@ -2015,12 +2025,10 @@ class Bookings{
             // Load the form
             $this->forms->getForm($submissions[0]->form_id);
 
-            $el             = $this->getBookingElements()[0];
-
             $accommodation  = $booking->subject;
 
             // check if payment is enabled for this subject
-            foreach($this->subjects[$el->id] as $subject){
+            foreach($this->subjects as $subject){
                 // this is the current subject
                 if($subject['name'] == $accommodation){
                     if(!$subject['payments']){
@@ -2036,7 +2044,7 @@ class Bookings{
             $email          = false;
             
             // Not an user
-            if(!is_numeric($userId)){
+            if(!is_numeric($userId) || $userId == 0){
                 $user       = '';
 
                 $nameElName = $this->forms->findUserNameElementName();
@@ -2060,7 +2068,8 @@ class Bookings{
                 // Find the e-mail
                 $emailElName        = $this->forms->findEmailElementName();
                 if($emailElName){
-                    $email          = $submissions[0]->{$emailElName};
+                    $elementId      = $this->forms->getElementByName($emailElName, 'id');
+                    $email          = $submissions[0]->{$elementId};
                 }
             }else{
                 $user   = get_user($userId);

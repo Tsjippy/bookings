@@ -237,16 +237,15 @@ function placeholderOption($formBuilderForm){
     }
 }
 
-add_filter('sim-forms-transform-empty', __NAMESPACE__.'\transformEmpty', 10, 3);
-function transformEmpty($replaceValue, $instance, $match){
-
-    if($match != "booking-details" || empty($instance->submission->booking_startdate)){
+add_filter('sim-forms-transform-empty', __NAMESPACE__.'\transformEmpty', 10, 4);
+function transformEmpty($replaceValue, $match, $replaceValues, $instance){
+    if($match != "booking-details" || empty($_POST['booking-startdate'])){
         return $replaceValue;
     }
 
-    $startDates     = (array)$instance->submission->booking_startdate;
-    $endDates       = (array)$instance->submission->booking_enddate;
-    $rooms          = (array)$instance->submission->booking_rooms;
+    $startDates     = $_POST['booking-startdate'];
+    $endDates       = $_POST['booking-enddate'];
+    $rooms          = (array)$_POST['booking-rooms'];
 
     // NO ROOMS
     if(empty($rooms)){

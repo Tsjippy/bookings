@@ -14,7 +14,7 @@ function scheduleTasks(){
 
     $freq   = SIM\getModuleOption(MODULE_SLUG, 'payment-reminder-freq');
     if($freq){
-        SIM\scheduleTask('payment-reminder_action', $freq);
+        SIM\scheduleTask('payment_reminder_action', $freq);
     }
 }
 
