@@ -7,6 +7,7 @@
 
 ### Fixed
 - bug
+- booking-details paceholder
 
 ### Updated
 
