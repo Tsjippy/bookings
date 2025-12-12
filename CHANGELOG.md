@@ -4,6 +4,7 @@
 ### Added
 
 ### Changed
+- layout of payment reminder e-mail
 
 ### Fixed
 
