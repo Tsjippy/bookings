@@ -4,12 +4,19 @@
 ### Added
 
 ### Changed
+
+### Fixed
+
+### Updated
+
+## [8.6.4] - 2025-12-12
+
+
+### Changed
 - layout of payment reminder e-mail
 
 ### Fixed
 - changing payment status
-
-### Updated
 
 ## [8.6.3] - 2025-12-11
 
