@@ -6,6 +6,7 @@
 ### Changed
 
 ### Fixed
+- reminder e-mails
 
 ### Updated
 
