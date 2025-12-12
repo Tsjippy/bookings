@@ -6,9 +6,14 @@
 ### Changed
 
 ### Fixed
-- reminder e-mails
 
 ### Updated
+
+## [8.6.5] - 2025-12-12
+
+
+### Fixed
+- reminder e-mails
 
 ## [8.6.4] - 2025-12-12
 
