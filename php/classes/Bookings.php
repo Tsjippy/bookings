@@ -1365,27 +1365,6 @@ class Bookings{
     }
 
     /**
-     * Changes the payment status of a booking
-     * 
-     * @param   bool    $status         Payment status true for paid
-     * @param   object  $submissionId   The id of the submission of the bookings
-     */
-    public function changePaymentStatus($status, $submissionId){
-        global $wpdb;
-
-        // Mark as paid/unpaid
-        $wpdb->update(
-            $this->tableName,
-            ['paid' => $status],
-            array(
-                'submission_id'		=> $submissionId
-            ),
-        );
-
-        do_action('sim-booking-paid', $status, $submissionId, $this);
-    }
-
-    /**
      * Updates, adds and/or removes the rooms of an existing submission
      * 
      * @param   array   $newRooms           An array of the new rooms names
@@ -2076,7 +2055,16 @@ class Bookings{
                 $email  = $user->user_email;
             }
 
-            if(apply_filters('sim-bookings-should-not-send-payment-reminder', false, $submissions[0], $user, $email, $this)){
+            /**
+             * Filters whether we should send a payment reminder
+             * 
+             * @param   bool    $continue       Whether we should continue
+             * @param   object  $submission     The submission to be reminded about
+             * @param   object  $user           The user to be send an e-mail to
+             * @param   string  $email          The e-mail address
+             * @param   object  $instance       This instance of the booking class
+             */
+            if(!$email || apply_filters('sim-bookings-should-not-send-payment-reminder', false, $submissions[0], $user, $email, $this)){
                 continue;
             }
 
@@ -2087,13 +2075,66 @@ class Bookings{
             $subject        = $bookingEmail->subject;
             $message        = $bookingEmail->message;
             $headers        = $bookingEmail->headers;
+            $attachments    = [];
 
-            if(!$email){
-                continue;
+            // Create a PDF invoice if possible
+            if(class_exists('SIM\PDF\PdfHtml')){
+                $pdf    = new SIM\PDF\PdfHtml();
+
+		        $pdf->skipFirstPage = false;
+
+                $pdf->AddPage();
+
+                $pdf->setHeaderTitle("SIM Guesthouse Invoice INV".sprintf("%06d", $booking->id));
+
+                $pdf->Header();
+
+                $pdf->SetFont( 'Arial', '', 10 );
+
+                $pdf->Write(10, "Invoice for {$bookingEmail->replaceArray['%subject%']} {$bookingEmail->replaceArray['%duration%']}");
+                $pdf->Ln(10);
+
+                $pdf->Write(10, "Payment Details");
+                $pdf->Ln(10);
+
+                // Calculate cell size
+                $colWidths  = [0, 0];
+                foreach($bookingEmail->paymentDetailsRows as &$row){
+
+                    $row    = str_replace(array_keys($bookingEmail->replaceArray), array_values($bookingEmail->replaceArray), $row);
+
+                    $cells  = explode(': ', $row);
+
+                    foreach($cells as $index => $cell){
+                        $width = round($pdf->GetStringWidth($cell)) + 5;
+                        
+                        if($width > $colWidths[$index]){
+                            $colWidths[$index]  = $width;
+                        }
+                    }
+                }
+                unset($row);
+
+                // Now write the rows
+                $fill   = false;
+                foreach($bookingEmail->paymentDetailsRows as $row){
+                    $cells  = explode(': ', $row);
+                    $pdf->writeTableRow($colWidths, $cells, $fill, []);
+                }
+
+                // Save the pdf
+                $path   = get_temp_dir()."SIM Guesthouse Invoice INV{$booking->id}.pdf";
+
+                wp_delete_file($path);
+
+                $pdf->Output('F', $path);
+
+                // Add to the attachments
+                $attachments[]  = $path;
             }
 
             add_filter('wp_mail', [$this->forms, 'addFormData'], 1);
-            wp_mail( $email, $subject, $message, $headers);
+            wp_mail( $email, $subject, $message, $headers, $attachments);
             remove_filter('wp_mail', [$this->forms, 'addFormData'], 1);
         }
     }

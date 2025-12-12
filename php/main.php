@@ -3,8 +3,8 @@ namespace SIM\BOOKINGS;
 use SIM;
 
 // check if a booking request is ok
-add_filter('sim_before_saving_formdata', __NAMESPACE__.'\beforeSavingFormData', 99, 3);
-function beforeSavingFormData($submission, $object, $update){
+add_filter('sim_before_inserting_formdata', __NAMESPACE__.'\beforeSavingFormData', 99, 3);
+function beforeSavingFormData($submission, $object){
     $startDates = [];
     if(isset($submission->{'booking-startdate'})){
         $startDates = (array)$submission->{'booking-startdate'};
@@ -66,40 +66,6 @@ function beforeSavingFormData($submission, $object, $update){
 
         // Check for overlapping dates
         $subject        = $submission->{$element->name};
-
-        // We are updating an existing booking
-        if($update){
-            // Update booking dates
-            if(!empty($startDates)){
-                // Get the booking to update
-                $currentBookings    = $bookings->getBookingsBySubmission($submission->id);
-
-                foreach($currentBookings as $index => $booking){
-                    $values = [
-                        'startdate' => $startDates[$index],
-                        'enddate'   => $endDates[$index]
-                    ];
-
-                    $bookings->updateBooking($booking, $values, true);
-                }
-            }
-
-            // Change to paid / unpaid
-            $paymentIndicatorEl    = $object->formData->payment_indicator;
-            $paymentIndicatorName  = $object->getElementById($paymentIndicatorEl, 'name');
-            if(!empty($submission->{$paymentIndicatorName})){
-                $paid   = $submission->{$paymentIndicatorName} != 'not paid';
-                $bookings->changePaymentStatus($paid, $booking);
-            }
-
-            // Add, update or remove rooms
-            if(!empty($rooms)){
-                $result = $bookings->updateRooms($rooms, $currentBookings);
-                if(is_wp_error($result)){
-                    return $result;
-                }
-            }
-        }
     }
 
     // Update the amount to be paid

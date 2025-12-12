@@ -5,6 +5,7 @@ use SIM\ADMIN;
 
 class BookingEmail extends ADMIN\MailSetting{
     public $booking;
+    public $paymentDetailsRows;
 
     public function __construct(object $booking) {
         $this->booking    = $booking;
@@ -102,10 +103,10 @@ class BookingEmail extends ADMIN\MailSetting{
         $paymentDetails                                 = $displayFormResults->submission->{$displayFormResults->formData->payment_details_el};
 
         // Convert details to table
-        $rows   = explode("\n",  $paymentDetails);
+        $this->paymentDetailsRows   = explode("\n",  $paymentDetails);
 
         $table  = '<table border="1" style="padding: 5px;border: none;">';
-            foreach($rows as $row){
+            foreach($this->paymentDetailsRows  as $row){
                 $cols   = explode(":", $row);
                 $table  .= '<tr>';
                     $table  .= "<td style='border: none;width: 120px;'>";

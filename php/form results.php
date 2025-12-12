@@ -411,11 +411,18 @@ function alterQuery($params, $userId, $instance){
 //Store updated date or room
 add_filter('sim-forms-should-update-form-data', __NAMESPACE__.'\updateBookingData', 10, 6);
 function updateBookingData($shouldContinue, $elementId, $submissionId, $subId, $value, $instance){
-    if( $elementId > -102  ){
+    // Change to paid / unpaid
+    $paymentIndicatorElId    = $instance->formData->payment_indicator;
+
+    if( $elementId > -102 && $elementId != $paymentIndicatorElId ){
         return $shouldContinue;
     }
 
     switch($elementId){
+        case $paymentIndicatorElId:
+            $column = 'paid';
+            $value  = $value != 'not paid';
+            break;
         case -102:
             $column = 'startdate';
             break;
@@ -437,5 +444,9 @@ function updateBookingData($shouldContinue, $elementId, $submissionId, $subId, $
         }
     }
 
-    return false;
+    if($elementId != $paymentIndicatorElId ){
+        return false;
+    }
+
+    return true;
 }
