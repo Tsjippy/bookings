@@ -1830,15 +1830,23 @@ class Bookings{
 
                     foreach($bookings as $booking){
 
+                        $bookingEmail    = new BookingEmail($booking);
+
                         $this->forms->parseSubmissions('', $booking->submission_id);
+
+                        $replaceValues  = [];
+                        foreach($bookingEmail->replaceArray as $key => $value){
+                            $replaceValues[str_replace('%', '', $key)]  = $value;
+                        }
+                        $replaceValues  = (array)$this->forms->submission + $replaceValues;
     
-                        $from       = $this->forms->processPlaceholders($mail->from);
+                        $from       = $this->forms->processPlaceholders($mail->from, $replaceValues);
         
-                        $to         = $this->forms->processPlaceholders($mail->to);
+                        $to         = $this->forms->processPlaceholders($mail->to, $replaceValues);
         
-                        $subject    = $this->forms->processPlaceholders($mail->subject);
+                        $subject    = $this->forms->processPlaceholders($mail->subject, $replaceValues);
         
-                        $message    = $this->forms->processPlaceholders($mail->message);
+                        $message    = $this->forms->processPlaceholders($mail->message, $replaceValues);
         
                         $headers	= [];
         

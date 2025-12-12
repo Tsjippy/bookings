@@ -57,7 +57,10 @@ class BookingEmail extends ADMIN\MailSetting{
         foreach($bookings as $booking){
             $startDates[]   = $this->booking->startdate;
             $endDates[]     = $this->booking->enddate;
-            $rooms[]        = $this->booking->room;
+
+            if(!empty($this->booking->room)){
+                $rooms[]        = $this->booking->room;
+            }
         }
 
         $this->replaceArray['%startdate%']  = date(DATEFORMAT, strtotime($startDates[0]));

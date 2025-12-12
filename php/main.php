@@ -49,6 +49,17 @@ function beforeSavingFormData($submission, $object){
             if($startdate == $endDates[$index]){
                 return new \WP_Error('bookings', "End date cannot be the same as the start date");
             }
+
+            $overlappingBookings    = $bookings->checkOverlap($startdate, $endDates[$index], $subjectName, $rooms[$index]);
+            if(!empty($overlappingBookings)){
+                if(!empty($rooms[$index])){
+                    $subjectName    .= " room {$rooms[$index]}";
+                }
+
+                $startDateString    = date(DATEFORMAT, strtotime($startdate));
+                $endDateString      = date(DATEFORMAT, strtotime($endDates[$index]));
+                return new \WP_Error('booking', "The booking for $subjectName overlaps with an existing one from $startDateString till $endDateString, try again");
+            }
         }
 
         // find the selected subject
@@ -62,10 +73,7 @@ function beforeSavingFormData($submission, $object){
             ){
                 return new \WP_Error('bookings', "Please select a room");
             }
-        }
-
-        // Check for overlapping dates
-        $subject        = $submission->{$element->name};
+        }        
     }
 
     // Update the amount to be paid
@@ -200,18 +208,34 @@ function placeholderOption($formBuilderForm){
         echo "<option>%booking-rooms%</option>";
         echo "<option>%booking-details%</option>";
         echo "<option>%paid%</option>";
+        echo "<option title='total amount to be paid'>%payable%</option>";
+        echo "<option>%payment_details%</option>";
+        echo "<option>%price_per_night%</option>";
+        echo "<option title='from %startdate% till %enddate%'>%duration%</option>";
     }
 }
 
 add_filter('sim-forms-transform-empty', __NAMESPACE__.'\transformEmpty', 10, 4);
 function transformEmpty($replaceValue, $match, $replaceValues, $instance){
-    if($match != "booking-details" || empty($_POST['booking-startdate'])){
+    if(
+        $match != "booking-details" || 
+        (
+            empty($_POST['booking-startdate']) &&
+            empty($replaceValues['booking_startdate'])
+        )
+    ){
         return $replaceValue;
     }
 
-    $startDates     = $_POST['booking-startdate'];
-    $endDates       = $_POST['booking-enddate'];
-    $rooms          = (array)$_POST['booking-rooms'];
+    if(empty($_POST['booking-startdate'])){
+        $startDates     = (array)$replaceValues['booking_startdate'];
+        $endDates       = (array)$replaceValues['booking_enddate'];
+        $rooms          = (array)$replaceValues['booking_rooms'];
+    }else{
+        $startDates     = $_POST['booking-startdate'];
+        $endDates       = $_POST['booking-enddate'];
+        $rooms          = (array)$_POST['booking-rooms'];
+    }
 
     // NO ROOMS
     if(empty($rooms)){
