@@ -7,6 +7,7 @@
 - layout of payment reminder e-mail
 
 ### Fixed
+- changing payment status
 
 ### Updated
 
