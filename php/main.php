@@ -277,7 +277,7 @@ function transformEmpty($replaceValue, $match, $replaceValues, $instance){
 add_action('init', __NAMESPACE__.'\addEventPostType', 999);
 function addEventPostType(){
 	SIM\registerPostTypeAndTax('booking-subject', 'booking-subjects');
-	SIM\registerPostTypeAndTax('booking-room', 'booking_rooms');
+	SIM\registerPostTypeAndTax('booking-room', 'booking-rooms');
 }
 
 add_filter('sim-template-filter', __NAMESPACE__.'\renameModule');

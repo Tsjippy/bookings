@@ -26,9 +26,8 @@ class BookingEmail extends ADMIN\MailSetting{
         $this->defaultMessage    = 'Hi %name%,<br><br>';
 		$this->defaultMessage   .= "Our records show you have not yet paid the amount of %payable% for your booking of %subject% from %startdate% till %enddate%.<br>";
 		$this->defaultMessage 	.= 'Please do so immidiately.<br>';
-        $this->defaultMessage 	.= '<b>Payment Details</b><br>';
-        $this->defaultMessage 	.= '<b>%payment_details%<br>';
-        
+        $this->defaultMessage 	.= '<h4 style="font-weight: bold;color: #bd2919;margin: 15px 5px 5px;">Payment Details:</h4>';
+        $this->defaultMessage 	.= '%payment_details%<br>';   
     }
 
     public function loadBookings(){
@@ -98,8 +97,27 @@ class BookingEmail extends ADMIN\MailSetting{
 
         $this->replaceArray['%payable%']                = $displayFormResults->submission->{$displayFormResults->formData->payment_amount_el};
 
-        $this->replaceArray['%payment_details%']        = $displayFormResults->submission->{$displayFormResults->formData->payment_details_el};
-
         $this->replaceArray['%price_per_night%']        = $displayFormResults->submission->{$displayFormResults->formData->price_per_night_el};
+        
+        $paymentDetails                                 = $displayFormResults->submission->{$displayFormResults->formData->payment_details_el};
+
+        // Convert details to table
+        $rows   = explode("\n",  $paymentDetails);
+
+        $table  = '<table border="1" style="padding: 5px;border: none;">';
+            foreach($rows as $row){
+                $cols   = explode(":", $row);
+                $table  .= '<tr>';
+                    $table  .= "<td style='border: none;width: 120px;'>";
+                        $table  .= "<b>".trim($cols[0])."</b>";
+                    $table  .= "</td>";
+                    $table  .= "<td style='border: none;'>";
+                        $table  .= trim($cols[1]);
+                    $table  .= "</td>";
+                $table  .= "</tr>";
+            }
+        $table  .= '</table>';
+
+        $this->replaceArray['%payment_details%']    = $table;
     }
 }
