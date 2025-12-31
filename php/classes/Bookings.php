@@ -1965,7 +1965,6 @@ class Bookings{
 
                 // add the manager to the subject
                 $this->managers[$subject['name'] ][$manager->ID]    = $manager;
-
             }
         }
     }

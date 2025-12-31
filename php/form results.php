@@ -63,7 +63,7 @@ add_filter('sim-formstable-should-show', __NAMESPACE__.'\shouldShow', 10, 3);
 function shouldShow($shouldShow, $displayFormResults, $type){
     // Check if we should show the table view
     if(
-        $type == 'own'                                                  ||          // own is always an table
+        $type == 'own'                                                ||        // own is always an table
         !isset($displayFormResults->tableSettings->booking_display)   ||          // no option choosen
         (
             isset($displayFormResults->tableSettings->booking_display) &&         // option chosen
@@ -81,6 +81,19 @@ function shouldShow($shouldShow, $displayFormResults, $type){
         }
 
         return $shouldShow;
+    }
+
+    $html   = '';
+
+    /**
+     * Data should always be splitted if we are in calendar view
+     * So the type 'all' is not allowed.
+     * We render our own submissions as a table, before continuing with the calendar view
+     */
+    if($type == 'all'){
+        $html       = $displayFormResults->renderTable('own');
+
+        $type       = 'others';
     }
     
     // display the calendar instead of the table
@@ -112,7 +125,7 @@ function shouldShow($shouldShow, $displayFormResults, $type){
         $targetDate                     = strtotime(array_values($bookings->forms->submission->booking_startdate)[0]);
     }
     
-    $html   = '<div class="tables-wrapper">';
+    $html   .= '<div class="tables-wrapper">';
         if($type != 'others'){ // has already been rendered for own submissions if the type is others
             $html       .= $bookings->pendingBookingsHtml('approval');
             $html       .= $bookings->pendingBookingsHtml('payment');
