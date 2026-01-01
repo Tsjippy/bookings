@@ -6,9 +6,14 @@
 ### Changed
 
 ### Fixed
-- display of own bookings
 
 ### Updated
+
+## [8.6.6] - 2026-01-01
+
+
+### Fixed
+- display of own bookings
 
 ## [8.6.5] - 2025-12-12
 
