@@ -6,6 +6,7 @@
 ### Changed
 
 ### Fixed
+- bug when retrieving bookings over ajax
 
 ### Updated
 
