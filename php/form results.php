@@ -150,7 +150,8 @@ function shouldShow($shouldShow, $displayFormResults, $type){
             }
 
             $html       .= "<style>.booking-detail-wrapper{padding: 10px;}</style>";
-            $html       .= "<h4>Your Current Submissions</h4><div class='details-wrapper' style='max-width:500px;display:flex;'>";
+            $html       .= "<h4>Your Current Bookings</h4>";
+            $html       .= "<div class='details-wrapper' style='max-width:500px;display:flex;'>";
 
                 foreach($displayFormResults->submissions as $submission){
                     $result = $bookings->getBookingsBySubmission($submission->id);
