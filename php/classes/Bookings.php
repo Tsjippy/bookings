@@ -795,6 +795,8 @@ class Bookings{
             return '';
         }
 
+        $this->getBookingElements();
+
         $baseUrl	= SIM\pathToUrl(MODULE_PATH.'pictures');
 
         if($this->forms->columnSettings == null || empty($this->forms->tableSettings)){
@@ -834,7 +836,7 @@ class Bookings{
                 // no right to see this
                 ?>
                 <div class='booking-detail-wrapper warning hidden' data-booking-id='<?php echo esc_attr($booking->id);?>'>
-                    No Permission to see this booking
+                    No permission to see this booking
                 </div>
                 <?php
                 continue;

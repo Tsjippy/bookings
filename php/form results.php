@@ -63,7 +63,6 @@ add_filter('sim-formstable-should-show', __NAMESPACE__.'\shouldShow', 10, 3);
 function shouldShow($shouldShow, $displayFormResults, $type){
     // Check if we should show the table view
     if(
-        $type == 'own'                                                ||        // own is always an table
         !isset($displayFormResults->tableSettings->booking_display)   ||          // no option choosen
         (
             isset($displayFormResults->tableSettings->booking_display) &&         // option chosen
@@ -72,15 +71,16 @@ function shouldShow($shouldShow, $displayFormResults, $type){
         isset($_REQUEST['export-xls'])  ||                                          // exporting an excel
         isset($_REQUEST['export-pdf'])                                              // exporting a pdf
     ){
-        if($type == 'own' && $displayFormResults->tableSettings->booking_display == 'calendar'){
-            $bookings    = new Bookings($displayFormResults);
-            
-            echo $bookings->pendingBookingsHtml('approval');
-
-            echo $bookings->pendingBookingsHtml('payment');
-        }
-
         return $shouldShow;
+    }
+
+    // Type is own, do not show a calendar but a list of details
+    if($type == 'own'){
+        $bookings    = new Bookings($displayFormResults);
+        
+        echo $bookings->pendingBookingsHtml('approval');
+
+        echo $bookings->pendingBookingsHtml('payment');
     }
 
     $html   = '';
