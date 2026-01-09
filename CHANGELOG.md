@@ -6,9 +6,14 @@
 ### Changed
 
 ### Fixed
-- bug when retrieving bookings over ajax
 
 ### Updated
+
+## [8.6.7] - 2026-01-09
+
+
+### Fixed
+- bug when retrieving bookings over ajax
 
 ## [8.6.6] - 2026-01-01
 
