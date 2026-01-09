@@ -74,15 +74,6 @@ function shouldShow($shouldShow, $displayFormResults, $type){
         return $shouldShow;
     }
 
-    // Type is own, do not show a calendar but a list of details
-    if($type == 'own'){
-        $bookings    = new Bookings($displayFormResults);
-        
-        echo $bookings->pendingBookingsHtml('approval');
-
-        echo $bookings->pendingBookingsHtml('payment');
-    }
-
     $html   = '';
 
     /**
@@ -126,10 +117,6 @@ function shouldShow($shouldShow, $displayFormResults, $type){
     }
     
     $html   .= '<div class="tables-wrapper">';
-        if($type != 'others'){ // has already been rendered for own submissions if the type is others
-            $html       .= $bookings->pendingBookingsHtml('approval');
-            $html       .= $bookings->pendingBookingsHtml('payment');
-        }
 
         $calendars  = '';
         $subjects   = [];
@@ -144,6 +131,38 @@ function shouldShow($shouldShow, $displayFormResults, $type){
 
                 $subjects[]   = $subject;
             }
+        }
+
+        /**
+         * Display a list of bookings
+         */
+        if($type == 'own'){
+
+            // Pending bookings
+            $html       .= $bookings->pendingBookingsHtml('approval');
+            $html       .= $bookings->pendingBookingsHtml('payment');
+
+            // Get the bookings for the current user
+            $displayFormResults->parseSubmissions($bookings->user->ID);
+
+            if(empty($displayFormResults->submissions)){
+                return $html;
+            }
+
+            $html       .= "<style>.booking-detail-wrapper{padding: 10px;}</style>";
+            $html       .= "<h4>Your Current Submissions</h4><div class='details-wrapper' style='max-width:500px;display:flex;'>";
+
+                foreach($displayFormResults->submissions as $submission){
+                    $result = $bookings->getBookingsBySubmission($submission->id);
+
+                    if(is_array($result)){
+                        // We only need the details for the first booking of each submission
+                        $html   .= $bookings->submissionDetails($result[0], $submission, false);
+                    }
+                }
+            $html       .= '</div>';
+
+            return $html.'</div>';
         }
 
         // Only show subject selection if there is something to choose
