@@ -868,7 +868,7 @@ class Bookings{
                                 if(
                                     !$setting['show']     || 
                                     !is_numeric($key)   || 
-                                    in_array($setting['name'], ['form-id', 'formurl', '_wpnonce', 'id', 'submissiontime', 'edittime', 'booking-startdate', 'booking-enddate', 'booking-room', 'booking_rooms', 'name', $this->bookingElements[0]->name])
+                                    in_array($setting['name'], ['form-id', 'formurl', '_wpnonce', 'id', 'submissiontime', 'edittime', 'timecreated', 'timelastedited', 'booking-startdate', 'booking-enddate', 'booking-room', 'booking_rooms', 'name', $this->bookingElements[0]->name])
                                 ){
                                     continue;
                                 }

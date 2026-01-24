@@ -396,14 +396,15 @@ function alterQuery($params, $userId, $instance){
     $bookings   = new Bookings($instance);
 
     // only show future bookings in table view
-    if(!in_array("id=%d", $params['where'])){
-        $params['where'][]   .= "id IN(SELECT submission_id FROM %i WHERE enddate >= %s ORDER BY 'startdate')";
+    if(!in_array("S.id=%d", $params['where'])){
+        $params['where'][]   .= "S.id IN(SELECT submission_id FROM %i WHERE enddate >= %s ORDER BY 'startdate')";
         $params['values'][] = $bookings->tableName;
         $params['values'][] = date('Y-m-d');
     }
 
     // We are requesting a submission value and the element index is negative
     if(
+        isset($params['values'][2]) &&
         intval($params['values'][2]) < -101
     ){
         $elementId      = $params['values'][2];
@@ -426,7 +427,7 @@ function alterQuery($params, $userId, $instance){
                 return $params;
         }
 
-        $params['base']     = "select $column from %i WHERE ";
+        $params['baseQuery']     = "select $column from %i WHERE ";
 
         $params['where']    = [
             "submission_id = %d"
