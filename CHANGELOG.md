@@ -4,6 +4,7 @@
 ### Added
 
 ### Changed
+- implemented new SQL query from forms module
 
 ### Fixed
 
