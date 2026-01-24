@@ -4,11 +4,16 @@
 ### Added
 
 ### Changed
-- implemented new SQL query from forms module
 
 ### Fixed
 
 ### Updated
+
+## [8.6.8] - 2026-01-24
+
+
+### Changed
+- implemented new SQL query from forms module
 
 ## [8.6.7] - 2026-01-09
 
