@@ -20,7 +20,7 @@ class Bookings{
     public $picturesUrl;
     protected $subjects;
 
-    public function __construct($displayFormResults=''){
+    public function __construct($formInstance=''){
         global $wpdb;
 		$this->tableName		            = $wpdb->prefix.'sim_bookings';
         $this->bookings                     = [];
@@ -30,8 +30,8 @@ class Bookings{
         $this->subjects                     = [];
         $this->picturesUrl	                = SIM\pathToUrl(MODULE_PATH.'pictures');
 
-        if(getType($displayFormResults) == 'object'){
-            $this->forms        = $displayFormResults;
+        if(getType($formInstance) == 'object'){
+            $this->forms        = $formInstance;
         }else{
             $this->forms        = new SIM\FORMS\DisplayFormResults([]);
         }

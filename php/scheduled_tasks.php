@@ -19,7 +19,8 @@ function scheduleTasks(){
 }
 
 function paymentReminder(){
-	$bookings = new Bookings();
+	$forms 		= new SIM\FORMS\EditFormResults([]);
+	$bookings 	= new Bookings($forms);
 	$bookings->sendPaymentReminders();
 }
 
