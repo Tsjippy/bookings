@@ -2,7 +2,7 @@
 namespace SIM\BOOKINGS;
 use SIM;
 
-const MODULE_VERSION		= '8.6.8';
+const MODULE_VERSION		= '8.6.9';
 
 DEFINE(__NAMESPACE__.'\MODULE_PATH', plugin_dir_path(__DIR__));
 

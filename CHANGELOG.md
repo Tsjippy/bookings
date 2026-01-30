@@ -6,9 +6,14 @@
 ### Changed
 
 ### Fixed
-- payment reminders
 
 ### Updated
+
+## [8.6.9] - 2026-01-30
+
+
+### Fixed
+- payment reminders
 
 ## [8.6.8] - 2026-01-24
 
