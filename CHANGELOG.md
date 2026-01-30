@@ -6,6 +6,7 @@
 ### Changed
 
 ### Fixed
+- payment reminders
 
 ### Updated
 
