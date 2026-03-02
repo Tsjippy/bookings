@@ -7,6 +7,7 @@
 - use wpdb prepare
 
 ### Fixed
+- query
 
 ### Updated
 
