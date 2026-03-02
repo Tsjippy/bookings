@@ -1667,16 +1667,9 @@ class Bookings{
             return [];
         }
 
-        $subjects       = array_keys($this->managers);
+        $query	        = "SELECT * FROM %i WHERE (`paid` IS NULL OR `paid` = 0)";
 
-        $placeholders   = implode(', ', array_fill(0, count($subjects), '%s'));
-
-        $query	        = "SELECT * FROM %i WHERE (`paid` IS NULL OR `paid` = 0) AND subject IN ($placeholders)";
-
-        $values         = [
-            $this->tableName,
-            ...$subjects
-        ];
+        $values         = [ $this->tableName ];
 
         // only show finished bookings
         if($onlyFinished){
