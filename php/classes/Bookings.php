@@ -1717,7 +1717,7 @@ class Bookings{
     }
 
     /**
-     * Retrieve all the bookings of a certain startdate
+     * Retrieve all the bookings of a certain enddate
      *
      *  @param  string|int  $date   The date in 'Y-m-d' format or unix timestamp
      */
@@ -1728,9 +1728,9 @@ class Bookings{
             $date   = date('Y-m-d', $date);
         }
 
-        $query	    = "SELECT * FROM $this->tableName WHERE enddate = '$date'";
-
-		return $wpdb->get_results($query);
+		return $wpdb->get_results(
+            $wpdb->prepare("SELECT * FROM %i WHERE enddate = %s", $this->tableName, $date)
+        );
     }
 
     /**
