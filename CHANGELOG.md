@@ -4,6 +4,7 @@
 ### Added
 
 ### Changed
+- use wpdb prepare
 
 ### Fixed
 
