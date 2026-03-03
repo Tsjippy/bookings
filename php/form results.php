@@ -395,14 +395,7 @@ function alterQuery($params, $userId, $instance){
 
     $bookings   = new Bookings($instance);
 
-    // only show future bookings in table view
-    if(!in_array("S.id=%d", $params['where'])){
-        $params['where'][]   .= "S.id IN(SELECT submission_id FROM %i WHERE enddate >= %s ORDER BY 'startdate')";
-        $params['values'][] = $bookings->tableName;
-        $params['values'][] = date('Y-m-d');
-    }
-
-    // We are requesting a submission value and the element index is negative
+    // We are requesting a submission value and the element index is negative, meaning a start- or end date or a room value
     if(
         isset($params['values'][2]) &&
         intval($params['values'][2]) < -101
@@ -429,20 +422,30 @@ function alterQuery($params, $userId, $instance){
 
         $params['baseQuery']     = "select $column from %i WHERE ";
 
+        // Unset the element index as it is not needed
         $params['where']    = [
-            "submission_id = %d"
+            "submission_id = %d",
+            "room = %d"
         ];
 
         $params['values']   = [
             $bookings->tableName,
-            $submissionId
+            $submissionId,
+            $params['values'][3]   // the original submission sub id (room number) where clause value
         ];
+    }
+
+    // only show future bookings in table view
+    elseif(!in_array("S.id=%d", $params['where'])){
+        $params['where'][] .= "S.id IN(SELECT submission_id FROM %i WHERE enddate >= %s ORDER BY 'startdate')";
+        $params['values'][] = $bookings->tableName;
+        $params['values'][] = date('Y-m-d');
     }
 
     return $params;
 }
 
-//Store updated date or room
+// Store updated date or room
 add_filter('sim-forms-should-update-form-data', __NAMESPACE__.'\updateBookingData', 10, 6);
 function updateBookingData($shouldContinue, $elementId, $submissionId, $subId, $value, $instance){
     // Change to paid / unpaid
@@ -472,12 +475,36 @@ function updateBookingData($shouldContinue, $elementId, $submissionId, $subId, $
     
     $bookings   = new Bookings($instance);
 
+    $startDates = [];
+    $endDates   = [];
+    $rooms      = [];
+
+    // Update the booking data
     foreach($bookings->getBookingsBySubmission($submissionId) as $booking){
+        // Only update the booking with the correct room if a sub id is given, otherwise update all bookings of this submission
         if(empty($subId) || $booking->room == $subId){
             $bookings->updateBooking($booking, [$column => $value], true);
+
+            $booking->{$column} = $value;
+        }
+
+        $startDates[]   = $booking->startdate;
+        $endDates[]     = $booking->enddate;
+        $rooms[]        = $booking->room;
+    }
+
+    // Update the amount to be paid if startdate or enddate are changed
+    if( $elementId == -102 || $elementId == -103){
+        $amount             = $bookings->calculatePaymentAmount($startDates, $endDates, $rooms);
+
+        $paymentAmountElId  = $bookings->forms->formData->payment_amount_el;
+
+        if(!empty($paymentAmountElId)){
+            $bookings->forms->updateSubmission($paymentAmountElId, $amount);
         }
     }
 
+    // Return false meaning the processing should not continue
     if($elementId != $paymentIndicatorElId ){
         return false;
     }

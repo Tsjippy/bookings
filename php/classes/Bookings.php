@@ -1345,7 +1345,7 @@ class Bookings{
         }
 
         // update event
-        $event                          = json_decode(get_post_meta($booking->event_id, 'eventdetails', true), true);
+        $event                  = json_decode(get_post_meta($booking->event_id, 'eventdetails', true), true);
         if(!empty($event)){
             update_post_meta($booking->event_id, 'eventdetails', json_encode(array_merge($event, $values)));
         }
@@ -2233,10 +2233,12 @@ class Bookings{
      * Calculate the total amount due after booking update
      */
     public function calculatePaymentAmount($startDates, $endDates){
-        $pricePerNightEl    = $this->forms->formData->price_per_night_el;
-        $pricePerNightName  = $this->forms->getElementById($pricePerNightEl, 'name');
+        $startDates = SIM\cleanUpNestedArray($startDates);
+        $endDates   = SIM\cleanUpNestedArray($endDates);
 
-        if(empty($pricePerNightEl)){
+        $pricePerNightElId    = $this->forms->formData->price_per_night_el;
+
+        if(empty($pricePerNightElId) || empty($startDates) || empty($endDates)){
             return;
         }
 
@@ -2254,7 +2256,12 @@ class Bookings{
             $nights     = $nights + $days;
         }
 
-        $pricePerNight      = $this->forms->submission->{$pricePerNightName};
+        $pricePerNight      = $this->forms->submission->{$pricePerNightElId};
+        if(empty($pricePerNight)){
+            SIM\printArray("Price per night not found in submission with id {$this->forms->submission->id}");
+            return;
+        }
+        
         preg_match('/(.*?)([\d+|\.|,]+)/', "$pricePerNight", $matches);
         $amount             = $matches[2];
         $currency           = $matches[1];

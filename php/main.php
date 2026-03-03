@@ -3,27 +3,40 @@ namespace SIM\BOOKINGS;
 use SIM;
 
 // check if a booking request is ok
-add_filter('sim_before_inserting_formdata', __NAMESPACE__.'\beforeSavingFormData', 99, 3);
+add_filter('sim_before_inserting_formdata', __NAMESPACE__.'\beforeSavingFormData', 99, 2);
+
 function beforeSavingFormData($submission, $object){
     $startDates = [];
-    if(isset($submission->{'booking-startdate'})){
-        $startDates = (array)$submission->{'booking-startdate'};
+    if(isset($submission->{'booking_startdate'})){
+        $startDates = (array)$submission->{'booking_startdate'};
 
-        unset($submission->{'booking-startdate'});
+        $startDates = SIM\cleanUpNestedArray($startDates);
+
+        unset($submission->{'booking_startdate'});
     }
 
     $endDates   = [];
-    if(isset($submission->{'booking-enddate'})){
-        $endDates   = (array)$submission->{'booking-enddate'};
+    if(isset($submission->{'booking_enddate'})){
+        $endDates   = (array)$submission->{'booking_enddate'};
+        $endDates   = SIM\cleanUpNestedArray($endDates);
 
-        unset($submission->{'booking-enddate'});
+        unset($submission->{'booking_enddate'});
+    }
+
+    if(empty($startDates) || empty($endDates)){
+        SIM\printArray("No dates found for submission with id $submission->id");
+        return;
     }
 
     $rooms  = [];
-    if(isset($submission->{'booking-rooms'}) && is_array($submission->{'booking-rooms'})){
-        $rooms   = $submission->{'booking-rooms'};
+    if(!empty($submission->{'booking_rooms'})){
+        $rooms   = $submission->{'booking_rooms'};
 
-        unset($submission->{'booking-rooms'});
+        if(!is_array($rooms)){
+            $rooms  = [$rooms];
+        }
+
+        unset($submission->{'booking_rooms'});
     }
 
     $bookings                   = new Bookings($object);
@@ -36,12 +49,16 @@ function beforeSavingFormData($submission, $object){
 
     // loop over all booking selectors (usually one)
     foreach($elements as $element){
-        $bookingDetails = $bookings->getElementSubjects($element->id);
-        $subjectName    = $submission->{$element->name};
+        $subjects       = $bookings->getElementSubjects($element->id);
+        $subjectName    = $submission->{$element->id};
 
         // somehow we do not have any data
-        if(empty($bookingDetails)){
+        if(empty($subjects)){
             return new \WP_Error('bookings', "No booking details found");
+        }
+
+        if(!empty($submission->id)){
+            $currentBookings    = $bookings->getBookingsBySubmission($submission->id);
         }
 
         // Same start and end date
@@ -50,7 +67,12 @@ function beforeSavingFormData($submission, $object){
                 return new \WP_Error('bookings', "End date cannot be the same as the start date");
             }
 
-            $overlappingBookings    = $bookings->checkOverlap($startdate, $endDates[$index], $subjectName, $rooms[$index]);
+            $bookingId = -1;
+            if(!empty($currentBookings)){
+                $bookingId = $currentBookings[0]->id;
+            }
+
+            $overlappingBookings    = $bookings->checkOverlap($startdate, $endDates[$index], $subjectName, $rooms[$index], $bookingId);
             if(!empty($overlappingBookings)){
                 if(!empty($rooms[$index])){
                     $subjectName    .= " room {$rooms[$index]}";
@@ -63,7 +85,7 @@ function beforeSavingFormData($submission, $object){
         }
 
         // find the selected subject
-        foreach($bookingDetails as $subject){
+        foreach($subjects as $subject){
             if(
                 !empty($subject['name']) &&             // Subjects name is set 
                 $subject['name'] == $subjectName &&     // and this is the selected subject
@@ -79,11 +101,10 @@ function beforeSavingFormData($submission, $object){
     // Update the amount to be paid
     $amount             = $bookings->calculatePaymentAmount($startDates, $endDates, $rooms);
 
-    $paymentAmountEl    = $bookings->forms->formData->payment_amount_el;
-    $paymentAmountName  = $bookings->forms->getElementById($paymentAmountEl, 'name');
+    $paymentAmountElId  = $bookings->forms->formData->payment_amount_el;
 
-    if(!empty($paymentAmountName)){
-        $submission->{$paymentAmountName} = $amount;
+    if(!empty($paymentAmountElId)){
+        $submission->{$paymentAmountElId} = $amount;
     }
 
     return $submission;
