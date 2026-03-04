@@ -2,48 +2,53 @@
 namespace SIM\BOOKINGS;
 use SIM;
 
-// check if a booking request is ok
+/**
+ * This filter runs before the submission is inserted in the database.
+ * We use it to check if the booking overlaps with an existing one.
+ * It returns an error if there is an overlap, or an other issue that prevents creating the booking
+ * 
+ * It updates the amount to be paid if there are no issues
+ */
 add_filter('sim_before_inserting_formdata', __NAMESPACE__.'\beforeSavingFormData', 99, 2);
-
 function beforeSavingFormData($submission, $object){
+    $bookings                   = new Bookings($object);
+
+    // Check if this is a form with a booking selector
+    $elements             = $bookings->getBookingElements();
+    if(empty($elements) || is_wp_error($elements)){
+        return $submission;
+    }
+
     $startDates = [];
-    if(isset($submission->{'booking_startdate'})){
-        $startDates = (array)$submission->{'booking_startdate'};
+    if(isset($submission->{'booking-startdate'})){
+        $startDates = (array)$submission->{'booking-startdate'};
 
         $startDates = SIM\cleanUpNestedArray($startDates);
 
-        unset($submission->{'booking_startdate'});
+        unset($submission->{'booking-startdate'});
     }
 
     $endDates   = [];
-    if(isset($submission->{'booking_enddate'})){
-        $endDates   = (array)$submission->{'booking_enddate'};
+    if(isset($submission->{'booking-enddate'})){
+        $endDates   = (array)$submission->{'booking-enddate'};
         $endDates   = SIM\cleanUpNestedArray($endDates);
 
-        unset($submission->{'booking_enddate'});
-    }
-
-    if(empty($startDates) || empty($endDates)){
-        SIM\printArray("No dates found for submission with id $submission->id");
-        return;
+        unset($submission->{'booking-enddate'});
     }
 
     $rooms  = [];
-    if(!empty($submission->{'booking_rooms'})){
-        $rooms   = $submission->{'booking_rooms'};
+    if(!empty($submission->{'booking-rooms'})){
+        $rooms   = $submission->{'booking-rooms'};
 
         if(!is_array($rooms)){
             $rooms  = [$rooms];
         }
 
-        unset($submission->{'booking_rooms'});
+        unset($submission->{'booking-rooms'});
     }
 
-    $bookings                   = new Bookings($object);
-
-    // find the subject
-    $elements             = $bookings->getBookingElements();
-    if(is_wp_error($elements) || empty($elements)){
+    if(empty($startDates) || empty($endDates)){
+        return new \WP_Error('bookings', "Please provide a start and end date");
         return $submission;
     }
 
@@ -52,9 +57,9 @@ function beforeSavingFormData($submission, $object){
         $subjects       = $bookings->getElementSubjects($element->id);
         $subjectName    = $submission->{$element->id};
 
-        // somehow we do not have any data
+        // Somehow we do not have any data
         if(empty($subjects)){
-            return new \WP_Error('bookings', "No booking details found");
+            return new \WP_Error('bookings', "No booking subjects found");
         }
 
         if(!empty($submission->id)){
@@ -98,19 +103,23 @@ function beforeSavingFormData($submission, $object){
         }        
     }
 
-    // Update the amount to be paid
-    $amount             = $bookings->calculatePaymentAmount($startDates, $endDates, $rooms);
+    // Everything is ok - Update the amount to be paid
+    $amount             = $bookings->calculatePaymentAmount($startDates, $endDates);
 
     $paymentAmountElId  = $bookings->forms->formData->payment_amount_el;
 
     if(!empty($paymentAmountElId)){
-        $submission->{$paymentAmountElId} = $amount;
+        $name = $bookings->forms->getElementById($paymentAmountElId, 'name');
+        $submission->{$name} = $amount;
     }
 
     return $submission;
 }
 
-// Insert a new booking
+/**
+ * This filter runs after the submission is inserted in the database.
+ * We use it to create the booking in the database, and link it to the submission
+ */
 add_filter('sim_after_form_submission', __NAMESPACE__.'\afterFormSubmission', 99, 3);
 function afterFormSubmission($message, $submission, $object){
     $startDates = [];
@@ -166,16 +175,6 @@ function afterFormSubmission($message, $submission, $object){
                 return $result;
             }
         }
-    }
-
-    // Update the amount to be paid
-    $amount             = $bookings->calculatePaymentAmount($startDates, $endDates, $rooms);
-
-    $paymentAmountEl    = $bookings->forms->formData->payment_amount_el;
-    $paymentAmountName  = $bookings->forms->getElementById($paymentAmountEl, 'name');
-
-    if(!empty($paymentAmountName)){
-        $submission[$paymentAmountName] = $amount;
     }
 
     return $message;
@@ -242,16 +241,16 @@ function transformEmpty($replaceValue, $match, $replaceValues, $instance){
         $match != "booking-details" || 
         (
             empty($_POST['booking-startdate']) &&
-            empty($replaceValues['booking_startdate'])
+            empty($replaceValues['booking-startdate'])
         )
     ){
         return $replaceValue;
     }
 
     if(empty($_POST['booking-startdate'])){
-        $startDates     = (array)$replaceValues['booking_startdate'];
-        $endDates       = (array)$replaceValues['booking_enddate'];
-        $rooms          = (array)$replaceValues['booking_rooms'];
+        $startDates     = (array)$replaceValues['booking-startdate'];
+        $endDates       = (array)$replaceValues['booking-enddate'];
+        $rooms          = (array)$replaceValues['booking-rooms'];
     }else{
         $startDates     = $_POST['booking-startdate'];
         $endDates       = $_POST['booking-enddate'];
@@ -302,7 +301,7 @@ function  renameModule($templateFile){
 
 // Alters the arguments used to register the booking post types
 add_filter('sim-post-type-creation-args', function($args, $single){
-    if($single == 'booking_rooms'){
+    if($single == 'booking-rooms'){
         $args['hierarchical']   = false;
 
         $args['rewrite']    = [

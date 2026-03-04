@@ -113,7 +113,7 @@ function shouldShow($shouldShow, $displayFormResults, $type){
             }
         }
 
-        $targetDate                     = strtotime(array_values($bookings->forms->submission->booking_startdate)[0]);
+        $targetDate                     = strtotime(array_values($bookings->forms->submission->{'booking-startdate'})[0]);
     }
     
     $html   .= '<div class="tables-wrapper">';
@@ -230,7 +230,7 @@ function actionHtml($buttonsHtml, $submission, $index, $instance){
 
 // Show the possible booking rooms
 add_filter('sim-forms-checkbox-options', function ($options, $object){
-    if(!isset($object->element) || $object->element->name != 'booking_rooms[]'){
+    if(!isset($object->element) || $object->element->name != 'booking-rooms[]'){
         return $options;
     }
     
@@ -303,16 +303,16 @@ function formdataRetrieved($submissions, $userId, $object){
         // Add submissions for each room, using the room name as sub id
         foreach($startDates as $i => $date){
             // Add the dates to the form results
-            $submission->booking_startdate   = $date;
-            $submission->booking_enddate     = $endDates[$i];
-            $submission->booking_id          = $bookingIds[$i];
+            $submission->{'booking-startdate'}  = $date;
+            $submission->{'booking-enddate'}    = $endDates[$i];
+            $submission->booking_id             = $bookingIds[$i];
 
             if(!empty($rooms)){
-                $submission->booking_rooms   = $rooms[$i];
-                $submission->subId           = $rooms[$i];
+                $submission->{'booking-rooms'}  = $rooms[$i];
+                $submission->subId              = $rooms[$i];
             }
 
-            $newSubmissions[]                = clone $submission;
+            $newSubmissions[]                   = clone $submission;
         }
 
         // replace the original with the first
@@ -372,7 +372,7 @@ function adjustCellValue($value, $columnSetting, $values){
         return $value;
     }
 
-    if($columnSetting['name'] == 'booking_rooms' ){
+    if($columnSetting['name'] == 'booking-rooms' ){
         return $values['subid'];
     }
 

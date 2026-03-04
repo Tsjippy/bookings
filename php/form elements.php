@@ -574,15 +574,15 @@ function bookingDateElementHtml(&$node, $object){
         $node->setAttribute('data-booking-id', $_POST['booking-id']);
     }
 
-    if($object->element->name != 'booking_enddate' && $object->element->name != 'booking_startdate'){
+    if($object->element->name != 'booking-enddate' && $object->element->name != 'booking-startdate'){
         return;
     }
 
     // Get the subject
     $subject    = $object->submission->{$object->getElementByType('booking-selector')[0]->name};
         
-    $startDates = (array) $object->submission->booking_startdate;
-    $endDates   = (array) $object->submission->booking_enddate;
+    $startDates = (array) $object->submission->{'booking-startdate'};
+    $endDates   = (array) $object->submission->{'booking-enddate'};
 
     $early      = array_values($startDates)[0];
     $late       = array_values($endDates)[0];
@@ -598,7 +598,7 @@ function bookingDateElementHtml(&$node, $object){
     }
     
 
-    if($object->element->name == 'booking_enddate'){
+    if($object->element->name == 'booking-enddate'){
         // get the first event after this one
         $query  = "SELECT startdate FROM {$wpdb->prefix}sim_bookings WHERE subject = '$subject' AND startdate > '$late' ORDER BY startdate LIMIT 1";
         $max    = $wpdb->get_var($query);
@@ -608,7 +608,7 @@ function bookingDateElementHtml(&$node, $object){
         }
 
         $node->setAttribute('min', $early);
-    }elseif($object->element->name == 'booking_startdate'){
+    }elseif($object->element->name == 'booking-startdate'){
         // get the first event before this one
         $query  = "SELECT enddate FROM {$wpdb->prefix}sim_bookings WHERE subject = '$subject' AND enddate <= '$early' ORDER BY enddate LIMIT 1";
         $min    = $wpdb->get_var($query);
@@ -640,7 +640,7 @@ function elementHtml($node, $object){
         return $node;
     }
 
-    if($object->element->name == 'booking_rooms'){
+    if($object->element->name == 'booking-rooms'){
         $bookings       = new Bookings($object);
 
         //$subjects = maybe_unserialize($object->element->booking_details);
