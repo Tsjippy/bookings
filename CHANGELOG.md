@@ -10,6 +10,7 @@
 ### Fixed
 - query
 - update payment amount on date change
+- do not allow to load the same month twice
 
 ### Updated
 
