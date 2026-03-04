@@ -4,11 +4,16 @@
 ### Added
 
 ### Changed
-- split in multi files
 
 ### Fixed
 
 ### Updated
+
+## [8.7.1] - 2026-03-04
+
+
+### Changed
+- split in multi files
 
 ## [8.7.0] - 2026-03-04
 
