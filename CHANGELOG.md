@@ -8,6 +8,7 @@
 
 ### Fixed
 - query
+- update payment amount on date change
 
 ### Updated
 
