@@ -1021,7 +1021,7 @@ class Bookings{
 
     /**
      * Retrieve the subject data
-     * @param   bool    $force      Do not send cacheg data, default false
+     * @param   bool    $force      Do not send cached data, default false
      */
     public function getBookingElements($force = false){
         if(!empty($this->bookingElements) && !$force){
