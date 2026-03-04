@@ -4,6 +4,15 @@
 ### Added
 
 ### Changed
+
+### Fixed
+
+### Updated
+
+## [8.7.0] - 2026-03-04
+
+
+### Changed
 - use wpdb prepare
 - replaced _ with -
 
@@ -11,8 +20,6 @@
 - query
 - update payment amount on date change
 - do not allow to load the same month twice
-
-### Updated
 
 ## [8.6.9] - 2026-01-30
 
