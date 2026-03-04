@@ -22,6 +22,12 @@ function reset(modal, onlyEnd=false, skipRoomSelector=true){
 }
 
 async function getMonth(target){
+    if(target.classList.contains('clicked')){
+        return;
+    }
+
+    target.classList.add('clicked');
+
     let wrapper         = target.closest('.bookings-wrap');
     let monthContainers = wrapper.querySelectorAll(`.month-container[data-month="${target.dataset.month}"][data-year="${target.dataset.year}"]`);
     let type;
@@ -106,6 +112,8 @@ async function getMonth(target){
         // Show the month calendar
         monthContainers.forEach(el=>el.classList.remove('hidden'));
     }
+
+    target.classList.remove('clicked');
 }
 
 async function approve(target){    

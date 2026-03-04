@@ -358,32 +358,6 @@ function formdataRetrieved($submissions, $userId, $object){
     return $submissions;
 }
 
-// only show the date for the current room
-//add_filter('sim-form-result-table-value', __NAMESPACE__.'\adjustCellValue', 10, 3);
-function adjustCellValue($value, $columnSetting, $values){
-    if(
-        (
-            $columnSetting['name'] != 'booking-startdate' &&
-            $columnSetting['name'] != 'booking-enddate' &&
-            $columnSetting['name'] != 'booking-rooms' 
-        ) || 
-        !isset($values['subid'])
-    ){
-        return $value;
-    }
-
-    if($columnSetting['name'] == 'booking-rooms' ){
-        return $values['subid'];
-    }
-
-    // return only the value for this room
-    if(is_array($value)){
-        return $value[$values['subid']];
-    }
-
-    return $value;
-}
-
 /**
  * Change the submission data retrieved 
  */

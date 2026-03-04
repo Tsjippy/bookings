@@ -838,7 +838,7 @@ class Bookings{
                                     <table data-form-id='<?php echo $submission->form_id;?>' data-shortcode-id='<?php echo $this->forms->shortcodeId;?>' style='margin-bottom: 0px; width:unset;'>
                                         <tr data-submission-id='<?php echo $submission->id;?>'>
                                             <td data-name='booking-startdate' data-element-id='<?php echo $this->forms->getElementByName('booking-startdate')->id;?>' data-subid='<?php echo $subId;?>' data-booking-id='<?php echo esc_attr($submission->booking_id);?>' class='edit forms-table'>
-                                                <?php echo date(DATEFORMAT, strtotime($submission->{'booking_startdate'}));?>
+                                                <?php echo date(DATEFORMAT, strtotime($submission->{'booking-startdate'}));?>
                                             </td>
                                         </tr>
                                         <tr data-submission-id='<?php echo $submission->id;?>'>
