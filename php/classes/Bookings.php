@@ -2251,7 +2251,7 @@ class Bookings{
             }
             $diff       = strtotime($endDate) - strtotime($startDate);
 
-            $days       = round($diff / (60 * 60 * 24));
+            $days       = round($diff / DAY_IN_SECONDS);
 
             $nights     = $nights + $days;
         }
