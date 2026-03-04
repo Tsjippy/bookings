@@ -5,6 +5,7 @@
 
 ### Changed
 - use wpdb prepare
+- replaced _ with -
 
 ### Fixed
 - query
