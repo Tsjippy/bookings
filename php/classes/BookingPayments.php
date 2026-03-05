@@ -30,7 +30,7 @@ class BookingPayments extends Bookings{
             return [];
         }
 
-        $query	        = "SELECT * FROM %i WHERE `paid` != 1";
+        $query	        = "SELECT * FROM %i WHERE (`paid` != 1 OR `paid` IS NULL)";
 
         $values         = [ $this->tableName ];
 
