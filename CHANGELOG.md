@@ -2,14 +2,21 @@
 ## [Unreleased] - yyyy-mm-dd
 
 ### Added
-- bookingpayments class
 
 ### Changed
 
 ### Fixed
-- unpaid bookings query
 
 ### Updated
+
+## [8.7.2] - 2026-03-05
+
+
+### Added
+- bookingpayments class
+
+### Fixed
+- unpaid bookings query
 
 ## [8.7.1] - 2026-03-04
 
