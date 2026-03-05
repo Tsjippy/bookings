@@ -11,7 +11,7 @@ use SIM;
  */
 add_filter('sim_before_inserting_formdata', __NAMESPACE__.'\beforeSavingFormData', 99, 2);
 function beforeSavingFormData($submission, $object){
-    $bookings                   = new Bookings($object);
+    $bookings                   = new BookingPayments($object);
 
     // Check if this is a form with a booking selector
     $elements             = $bookings->getBookingElements();

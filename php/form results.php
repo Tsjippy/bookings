@@ -90,7 +90,7 @@ function shouldShow($shouldShow, $displayFormResults, $type){
     // display the calendar instead of the table
     wp_enqueue_script('sim-bookings');
 
-    $bookings                   = new Bookings($displayFormResults);
+    $bookings                   = new BookingPayments($displayFormResults);
 
     $elements                   = $bookings->getBookingElements();
     if(is_wp_error($elements)){
@@ -430,9 +430,18 @@ function updateBookingData($shouldContinue, $elementId, $submissionId, $subId, $
     }
 
     switch($elementId){
+        // Mark as paid if the payment status changed to paid or free
         case $paymentIndicatorElId:
             $column = 'paid';
-            $value  = $value != 'not paid';
+
+            /**
+             * Filters whether we should mark a booking as paid based on the payment status
+             * By default a booking is marked as paid if the status is 'free' or 'paid'
+             * @param   bool    $paid       True is booking should be marked as paid
+             * @param   string  $value      The value of the payment indicator
+             * @param   object  $instance   The EditDormResults instance
+             */
+            $value  = apply_filters('sim-bookings-payment-status', in_array($value, ['paid', 'free']), $value, $instance);
             break;
         case -102:
             $column = 'startdate';
@@ -447,7 +456,7 @@ function updateBookingData($shouldContinue, $elementId, $submissionId, $subId, $
             return $shouldContinue;
     }
     
-    $bookings   = new Bookings($instance);
+    $bookings   = new BookingPayments($instance);
 
     $startDates = [];
     $endDates   = [];
@@ -456,7 +465,11 @@ function updateBookingData($shouldContinue, $elementId, $submissionId, $subId, $
     // Update the booking data
     foreach($bookings->getBookingsBySubmission($submissionId) as $booking){
         // Only update the booking with the correct room if a sub id is given, otherwise update all bookings of this submission
-        if(empty($subId) || $booking->room == $subId){
+        if(
+            empty($subId) || 
+            $booking->room == $subId &&
+            $value != $booking->$column
+        ){
             $bookings->updateBooking($booking, [$column => $value], true);
 
             $booking->{$column} = $value;
@@ -469,12 +482,17 @@ function updateBookingData($shouldContinue, $elementId, $submissionId, $subId, $
 
     // Update the amount to be paid if startdate or enddate are changed
     if( $elementId == -102 || $elementId == -103){
-        $amount             = $bookings->calculatePaymentAmount($startDates, $endDates, $rooms);
+        $amount             = $bookings->calculatePaymentAmount($startDates, $endDates);
 
         $paymentAmountElId  = $bookings->forms->formData->payment_amount_el;
 
         if(!empty($paymentAmountElId)){
-            $bookings->forms->updateSubmission($paymentAmountElId, $amount);
+            $result = $bookings->forms->updateSubmission($paymentAmountElId, $amount);
+
+            if(is_wp_error($result)){
+                SIM\printArray($result->get_error_message());
+                return $result;
+            }
         }
     }
 

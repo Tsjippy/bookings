@@ -704,7 +704,7 @@ function formElementUpdated($element, $instance, $oldElement){
         return;
     }
 
-    $bookings       = new Bookings($instance);
+    $bookings       = new BookingPayments($instance);
     $bookings->getSubjects();
 
     // Get the updated subject data
