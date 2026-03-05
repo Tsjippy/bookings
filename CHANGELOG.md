@@ -7,6 +7,7 @@
 ### Changed
 
 ### Fixed
+- unpaid bookings query
 
 ### Updated
 
