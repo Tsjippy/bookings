@@ -6,6 +6,7 @@
 ### Changed
 
 ### Fixed
+- bug whith only one date
 
 ### Updated
 
