@@ -113,7 +113,13 @@ function shouldShow($shouldShow, $displayFormResults, $type){
             }
         }
 
-        $targetDate                     = strtotime(array_values($bookings->forms->submission->{'booking-startdate'})[0]);
+        $targetDate                     = $bookings->forms->submission->{'booking-startdate'};
+
+        if(is_array($targetDate)){
+            array_values($bookings->forms->submission->{'booking-startdate'})[0];
+        }
+
+        $targetDate                     = strtotime($targetDate);
     }
     
     $html   .= '<div class="tables-wrapper">';

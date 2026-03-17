@@ -643,8 +643,6 @@ function elementHtml($node, $object){
     if($object->element->name == 'booking-rooms'){
         $bookings       = new Bookings($object);
 
-        //$subjects = maybe_unserialize($object->element->booking_details);
-
         if(empty($subjects)){
             return 'Please add one or more subjects';
         }
