@@ -6,9 +6,14 @@
 ### Changed
 
 ### Fixed
-- bug whith only one date
 
 ### Updated
+
+## [8.7.3] - 2026-03-17
+
+
+### Fixed
+- bug whith only one date
 
 ## [8.7.2] - 2026-03-05
 
