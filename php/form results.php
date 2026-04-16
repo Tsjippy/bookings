@@ -315,7 +315,7 @@ function formdataRetrieved($submissions, $userId, $object){
 
             if(!empty($rooms)){
                 $submission->{'booking-rooms'}  = $rooms[$i];
-                $submission->subId              = $rooms[$i];
+                $submission->sub_id             = $rooms[$i];
             }
 
             $newSubmissions[]                   = clone $submission;
@@ -416,7 +416,10 @@ function alterQuery($params, $userId, $instance){
     }
 
     // only show future bookings in table view
-    elseif(!in_array("S.id=%d", $params['where'])){
+    elseif(
+        !in_array("S.id=%d", $params['where']) &&
+        !in_array("submission_id = %d", $params['where'])
+    ){
         $params['where'][] .= "S.id IN(SELECT submission_id FROM %i WHERE enddate >= %s ORDER BY 'startdate')";
         $params['values'][] = $bookings->tableName;
         $params['values'][] = date('Y-m-d');
