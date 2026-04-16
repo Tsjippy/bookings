@@ -6,9 +6,14 @@
 ### Changed
 
 ### Fixed
-- sub ids
 
 ### Updated
+
+## [8.7.4] - 2026-04-16
+
+
+### Fixed
+- sub ids
 
 ## [8.7.3] - 2026-03-17
 
