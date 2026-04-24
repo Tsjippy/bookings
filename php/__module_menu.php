@@ -44,8 +44,8 @@ function moduleOptions($optionsHtml, $settings){
 	return $optionsHtml.ob_get_clean();
 }
 
-add_filter('sim_email_bookings_settings', __NAMESPACE__.'\emailSettings', 10, 2);
-function emailSettings($html, $settings){
+add_filter('sim_email_bookings_settings', __NAMESPACE__.'\emailSettings');
+function emailSettings($html){
 	ob_start();
 
 	?>
@@ -71,7 +71,7 @@ function emailSettings($html, $settings){
 	<h4>Payment Reminder E-mail</h4>
 	<?php
 
-	$emails->printInputs($settings);
+	$emails->printInputs();
 
 	return $html.ob_get_clean();
 }
