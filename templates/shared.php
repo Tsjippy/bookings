@@ -23,7 +23,7 @@ function displayLocationTax(){
         ?>
         <div id="primary">
             <main id="main" class='taxonomy inside-article'>
-                <button type='button' class='sim button add-books' onclick='Main.showModal(`add-books`)'>Add books</button>
+                <button type='button' class='tsjippy button add-books' onclick='Main.showModal(`add-books`)'>Add books</button>
                 <?php displayBooks();?>
             </main>
         </div>

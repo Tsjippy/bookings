@@ -79,7 +79,7 @@ if(is_tax() || is_archive()){
 
 				$bookings->forms->getForm();
 				?>
-				<a href='<?php echo $bookings->forms->formData->form_url; ?>' class='sim button' target='_blank'>Book this accomodation</a>
+				<a href='<?php echo $bookings->forms->formData->form_url; ?>' class='tsjippy button' target='_blank'>Book this accomodation</a>
 				<?php
 			}
 			?>

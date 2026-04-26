@@ -287,7 +287,7 @@ class Bookings{
                 'button', 
                 $node,
                 [
-                    'class'         => 'button sim small room-details', 
+                    'class'         => 'button tsjippy small room-details', 
                     'type'          => 'button', 
                     'data-target'   => "{$subjectName}-room-modal"
                 ],

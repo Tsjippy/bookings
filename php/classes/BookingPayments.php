@@ -143,7 +143,7 @@ class BookingPayments extends Bookings{
 
         $pdf->AddPage();
 
-        $pdf->setHeaderTitle("SIM Guesthouse Invoice INV".sprintf("%06d", $booking->id));
+        $pdf->setHeaderTitle("Guesthouse Invoice INV".sprintf("%06d", $booking->id));
 
         $pdf->Header();
 
@@ -181,7 +181,7 @@ class BookingPayments extends Bookings{
         }
 
         // Save the pdf
-        $path   = get_temp_dir()."SIM Guesthouse Invoice INV{$booking->id}.pdf";
+        $path   = get_temp_dir()."Guesthouse Invoice INV{$booking->id}.pdf";
 
         wp_delete_file($path);
 

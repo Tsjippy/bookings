@@ -39,7 +39,7 @@ register_activation_hook( __FILE__, function(){
 	$bookings->createTables();
 
 	// Add columns to forms element table
-	$forms	= new \TSJIPPY\FORMS\SimForms();
+	$forms	= new \TSJIPPY\FORMS\Forms();
 
 	// add columns to the forms table
     maybe_add_column($forms->tableName, 'payment_indicator', "ALTER TABLE $forms->tableName ADD COLUMN `payment_indicator` int");

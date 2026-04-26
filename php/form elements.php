@@ -173,7 +173,7 @@ function addFormElementOptions($html, $object, $element){
                         </label>
                         <br>
                         <br>
-                        <button class="button sim small confirmed-roles-switcher <?php if($subject['default-booking-state'] != 'pending'){echo 'hidden';}?>" type="button" style='max-width: unset;'>Advanced</button>
+                        <button class="button tsjippy small confirmed-roles-switcher <?php if($subject['default-booking-state'] != 'pending'){echo 'hidden';}?>" type="button" style='max-width: unset;'>Advanced</button>
                         <div class='confirmed-roles-wrapper hidden'>
                             <h4>Select roles for which bookings are confirmed by default</h4>
                             <div class="role-info">
@@ -447,7 +447,7 @@ function bookingSelectorHtml($node, $object){
     /**
      * Build the element 
      */   
-    $object->addElement('button', $node, ['class' => 'small sim button location-details', 'type' => 'button'], 'Show Location Descriptions');
+    $object->addElement('button', $node, ['class' => 'small tsjippy button location-details', 'type' => 'button'], 'Show Location Descriptions');
     $object->addElement('br', $node);
 
     $hidden     = 'hidden';
