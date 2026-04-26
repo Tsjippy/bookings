@@ -1,6 +1,6 @@
 <?php
-namespace SIM\BOOKINGS;
-use SIM;
+namespace TSJIPPY\BOOKINGS;
+use TSJIPPY;
 
 /**
  * The Template for displaying all single books

@@ -1,6 +1,10 @@
 <?php
-namespace SIM\BOOKINGS;
-use SIM;
+namespace TSJIPPY\BOOKINGS;
+use TSJIPPY;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 
 /**
  * This filter runs before the submission is inserted in the database.
@@ -9,7 +13,7 @@ use SIM;
  * 
  * It updates the amount to be paid if there are no issues
  */
-add_filter('sim_before_inserting_formdata', __NAMESPACE__.'\beforeSavingFormData', 99, 2);
+add_filter('tsjippy_before_inserting_formdata', __NAMESPACE__.'\beforeSavingFormData', 99, 2);
 function beforeSavingFormData($submission, $object){
     $bookings                   = new BookingPayments($object);
 
@@ -23,7 +27,7 @@ function beforeSavingFormData($submission, $object){
     if(isset($submission->{'booking-startdate'})){
         $startDates = (array)$submission->{'booking-startdate'};
 
-        $startDates = SIM\cleanUpNestedArray($startDates);
+        $startDates = TSJIPPY\cleanUpNestedArray($startDates);
 
         unset($submission->{'booking-startdate'});
     }
@@ -31,7 +35,7 @@ function beforeSavingFormData($submission, $object){
     $endDates   = [];
     if(isset($submission->{'booking-enddate'})){
         $endDates   = (array)$submission->{'booking-enddate'};
-        $endDates   = SIM\cleanUpNestedArray($endDates);
+        $endDates   = TSJIPPY\cleanUpNestedArray($endDates);
 
         unset($submission->{'booking-enddate'});
     }
@@ -120,7 +124,7 @@ function beforeSavingFormData($submission, $object){
  * This filter runs after the submission is inserted in the database.
  * We use it to create the booking in the database, and link it to the submission
  */
-add_filter('sim_after_form_submission', __NAMESPACE__.'\afterFormSubmission', 99, 3);
+add_filter('tsjippy_after_form_submission', __NAMESPACE__.'\afterFormSubmission', 99, 3);
 function afterFormSubmission($message, $submission, $object){
     $startDates = [];
     if(isset($submission['booking-startdate'])){

@@ -1,8 +1,12 @@
 <?php
-namespace SIM\BOOKINGS;
-use SIM;
+namespace TSJIPPY\BOOKINGS;
+use TSJIPPY;
 
-add_action('sim-forms-after-email-triggers', __NAMESPACE__.'\addBookingEmails', 10, 2);
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+add_action('tsjippy-forms-after-email-triggers', __NAMESPACE__.'\addBookingEmails', 10, 2);
 
 function addBookingEmails($key, $email){
     ?>

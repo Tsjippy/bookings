@@ -1,8 +1,12 @@
 <?php
-namespace SIM\BOOKINGS;
-use SIM;
+namespace TSJIPPY\BOOKINGS;
+use TSJIPPY;
 
-add_filter('sim-forms-split-element-ids', function($splitElementIds, $instance){
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+add_filter('tsjippy-forms-split-element-ids', function($splitElementIds, $instance){
     if(!empty($instance->getElementByType('booking-selector'))){
         $splitElementIds[] = -102;
         $splitElementIds[] = -103;

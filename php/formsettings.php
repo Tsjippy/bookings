@@ -1,8 +1,12 @@
 <?php
-namespace SIM\BOOKINGS;
-use SIM;
+namespace TSJIPPY\BOOKINGS;
+use TSJIPPY;
 
-add_action('sim-forms-extra-form-settings', __NAMESPACE__.'\extraFormSettings');
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+add_action('tsjippy-forms-extra-form-settings', __NAMESPACE__.'\extraFormSettings');
 function extraFormSettings($object){
     // check if the form has a booking selector eement
     $bookingElements   = $object->getElementByType('booking-selector');
@@ -78,7 +82,7 @@ function extraFormSettings($object){
     <?php
 }
 
-add_filter('sim-forms-before-saving-settings', __NAMESPACE__.'\beforeSavingSettings', 10, 3);
+add_filter('tsjippy-forms-before-saving-settings', __NAMESPACE__.'\beforeSavingSettings', 10, 3);
 function beforeSavingSettings($settings, $object, $formId){
     $settings['payment_amount_el']	= is_numeric($_POST['payment-amount-el'])   ? $_POST['payment-amount-el'] : false;
 

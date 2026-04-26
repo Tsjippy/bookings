@@ -1,8 +1,12 @@
 <?php
-namespace SIM\BOOKINGS;
-use SIM;
+namespace TSJIPPY\BOOKINGS;
+use TSJIPPY;
 
-add_action('sim_frontend_post_content_title', __NAMESPACE__.'\contentTitle');
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+add_action('tsjippy_frontend_post_content_title', __NAMESPACE__.'\contentTitle');
 function contentTitle($postType){
     // Book content title
     $class = 'property booking-subject';
@@ -15,7 +19,7 @@ function contentTitle($postType){
     echo "</h4>";
 }
 
-//add_action('sim_after_post_save', __NAMESPACE__.'\afterPostSave', 10, 2);
+//add_action('tsjippy_after_post_save', __NAMESPACE__.'\afterPostSave', 10, 2);
 function afterPostSave($post, $frontEndPost){
     if($post->post_type != 'booking-subject'){
         return;
@@ -45,7 +49,7 @@ function afterPostSave($post, $frontEndPost){
 }
 
 //add meta data fields
-//add_action('sim_frontend_post_after_content', __NAMESPACE__.'\afterPostContent', 10, 2);
+//add_action('tsjippy_frontend_post_after_content', __NAMESPACE__.'\afterPostContent', 10, 2);
 function afterPostContent($object){
 
     if(!empty($object->post) && $object->post->post_type != 'booking-subject'){
@@ -53,7 +57,7 @@ function afterPostContent($object){
     }
 
     //Load js
-    //wp_enqueue_script('sim_book_script');
+    //wp_enqueue_script('tsjippy_book_script');
 
     $postId     = $object->postId;
     $postName   = $object->postName;
@@ -133,7 +137,7 @@ function afterPostContent($object){
     <?php
 }
 
-add_filter('sim-frontendcontent-posttype', __NAMESPACE__.'\filterPostType');
+add_filter('tsjippy-frontendcontent-posttype', __NAMESPACE__.'\filterPostType');
 function filterPostType($postType){
     if($postType == 'booking-subject' || $postType == 'booking-room'){
         return 'page';
@@ -141,7 +145,7 @@ function filterPostType($postType){
     return $postType;
 }
 
-add_filter('sim_frontend_post_types_and_tax', __NAMESPACE__.'\filterPostTypes');
+add_filter('tsjippy_frontend_post_types_and_tax', __NAMESPACE__.'\filterPostTypes');
 function filterPostTypes($postTypes){
     unset($postTypes['booking-subject']);
     unset($postTypes['booking-room']);

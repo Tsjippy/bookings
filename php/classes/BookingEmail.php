@@ -1,7 +1,11 @@
 <?php
-namespace SIM\BOOKINGS;
-use SIM;
-use SIM\ADMIN;
+namespace TSJIPPY\BOOKINGS;
+use TSJIPPY;
+use TSJIPPY\ADMIN;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 
 class BookingEmail extends ADMIN\MailSetting{
     public $booking;
@@ -11,7 +15,7 @@ class BookingEmail extends ADMIN\MailSetting{
         $this->booking    = $booking;
 
         // call parent constructor
-		parent::__construct('payment-reminder', MODULE_SLUG);
+		parent::__construct('payment-reminder', 'bookings');
 
         $this->replaceArray['%id%']                         = $this->booking->id;  
         $this->replaceArray['%subject%']                    = $this->booking->subject;
@@ -36,7 +40,7 @@ class BookingEmail extends ADMIN\MailSetting{
             return;
         }
 
-        $displayFormResults                             = new SIM\FORMS\DisplayFormResults([]);
+        $displayFormResults                             = new TSJIPPY\FORMS\DisplayFormResults([]);
         $displayFormResults->parseSubmissions('', $this->booking->submission_id);
 
         if(!$displayFormResults->submission){

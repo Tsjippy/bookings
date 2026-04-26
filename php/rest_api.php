@@ -1,9 +1,13 @@
 <?php
-namespace SIM\BOOKINGS;
-use SIM;
+namespace TSJIPPY\BOOKINGS;
+use TSJIPPY;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 
 // Make mailtracker rest api url publicy available
-add_filter('sim_allowed_rest_api_urls', __NAMESPACE__.'\allowedRestApiUrls');
+add_filter('tsjippy_allowed_rest_api_urls', __NAMESPACE__.'\allowedRestApiUrls');
 function allowedRestApiUrls($urls){
 	$urls[]	= RESTAPIPREFIX.'/bookings/get_next_month';
 	$urls[]	= RESTAPIPREFIX.'/bookings/remove';

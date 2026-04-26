@@ -1,9 +1,13 @@
 <?php
-namespace SIM\BOOKINGS;
-use SIM;
+namespace TSJIPPY\BOOKINGS;
+use TSJIPPY;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 
 // the choice for table view or calendar view
-add_action('sim-formstable-after-table-settings', __NAMESPACE__.'\tableSettings');
+add_action('tsjippy-formstable-after-table-settings', __NAMESPACE__.'\tableSettings');
 function tableSettings($displayFormResults){
     // Check if it has an booking selector
     if(empty($displayFormResults->getElementByType('booking-selector'))){
@@ -34,7 +38,7 @@ function tableSettings($displayFormResults){
 }
 
 // give table view permissions if we are a subject manager
-add_filter('sim-table-edit-permissions', __NAMESPACE__.'\changeTableViewPermissions', 10, 2);
+add_filter('tsjippy-table-edit-permissions', __NAMESPACE__.'\changeTableViewPermissions', 10, 2);
 function changeTableViewPermissions($tableViewPermissions, $object){
     if($tableViewPermissions){
         return $tableViewPermissions;
@@ -59,7 +63,7 @@ function changeTableViewPermissions($tableViewPermissions, $object){
 }
 
 // Display calendar instead of a table
-add_filter('sim-formstable-should-show', __NAMESPACE__.'\shouldShow', 10, 3);
+add_filter('tsjippy-formstable-should-show', __NAMESPACE__.'\shouldShow', 10, 3);
 function shouldShow($shouldShow, $displayFormResults, $type){
     // Check if we should show the table view
     if(
@@ -88,7 +92,7 @@ function shouldShow($shouldShow, $displayFormResults, $type){
     }
     
     // display the calendar instead of the table
-    wp_enqueue_script('sim-bookings');
+    wp_enqueue_script('tsjippy-bookings');
 
     $bookings                   = new BookingPayments($displayFormResults);
 
@@ -210,7 +214,7 @@ function shouldShow($shouldShow, $displayFormResults, $type){
                 $html   .= "<form method='post' class='export-form' id='export-xls'>";
                     $html   .= "<button class='button button-primary' type='submit' name='export-xls'>Export data to excel</button>'";
                 $html   .= "</form>";
-                if(SIM\getModuleOption('pdf', 'enable')){
+                if(SETTINGS['pdf'] ?? false){
                     $html   .= "<form method='post' class='export-form' id='export-pdf'>";
                         $html   .= "<button class=button button-primary type='submit' name='export-pdf'>Export data to pdf</button>";
                     $html   .= "</form>";
@@ -223,9 +227,9 @@ function shouldShow($shouldShow, $displayFormResults, $type){
 }
 
 // Change Archive button text
-add_filter('sim_form_actions_html', __NAMESPACE__.'\actionHtml', 10, 4);
+add_filter('tsjippy_form_actions_html', __NAMESPACE__.'\actionHtml', 10, 4);
 function actionHtml($buttonsHtml, $submission, $index, $instance){
-    if(get_class($instance) != 'SIM\BOOKINGS\Bookings' || !isset($buttonsHtml['archive'])){
+    if(get_class($instance) != 'TSJIPPY\BOOKINGS\Bookings' || !isset($buttonsHtml['archive'])){
         return $buttonsHtml;
     }
 
@@ -235,7 +239,7 @@ function actionHtml($buttonsHtml, $submission, $index, $instance){
 }
 
 // Show the possible booking rooms
-add_filter('sim-forms-checkbox-options', function ($options, $object){
+add_filter('tsjippy-forms-checkbox-options', function ($options, $object){
     if(!isset($object->element) || $object->element->name != 'booking-rooms[]'){
         return $options;
     }
@@ -268,7 +272,7 @@ add_filter('sim-forms-checkbox-options', function ($options, $object){
 }, 10, 2);
 
 // Alter form results
-add_filter('sim_retrieved_formdata', __NAMESPACE__.'\formdataRetrieved', 10, 3);
+add_filter('tsjippy_retrieved_formdata', __NAMESPACE__.'\formdataRetrieved', 10, 3);
 function formdataRetrieved($submissions, $userId, $object){
     $bookingSelectors   = $object->getElementByType('booking-selector');
     if(!$bookingSelectors){
@@ -367,7 +371,7 @@ function formdataRetrieved($submissions, $userId, $object){
 /**
  * Change the submission data retrieved 
  */
-add_filter('sim_formdata_retrieval_query', __NAMESPACE__.'\alterQuery', 10, 4);
+add_filter('tsjippy_formdata_retrieval_query', __NAMESPACE__.'\alterQuery', 10, 4);
 function alterQuery($params, $userId, $instance){
     if( empty($instance->getElementByType('booking-selector'))){
         return $params;
@@ -429,7 +433,7 @@ function alterQuery($params, $userId, $instance){
 }
 
 // Store updated date or room
-add_filter('sim-forms-should-update-form-data', __NAMESPACE__.'\updateBookingData', 10, 6);
+add_filter('tsjippy-forms-should-update-form-data', __NAMESPACE__.'\updateBookingData', 10, 6);
 function updateBookingData($shouldContinue, $elementId, $submissionId, $subId, $value, $instance){
     // Change to paid / unpaid
     $paymentIndicatorElId    = $instance->formData->payment_indicator;
@@ -450,7 +454,7 @@ function updateBookingData($shouldContinue, $elementId, $submissionId, $subId, $
              * @param   string  $value      The value of the payment indicator
              * @param   object  $instance   The EditDormResults instance
              */
-            $value  = apply_filters('sim-bookings-payment-status', in_array($value, ['paid', 'free']), $value, $instance);
+            $value  = apply_filters('tsjippy-bookings-payment-status', in_array($value, ['paid', 'free']), $value, $instance);
             break;
         case -102:
             $column = 'startdate';
@@ -496,10 +500,13 @@ function updateBookingData($shouldContinue, $elementId, $submissionId, $subId, $
         $paymentAmountElId  = $bookings->forms->formData->payment_amount_el;
 
         if(!empty($paymentAmountElId)){
+            /**
+             * @disregard P1013 
+            */ 
             $result = $bookings->forms->updateSubmission($paymentAmountElId, $amount);
 
             if(is_wp_error($result)){
-                SIM\printArray($result->get_error_message());
+                TSJIPPY\printArray($result->get_error_message());
                 return $result;
             }
         }

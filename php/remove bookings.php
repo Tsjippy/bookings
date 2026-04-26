@@ -1,9 +1,13 @@
 <?php
-namespace SIM\BOOKINGS;
-use SIM;
+namespace TSJIPPY\BOOKINGS;
+use TSJIPPY;
 
-add_action('sim-forms-entry-archived', __NAMESPACE__.'\removeBookings', 10, 2);
-add_action('sim-forms-entry-removed', __NAMESPACE__.'\removeBookings', 10, 2);
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+add_action('tsjippy-forms-entry-archived', __NAMESPACE__.'\removeBookings', 10, 2);
+add_action('tsjippy-forms-entry-removed', __NAMESPACE__.'\removeBookings', 10, 2);
 function removeBookings($instance, $submissionId){
     // remove the booking
     $bookings           = new Bookings();

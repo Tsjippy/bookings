@@ -1,6 +1,6 @@
 <?php
-namespace SIM\BOOKINGS;
-use SIM;
+namespace TSJIPPY\BOOKINGS;
+use TSJIPPY;
 
 /**
  * The content of a book shared between a single post, archive or the recipes page.
@@ -27,7 +27,7 @@ if(is_tax() || is_archive()){
 			$url = get_permalink(get_the_ID());
 			echo the_title( "<h3 class='archivetitle'><a href='$url'>", '</a></h3>' );
 		}else{
-			do_action( 'sim_before_content');
+			do_action( 'tsjippy_before_content');
 		}
 		?>
 		<div class="description">
@@ -44,7 +44,7 @@ if(is_tax() || is_archive()){
 			//Show everything including category specific content
 			}else{
 				if(empty($post->post_content)){
-					echo apply_filters('sim_empty_description', 'No content found...', $post);
+					echo apply_filters('tsjippy_empty_description', 'No content found...', $post);
 				}
 
 				the_content();

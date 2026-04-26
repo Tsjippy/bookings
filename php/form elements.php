@@ -1,9 +1,13 @@
 <?php
-namespace SIM\BOOKINGS;
-use SIM;
+namespace TSJIPPY\BOOKINGS;
+use TSJIPPY;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 
 // Add a new type to the element choice dropdown
-add_filter('sim-special-form-elements', __NAMESPACE__.'\specialFormElements');
+add_filter('tsjippy-special-form-elements', __NAMESPACE__.'\specialFormElements');
 function specialFormElements($options){
     $options['booking-selector']    = 'Booking selector';
 
@@ -11,7 +15,7 @@ function specialFormElements($options){
 }
 
 // add element options
-add_filter('sim-forms-element-form-content', __NAMESPACE__.'\addFormElementOptions', 10, 3);
+add_filter('tsjippy-forms-element-form-content', __NAMESPACE__.'\addFormElementOptions', 10, 3);
 function addFormElementOptions($html, $object, $element){
     global $wp_roles;
     
@@ -88,7 +92,7 @@ function addFormElementOptions($html, $object, $element){
                     <label class=" formfield form-label" style='width: auto;margin-right: 20px;'>
                         <h4>Manager(s)</h4>
                         <?php
-                        echo SIM\userSelect('', false, false, '', "formfield[booking-details][$index][managers][]", [], $subject['managers'], [], 'select', '', true);
+                        echo TSJIPPY\userSelect('', false, false, '', "formfield[booking-details][$index][managers][]", [], $subject['managers'], [], 'select', '', true);
                         ?>
                     </label>
 
@@ -335,10 +339,10 @@ function addFormElementOptions($html, $object, $element){
 }
 
 // add extra elements for displaying in results table
-add_filter('sim-forms-elements', __NAMESPACE__.'\formElements', 10, 3);
+add_filter('tsjippy-forms-elements', __NAMESPACE__.'\formElements', 10, 3);
 function formElements($elements, $displayFormResults, $force){
     // do not show on the form itself, only on the results
-    if(!$force && !in_array(get_class($displayFormResults), ["SIM\FORMS", "SIM\FORMS\DisplayFormResults", "SIM\FORMS\SubmitForm", "SIM\FORMS\EditFormResults"])){
+    if(!$force && !in_array(get_class($displayFormResults), ["TSJIPPY\FORMS", "TSJIPPY\FORMS\DisplayFormResults", "TSJIPPY\FORMS\SubmitForm", "TSJIPPY\FORMS\EditFormResults"])){
         return $elements;
     }
 
@@ -557,7 +561,7 @@ function bookingSelectorHtml($node, $object){
             'style' => 'margin-left: 20px;'
         ], $buttonText);
 
-    wp_enqueue_script('sim-bookings');
+    wp_enqueue_script('tsjippy-bookings');
 
     // Find the subject names
     foreach($subjects as $subject){
@@ -600,7 +604,7 @@ function bookingDateElementHtml(&$node, $object){
 
     if($object->element->name == 'booking-enddate'){
         // get the first event after this one
-        $query  = "SELECT startdate FROM {$wpdb->prefix}sim_bookings WHERE subject = '$subject' AND startdate > '$late' ORDER BY startdate LIMIT 1";
+        $query  = "SELECT startdate FROM {$wpdb->prefix}tsjippy_bookings WHERE subject = '$subject' AND startdate > '$late' ORDER BY startdate LIMIT 1";
         $max    = $wpdb->get_var($query);
 
         if(!empty($max)){
@@ -610,7 +614,7 @@ function bookingDateElementHtml(&$node, $object){
         $node->setAttribute('min', $early);
     }elseif($object->element->name == 'booking-startdate'){
         // get the first event before this one
-        $query  = "SELECT enddate FROM {$wpdb->prefix}sim_bookings WHERE subject = '$subject' AND enddate <= '$early' ORDER BY enddate LIMIT 1";
+        $query  = "SELECT enddate FROM {$wpdb->prefix}tsjippy_bookings WHERE subject = '$subject' AND enddate <= '$early' ORDER BY enddate LIMIT 1";
         $min    = $wpdb->get_var($query);
 
         if(!empty($min)){
@@ -622,7 +626,7 @@ function bookingDateElementHtml(&$node, $object){
 }
 
 // Display the date selector in the form
-add_filter('sim-form-element-html-short-circuit', __NAMESPACE__.'\bookingSelectorElementHtml', 10, 3);
+add_filter('tsjippy-form-element-html-short-circuit', __NAMESPACE__.'\bookingSelectorElementHtml', 10, 3);
 function bookingSelectorElementHtml($node, $parent, $object){
      // Check if the form has a booking selector
     if($object->element->type != 'booking-selector'){
@@ -633,7 +637,7 @@ function bookingSelectorElementHtml($node, $parent, $object){
 }
 
 // Display the date selector in the form
-add_filter('sim-form-element-html', __NAMESPACE__.'\elementHtml', 10, 2);
+add_filter('tsjippy-form-element-html', __NAMESPACE__.'\elementHtml', 10, 2);
 function elementHtml($node, $object){
      // Check if the form has a booking selector
      if(empty($object->getElementByType('booking-selector'))){
@@ -694,7 +698,7 @@ function elementHtml($node, $object){
 }
 
 // Update the booking-subjects name if the form name has changed
-add_action('sim-after-formelement-updated', __NAMESPACE__.'\formElementUpdated', 10, 3);
+add_action('tsjippy-after-formelement-updated', __NAMESPACE__.'\formElementUpdated', 10, 3);
 function formElementUpdated($element, $instance, $oldElement){
     global $wpdb;
 

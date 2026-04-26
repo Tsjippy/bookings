@@ -1,9 +1,13 @@
 <?php
-namespace SIM\BOOKINGS;
-use SIM;
-use SIM\EVENTS;
-use SIM\FORMS;
+namespace TSJIPPY\BOOKINGS;
+use TSJIPPY;
+use TSJIPPY\EVENTS;
+use TSJIPPY\FORMS;
 use WP_Error;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 
 class BookingPayments extends Bookings{
 
@@ -129,11 +133,11 @@ class BookingPayments extends Bookings{
      */
     protected function createInvoice($booking, $bookingEmail){
         // Create a PDF invoice if possible
-        if(!class_exists('SIM\PDF\PdfHtml')){
+        if(!class_exists('TSJIPPY\PDF\PdfHtml')){
             return [];
         }
 
-        $pdf    = new SIM\PDF\PdfHtml();
+        $pdf    = new TSJIPPY\PDF\PdfHtml();
 
         $pdf->skipFirstPage = false;
 
@@ -288,7 +292,7 @@ class BookingPayments extends Bookings{
              * @param   string  $email          The e-mail address
              * @param   object  $instance       This instance of the booking class
              */
-            if(!$email || apply_filters('sim-bookings-should-not-send-payment-reminder', false, $this->forms->submission, $user, $email, $this)){
+            if(!$email || apply_filters('tsjippy-bookings-should-not-send-payment-reminder', false, $this->forms->submission, $user, $email, $this)){
                 continue;
             }
 
@@ -360,7 +364,7 @@ class BookingPayments extends Bookings{
         }
 
         if($type == 'approval'){
-            add_filter('sim_form_actions_html', [$this, 'pendingButtons'], 10, 4);
+            add_filter('tsjippy_form_actions_html', [$this, 'pendingButtons'], 10, 4);
         }
 
         ob_start();
@@ -370,7 +374,7 @@ class BookingPayments extends Bookings{
         $html   .= ob_get_clean();
 
         if($type == 'approval'){
-            remove_filter('sim_form_actions_html',  [$this, 'pendingButtons'], 10);
+            remove_filter('tsjippy_form_actions_html',  [$this, 'pendingButtons'], 10);
         }
 
         return $html;
@@ -380,8 +384,8 @@ class BookingPayments extends Bookings{
      * Calculate the total amount due after booking update
      */
     public function calculatePaymentAmount($startDates, $endDates){
-        $startDates = SIM\cleanUpNestedArray($startDates);
-        $endDates   = SIM\cleanUpNestedArray($endDates);
+        $startDates = TSJIPPY\cleanUpNestedArray($startDates);
+        $endDates   = TSJIPPY\cleanUpNestedArray($endDates);
 
         $pricePerNightElId    = $this->forms->formData->price_per_night_el;
 
@@ -411,7 +415,7 @@ class BookingPayments extends Bookings{
             if($name && !empty($_POST[$name])){
                 $pricePerNight  = sanitize_text_field($_POST[$name]);
             }else{
-                SIM\printArray("Price per night not found in submission with id {$this->forms->submission->id}");
+                TSJIPPY\printArray("Price per night not found in submission with id {$this->forms->submission->id}");
                 return;
             }
         }

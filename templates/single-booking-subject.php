@@ -1,6 +1,6 @@
 <?php
-namespace SIM\BOOKINGS;
-use SIM;
+namespace TSJIPPY\BOOKINGS;
+use TSJIPPY;
 
 /**
  * The Template for displaying all single books
@@ -39,11 +39,11 @@ if(!isset($skipHeader) || !$skipHeader){
 			</nav>
 			
 			<?php */
-			echo apply_filters('sim-single-template-bottom', '', 'book');
+			echo apply_filters('tsjippy-single-template-bottom', '', 'book');
 			?>
 		</main>
 		
-		<?php SIM\showComments(); ?>
+		<?php TSJIPPY\showComments(); ?>
 	</div>
 
 	<?php

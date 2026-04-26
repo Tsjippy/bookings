@@ -1,9 +1,13 @@
 <?php
-namespace SIM\BOOKINGS;
-use SIM;
-use SIM\EVENTS;
-use SIM\FORMS;
+namespace TSJIPPY\BOOKINGS;
+use TSJIPPY;
+use TSJIPPY\EVENTS;
+use TSJIPPY\FORMS;
 use WP_Error;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 
 class Bookings{
     public $tableName;
@@ -22,24 +26,24 @@ class Bookings{
 
     public function __construct($formInstance=''){
         global $wpdb;
-		$this->tableName		            = $wpdb->prefix.'sim_bookings';
+		$this->tableName		            = $wpdb->prefix.'tsjippy_bookings';
         $this->bookings                     = [];
         $this->user                         = wp_get_current_user();
         $this->userRoles	                = $this->user->roles;
         $this->payables                     = [];
         $this->subjects                     = [];
-        $this->picturesUrl	                = SIM\pathToUrl(MODULE_PATH.'pictures');
+        $this->picturesUrl	                = TSJIPPY\pathToUrl(PLUGINPATH.'pictures');
 
         if(getType($formInstance) == 'object'){
             $this->forms        = $formInstance;
         }else{
-            $this->forms        = new SIM\FORMS\DisplayFormResults([]);
+            $this->forms        = new TSJIPPY\FORMS\DisplayFormResults([]);
         }
 
         // Load the managers
         $this->getSubjectManagers();
 
-        wp_enqueue_style( 'sim_bookings_style');
+        wp_enqueue_style( 'tsjippy_bookings_style', TSJIPPY\pathToUrl(PLUGINPATH.'css/bookings.min.css'), array(), PLUGINVERSION);
     }
 
     /**
@@ -712,7 +716,7 @@ class Bookings{
                             if(
                                 $class	!= 'unavailable' &&                                                                 // not in the past
                                 $overlap &&                                                                                 // overlap enabled
-                                get_class($this->forms) != 'SIM\FORMS\DisplayFormResults'   &&                              // we are not in the overview page           
+                                get_class($this->forms) != 'TSJIPPY\FORMS\DisplayFormResults'   &&                              // we are not in the overview page           
                                 (
                                     !isset($this->unavailable[date('Y-m-d', strtotime('-1 day', $workingDate))])    ||      // this is the first day of a booking
                                     !isset($this->unavailable[date('Y-m-d', strtotime('+1 day', $workingDate))])            // or the last day of a booking
@@ -886,7 +890,7 @@ class Bookings{
                                 ?>
                                 <tr class='<?php echo esc_attr($name);?>' data-submission-id='<?php echo esc_attr($submission->id);?>'>
                                     <?php
-                                    if(file_exists(SIM\urlToPath("$this->picturesUrl/$name.png"))){
+                                    if(file_exists(TSJIPPY\urlToPath("$this->picturesUrl/$name.png"))){
                                         ?>
                                         <td>
                                             <img src='<?php echo esc_url("$this->picturesUrl/$name.png");?>' loading='lazy' alt='<?php echo esc_attr($niceName);?>' class='booking-icon' title='<?php echo esc_attr($niceName);?>'>
@@ -918,7 +922,7 @@ class Bookings{
                                     }
                                     $buttonsHtml[$action]	= "<button class='$action button forms-table-action' name='{$action}-action' value='$action'>".ucfirst($action)."</button>";
                                 }
-                                $buttonsHtml = apply_filters('sim_form_actions_html', $buttonsHtml, $submission, $name, $this, $this->forms->submission);
+                                $buttonsHtml = apply_filters('tsjippy_form_actions_html', $buttonsHtml, $submission, $name, $this, $this->forms->submission);
                                 
                                 //we have te html now, check for which one we have permission
                                 foreach($buttonsHtml as $action => $button){
@@ -1463,7 +1467,7 @@ class Bookings{
         }
 
         // Remove the event
-        $events = new SIM\EVENTS\CreateEvents();
+        $events = new TSJIPPY\EVENTS\CreateEvents();
         $events->removeDbRows($booking->event_id, true);
 
         // Remove the booking
@@ -1780,7 +1784,7 @@ class Bookings{
                             $bookingSubject    =  $this->forms->submission->{$subjectKey};
 
                             if(!isset($this->managers[$bookingSubject])){
-                                SIM\printArray("No manager found for $bookingSubject");
+                                TSJIPPY\printArray("No manager found for $bookingSubject");
                                 return;
                             }
 

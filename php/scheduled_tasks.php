@@ -1,6 +1,10 @@
 <?php
-namespace SIM\BOOKINGS;
-use SIM;
+namespace TSJIPPY\BOOKINGS;
+use TSJIPPY;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 
 add_action('init', __NAMESPACE__.'\initTasks');
 function initTasks(){
@@ -10,16 +14,16 @@ function initTasks(){
 }
 
 function scheduleTasks(){
-	SIM\scheduleTask('booking_emails_action', 'daily');
+	TSJIPPY\scheduleTask('booking_emails_action', 'daily');
 
-    $freq   = SIM\getModuleOption(MODULE_SLUG, 'payment-reminder-freq');
+    $freq   = SETTINGS['payment-reminder-freq'] ?? false;
     if($freq){
-        SIM\scheduleTask('payment_reminder_action', $freq);
+        TSJIPPY\scheduleTask('payment_reminder_action', $freq);
     }
 }
 
 function paymentReminder(){
-	$forms 		= new SIM\FORMS\EditFormResults([]);
+	$forms 		= new TSJIPPY\FORMS\EditFormResults([]);
 	$bookings 	= new BookingPayments($forms);
 	$bookings->sendPaymentReminders();
 }

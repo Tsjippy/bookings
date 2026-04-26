@@ -1,9 +1,13 @@
 <?php
-namespace SIM\BOOKINGS;
-use SIM;
+namespace TSJIPPY\BOOKINGS;
+use TSJIPPY;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 
 // Filter e-mail transforms
-add_filter('sim-forms-transform-array', __NAMESPACE__.'\transformArray', 10, 4);
+add_filter('tsjippy-forms-transform-array', __NAMESPACE__.'\transformArray', 10, 4);
 function transformArray($string, $replaceValue, $forms, $match){
     if(count(array_unique($replaceValue)) == 1){
         $string = array_unique($replaceValue)[0];
@@ -14,7 +18,7 @@ function transformArray($string, $replaceValue, $forms, $match){
 }
 
 // add the booking details to the drop down for use in e-mails
-add_action('sim-add-email-placeholder-option', __NAMESPACE__.'\placeholderOption');
+add_action('tsjippy-add-email-placeholder-option', __NAMESPACE__.'\placeholderOption');
 function placeholderOption($formBuilderForm){
     if($formBuilderForm->getElementByType('booking-selector')){
         echo "<option>%booking-startdate%</option>";
@@ -29,7 +33,7 @@ function placeholderOption($formBuilderForm){
     }
 }
 
-add_filter('sim-forms-transform-empty', __NAMESPACE__.'\transformEmpty', 10, 4);
+add_filter('tsjippy-forms-transform-empty', __NAMESPACE__.'\transformEmpty', 10, 4);
 function transformEmpty($replaceValue, $match, $replaceValues, $instance){
     if(
         $match != "booking-details" || 
