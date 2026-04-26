@@ -6,6 +6,7 @@
 ### Changed
 - main plugin name from sim-base to tsjippy-shared-functionality
 - base namespace to TSJIPPY
+- filternames to include tsjippy
 
 ### Fixed
 
