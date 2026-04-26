@@ -12,8 +12,8 @@ function addEventPostType(){
 	TSJIPPY\registerPostTypeAndTax('booking-room', 'booking-rooms');
 }
 
-add_filter('tsjippy-template-filter', __NAMESPACE__.'\renameModule');
-function  renameModule($templateFile){
+add_filter('tsjippy-template-filter', __NAMESPACE__.'\changeTemplatePath');
+function  changeTemplatePath($templateFile){
     $templateFile   = str_replace('/booking-subjects/', '/bookings/', $templateFile);
     $templateFile   = str_replace('/booking-room/', '/bookings/', $templateFile);
 
