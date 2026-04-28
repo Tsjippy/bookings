@@ -8,6 +8,7 @@
 - base namespace to TSJIPPY
 - filternames to include tsjippy
 - function name
+- PLUGINCONSTANT value
 
 ### Fixed
 
