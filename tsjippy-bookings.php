@@ -56,3 +56,10 @@ register_activation_hook( __FILE__, function(){
 	maybe_add_column($forms->formEmailTable, 'days_before', "ALTER TABLE $forms->formEmailTable ADD COLUMN `days_before` int");
 	maybe_add_column($forms->formEmailTable, 'days_after', "ALTER TABLE $forms->formEmailTable ADD COLUMN `days_after` int");
 });
+
+add_action( 'activated_plugin', function($plugin){
+	// Redirect to settings page after plugin activation
+    if($plugin == PLUGIN && wp_safe_redirect( esc_url(admin_url('admin.php?page=tsjippy-'.PLUGINSLUG) )  ) ){
+		exit();
+	}
+});
