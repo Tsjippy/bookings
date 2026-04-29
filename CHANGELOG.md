@@ -11,6 +11,7 @@
 - function name
 - PLUGINCONSTANT value
 - table columns
+- recurrence selector code
 
 ### Fixed
 
