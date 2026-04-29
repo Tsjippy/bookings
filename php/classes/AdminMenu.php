@@ -19,10 +19,7 @@ class AdminMenu extends ADMIN\SubAdminMenu{
     }
 
     public function settings($parent){
-        addElement('label', $parent, [], 'How often should people be reminded to pay?');
-        addElement('br', $parent);
-
-        $this->recurrenceSelector('payment-reminder-freq', $this->settings['payment-reminder-freq'] ?? '', $parent);
+        $this->recurrenceSelector('payment-reminder-freq', $this->settings['payment-reminder-freq'] ?? '', 'How often should people be reminded to pay?', $parent);
 
         return true;
     }
