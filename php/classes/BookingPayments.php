@@ -40,7 +40,7 @@ class BookingPayments extends Bookings{
 
         // only show finished bookings
         if($onlyFinished){
-            $query	.= " AND enddate < %s";
+            $query	.= " AND end_date < %s";
 
             $values[]   = date('Y-m-d');
         }
@@ -68,7 +68,7 @@ class BookingPayments extends Bookings{
             $values[]    = "%$subject%";
         }
 
-        //sort on startdate
+        //sort on start_date
 		$query	.= ") ORDER BY id ASC";
 
 		return $wpdb->get_results(
@@ -96,7 +96,7 @@ class BookingPayments extends Bookings{
 
         $placeholders   = implode(', ', array_fill(0, count($subjects), '%s'));
 
-        $query	    = "SELECT * FROM %i WHERE pending = 1 AND startdate >= %s AND subject IN ($placeholders)";
+        $query	    = "SELECT * FROM %i WHERE pending = 1 AND start_date >= %s AND subject IN ($placeholders)";
 
         $values     = [
             $this->tableName,
@@ -115,7 +115,7 @@ class BookingPayments extends Bookings{
             $values[]    = "%$subject%";
         }
 
-        //sort on startdate
+        //sort on start_date
 		$query	.= ") ORDER BY id ASC";
 
 		return $wpdb->get_results(
@@ -247,7 +247,7 @@ class BookingPayments extends Bookings{
                 }
             }
 
-            $userId         = $this->forms->submission->userid;
+            $userId         = $this->forms->submission->user_id;
             $email          = false;
             
             // Not an user
@@ -256,8 +256,8 @@ class BookingPayments extends Bookings{
 
                 $nameElName = $this->forms->findUserNameElementName();
                 if($nameElName){
-                    $name   = $this->forms->submission->{$nameElName};
-                    $user   = (object) ['display_name' => $name ];
+                    $slug   = $this->forms->submission->{$nameElName};
+                    $user   = (object) ['display_name' => $slug ];
                 }
 
                 // Find the phone number
@@ -275,7 +275,7 @@ class BookingPayments extends Bookings{
                 // Find the e-mail
                 $emailElName        = $this->forms->findEmailElementName();
                 if($emailElName){
-                    $elementId      = $this->forms->getElementByName($emailElName, 'id');
+                    $elementId      = $this->forms->getElementBySlug($emailElName, 'id');
                     $email          = $this->forms->submission->{$elementId};
                 }
             }else{
@@ -410,10 +410,10 @@ class BookingPayments extends Bookings{
         $pricePerNight      = $this->forms->submission->{$pricePerNightElId};
         if(empty($pricePerNight)){
             // Check if the price is in the $_POST
-            $name = $this->forms->getElementById($pricePerNightElId, 'name');
+            $slug = $this->forms->getElementById($pricePerNightElId, 'slug');
 
-            if($name && !empty($_POST[$name])){
-                $pricePerNight  = sanitize_text_field($_POST[$name]);
+            if($slug && !empty($_POST[$slug])){
+                $pricePerNight  = sanitize_text_field($_POST[$slug]);
             }else{
                 TSJIPPY\printArray("Price per night not found in submission with id {$this->forms->submission->id}");
                 return;

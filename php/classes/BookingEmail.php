@@ -19,7 +19,7 @@ class BookingEmail extends ADMIN\MailSetting{
 
         $this->replaceArray['%id%']                         = $this->booking->id;  
         $this->replaceArray['%subject%']                    = $this->booking->subject;
-        $this->replaceArray['%duration%']                   = "from ".date(DATEFORMAT, strtotime($this->booking->startdate))." till ".date(DATEFORMAT, strtotime($this->booking->enddate));
+        $this->replaceArray['%duration%']                   = "from ".date(DATEFORMAT, strtotime($this->booking->start_date))." till ".date(DATEFORMAT, strtotime($this->booking->end_date));
         $this->replaceArray['%payable%']                    = '';
         $this->replaceArray['%payment_details%']            = '';
         $this->replaceArray['%price_per_night%']            = '';
@@ -29,7 +29,7 @@ class BookingEmail extends ADMIN\MailSetting{
         $this->defaultSubject    = "Please pay for your booking with id %id%";
 
         $this->defaultMessage    = 'Hi %name%,<br><br>';
-		$this->defaultMessage   .= "Our records show you have not yet paid the amount of %payable% for your booking of %subject% from %startdate% till %enddate%.<br>";
+		$this->defaultMessage   .= "Our records show you have not yet paid the amount of %payable% for your booking of %subject% from %start_date% till %end_date%.<br>";
 		$this->defaultMessage 	.= 'Please do so immidiately.<br>';
         $this->defaultMessage 	.= '<h4 style="font-weight: bold;color: #bd2919;margin: 15px 5px 5px;">Payment Details:</h4>';
         $this->defaultMessage 	.= '%payment_details%<br>';   
@@ -59,17 +59,17 @@ class BookingEmail extends ADMIN\MailSetting{
 
         // Store the dates
         foreach($bookings as $booking){
-            $startDates[]   = $this->booking->startdate;
-            $endDates[]     = $this->booking->enddate;
+            $startDates[]   = $this->booking->start_date;
+            $endDates[]     = $this->booking->end_date;
 
             if(!empty($this->booking->room)){
                 $rooms[]        = $this->booking->room;
             }
         }
 
-        $this->replaceArray['%startdate%']  = date(DATEFORMAT, strtotime($startDates[0]));
+        $this->replaceArray['%start_date%']  = date(DATEFORMAT, strtotime($startDates[0]));
 
-        $this->replaceArray['%enddate%']    = date(DATEFORMAT, strtotime($endDates[0]));
+        $this->replaceArray['%end_date%']    = date(DATEFORMAT, strtotime($endDates[0]));
 
         $this->replaceArray['%rooms%']      = $rooms[0];
 
@@ -83,7 +83,7 @@ class BookingEmail extends ADMIN\MailSetting{
             }
         }
         
-        // only change the duration string if more than one unique startdate or enddate
+        // only change the duration string if more than one unique start_date or end_date
         if(count(array_unique($startDates)) > 1 || count(array_unique($endDates)) > 1){
             $this->replaceArray['%duration%']   = '';
             foreach($startDates as $room => $d){
@@ -99,7 +99,7 @@ class BookingEmail extends ADMIN\MailSetting{
 
         $name                                           = $displayFormResults->findUserNameElementName();
         if($name){
-            $elementId                                  = $displayFormResults->getElementByName($name, 'id');
+            $elementId                                  = $displayFormResults->getElementBySlug($name, 'id');
             $this->replaceArray['%name%']               = $displayFormResults->submission->{$elementId};
         }
 

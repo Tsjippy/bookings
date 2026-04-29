@@ -21,15 +21,15 @@ function transformArray($string, $replaceValue, $forms, $match){
 add_action('tsjippy-add-email-placeholder-option', __NAMESPACE__.'\placeholderOption');
 function placeholderOption($formBuilderForm){
     if($formBuilderForm->getElementByType('booking-selector')){
-        echo "<option>%booking-startdate%</option>";
-        echo "<option>%booking-enddate%</option>";
+        echo "<option>%booking-start-date%</option>";
+        echo "<option>%booking-end-date%</option>";
         echo "<option>%booking-rooms%</option>";
         echo "<option>%booking-details%</option>";
         echo "<option>%paid%</option>";
         echo "<option title='total amount to be paid'>%payable%</option>";
         echo "<option>%payment_details%</option>";
         echo "<option>%price_per_night%</option>";
-        echo "<option title='from %startdate% till %enddate%'>%duration%</option>";
+        echo "<option title='from %start_date% till %end_date%'>%duration%</option>";
     }
 }
 
@@ -38,20 +38,20 @@ function transformEmpty($replaceValue, $match, $replaceValues, $instance){
     if(
         $match != "booking-details" || 
         (
-            empty($_POST['booking-startdate']) &&
-            empty($replaceValues['booking-startdate'])
+            empty($_POST['booking-start-date']) &&
+            empty($replaceValues['booking-start-date'])
         )
     ){
         return $replaceValue;
     }
 
-    if(empty($_POST['booking-startdate'])){
-        $startDates     = (array)$replaceValues['booking-startdate'];
-        $endDates       = (array)$replaceValues['booking-enddate'];
+    if(empty($_POST['booking-start-date'])){
+        $startDates     = (array)$replaceValues['booking-start-date'];
+        $endDates       = (array)$replaceValues['booking-end-date'];
         $rooms          = (array)$replaceValues['booking-rooms'];
     }else{
-        $startDates     = $_POST['booking-startdate'];
-        $endDates       = $_POST['booking-enddate'];
+        $startDates     = $_POST['booking-start-date'];
+        $endDates       = $_POST['booking-end-date'];
         $rooms          = (array)$_POST['booking-rooms'];
     }
 

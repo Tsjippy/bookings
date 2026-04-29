@@ -107,7 +107,7 @@ function addFormElementOptions($html, $object, $element){
                         'textarea_rows' => 10
                     );
                 
-                    echo wp_editor(
+                    wp_editor(
                         $subject['description'],
                         "subjects-{$index}-description",
                         $settings
@@ -293,7 +293,7 @@ function addFormElementOptions($html, $object, $element){
                                     'textarea_rows' => 10
                                 );
                             
-                                echo wp_editor(
+                                wp_editor(
                                     $room['description'],
                                     "subjects-{$index}-rooms-{$i}-description",
                                     $settings
@@ -360,27 +360,27 @@ function formElements($elements, $displayFormResults, $force){
     }
 
     if($element){
-        // Add the startdate and enddate
-        $startdate          = clone $element;
-        $startdate->type    = 'date';
-        $startdate->name    = 'booking-startdate';
-        $startdate->nicename= 'Startdate';
-        $startdate->id      = -102;
+        // Add the start_date and end_date
+        $start_date          = clone $element;
+        $start_date->type    = 'date';
+        $start_date->slug    = 'booking-start-date';
+        $start_date->nicename= 'Startdate';
+        $start_date->id      = -102;
 
-        $enddate            = clone $element;
-        $enddate->type      = 'date';
-        $enddate->name      = 'booking-enddate';
-        $enddate->nicename  = 'Enddate';
-        $enddate->id        = -103;
+        $end_date            = clone $element;
+        $end_date->type      = 'date';
+        $end_date->slug      = 'booking-start-date';
+        $end_date->name = 'Enddate';
+        $end_date->id        = -103;
 
         $room               = clone $element;
         $room->type         = 'checkbox';
-        $room->name         = 'booking-rooms';
-        $room->nicename     = 'Room';
+        $room->slug         = 'booking-rooms';
+        $room->name    = 'Room';
         $room->id           = -104;
         
-        $elements[]         = $startdate;
-        $elements[]         = $enddate;
+        $elements[]         = $start_date;
+        $elements[]         = $end_date;
         $elements[]         = $room;
     }
     
@@ -461,7 +461,7 @@ function bookingSelectorHtml($node, $object){
             $attributes = [
                 'type'  => 'radio',
                 'class' =>  'booking-subject-selector',
-                'name'  => $object->element->name,
+                'name'  => $object->element->slug,
                 'value' => trim($subject['name'])
             ];
 
@@ -483,7 +483,7 @@ function bookingSelectorHtml($node, $object){
     }else{
         $attributes = [
             'class' =>  'booking-subject-selector',
-            'name'  => $object->element->name
+            'name'  => $object->element->slug
         ];
 
         if($object->element->required){
@@ -529,7 +529,7 @@ function bookingSelectorHtml($node, $object){
 
                         $attributes = [
                             'type'      => 'date',
-                            'name'      => 'booking-startdate[0]',
+                            'name'      => 'booking-start-date[0]',
                             'disabled'  => 'disabled'
                         ];
 
@@ -545,7 +545,7 @@ function bookingSelectorHtml($node, $object){
 
                         $attributes = [
                             'type'      => 'date',
-                            'name'      => 'booking-enddate[0]',
+                            'name'      => 'booking-start-date[0]',
                             'disabled'  => 'disabled'
                         ];
 
@@ -578,15 +578,15 @@ function bookingDateElementHtml(&$node, $object){
         $node->setAttribute('data-booking-id', $_POST['booking-id']);
     }
 
-    if($object->element->name != 'booking-enddate' && $object->element->name != 'booking-startdate'){
+    if($object->element->slug != 'booking-start-date' && $object->element->slug != 'booking-start-date'){
         return;
     }
 
     // Get the subject
-    $subject    = $object->submission->{$object->getElementByType('booking-selector')[0]->name};
+    $subject    = $object->submission->{$object->getElementByType('booking-selector')[0]->slug};
         
-    $startDates = (array) $object->submission->{'booking-startdate'};
-    $endDates   = (array) $object->submission->{'booking-enddate'};
+    $startDates = (array) $object->submission->{'booking-start-date'};
+    $endDates   = (array) $object->submission->{'booking-start-date'};
 
     $early      = array_values($startDates)[0];
     $late       = array_values($endDates)[0];
@@ -602,9 +602,9 @@ function bookingDateElementHtml(&$node, $object){
     }
     
 
-    if($object->element->name == 'booking-enddate'){
+    if($object->element->slug == 'booking-start-date'){
         // get the first event after this one
-        $query  = "SELECT startdate FROM {$wpdb->prefix}tsjippy_bookings WHERE subject = '$subject' AND startdate > '$late' ORDER BY startdate LIMIT 1";
+        $query  = "SELECT start_date FROM {$wpdb->prefix}tsjippy_bookings WHERE subject = '$subject' AND start_date > '$late' ORDER BY start_date LIMIT 1";
         $max    = $wpdb->get_var($query);
 
         if(!empty($max)){
@@ -612,9 +612,9 @@ function bookingDateElementHtml(&$node, $object){
         }
 
         $node->setAttribute('min', $early);
-    }elseif($object->element->name == 'booking-startdate'){
+    }elseif($object->element->slug == 'booking-start-date'){
         // get the first event before this one
-        $query  = "SELECT enddate FROM {$wpdb->prefix}tsjippy_bookings WHERE subject = '$subject' AND enddate <= '$early' ORDER BY enddate LIMIT 1";
+        $query  = "SELECT end_date FROM {$wpdb->prefix}tsjippy_bookings WHERE subject = '$subject' AND end_date <= '$early' ORDER BY end_date LIMIT 1";
         $min    = $wpdb->get_var($query);
 
         if(!empty($min)){
@@ -644,14 +644,14 @@ function elementHtml($node, $object){
         return $node;
     }
 
-    if($object->element->name == 'booking-rooms'){
+    if($object->element->slug == 'booking-rooms'){
         $bookings       = new Bookings($object);
 
         if(empty($subjects)){
             return 'Please add one or more subjects';
         }
 
-        $elementName    = $object->getElementByType('booking-selector')[0]->name;
+        $elementName    = $object->getElementByType('booking-selector')[0]->slug;
 
         foreach($subjects as $subject){
             if($subject['name'] == $object->submission->{$elementName}){

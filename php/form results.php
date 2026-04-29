@@ -117,10 +117,10 @@ function shouldShow($shouldShow, $displayFormResults, $type){
             }
         }
 
-        $targetDate                     = $bookings->forms->submission->{'booking-startdate'};
+        $targetDate                     = $bookings->forms->submission->{'booking-start-date'};
 
         if(is_array($targetDate)){
-            array_values($bookings->forms->submission->{'booking-startdate'})[0];
+            array_values($bookings->forms->submission->{'booking-start-date'})[0];
         }
 
         $targetDate                     = strtotime($targetDate);
@@ -240,7 +240,7 @@ function actionHtml($buttonsHtml, $submission, $index, $instance){
 
 // Show the possible booking rooms
 add_filter('tsjippy-forms-checkbox-options', function ($options, $object){
-    if(!isset($object->element) || $object->element->name != 'booking-rooms[]'){
+    if(!isset($object->element) || $object->element->slug != 'booking-rooms[]'){
         return $options;
     }
     
@@ -251,11 +251,11 @@ add_filter('tsjippy-forms-checkbox-options', function ($options, $object){
 
     // find the accomdation
     foreach($bookingSelectors as $bookingSelector){
-        if(empty($object->submissions[0]->{$bookingSelector->name})){
+        if(empty($object->submissions[0]->{$bookingSelector->slug})){
             continue;
         }
 
-        $accomodation   = $object->submissions[0]->{$bookingSelector->name};
+        $accomodation   = $object->submissions[0]->{$bookingSelector->slug};
 
         // Get the rooms of this accomodation
         $bookings   = new Bookings($object);
@@ -298,8 +298,8 @@ function formdataRetrieved($submissions, $userId, $object){
 
         // Store the dates
         foreach($bookings as $booking){
-            $startDates[]   = $booking->startdate;
-            $endDates[]     = $booking->enddate;
+            $startDates[]   = $booking->start_date;
+            $endDates[]     = $booking->end_date;
 
             if(!empty($booking->room)){
                 $rooms[]        = $booking->room;
@@ -313,8 +313,8 @@ function formdataRetrieved($submissions, $userId, $object){
         // Add submissions for each room, using the room name as sub id
         foreach($startDates as $i => $date){
             // Add the dates to the form results
-            $submission->{'booking-startdate'}  = $date;
-            $submission->{'booking-enddate'}    = $endDates[$i];
+            $submission->{'booking-start-date'}  = $date;
+            $submission->{'booking-start-date'}    = $endDates[$i];
             $submission->booking_id             = $bookingIds[$i];
 
             if(!empty($rooms)){
@@ -355,9 +355,9 @@ function formdataRetrieved($submissions, $userId, $object){
         foreach($submissions as $index => $submission){
             // remove any submission not belonging to the $subjectsToKeep
             if(
-                !empty($submission->{$bookingSelector->name})    &&
-                !in_array($submission->{$bookingSelector->name}, $subjectsToKeep)    &&  // Not managed by us
-                $submission->userid    != $booker->user->ID                      // Not our own sumissionn
+                !empty($submission->{$bookingSelector->slug})    &&
+                !in_array($submission->{$bookingSelector->slug}, $subjectsToKeep)    &&  // Not managed by us
+                $submission->user_id    != $booker->user->ID                      // Not our own sumissionn
 
             ){
                 unset($submissions[$index]);
@@ -392,10 +392,10 @@ function alterQuery($params, $userId, $instance){
 
         switch($elementId){
             case -102:
-                $column = 'startdate';
+                $column = 'start_date';
                 break;
             case -103:
-                $column = 'enddate';
+                $column = 'end_date';
                 break;
             case -104:
                 $column = 'room';
@@ -424,7 +424,7 @@ function alterQuery($params, $userId, $instance){
         !in_array("S.id=%d", $params['where']) &&
         !in_array("submission_id = %d", $params['where'])
     ){
-        $params['where'][] .= "S.id IN(SELECT submission_id FROM %i WHERE enddate >= %s ORDER BY 'startdate')";
+        $params['where'][] .= "S.id IN(SELECT submission_id FROM %i WHERE end_date >= %s ORDER BY 'start_date')";
         $params['values'][] = $bookings->tableName;
         $params['values'][] = date('Y-m-d');
     }
@@ -457,10 +457,10 @@ function updateBookingData($shouldContinue, $elementId, $submissionId, $subId, $
             $value  = apply_filters('tsjippy-bookings-payment-status', in_array($value, ['paid', 'free']), $value, $instance);
             break;
         case -102:
-            $column = 'startdate';
+            $column = 'start_date';
             break;
         case -103:
-            $column = 'enddate';
+            $column = 'end_date';
             break;
         case -104:
             $column = 'room';
@@ -488,12 +488,12 @@ function updateBookingData($shouldContinue, $elementId, $submissionId, $subId, $
             $booking->{$column} = $value;
         }
 
-        $startDates[]   = $booking->startdate;
-        $endDates[]     = $booking->enddate;
+        $startDates[]   = $booking->start_date;
+        $endDates[]     = $booking->end_date;
         $rooms[]        = $booking->room;
     }
 
-    // Update the amount to be paid if startdate or enddate are changed
+    // Update the amount to be paid if start_date or end_date are changed
     if( $elementId == -102 || $elementId == -103){
         $amount             = $bookings->calculatePaymentAmount($startDates, $endDates);
 

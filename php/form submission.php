@@ -24,20 +24,20 @@ function beforeSavingFormData($submission, $object){
     }
 
     $startDates = [];
-    if(isset($submission->{'booking-startdate'})){
-        $startDates = (array)$submission->{'booking-startdate'};
+    if(isset($submission->{'booking-start-date'})){
+        $startDates = (array)$submission->{'booking-start-date'};
 
         $startDates = TSJIPPY\cleanUpNestedArray($startDates);
 
-        unset($submission->{'booking-startdate'});
+        unset($submission->{'booking-start-date'});
     }
 
     $endDates   = [];
-    if(isset($submission->{'booking-enddate'})){
-        $endDates   = (array)$submission->{'booking-enddate'};
+    if(isset($submission->{'booking-start-date'})){
+        $endDates   = (array)$submission->{'booking-start-date'};
         $endDates   = TSJIPPY\cleanUpNestedArray($endDates);
 
-        unset($submission->{'booking-enddate'});
+        unset($submission->{'booking-start-date'});
     }
 
     $rooms  = [];
@@ -71,8 +71,8 @@ function beforeSavingFormData($submission, $object){
         }
 
         // Same start and end date
-        foreach($startDates as $index => $startdate){
-            if($startdate == $endDates[$index]){
+        foreach($startDates as $index => $start_date){
+            if($start_date == $endDates[$index]){
                 return new \WP_Error('bookings', "End date cannot be the same as the start date");
             }
 
@@ -81,13 +81,13 @@ function beforeSavingFormData($submission, $object){
                 $bookingId = $currentBookings[0]->id;
             }
 
-            $overlappingBookings    = $bookings->checkOverlap($startdate, $endDates[$index], $subjectName, $rooms[$index], $bookingId);
+            $overlappingBookings    = $bookings->checkOverlap($start_date, $endDates[$index], $subjectName, $rooms[$index], $bookingId);
             if(!empty($overlappingBookings)){
                 if(!empty($rooms[$index])){
                     $subjectName    .= " room {$rooms[$index]}";
                 }
 
-                $startDateString    = date(DATEFORMAT, strtotime($startdate));
+                $startDateString    = date(DATEFORMAT, strtotime($start_date));
                 $endDateString      = date(DATEFORMAT, strtotime($endDates[$index]));
                 return new \WP_Error('booking', "The booking for $subjectName overlaps with an existing one from $startDateString till $endDateString, try again");
             }
@@ -96,8 +96,8 @@ function beforeSavingFormData($submission, $object){
         // find the selected subject
         foreach($subjects as $subject){
             if(
-                !empty($subject['name']) &&             // Subjects name is set 
-                $subject['name'] == $subjectName &&     // and this is the selected subject
+                !empty($subject['slug']) &&             // Subjects slug is set 
+                $subject['slug'] == $subjectName &&     // and this is the selected subject
                 !empty($subject['rooms'])   &&          // and the subject has a key called rooms
                 count($subject['rooms']) > 1 &&         // and there is more than 1 room for this subject
                 empty($rooms)                           // but there is no room selected
@@ -113,8 +113,8 @@ function beforeSavingFormData($submission, $object){
     $paymentAmountElId  = $bookings->forms->formData->payment_amount_el;
 
     if(!empty($paymentAmountElId)){
-        $name = $bookings->forms->getElementById($paymentAmountElId, 'name');
-        $submission->{$name} = $amount;
+        $slug = $bookings->forms->getElementById($paymentAmountElId, 'slug');
+        $submission->{$slug} = $amount;
     }
 
     return $submission;
@@ -127,17 +127,17 @@ function beforeSavingFormData($submission, $object){
 add_filter('tsjippy_after_form_submission', __NAMESPACE__.'\afterFormSubmission', 99, 3);
 function afterFormSubmission($message, $submission, $object){
     $startDates = [];
-    if(isset($submission['booking-startdate'])){
-        $startDates = (array)$submission['booking-startdate'];
+    if(isset($submission['booking-start-date'])){
+        $startDates = (array)$submission['booking-start-date'];
 
-        unset($submission['booking-startdate']);
+        unset($submission['booking-start-date']);
     }
 
     $endDates   = [];
-    if(isset($submission['booking-enddate'])){
-        $endDates   = (array)$submission['booking-enddate'];
+    if(isset($submission['booking-start-date'])){
+        $endDates   = (array)$submission['booking-start-date'];
 
-        unset($submission['booking-enddate']);
+        unset($submission['booking-start-date']);
     }
 
     $rooms  = [];
@@ -158,7 +158,7 @@ function afterFormSubmission($message, $submission, $object){
     // loop over all booking selectors (usually one)
     foreach($elements as $element){
 
-        $subject        = $submission[$element->name];
+        $subject        = $submission[$element->slug];
         $submissionId   = $object->submission->id;
         
         //Create a booking for each room

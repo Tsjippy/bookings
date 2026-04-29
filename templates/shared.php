@@ -28,7 +28,10 @@ function displayLocationTax(){
             </main>
         </div>
         <?php
-        generate_construct_sidebars();
+		if(function_exists('generate_construct_sidebars')){
+			// @disregard P1010
+        	generate_construct_sidebars();
+		}
 
         if(!isset($skipFooter) || !$skipFooter){
             get_footer();
@@ -37,7 +40,7 @@ function displayLocationTax(){
 }
 
 function displayBooks(){
-	$name 				= get_queried_object()->slug;
+	$name 				= get_queried_object()->name;
 	if ( have_posts() ){
 		do_action('tsjippy_before_archive', 'book');
 

@@ -39,8 +39,8 @@ class AdminMenu extends ADMIN\SubAdminMenu{
             (object)[
                 "id"			=> -1,
                 "subject"		=> "empty",
-                "startdate"		=> "2000-01-01",
-                "enddate"		=> "2000-01-01",
+                "start_date"	=> "2000-01-01",
+                "end_date"		=> "2000-01-01",
                 "payable"		=> "$23"
             ]
         );
