@@ -9,6 +9,7 @@
 - filternames to include tsjippy
 - function name
 - PLUGINCONSTANT value
+- table columns
 
 ### Fixed
 
