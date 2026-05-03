@@ -5,6 +5,7 @@
 
 ### Changed
 - removed the redirection at activation as it is done by the share plugin
+- use shared workflow  Co-authored-by: Copilot <copilot@github.com>
 
 ### Fixed
 
