@@ -4,12 +4,17 @@
 ### Added
 
 ### Changed
-- removed the redirection at activation as it is done by the share plugin
-- use shared workflow  Co-authored-by: Copilot <copilot@github.com>
 
 ### Fixed
 
 ### Updated
+
+## [10.0.4.5] - 2026-05-03
+
+
+### Changed
+- removed the redirection at activation as it is done by the share plugin
+- use shared workflow  Co-authored-by: Copilot <copilot@github.com>
 
 ## [10.0.0] - 2026-05-01
 
