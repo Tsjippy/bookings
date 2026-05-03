@@ -1885,4 +1885,3 @@ class Bookings{
         }
     }
 }
-
