@@ -4,4 +4,4 @@ on:
         types: [released]
 jobs:
   call-shared-workflow:
-    uses: Tsjippy/shared-functionality/.github/workflows/reusable.yml@f0e3a60b9399e56ac66e2aa87c3a782596c0cff1
+    uses: Tsjippy/shared-functionality/.github/workflows/reusable.yml@e605cde307c4c5cea677e7a7c168246bea28af3b
