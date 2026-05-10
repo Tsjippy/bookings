@@ -4,6 +4,7 @@
 ### Added
 
 ### Changed
+- fixed several bugs
 
 ### Fixed
 
