@@ -2,6 +2,7 @@
 ## [Unreleased] - yyyy-mm-dd
 
 ### Added
+- rest api permission callbacks
 
 ### Changed
 - fixed several bugs
