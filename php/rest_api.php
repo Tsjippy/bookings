@@ -185,7 +185,17 @@ function restapiInit() {
 		array(
 			'methods' 				=> 'POST',
 			'callback' 				=> __NAMESPACE__.'\removeBooking',
-			'permission_callback' 	=> '__return_true',
+			'permission_callback' 	=> function($request){
+				// Get the bookings related to this submission
+				$bookingsObject	= new Bookings();
+				$bookings   	= $bookingsObject->getBookingsBySubmission((int) $_POST['id']);
+
+				// Get the subject the current user is manager of
+				$bookingsObject->getSubjectManagers(get_current_user_id());
+
+				// Return true if the user is manager of the subject related to the booking
+				return in_array($bookings[0]->subject, array_keys($bookingsObject->managers));
+			},
 			'args'					=> array(
 				'id'	=> array(
 					'required'	=> true,
