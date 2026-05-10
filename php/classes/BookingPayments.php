@@ -316,7 +316,7 @@ class BookingPayments extends Bookings{
     /**
      * Adds the buttons to approve or delete a pending booking
      */
-    protected function pendingButtons($buttonsHtml, $submission, $subId, $object){
+    public function pendingButtons($buttonsHtml, $submission, $subId, $object){
         $buttonsHtml['approve'] = "<button class='button approve' type='button' data-submission-id='{$submission->id}' data-form-id='{$object->submission->form_id}'>Approve</button>";
         $buttonsHtml['delete']  = "<button class='button delete' type='button' data-submission-id='{$submission->id}' data-form-id='{$object->submission->form_id}'>Delete</button><br>";
         unset($buttonsHtml['archive']);
@@ -330,6 +330,8 @@ class BookingPayments extends Bookings{
      * @param   string  $type       One of approval or payment to show bookings that are pending approval or pending payment
      */
     public function pendingBookingsHtml($type='approval'){
+        wp_enqueue_script('tsjippy_forms_table_script');
+
         if($type == 'approval'){
             $bookings    = $this->retrievePendingBookings();
         }else{

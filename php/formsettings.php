@@ -27,7 +27,7 @@ function extraFormSettings($object){
                 $checked = 'selected';
             }
 
-            echo "<option value='$element->id' $checked>$element->nicename</option>";
+            echo "<option value='$element->id' $checked>$element->name</option>";
         }
         ?>
     </select>
@@ -43,7 +43,7 @@ function extraFormSettings($object){
                 $checked = 'selected';
             }
 
-            echo "<option value='$element->id' $checked>$element->nicename</option>";
+            echo "<option value='$element->id' $checked>$element->name</option>";
         }
         ?>
     </select>
@@ -59,7 +59,7 @@ function extraFormSettings($object){
                 $checked = 'selected';
             }
 
-            echo "<option value='$element->id' $checked>$element->nicename</option>";
+            echo "<option value='$element->id' $checked>$element->name</option>";
         }
         ?>
     </select>
@@ -75,7 +75,7 @@ function extraFormSettings($object){
                 $checked = 'selected';
             }
 
-            echo "<option value='$element->id' $checked>$element->nicename</option>";
+            echo "<option value='$element->id' $checked>$element->name</option>";
         }
         ?>
     </select>

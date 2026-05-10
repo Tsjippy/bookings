@@ -361,22 +361,22 @@ function formElements($elements, $displayFormResults, $force){
 
     if($element){
         // Add the start_date and end_date
-        $start_date          = clone $element;
-        $start_date->type    = 'date';
-        $start_date->slug    = 'booking-start-date';
-        $start_date->nicename= 'Startdate';
-        $start_date->id      = -102;
+        $start_date         = clone $element;
+        $start_date->type   = 'date';
+        $start_date->slug   = 'booking-start-date';
+        $start_date->name   = 'Startdate';
+        $start_date->id     = -102;
 
-        $end_date            = clone $element;
-        $end_date->type      = 'date';
-        $end_date->slug      = 'booking-start-date';
-        $end_date->name = 'Enddate';
-        $end_date->id        = -103;
+        $end_date           = clone $element;
+        $end_date->type     = 'date';
+        $end_date->slug     = 'booking-start-date';
+        $end_date->name     = 'Enddate';
+        $end_date->id       = -103;
 
         $room               = clone $element;
         $room->type         = 'checkbox';
         $room->slug         = 'booking-rooms';
-        $room->name    = 'Room';
+        $room->name         = 'Room';
         $room->id           = -104;
         
         $elements[]         = $start_date;

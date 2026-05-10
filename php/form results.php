@@ -64,6 +64,12 @@ function changeTableViewPermissions($tableViewPermissions, $object){
 
 // Display calendar instead of a table
 add_filter('tsjippy-formstable-should-show', __NAMESPACE__.'\shouldShow', 10, 3);
+/**
+ * Filter whether or not to show the table, this can be used to for example show a message instead of the table when there are no submissions or when the user has no permissions
+ * @param	bool	$shouldShow	            Whether or not to show the table, default true
+ * @param	object	$displayFormResults		The current instance of the form table class, can be used to get more information about the form and the user to decide whether or not to show the table
+ * @param	string	$type			        The type of results that would be shown, either 'own', 'others' or 'all'
+ */
 function shouldShow($shouldShow, $displayFormResults, $type){
     // Check if we should show the table view
     if(
@@ -103,7 +109,6 @@ function shouldShow($shouldShow, $displayFormResults, $type){
 
     $targetDate                 = time();
     $bookedSubject              = '';
-    $bookings->forms->submission = null;
 
     // Show a specific booking
     if(!empty($_REQUEST['id'])){

@@ -248,7 +248,8 @@ class Bookings{
     /**
      * Function to get the room selector html
      * 
-     * @param   array   $subject    The name
+     * @param   object  $node       The node to append the selector to
+     * @param   array   $subject    The name of the subject
      * @param   boolean $isResult   Wheter we are looking at the form or the formresult
      * @param   bool    $radio      true for radio choice, false for checkboxes
      */
@@ -264,7 +265,7 @@ class Bookings{
         }
 
         if(!empty($_REQUEST['id']) && $this->forms->submission->id != $_REQUEST['id']){
-            $this->forms->submission = $this->forms->getSubmissions('', $_REQUEST['id']);
+            $this->forms->submission = (object) $this->forms->getSubmissions('', $_REQUEST['id']);
         }
 
         $wrapper    = $this->forms->addElement('div', $node, ['class' => 'rooms']);
@@ -435,6 +436,7 @@ class Bookings{
      * @return  string                  The html
      */
     public function modalContent($node, $subject, $date, $isAdmin = false, $hidden = false, $isResult=false){
+        $returnHtml = false;
         if(empty($node)){
 			// Create a new DOMDocument object
 			$node 	    = $this->forms->dom;
@@ -805,6 +807,7 @@ class Bookings{
     public function submissionDetails($booking, $submission, $hide){
         $subId          = $submission->subId;
         
+        $hidden         = '';
         if($hide){
             $hidden         = 'hidden';
             if(!empty($_REQUEST['id']) && $_REQUEST['id'] == $this->forms->submission->id){
@@ -828,7 +831,7 @@ class Bookings{
                         <tbody>
                             <tr class='<?php $this->bookingElements[0]->slug;?>' data-submission-id='<?php echo $submission->id;?>'>
                                 <td>
-                                    <img src='<?php echo esc_url($this->picturesUrl);?>/subject.png' loading='lazy' alt='<?php echo $this->bookingElements[0]->nicename;?>' class='booking-icon' title='<?php echo $this->bookingElements[0]->nicename;?>'>
+                                    <img src='<?php echo esc_url($this->picturesUrl);?>/subject.png' loading='lazy' alt='<?php echo $this->bookingElements[0]->name;?>' class='booking-icon' title='<?php echo $this->bookingElements[0]->name;?>'>
                                 </td>
                                 <td class='booking-data-wrapper edit forms-table' data-element-id='<?php echo $this->bookingElements[0]->id;?>' data-name='<?php echo $this->bookingElements[0]->slug;?>' data-booking-id='<?php echo esc_attr($submission->booking_id);?>'>
                                     <?php echo $submission->{$this->bookingElements[0]->id};?>
@@ -872,39 +875,63 @@ class Bookings{
                                 if(
                                     !$setting['show']     || 
                                     !is_numeric($key)   || 
-                                    in_array($setting['name'], ['form-id', 'formurl', '_wpnonce', 'id', 'submissiontime', 'edittime', 'time_created', 'time_last_edited', 'booking-start-date', 'booking-start-date', 'booking-room', 'booking-rooms', 'name', $this->bookingElements[0]->slug])
+                                    in_array(
+                                        $setting['slug'], 
+                                        [
+                                            'form-id',
+									        'formurl',
+									        '_wpnonce',
+										    'id',
+											'submissiontime',
+											'edittime',
+											'timecreated',
+											'timelastedited',
+											'time_created',
+											'time_last_edited',
+											'startdate',
+											'booking-startdate',
+											'booking-start-date',
+											'endate',
+											'booking-enddate',
+											'booking-end-date',
+											'booking-room',
+											'booking-rooms',
+											'name',
+											$this->bookingElements[0]->slug
+                                        ]
+                                    )
                                 ){
                                     continue;
                                 }
 
-                                $name       = $setting['name'];
-                                $niceName   = empty($setting['name']) ? $name : $setting['name'];
-                                $element    = $this->forms->getElementBySlug($name);
+                                $slug       = $setting['slug'];
+                                $name       = empty($setting['name']) ? $slug : $setting['name'];
+                                $element    = $this->forms->getElementBySlug($slug);
                                 $data       = $submission->{$element->id};
 
-                                $transformedData   = $this->forms->transformInputData($data, $name, $submission);
+                                $transformedData   = $this->forms->transformInputData($data, $slug, $submission);
                                 if(empty($transformedData)){
                                     $transformedData    = 'X';
                                 }
 
                                 ?>
-                                <tr class='<?php echo esc_attr($name);?>' data-submission-id='<?php echo esc_attr($submission->id);?>'>
+                                <tr class='<?php echo esc_attr($slug);?>' data-submission-id='<?php echo esc_attr($submission->id);?>'>
                                     <?php
-                                    if(file_exists(TSJIPPY\urlToPath("$this->picturesUrl/$name.png"))){
+                                    if(file_exists(TSJIPPY\urlToPath("$this->picturesUrl/$slug.png"))){
                                         ?>
                                         <td>
-                                            <img src='<?php echo esc_url("$this->picturesUrl/$name.png");?>' loading='lazy' alt='<?php echo esc_attr($niceName);?>' class='booking-icon' title='<?php echo esc_attr($niceName);?>'>
+                                            <img src='<?php echo esc_url("$this->picturesUrl/$slug.png");?>' loading='lazy' alt='<?php echo esc_attr($name);?>' class='booking-icon' title='<?php echo esc_attr($name);?>'>
                                         </td>
                                         <?php
                                     }else{
                                         ?>
                                         <td>
-                                            <?php echo esc_html($niceName);?>:
+                                            <?php echo esc_html($name);?>:
                                         </td>
                                         <?php
                                     }
                                     ?>
-                                    <td class='booking-data-wrapper edit forms-table' data-element-id='<?php echo esc_attr($element->id);?>' data-name='<?php echo esc_attr($name);?>' data-booking-id='<?php echo esc_attr($booking->id);?>'>
+                                    <td class='booking-data-wrapper edit forms-table' data-element-id='<?php echo esc_attr($element->id);?>' data-name='<?php echo esc_attr($slug);?>' data-booking-id='<?php echo esc_attr($booking->id);?>'>
                                         <?php echo wp_kses_post($transformedData);?>
                                     </td>
                                 </tr>
@@ -922,7 +949,7 @@ class Bookings{
                                     }
                                     $buttonsHtml[$action]	= "<button class='$action button forms-table-action' name='{$action}-action' value='$action'>".ucfirst($action)."</button>";
                                 }
-                                $buttonsHtml = apply_filters('tsjippy_form_actions_html', $buttonsHtml, $submission, $name, $this, $this->forms->submission);
+                                $buttonsHtml = apply_filters('tsjippy_form_actions_html', $buttonsHtml, $submission, $slug, $this, $this->forms->submission);
                                 
                                 //we have te html now, check for which one we have permission
                                 foreach($buttonsHtml as $action => $button){
@@ -1186,6 +1213,8 @@ class Bookings{
             $subjectWithRoom    = "$subject room $room";
         }
 
+        $eventId    = -1;
+
         // create a personal event
         if(!empty($userId)){
             $post = array(
@@ -1217,7 +1246,7 @@ class Bookings{
         $wpdb->insert(
             $this->tableName,
             array(
-                'start_date'			=> $startDate,
+                'start_date'		=> $startDate,
                 'end_date'			=> $endDate,
                 'subject'			=> $subject,
                 'room'			    => $room,
@@ -1708,8 +1737,6 @@ class Bookings{
         $this->forms->getForms();
 
         foreach($this->forms->forms as $form){
-
-            $this->forms->formId    = $form->id;
 
             $this->forms->formData  = $form;
 

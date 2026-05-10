@@ -95,10 +95,11 @@ function getNextMonth(){
 function approveBooking(){
 	$bookingsObject	= new Bookings();
 
-	$bookingsObject->forms->formId	= $_POST['form-id'];
+	$bookingsObject->forms->formData->id	= $_POST['form-id'];
 
 	$bookings    				= $bookingsObject->getBookingsBySubmission($_POST['id']);
 
+	$result						= false;
 	foreach($bookings as $booking){
 		$result	= $bookingsObject->updateBooking($booking, ['pending' => 0]);
 	}
@@ -113,11 +114,7 @@ function approveBooking(){
 function removeBooking(){
 	$bookings	= new Bookings();
 
-	$result	= $bookings->removeBooking($_POST['id']);
-
-	if(is_wp_error($result)){
-		return $result;
-	}
+	$bookings->removeBooking($_POST['id']);
 
 	return 'Booking removed succesfully';
 }
@@ -159,7 +156,17 @@ function restapiInit() {
 		array(
 			'methods' 				=> 'POST',
 			'callback' 				=> __NAMESPACE__.'\approveBooking',
-			'permission_callback' 	=> '__return_true',
+			'permission_callback' 	=> function(){
+				// Get the bookings related to this submission
+				$bookingsObject	= new Bookings();
+				$bookings   	= $bookingsObject->getBookingsBySubmission((int) $_POST['id']);
+
+				// Get the subject the current user is manager of
+				$bookingsObject->getSubjectManagers(get_current_user_id());
+
+				// Return true if the user is manager of the subject related to the booking
+				return in_array($bookings[0]->subject, array_keys($bookingsObject->managers));
+			},
 			'args'					=> array(
 				'id'	=> array(
 					'required'	=> true,

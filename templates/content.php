@@ -75,7 +75,7 @@ if(is_tax() || is_archive()){
 			if(!empty($elementId)){
 				$bookings	= new Bookings();
 
-				$bookings->forms->formId		= $wpdb->get_var($wpdb->prepare("SELECT form_id FROM {$bookings->forms->elTableName} WHERE ID=%d", $elementId));
+				$bookings->forms->formData->id		= $wpdb->get_var($wpdb->prepare("SELECT form_id FROM {$bookings->forms->elTableName} WHERE ID=%d", $elementId));
 
 				$bookings->forms->getForm();
 				?>
