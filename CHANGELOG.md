@@ -2,15 +2,22 @@
 ## [Unreleased] - yyyy-mm-dd
 
 ### Added
+
+### Changed
+
+### Fixed
+
+### Updated
+
+## [10.0.7] - 2026-05-11
+
+
+### Added
 - rest api permission callbacks
 
 ### Changed
 - fixed several bugs
 - moved css to css file
-
-### Fixed
-
-### Updated
 
 ## [10.0.6.1] - 2026-05-06
 

@@ -4,7 +4,7 @@ namespace TSJIPPY\BOOKINGS;
 /**
  * Plugin Name:  		Tsjippy Bookings
  * Description:  		This plugin adds the possibility to book something via a form. It will display a calendar showing available dates
- * Version:      		10.0.6.1
+ * Version:      		10.0.7
  * Author:       		Ewald Harmsen
  * AuthorURI:			harmseninnigeria.nl
  * Requires at least:	6.3
