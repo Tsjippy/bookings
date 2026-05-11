@@ -6,6 +6,7 @@
 
 ### Changed
 - fixed several bugs
+- moved css to css file
 
 ### Fixed
 
