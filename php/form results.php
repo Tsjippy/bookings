@@ -8,6 +8,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 // the choice for table view or calendar view
 add_action('tsjippy-formstable-after-table-settings', __NAMESPACE__.'\tableSettings');
+/**
+ * Add the option to choose between table view and calendar view in the form results
+ * @param	object	$displayFormResults	The current instance of the form table class, can be used to get more information about the form and the user to decide which options to show
+ */
 function tableSettings($displayFormResults){
     // Check if it has an booking selector
     if(empty($displayFormResults->getElementByType('booking-selector'))){
@@ -39,6 +43,11 @@ function tableSettings($displayFormResults){
 
 // give table view permissions if we are a subject manager
 add_filter('tsjippy-table-edit-permissions', __NAMESPACE__.'\changeTableViewPermissions', 10, 2);
+/**
+ * Give table view permissions if we are a subject manager
+ * @param	bool	$tableViewPermissions	Whether or not the user has permissions to view the table, default false
+ * @param	object	$object					The current instance of the form table class, can be used to get more information about the form and the user to decide whether or not to give permissions
+ */
 function changeTableViewPermissions($tableViewPermissions, $object){
     if($tableViewPermissions){
         return $tableViewPermissions;
@@ -164,7 +173,6 @@ function shouldShow($shouldShow, $displayFormResults, $type){
                 return $html;
             }
 
-            $html       .= "<style>.booking-detail-wrapper{padding: 10px;}</style>";
             $html       .= "<h4>Your Current Bookings</h4>";
             $html       .= "<div class='details-wrapper' style='max-width:500px;display:flex;'>";
 
@@ -182,6 +190,7 @@ function shouldShow($shouldShow, $displayFormResults, $type){
         }
 
         // Only show subject selection if there is something to choose
+        $checkboxes = '';
         if(count($subjects) > 1){
             $checkboxes = '<h4>Please select the calendar you like to see</h4>';
         }
@@ -233,6 +242,13 @@ function shouldShow($shouldShow, $displayFormResults, $type){
 
 // Change Archive button text
 add_filter('tsjippy_form_actions_html', __NAMESPACE__.'\actionHtml', 10, 4);
+/**
+ * Change the Archive button text
+ * @param	array	$buttonsHtml	The current html of the action buttons, can be altered to change the buttons shown
+ * @param	object	$submission	The submission for which the buttons are shown, can be used to decide whether or not to change the buttons
+ * @param	int		$index		The index of the submission in the table, can be used to decide whether or not to change the buttons
+ * @param	object	$instance	The current instance of the form table class, can be used to get more information about the form and the user to decide whether or not to change the buttons
+ */
 function actionHtml($buttonsHtml, $submission, $index, $instance){
     if(get_class($instance) != 'TSJIPPY\BOOKINGS\Bookings' || !isset($buttonsHtml['archive'])){
         return $buttonsHtml;
@@ -278,6 +294,14 @@ add_filter('tsjippy-forms-checkbox-options', function ($options, $object){
 
 // Alter form results
 add_filter('tsjippy_retrieved_formdata', __NAMESPACE__.'\formdataRetrieved', 10, 3);
+/**
+ * Alter the form results
+ * @param	array	$submissions	The current form submissions retrieved, can be altered to change the data shown in the form results
+ * @param	int|string	$userId		The ID of the user for which the data is retrieved, can be used to decide how to alter the data
+ * @param	object	$object		The current instance of the form table class, can be
+ * used to get more information about the form and the user to decide how to alter the data
+ * @return array   The altered form submissions
+ */
 function formdataRetrieved($submissions, $userId, $object){
     $bookingSelectors   = $object->getElementByType('booking-selector');
     if(!$bookingSelectors){
@@ -377,6 +401,14 @@ function formdataRetrieved($submissions, $userId, $object){
  * Change the submission data retrieved 
  */
 add_filter('tsjippy_formdata_retrieval_query', __NAMESPACE__.'\alterQuery', 10, 4);
+/**
+ * Change the submission data retrieved 
+ * @param	array	$params		The current query params, can be altered to change the data retrieved from the database
+ * @param	int|string	$userId		The ID of the user for which the data is retrieved, can be used to decide how to alter the query
+ * @param	object	$instance	The current instance of the form table class, can be used
+ * to get more information about the form and the user to decide how to alter the query
+ * @return array   The altered query params
+ */
 function alterQuery($params, $userId, $instance){
     if( empty($instance->getElementByType('booking-selector'))){
         return $params;
@@ -439,6 +471,16 @@ function alterQuery($params, $userId, $instance){
 
 // Store updated date or room
 add_filter('tsjippy-forms-should-update-form-data', __NAMESPACE__.'\updateBookingData', 10, 6);
+/**
+ * Change the submission data retrieved 
+ * @param	bool	$shouldContinue	Whether or not to continue with the default update process, return false if you have already updated the data yourself and do not want the default update to run
+ * @param	int		$elementId		The id of the element for which the data is updated, can be used to decide whether or not to update the booking data
+ * @param	int		$submissionId	The id of the submission for which the data is updated, can be used to update the correct booking
+ * @param	string	$subId			The sub id of the submission for which the data is updated, can be used to update the correct booking when there are multiple bookings for one submission
+ * @param	string	$value			The new value that is being updated, can be used to update the booking with the new value
+ * @param	object	$instance		The current instance of the form table class, can be used to get more information about the form and the user to decide whether or not to update the booking data
+ * @return bool    Return false if you have already updated the data yourself and do not want the default update to run, return true if you want the default update process to run after this function
+ */
 function updateBookingData($shouldContinue, $elementId, $submissionId, $subId, $value, $instance){
     // Change to paid / unpaid
     $paymentIndicatorElId    = $instance->formData->payment_indicator;
