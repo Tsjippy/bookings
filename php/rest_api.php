@@ -8,6 +8,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 // Make mailtracker rest api url publicy available
 add_filter('tsjippy_allowed_rest_api_urls', __NAMESPACE__.'\allowedRestApiUrls');
+/**
+ * Allow additional REST API URLs
+ *
+ * @param array $urls	The list of allowed REST API URLs
+ * 
+ * @return array	The updated list of allowed REST API URLs
+ */
 function allowedRestApiUrls($urls){
 	$urls[]	= RESTAPIPREFIX.'/bookings/get_next_month';
 	$urls[]	= RESTAPIPREFIX.'/bookings/remove';
@@ -128,7 +135,7 @@ function restapiInit() {
 		array(
 			'methods' 				=> 'POST',
 			'callback' 				=> __NAMESPACE__.'\getNextMonth',
-			'permission_callback' 	=> '__return_true',
+			'permission_callback' 	=> '__return_true',					// Allow public access
 			'args'					=> array(
 				'month'	=> array(
 					'required'	=> true,
@@ -214,7 +221,7 @@ function restapiInit() {
 		array(
 			'methods' 				=> 'POST',
 			'callback' 				=> __NAMESPACE__.'\loadPost',
-			'permission_callback' 	=> '__return_true',
+			'permission_callback' 	=> '__return_true',					// Allow public access
 			'args'					=> array(
 				'post-id'	=> array(
 					'required'	=> true,
