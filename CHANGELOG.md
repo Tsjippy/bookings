@@ -4,12 +4,17 @@
 ### Added
 
 ### Changed
-- code relocation
-- more efficient rest functions
 
 ### Fixed
 
 ### Updated
+
+## [10.0.8] - 2026-05-12
+
+
+### Changed
+- code relocation
+- more efficient rest functions
 
 ## [10.0.7] - 2026-05-11
 
