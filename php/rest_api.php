@@ -60,16 +60,19 @@ function restapiInit() {
 		array(
 			'methods' 				=> 'POST',
 			'callback' 				=> __NAMESPACE__.'\approveBooking',
-			'permission_callback' 	=> function(){
+			'permission_callback' 	=> function($rest){
 				// Get the bookings related to this submission
-				$bookingsObject	= new Bookings();
-				$bookings   	= $bookingsObject->getBookingsBySubmission((int) $_POST['id']);
+				$rest->bookingsObject	= new Bookings();
+
+				$rest->bookingsObject->forms->formData->id	= $_POST['form-id'];
+
+				$rest->bookings   		= $rest->bookingsObject->getBookingsBySubmission((int) $_POST['id']);
 
 				// Get the subject the current user is manager of
-				$bookingsObject->getSubjectManagers(get_current_user_id());
+				$rest->bookingsObject->getSubjectManagers(get_current_user_id());
 
 				// Return true if the user is manager of the subject related to the booking
-				return in_array($bookings[0]->subject, array_keys($bookingsObject->managers));
+				return in_array($rest->bookings[0]->subject, array_keys($rest->bookingsObject->managers));
 			},
 			'args'					=> array(
 				'id'	=> array(
@@ -208,16 +211,18 @@ function getNextMonth(){
 	];
 }
 
-function approveBooking(){
-	$bookingsObject	= new Bookings();
-
-	$bookingsObject->forms->formData->id	= $_POST['form-id'];
-
-	$bookings    				= $bookingsObject->getBookingsBySubmission($_POST['id']);
-
+/**
+ * Approve a pending booking
+ * This will set the pending status of the booking to 0, which means it is approved
+ * 
+ * @param \WP_REST_Request $rest	The REST request object containing the booking ID and form ID
+ * 
+ * @return bool|\WP_Error	True if the booking was approved successfully, WP_Error otherwise
+ */
+function approveBooking($rest){
 	$result						= false;
-	foreach($bookings as $booking){
-		$result	= $bookingsObject->updateBooking($booking, ['pending' => 0]);
+	foreach($rest->bookings as $booking){
+		$result	= $rest->bookingsObject->updateBooking($booking, ['pending' => 0]);
 	}
 
 	if(is_wp_error($result)){
@@ -230,7 +235,7 @@ function approveBooking(){
 function removeBooking(){
 	$bookings	= new Bookings();
 
-	$bookings->removeBooking($_POST['id']);
+	$bookings->removeBooking((int) $_POST['id']);
 
 	return 'Booking removed succesfully';
 }
