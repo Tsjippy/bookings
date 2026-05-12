@@ -5,6 +5,7 @@
 
 ### Changed
 - code relocation
+- more efficient rest functions
 
 ### Fixed
 
