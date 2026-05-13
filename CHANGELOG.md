@@ -4,6 +4,7 @@
 ### Added
 
 ### Changed
+- removed spaces from file names
 
 ### Fixed
 
