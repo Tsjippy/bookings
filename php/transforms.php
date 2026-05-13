@@ -8,6 +8,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 // Filter e-mail transforms
 add_filter('tsjippy-forms-transform-array', __NAMESPACE__.'\transformArray', 10, 4);
+/**
+ * Transform an array of values into a single string
+ *
+ * @param string $string The original string
+ * @param array $replaceValue The list of values to replace with
+ * @param object $forms The forms object
+ * @param string $match The match pattern
+ *
+ * @return string The updated string
+ */
 function transformArray($string, $replaceValue, $forms, $match){
     if(count(array_unique($replaceValue)) == 1){
         $string = array_unique($replaceValue)[0];
@@ -19,6 +29,11 @@ function transformArray($string, $replaceValue, $forms, $match){
 
 // add the booking details to the drop down for use in e-mails
 add_action('tsjippy-add-email-placeholder-option', __NAMESPACE__.'\placeholderOption');
+/**
+ * Add booking details as email placeholders
+ *
+ * @param object $formBuilderForm The form builder form object
+ */
 function placeholderOption($formBuilderForm){
     if($formBuilderForm->getElementByType('booking-selector')){
         echo "<option>%booking-start-date%</option>";
@@ -34,6 +49,16 @@ function placeholderOption($formBuilderForm){
 }
 
 add_filter('tsjippy-forms-transform-empty', __NAMESPACE__.'\transformEmpty', 10, 4);
+/**
+ * Transform empty values for booking details
+ *
+ * @param string $replaceValue The value to replace
+ * @param string $match The match pattern
+ * @param array $replaceValues The list of replacement values
+ * @param object $instance The form instance
+ *
+ * @return string The updated value
+ */
 function transformEmpty($replaceValue, $match, $replaceValues, $instance){
     if(
         $match != "booking-details" || 

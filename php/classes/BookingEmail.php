@@ -8,8 +8,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 class BookingEmail extends ADMIN\MailSetting{
-    public $booking;
-    public $paymentDetailsRows;
+    public object $booking;
+    public array $paymentDetailsRows;
 
     public function __construct(object $booking) {
         $this->booking    = $booking;

@@ -715,7 +715,7 @@ function elementHtml($node, $object){
             }
         }
 
-        $node   = $bookings->roomSelector($node, $subject, true);
+        $bookings->roomSelector($node, $subject, true);
     }
 
     // Display existing form entry element element
@@ -755,6 +755,15 @@ function elementHtml($node, $object){
 
 // Update the booking-subjects name if the form name has changed
 add_action('tsjippy-after-formelement-updated', __NAMESPACE__.'\formElementUpdated', 10, 3);
+/**
+ * Handle updates to form elements
+ *
+ * @param object $element The updated element
+ * @param object $instance The form instance
+ * @param object $oldElement The old element
+ *
+ * @return void
+ */
 function formElementUpdated($element, $instance, $oldElement){
     global $wpdb;
 
@@ -912,6 +921,14 @@ function formElementUpdated($element, $instance, $oldElement){
 }
 
 add_filter('forms-shortcode-table-formats', __NAMESPACE__.'\addShortcodeFormat', 10, 2);
+/**
+ * Add extra formats for the booking selector shortcode
+ * 
+ * @param array $formats The current list of formats
+ * @param object $object The form results object
+ * 
+ * @return array The updated list of formats
+ */
 function addShortcodeFormat($formats, $object){
     $formats['booking_display']       = '%s';
 
@@ -919,6 +936,14 @@ function addShortcodeFormat($formats, $object){
 }
 
 add_filter('forms-form-table-formats', __NAMESPACE__.'\addFormFormat', 10, 2);
+/**
+ * Add extra formats for the form table
+ * 
+ * @param array $formats The current list of formats
+ * @param object $object The form results object
+ * 
+ * @return array The updated list of formats
+ */
 function addFormFormat($formats, $object){
     $formats['payment_indicator']       = '%d'; // payment_indicator
     $formats['payment_amount_el']       = '%d'; // payment_amount_el
@@ -930,6 +955,13 @@ function addFormFormat($formats, $object){
     return $formats;
 }
 
+/**
+ * Get the payment information for a given element
+ *
+ * @param mixed $v The element to check
+ *
+ * @return string The payment information or an empty string
+ */
 function getElementSubjectsPayments($v){
     if(is_array($v) && isset($v['payments'])){
         return $v['payments'];

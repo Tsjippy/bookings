@@ -14,6 +14,14 @@ if ( ! defined( 'ABSPATH' ) ) {
  * It updates the amount to be paid if there are no issues
  */
 add_filter('tsjippy_before_inserting_formdata', __NAMESPACE__.'\beforeSavingFormData', 99, 2);
+/**
+ * Check for booking overlaps before saving form data
+ *
+ * @param object $submission The form submission
+ * @param object $object The form object
+ *
+ * @return object The updated form submission or an error
+ */
 function beforeSavingFormData($submission, $object){
     $bookings                   = new BookingPayments($object);
 
@@ -125,6 +133,15 @@ function beforeSavingFormData($submission, $object){
  * We use it to create the booking in the database, and link it to the submission
  */
 add_filter('tsjippy_after_form_submission', __NAMESPACE__.'\afterFormSubmission', 99, 3);
+/**
+ * Process the form submission after it has been saved
+ *
+ * @param string $message The message to display
+ * @param object $submission The form submission
+ * @param object $object The form object
+ *
+ * @return string The updated message
+ */
 function afterFormSubmission($message, $submission, $object){
     $startDates = [];
     if(isset($submission['booking-start-date'])){
