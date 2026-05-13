@@ -5,6 +5,7 @@
 
 ### Changed
 - removed spaces from file names
+- escape before echoing
 
 ### Fixed
 
