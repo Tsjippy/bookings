@@ -569,7 +569,7 @@ class Bookings{
                             <div class="booking-date-label-text">Departure</div>
                             <div dir="ltr">
                                 <div class="booking-date-label-input-wrapper">
-                                    <input class="booking-date-label-input booking-start-date" placeholder="Select a date" type="text" value="" disabled>
+                                    <input class="booking-date-label-input booking-end-date" placeholder="Select a date" type="text" value="" disabled>
                                 </div>
                             </div>
                         </label>

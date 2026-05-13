@@ -1,12 +1,12 @@
 function reset(modal, onlyEnd=false, skipRoomSelector=true){
     if(!onlyEnd){
-        modal.querySelector('.booking-startdate').value     = '';
+        modal.querySelector('.booking-start-date').value     = '';
         modal.querySelectorAll('.calendar.day.startdate').forEach(el => el.classList.remove('startdate'));
         modal.querySelectorAll('.available.unavailable').forEach(dt => dt.classList.remove('unavailable'));
 
         modal.querySelector('.booking-date-label-wrapper.enddate').classList.add('disabled')
     }
-    modal.querySelector('.booking-enddate').value       = '';
+    modal.querySelector('.booking-end-date').value       = '';
     
     modal.querySelectorAll('.calendar.day.enddate').forEach(el => el.classList.remove('enddate'));
 
@@ -242,8 +242,8 @@ function storeDates(target){
             clone		= FormFunctions.cloneNode(original);
         }
     
-        let startEl     = clone.querySelector('[name^="booking-startdate"]');
-        let endEl       = clone.querySelector('[name^="booking-enddate"]');
+        let startEl     = clone.querySelector('[name^="booking-start-date"]');
+        let endEl       = clone.querySelector('[name^="booking-end-date"]');
         let roomEl      = clone.querySelector('[name^="booking-rooms"]');
         let room        = el.closest('.room-wrapper').dataset.room;
 
@@ -301,8 +301,8 @@ function daySelected(target){
             return;
         }
 
-        modal.querySelector('.booking-startdate').value               = target.dataset.date;
-        modal.querySelector('.booking-startdate').dataset.isodate     = target.dataset.isodate;
+        modal.querySelector('.booking-start-date').value               = target.dataset.date;
+        modal.querySelector('.booking-start-date').dataset.isodate     = target.dataset.isodate;
         target.classList.add('startdate');
         roomWrapper.querySelectorAll('.booking-date-label-wrapper.disabled').forEach(el=>el.classList.remove('disabled'));
 
@@ -336,8 +336,8 @@ function daySelected(target){
         }
 
         // store enddate
-        modal.querySelector('.booking-enddate').value               = target.dataset.date;
-        modal.querySelector('.booking-enddate').dataset.isodate     = target.dataset.isodate;
+        modal.querySelector('.booking-end-date').value               = target.dataset.date;
+        modal.querySelector('.booking-end-date').dataset.isodate     = target.dataset.isodate;
         target.classList.add('enddate');
 
         // color the dates between start and end
@@ -455,7 +455,7 @@ document.addEventListener('click', (ev) => {
         reset(modal);
     }else if(target.matches('.prevnext')){
         getMonth(target);
-    }else if(target.matches('.change-booking-date, [name="booking-startdate"], [name="booking-enddate"]')){
+    }else if(target.matches('.change-booking-date, [name="booking-start-date"], [name="booking-end-date"]')){
         changeBookingData(target);
     }else if(target.matches('.action.confirm')){
         storeDates(target);

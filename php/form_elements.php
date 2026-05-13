@@ -166,7 +166,7 @@ function addFormElementOptions($html, $object, $element){
                                 <?php
                                 echo $bookings->forms->infoBoxHtml("Use 0 for allowing guests to arrive the next day.<br>1 means there is one full day between the previous and the next booking");
                                 ?>
-                                <input type='number' name='formfield[booking-details][<?php echo esc_attr($index);?>][overlap-period]' value='<?php echo $subject['overlap-period'];?>' min='0'>
+                                <input type='number' name='formfield[booking-details][<?php echo esc_attr($index);?>][overlap-period]' value='<?php echo esc_attr($subject['overlap-period']);?>' min='0'>
                             </label>
                         </div>
                     </label>
@@ -200,10 +200,12 @@ function addFormElementOptions($html, $object, $element){
                                     }else{
                                         $checked = '';
                                     }
-                                    echo "<label class='option-label'>";
-                                        echo "<input type='checkbox' class='formbuilder form-element-setting' name='formfield[booking-details][$index][confirmed-booking-roles][]' value='$key' $checked>";
-                                        echo $roleName;
-                                    echo"</label><br>";
+                                    ?>
+                                    <label class='option-label'>
+                                        <input type='checkbox' class='formbuilder form-element-setting' name='formfield[booking-details][<?php echo esc_attr($index);?>][confirmed-booking-roles][]' value='<?php echo esc_attr($key);?>' <?php if(in_array($key, $subject['confirmed-booking-roles'])){echo 'checked=checked';}?>>
+                                        <?php echo esc_html($roleName);?>
+                                    </label><br>
+                                    <?php
                                 }
                                 ?>
                             </div>
@@ -249,17 +251,11 @@ function addFormElementOptions($html, $object, $element){
                                 continue;
                             }
 
-                            $active	= '';
-
-                            if($i === 0){
-                                $active = 'active';
-                            }
-
                             $subjectName    = strtolower(str_replace(' ', '-', $subject['name']));
 
                             ?>
-                            <button class='button tablink formbuilder-form <?php echo $active;?>' type='button' id='show-<?php echo $subjectName;?>-room-<?php echo $i;?>' data-target='<?php echo $subjectName;?>-room-<?php echo $i;?>' style='margin-right:4px;max-width: 100px;'>
-                                Room <?php echo $room['name'];?>
+                            <button class='button tablink formbuilder-form <?php if($i === 0){echo 'active';}?>' type='button' id='show-<?php echo esc_attr($subjectName);?>-room-<?php echo $i;?>' data-target='<?php echo esc_attr($subjectName);?>-room-<?php echo $i;?>' style='margin-right:4px;max-width: 100px;'>
+                                Room <?php echo esc_html($room['name']);?>
                             </button>
                             <?php
                         }
@@ -284,17 +280,12 @@ function addFormElementOptions($html, $object, $element){
 
                             $subjectName    = strtolower(str_replace(' ', '-', $subject['name']));
 
-                            $hidden	= 'hidden';
-                            if($i === 0){
-                                $hidden = '';
-                            }
-
                             ?>
-                            <div id="<?php echo $subjectName;?>-room-<?php echo $i;?>" class="clone-div tabcontent <?php echo $hidden;?>" data-div-id="<?php echo $i;?>">
-                                <input type="hidden" name="formfield[booking-details][<?php echo esc_attr($index);?>][rooms][<?php echo $i;?>][post-id]" value="<?php echo esc_attr($room['post-id']);?>">
+                            <div id="<?php echo esc_attr($subjectName);?>-room-<?php echo esc_attr($i);?>" class="clone-div tabcontent <?php if($i !== 0){echo 'hidden';}?>" data-div-id="<?php echo esc_attr($i);?>">
+                                <input type="hidden" name="formfield[booking-details][<?php echo esc_attr($index);?>][rooms][<?php echo esc_attr($i);?>][post-id]" value="<?php echo esc_attr($room['post-id']);?>">
                                 <label name="roomname" class=" formfield form-label roomname">
                                     <h4>Room name</h4>
-                                    <input type="text" name="formfield[booking-details][<?php echo esc_attr($index);?>][rooms][<?php echo $i;?>][name]" class=" formfield formfield-input" value="<?php echo esc_attr($roomName);?>" placeholder="Enter room name" style='width: unset;'>
+                                    <input type="text" name="formfield[booking-details][<?php echo esc_attr($index);?>][rooms][<?php echo esc_attr($i);?>][name]" class=" formfield formfield-input" value="<?php echo esc_attr($roomName);?>" placeholder="Enter room name" style='width: unset;'>
                                 </label>
                                 <br>
                                 <br>
@@ -317,7 +308,9 @@ function addFormElementOptions($html, $object, $element){
                                 ?>
                                 
                                 <div class="button-wrapper" style="width:100%; display: flex;">
-                                    <button type="button" class="add button" style="max-width: 130px; flex: 1;margin-right: 3px;margin-left: 3px;">Add a room</button>
+                                    <button type="button" class="add button" style="max-width: 130px; flex: 1;margin-right: 3px;margin-left: 3px;">
+                                        Add a room
+                                    </button>
                                     <?php
                                     $hidden = 'hidden';
                                     if(count($subject['rooms']) > 1){
@@ -360,6 +353,16 @@ function addFormElementOptions($html, $object, $element){
 
 // add extra elements for displaying in results table
 add_filter('tsjippy-forms-elements', __NAMESPACE__.'\formElements', 10, 3);
+/**
+ * Add extra form elements for the booking selector
+ * These elements are used to store the booking details and to display them in the results table
+ * 
+ * @param array $elements The current list of form elements
+ * @param object $displayFormResults The current form results object
+ * @param bool $force Whether to force to run the function again 
+ * 
+ * @return array The updated list of form elements
+ */
 function formElements($elements, $displayFormResults, $force){
     // do not show on the form itself, only on the results
     if(!$force && !in_array(get_class($displayFormResults), ["TSJIPPY\FORMS", "TSJIPPY\FORMS\DisplayFormResults", "TSJIPPY\FORMS\SubmitForm", "TSJIPPY\FORMS\EditFormResults"])){
@@ -407,6 +410,14 @@ function formElements($elements, $displayFormResults, $force){
     return $elements;
 }
 
+/**
+ * Render the booking selector element on the form
+ * 
+ * @param object $node The current DOM node to render the element in
+ * @param object $object The form object
+ * 
+ * @return object The rendered element
+ */
 function bookingSelectorHtml($node, $object){
     $bookings       = new Bookings($object);
     $subjects       = $bookings->getElementSubjects($object->element->id);
@@ -565,7 +576,7 @@ function bookingSelectorHtml($node, $object){
 
                         $attributes = [
                             'type'      => 'date',
-                            'name'      => 'booking-start-date[0]',
+                            'name'      => 'booking-end-date[0]',
                             'disabled'  => 'disabled'
                         ];
 
@@ -591,6 +602,14 @@ function bookingSelectorHtml($node, $object){
     return $flexDiv;
 }
 
+/**
+ * Render the booking date elements on the form with the correct min and max attributes based on the existing bookings
+ * 
+ * @param object $node The current DOM node to render the element in
+ * @param object $object The form object
+ * 
+ * @return object The rendered element
+ */
 function bookingDateElementHtml(&$node, $object){
     global $wpdb;
 
@@ -647,6 +666,15 @@ function bookingDateElementHtml(&$node, $object){
 
 // Display the date selector in the form
 add_filter('tsjippy-form-element-html-short-circuit', __NAMESPACE__.'\bookingSelectorElementHtml', 10, 3);
+/**
+ * Render the booking selector element on the form
+ * 
+ * @param object $node The current DOM node to render the element in
+ * @param object $parent The parent form element
+ * @param object $object The form object
+ * 
+ * @return object The rendered element
+ */
 function bookingSelectorElementHtml($node, $parent, $object){
      // Check if the form has a booking selector
     if($object->element->type != 'booking-selector'){
@@ -658,6 +686,14 @@ function bookingSelectorElementHtml($node, $parent, $object){
 
 // Display the date selector in the form
 add_filter('tsjippy-form-element-html', __NAMESPACE__.'\elementHtml', 10, 2);
+/**
+ * Render the form element HTML
+ * 
+ * @param object $node The current DOM node to render the element in
+ * @param object $object The form object
+ * 
+ * @return object The rendered element
+ */
 function elementHtml($node, $object){
      // Check if the form has a booking selector
      if(empty($object->getElementByType('booking-selector'))){
