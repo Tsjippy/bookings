@@ -165,26 +165,26 @@ class Bookings{
      */
     public function getNavigator($date){
         $minusMonth		= strtotime("first day of 1 months ago", $date);
-		$minusMonthStr	= date('m', $minusMonth);
-		$minusYearStr	= date('Y', $minusMonth);
+		$minusMonthStr	= gmdate('m', $minusMonth);
+		$minusYearStr	= gmdate('Y', $minusMonth);
 
         $firstMonth     = strtotime("first day of next month", $minusMonth);
 
 		$plusMonth		= strtotime("first day of 2 months", $date);
-		$plusMonthStr	= date('m', $plusMonth);
-		$plusYearStr	= date('Y', $plusMonth);
+		$plusMonthStr	= gmdate('m', $plusMonth);
+		$plusYearStr	= gmdate('Y', $plusMonth);
         
         ob_start();
         ?>
-        <div class="navigator" data-month='<?php echo esc_attr(date('m', $firstMonth));?>' data-year='<?php echo esc_attr(date('Y', $firstMonth));?>'>
-            <div class="prev <?php if(date('ym', $minusMonth) < date('ym')){ echo 'hidden';}?>">
+        <div class="navigator" data-month='<?php echo esc_attr(gmdate('m', $firstMonth));?>' data-year='<?php echo esc_attr(gmdate('Y', $firstMonth));?>'>
+            <div class="prev <?php if(gmdate('ym', $minusMonth) < gmdate('ym')){ echo 'hidden';}?>">
                 <a class="prevnext" data-month="<?php echo esc_attr($minusMonthStr);?>" data-year="<?php echo esc_attr($minusYearStr);?>">
-                    <span><</span> <?php echo esc_html(date('F', $minusMonth));?>
+                    <span><</span> <?php echo esc_html(gmdate('F', $minusMonth));?>
                 </a>
             </div>
             <div class="next">
                 <a class="prevnext" data-month="<?php echo esc_attr($plusMonthStr);?>" data-year="<?php echo esc_attr($plusYearStr);?>">
-                    <?php echo esc_html(date('F', $plusMonth));?> <span>></span>
+                    <?php echo esc_html(gmdate('F', $plusMonth));?> <span>></span>
                 </a>
             </div>
         </div>
@@ -443,8 +443,8 @@ class Bookings{
    			$returnHtml = true;
 		}
 
-        $monthStr		= date('m', $date);
-		$yearStr		= date('Y', $date);
+        $monthStr		= gmdate('m', $date);
+		$yearStr		= gmdate('Y', $date);
         $cleanSubject   = trim($subject['name']);
 
         $attributes     = [
@@ -606,14 +606,14 @@ class Bookings{
 			$year		= $_POST['year'];
 			$dateStr	= "$year-$month-01";
 		}else{
-			$day	= date('d');
+			$day	= gmdate('d');
 			$month	= $_GET['month'];
 			$year	= $_GET['yr'];
 			if(!is_numeric($month) || strlen($month)!=2){
-				$month	= date('m');
+				$month	= gmdate('m');
 			}
 			if(!is_numeric($year) || strlen($year)!=4){
-				$year	= date('Y');
+				$year	= gmdate('Y');
 			}
 			$dateStr	= "$year-$month-$day";
 		}
@@ -655,10 +655,10 @@ class Bookings{
             $subject    = $subject['name'];
         }
 
-        $month          = date('m', $date);
-        $year           = date('Y', $date);
-		$weekDay		= date("w", strtotime(date('Y-m-01', $date)));
-		$workingDate	= strtotime("-$weekDay day", strtotime(date('Y-m-01', $date)));
+        $month          = gmdate('m', $date);
+        $year           = gmdate('Y', $date);
+		$weekDay		= gmdate("w", strtotime(gmdate('Y-m-01', $date)));
+		$workingDate	= strtotime("-$weekDay day", strtotime(gmdate('Y-m-01', $date)));
 
         // subject without optional room name
         $overlap            = false;
@@ -685,14 +685,14 @@ class Bookings{
         }
 
         ?>
-        <div class="month-container" data-month='<?php echo esc_attr(date('m', $date));?>' data-year='<?php echo esc_attr(date('Y', $date));?>'>
+        <div class="month-container" data-month='<?php echo esc_attr(gmdate('m', $date));?>' data-year='<?php echo esc_attr(gmdate('Y', $date));?>'>
             <div class="current">
-                <?php echo esc_html(date('F Y', $date));?>
+                <?php echo esc_html(gmdate('F Y', $date));?>
             </div>
             <dl>
                 <?php
                 for ($y = 0; $y <= 6; $y++) {
-                    $name	= date('D', $workingDate);
+                    $name	= gmdate('D', $workingDate);
                     ?>
                     <dt class='calendar day head'>
                         <?php echo esc_html($name);?>
@@ -723,15 +723,15 @@ class Bookings{
      */
     public function writeCalendarRows($date, $overlap){
 
-        $month          = date('m', $date);
-		$weekDay		= date("w", strtotime(date('Y-m-01', $date)));
-		$workingDate	= strtotime("-$weekDay day", strtotime(date('Y-m-01', $date)));
+        $month          = gmdate('m', $date);
+		$weekDay		= gmdate("w", strtotime(gmdate('Y-m-01', $date)));
+		$workingDate	= strtotime("-$weekDay day", strtotime(gmdate('Y-m-01', $date)));
         $curDate        = time();
 
         //loop over all weeks of a month
 		while(true){
             $hidden         = '';
-            if($month != date('m', $date)){
+            if($month != gmdate('m', $date)){
                 $hidden = 'hidden';
             }
 
@@ -740,9 +740,9 @@ class Bookings{
                 <?php
                 //loop over all days of a week
                 while(true){
-                    $workingDateStr		= date('Y-m-d', $workingDate);
-                    $workingMonth	    = date('m', $workingDate);
-                    $workingDay			= date('j', $workingDate);
+                    $workingDateStr		= gmdate('Y-m-d', $workingDate);
+                    $workingMonth	    = gmdate('m', $workingDate);
+                    $workingDay			= gmdate('j', $workingDate);
 
                     $class              = '';
 
@@ -753,7 +753,7 @@ class Bookings{
                     }else{
                         $data   = '';
                         // date is in the past, make it unavailable
-                        if(date('Ymd', $workingDate) < date('Ymd', $curDate)){
+                        if(gmdate('Ymd', $workingDate) < gmdate('Ymd', $curDate)){
                             $class	= 'unavailable';
                         // not booked
                         }elseif(!isset($this->unavailable[$workingDateStr])){
@@ -770,8 +770,8 @@ class Bookings{
                                 $overlap &&                                                                                 // overlap enabled
                                 get_class($this->forms) != 'TSJIPPY\FORMS\DisplayFormResults'   &&                              // we are not in the overview page           
                                 (
-                                    !isset($this->unavailable[date('Y-m-d', strtotime('-1 day', $workingDate))])    ||      // this is the first day of a booking
-                                    !isset($this->unavailable[date('Y-m-d', strtotime('+1 day', $workingDate))])            // or the last day of a booking
+                                    !isset($this->unavailable[gmdate('Y-m-d', strtotime('-1 day', $workingDate))])    ||      // this is the first day of a booking
+                                    !isset($this->unavailable[gmdate('Y-m-d', strtotime('+1 day', $workingDate))])            // or the last day of a booking
                                 )
                             ){
                                 $class	.= ' available';
@@ -803,8 +803,8 @@ class Bookings{
                         ?>
                         <dt 
                             class='calendar day <?php echo esc_attr($class);?>' 
-                            data-date='<?php echo esc_attr(date(DATEFORMAT, $workingDate));?>' 
-                            data-isodate='<?php echo esc_attr(date('Y-m-d', $workingDate));?>' 
+                            data-date='<?php echo esc_attr(gmdate(DATEFORMAT, $workingDate));?>' 
+                            data-isodate='<?php echo esc_attr(gmdate('Y-m-d', $workingDate));?>' 
                             <?php echo esc_html($data);?>
                         >
                             <span class='day-nr'>
@@ -817,7 +817,7 @@ class Bookings{
                     //calculate the next week
                     $workingDate	= strtotime('+1 day', $workingDate);
                     //if the next day is the first day of a new week
-                    if(date('w', $workingDate) == 0){
+                    if(gmdate('w', $workingDate) == 0){
                         break;
                     }
                 }
@@ -826,7 +826,7 @@ class Bookings{
             <?php
 
 			// Break if next month
-			if(date('Ym', $workingDate) > date('Ym', $date)){
+			if(gmdate('Ym', $workingDate) > gmdate('Ym', $date)){
 				break;
 			}
 		}
@@ -888,12 +888,12 @@ class Bookings{
                                     <table data-form-id='<?php echo esc_attr($submission->form_id);?>' data-shortcode-id='<?php echo esc_attr($this->forms->shortcodeId);?>' style='margin-bottom: 0px; width:unset;'>
                                         <tr data-submission-id='<?php echo esc_attr($submission->id);?>'>
                                             <td data-name='booking-start-date' data-element-id='<?php echo esc_attr($this->forms->getElementBySlug('booking-start-date')->id);?>' data-subid='<?php echo esc_attr($subId);?>' data-booking-id='<?php echo esc_attr($submission->booking_id);?>' class='edit forms-table'>
-                                                <?php echo esc_html(date(DATEFORMAT, strtotime($submission->{'booking-start-date'})));?>
+                                                <?php echo esc_html(gmdate(DATEFORMAT, strtotime($submission->{'booking-start-date'})));?>
                                             </td>
                                         </tr>
                                         <tr data-submission-id='<?php echo esc_attr($submission->id);?>'>
                                             <td data-name='booking-start-date' data-element-id='<?php echo esc_attr($this->forms->getElementBySlug('booking-start-date')->id);?>' data-subid='<?php echo esc_attr($subId);?>' data-booking-id='<?php echo esc_attr($submission->booking_id);?>' class='edit forms-table'>
-                                                <?php echo esc_html(date(DATEFORMAT, strtotime($submission->{'booking-start-date'})));?>
+                                                <?php echo esc_html(gmdate(DATEFORMAT, strtotime($submission->{'booking-start-date'})));?>
                                             </td>
                                         </tr>
                                     </table>
@@ -1250,8 +1250,8 @@ class Bookings{
                 $subject    .= " room $room";
             }
 
-            $startDateString    = date(DATEFORMAT, strtotime($overlappingBookings[0]->start_date));
-            $endDateString      = date(DATEFORMAT, strtotime($overlappingBookings[0]->end_date));
+            $startDateString    = gmdate(DATEFORMAT, strtotime($overlappingBookings[0]->start_date));
+            $endDateString      = gmdate(DATEFORMAT, strtotime($overlappingBookings[0]->end_date));
             return new \WP_Error('booking', "The booking for $subject overlaps with an existing one from $startDateString till $endDateString, try again");
         }
 
@@ -1373,8 +1373,8 @@ class Bookings{
                 $subject    .= " room $room";
             }
 
-            $startDateString    = date(DATEFORMAT, strtotime($overlappingBookings[0]->start_date));
-            $endDateString      = date(DATEFORMAT, strtotime($overlappingBookings[0]->end_date));
+            $startDateString    = gmdate(DATEFORMAT, strtotime($overlappingBookings[0]->start_date));
+            $endDateString      = gmdate(DATEFORMAT, strtotime($overlappingBookings[0]->end_date));
             return new \WP_Error('booking', "The booking for $subject overlaps with an existing one from $startDateString till $endDateString, try again");
         }
 
@@ -1412,7 +1412,7 @@ class Bookings{
         }
 
         // update the booking
-        $wpdb->update(
+        $wpdb->upgmdate(
             $this->tableName,
             $values,
             array(
@@ -1654,7 +1654,7 @@ class Bookings{
 
 		//select all bookings of this month
         $startDate  = "$year-$month-01";
-        $endDate    = date("Y-m-t", strtotime($startDate));
+        $endDate    = gmdate("Y-m-t", strtotime($startDate));
 		$query	    = "SELECT * FROM $this->tableName WHERE (`start_date` >= '$startDate' OR '$startDate' BETWEEN start_date and end_date) AND `start_date` <= '$endDate' AND subject = '$subject' AND room = '$room'";
 
         //sort on start_date
@@ -1675,7 +1675,7 @@ class Bookings{
             }
 
             while( $current <= $last ) {
-                $this->unavailable[date('Y-m-d', $current)] = $booking->id;
+                $this->unavailable[gmdate('Y-m-d', $current)] = $booking->id;
                 $current                = strtotime('+1 day', $current);
             }
         }
@@ -1686,11 +1686,11 @@ class Bookings{
      *
      *  @param  string|int  $date   The date in 'Y-m-d' format or unix timestamp
      */
-    public function retrieveBookingsByEndDate($date){
+    public function retrieveBookingsByEndgmdate($date){
         global $wpdb;
 
         if(is_numeric($date)){
-            $date   = date('Y-m-d', $date);
+            $date   = gmdate('Y-m-d', $date);
         }
 
 		return $wpdb->get_results(
@@ -1703,11 +1703,11 @@ class Bookings{
      *
      *  @param  string|int  $date   The date in 'Y-m-d' format or unix timestamp
      */
-    public function retrieveBookingsByStartDate($date){
+    public function retrieveBookingsByStartgmdate($date){
         global $wpdb;
 
         if(is_numeric($date)){
-            $date   = date('Y-m-d', $date);
+            $date   = gmdate('Y-m-d', $date);
         }
 
         $query	    = "SELECT * FROM $this->tableName WHERE start_date = '$date'";
@@ -1811,13 +1811,13 @@ class Bookings{
                     $processedSubmissionIds   = [];
 
                     if($mail->email_trigger == 'before-stay'){
-                        $date       = date('Y-m-d', strtotime("+{$mail->days_before} days", time()));
-                        $bookings   = $this->retrieveBookingsByStartDate($date);
+                        $date       = gmdate('Y-m-d', strtotime("+{$mail->days_before} days", time()));
+                        $bookings   = $this->retrieveBookingsByStartgmdate($date);
                     }
 
                     elseif($mail->email_trigger == 'after-stay'){
-                        $date       = date('Y-m-d', strtotime("-{$mail->days_after} days", time()));
-                        $bookings   = $this->retrieveBookingsByEndDate($date);
+                        $date       = gmdate('Y-m-d', strtotime("-{$mail->days_after} days", time()));
+                        $bookings   = $this->retrieveBookingsByEndgmdate($date);
                     }
 
                     foreach($bookings as $booking){

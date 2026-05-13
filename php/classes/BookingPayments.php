@@ -42,7 +42,7 @@ class BookingPayments extends Bookings{
         if($onlyFinished){
             $query	.= " AND end_date < %s";
 
-            $values[]   = date('Y-m-d');
+            $values[]   = gmdate('Y-m-d');
         }
 
         if($all){
@@ -100,7 +100,7 @@ class BookingPayments extends Bookings{
 
         $values     = [
             $this->tableName,
-            date('Y-m-d'),
+            gmdate('Y-m-d'),
             ...$subjects
         ];
 

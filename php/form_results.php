@@ -463,7 +463,7 @@ function alterQuery($params, $userId, $instance){
     ){
         $params['where'][] .= "S.id IN(SELECT submission_id FROM %i WHERE end_date >= %s ORDER BY 'start_date')";
         $params['values'][] = $bookings->tableName;
-        $params['values'][] = date('Y-m-d');
+        $params['values'][] = gmdate('Y-m-d');
     }
 
     return $params;

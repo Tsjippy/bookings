@@ -19,7 +19,7 @@ class BookingEmail extends ADMIN\MailSetting{
 
         $this->replaceArray['%id%']                         = $this->booking->id;  
         $this->replaceArray['%subject%']                    = $this->booking->subject;
-        $this->replaceArray['%duration%']                   = "from ".date(DATEFORMAT, strtotime($this->booking->start_date))." till ".date(DATEFORMAT, strtotime($this->booking->end_date));
+        $this->replaceArray['%duration%']                   = "from ".gmdate(DATEFORMAT, strtotime($this->booking->start_date))." till ".gmdate(DATEFORMAT, strtotime($this->booking->end_date));
         $this->replaceArray['%payable%']                    = '';
         $this->replaceArray['%payment_details%']            = '';
         $this->replaceArray['%price_per_night%']            = '';
@@ -67,9 +67,9 @@ class BookingEmail extends ADMIN\MailSetting{
             }
         }
 
-        $this->replaceArray['%start_date%']  = date(DATEFORMAT, strtotime($startDates[0]));
+        $this->replaceArray['%start_date%']  = gmdate(DATEFORMAT, strtotime($startDates[0]));
 
-        $this->replaceArray['%end_date%']    = date(DATEFORMAT, strtotime($endDates[0]));
+        $this->replaceArray['%end_date%']    = gmdate(DATEFORMAT, strtotime($endDates[0]));
 
         $this->replaceArray['%rooms%']      = $rooms[0];
 
@@ -87,8 +87,8 @@ class BookingEmail extends ADMIN\MailSetting{
         if(count(array_unique($startDates)) > 1 || count(array_unique($endDates)) > 1){
             $this->replaceArray['%duration%']   = '';
             foreach($startDates as $room => $d){
-                $startDate  = date(DATEFORMAT, strtotime($d));
-                $endDate    = date(DATEFORMAT, strtotime($endDates[$room]));
+                $startDate  = gmdate(DATEFORMAT, strtotime($d));
+                $endDate    = gmdate(DATEFORMAT, strtotime($endDates[$room]));
 
                 if(!empty($this->replaceArray['%duration%'])){
                     $this->replaceArray['%duration%']   .= " and ";

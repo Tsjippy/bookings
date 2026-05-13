@@ -25,7 +25,7 @@ if(is_tax() || is_archive()){
 		<?php
 		if($archive){
 			$url = get_permalink(get_the_ID());
-			echo the_title( "<h3 class='archivetitle'><a href='$url'>", '</a></h3>' );
+			the_title( "<h3 class='archivetitle'><a href='$url'>", '</a></h3>', true );
 		}else{
 			do_action( 'tsjippy_before_content');
 		}

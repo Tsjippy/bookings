@@ -254,7 +254,7 @@ function addFormElementOptions($html, $object, $element){
                             $subjectName    = strtolower(str_replace(' ', '-', $subject['name']));
 
                             ?>
-                            <button class='button tablink formbuilder-form <?php if($i === 0){echo 'active';}?>' type='button' id='show-<?php echo esc_attr($subjectName);?>-room-<?php echo $i;?>' data-target='<?php echo esc_attr($subjectName);?>-room-<?php echo $i;?>' style='margin-right:4px;max-width: 100px;'>
+                            <button class='button tablink formbuilder-form <?php if($i === 0){echo 'active';}?>' type='button' id='<?php echo esc_attr("show-$subjectName-room-$i");?>' data-target='<?php echo esc_attr("$subjectName-room-$i");?>' style='margin-right:4px;max-width: 100px;'>
                                 Room <?php echo esc_html($room['name']);?>
                             </button>
                             <?php

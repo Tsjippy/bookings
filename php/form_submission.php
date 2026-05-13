@@ -87,8 +87,8 @@ function beforeSavingFormData($submission, $object){
                     $subjectName    .= " room {$rooms[$index]}";
                 }
 
-                $startDateString    = date(DATEFORMAT, strtotime($start_date));
-                $endDateString      = date(DATEFORMAT, strtotime($endDates[$index]));
+                $startDateString    = gmdate(DATEFORMAT, strtotime($start_date));
+                $endDateString      = gmdate(DATEFORMAT, strtotime($endDates[$index]));
                 return new \WP_Error('booking', "The booking for $subjectName overlaps with an existing one from $startDateString till $endDateString, try again");
             }
         }

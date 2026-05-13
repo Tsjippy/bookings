@@ -57,22 +57,22 @@ function transformEmpty($replaceValue, $match, $replaceValues, $instance){
 
     // NO ROOMS
     if(empty($rooms)){
-        $startDate      = date(DATEFORMAT, strtotime((string)$startDates[0]));
-        $endDate        = date(DATEFORMAT, strtotime((string)$endDates[0]));
+        $startDate      = gmdate(DATEFORMAT, strtotime((string)$startDates[0]));
+        $endDate        = gmdate(DATEFORMAT, strtotime((string)$endDates[0]));
         $replaceValue   = "from $startDate till $endDate";
     }else{
         if(count( array_unique($startDates)) == 1 && count(array_unique($endDates)) == 1){
             $startDate      = array_values($startDates)[0];
             $endDate        = array_values($endDates)[0];
             $rooms          = implode('&', $rooms);
-            $startDate      = date(DATEFORMAT, strtotime((string)$startDate));
-            $endDate        = date(DATEFORMAT, strtotime((string)$endDate));
+            $startDate      = gmdate(DATEFORMAT, strtotime((string)$startDate));
+            $endDate        = gmdate(DATEFORMAT, strtotime((string)$endDate));
             $replaceValue   = "room $rooms from $startDate till $endDate";
         }else{
             $replaceValue   = "room:<br>";
             foreach($rooms as $room){
-                $startDate      = date(DATEFORMAT, strtotime((string)$startDates[$room]));
-                $endDate        = date(DATEFORMAT, strtotime((string)$endDates[$room]));
+                $startDate      = gmdate(DATEFORMAT, strtotime((string)$startDates[$room]));
+                $endDate        = gmdate(DATEFORMAT, strtotime((string)$endDates[$room]));
 
                 $replaceValue   .= "$room from $startDate till $endDate<br>";
             }
