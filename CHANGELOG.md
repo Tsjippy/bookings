@@ -8,6 +8,7 @@
 - escape before echoing
 
 ### Fixed
+- select start and end date
 
 ### Updated
 
