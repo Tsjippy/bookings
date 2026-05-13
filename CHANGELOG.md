@@ -4,13 +4,20 @@
 ### Added
 
 ### Changed
+
+### Fixed
+
+### Updated
+
+## [10.1.0] - 2026-05-13
+
+
+### Changed
 - removed spaces from file names
 - escape before echoing
 
 ### Fixed
 - select start and end date
-
-### Updated
 
 ## [10.0.8] - 2026-05-12
 
