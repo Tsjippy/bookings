@@ -10,21 +10,21 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 class Bookings{
-    public $tableName;
-    public $bookings;
-    public $forms;
-    public $unavailable;
-    public $showArchived;
-    public $tableEditPermissions;
-    public $user;
-    public $userRoles;
-    public $managers;
-    public $payables;
-    public $bookingElements;
-    public $picturesUrl;
-    protected $subjects;
+    public string $tableName;
+    public array $bookings;
+    public object $forms;
+    public array $unavailable;
+    public bool $showArchived;
+    public bool $tableEditPermissions;
+    public object $user;
+    public array $userRoles;
+    public array $managers;
+    public array $payables;
+    public array $bookingElements;
+    public string $picturesUrl;
+    protected array $subjects;
 
-    public function __construct($formInstance=''){
+    public function __construct($formInstance=null){
         global $wpdb;
 		$this->tableName		            = $wpdb->prefix.'tsjippy_bookings';
         $this->bookings                     = [];
@@ -48,7 +48,6 @@ class Bookings{
 
     /**
      * Retrieves the subjects of a specific element from the database
-     * @param   int     $elementId  The id of the booking element
      */
     public function getSubjects(){
         if(!empty($this->subjects)){
@@ -174,22 +173,18 @@ class Bookings{
 		$plusMonth		= strtotime("first day of 2 months", $date);
 		$plusMonthStr	= date('m', $plusMonth);
 		$plusYearStr	= date('Y', $plusMonth);
-
-        $hidden         = '';
-        if(date('ym', $minusMonth) < date('ym')){
-            //$hidden = 'hidden';
-        }
+        
         ob_start();
         ?>
-        <div class="navigator" data-month='<?php echo date('m', $firstMonth);?>' data-year='<?php echo date('Y', $firstMonth);?>'>
-            <div class="prev <?php echo $hidden;?>">
-                <a class="prevnext" data-month="<?php echo $minusMonthStr;?>" data-year="<?php echo $minusYearStr;?>">
-                    <span><</span> <?php echo date('F', $minusMonth);?>
+        <div class="navigator" data-month='<?php echo esc_attr(date('m', $firstMonth));?>' data-year='<?php echo esc_attr(date('Y', $firstMonth));?>'>
+            <div class="prev <?php if(date('ym', $minusMonth) < date('ym')){ echo 'hidden';}?>">
+                <a class="prevnext" data-month="<?php echo esc_attr($minusMonthStr);?>" data-year="<?php echo esc_attr($minusYearStr);?>">
+                    <span><</span> <?php echo esc_html(date('F', $minusMonth));?>
                 </a>
             </div>
             <div class="next">
-                <a class="prevnext" data-month="<?php echo $plusMonthStr;?>" data-year="<?php echo $plusYearStr;?>">
-                    <?php echo date('F', $plusMonth);?> <span>></span>
+                <a class="prevnext" data-month="<?php echo esc_attr($plusMonthStr);?>" data-year="<?php echo esc_attr($plusYearStr);?>">
+                    <?php echo esc_html(date('F', $plusMonth));?> <span>></span>
                 </a>
             </div>
         </div>
@@ -200,6 +195,10 @@ class Bookings{
 
     /**
      * Room description modals
+     * 
+     * @param   array   $subject    The subject for which to show the room descriptions, including the room names and post ids
+     * 
+     * @return  string              The html of the room description modal
      */
     public function roomDescription($subject){
         ob_start();
@@ -207,7 +206,7 @@ class Bookings{
         $subjectName    = strtolower(str_replace(' ', '_', $subject['name']));
 
         ?>
-        <div name='<?php echo $subjectName;?>-room-modal' class="booking rooms modal hidden" style="display:unset; z-index: 999999999 !important;">
+        <div name='<?php echo esc_attr($subjectName);?>-room-modal' class="booking rooms modal hidden" style="display:unset; z-index: 999999999 !important;">
             <div class="modal-content">
                 <span class="close mobile-sticky">&times;</span>
 
@@ -218,8 +217,8 @@ class Bookings{
                     // Render tablink buttons
                     foreach($subject['rooms'] as $index => $room){
                         ?>
-                        <button class='button tablink formbuilder-form <?php if($index === 0){echo 'active';}?>' type='button' id='show-<?php echo $subjectName;?>-room-<?php echo $index;?>' data-target='<?php echo $subjectName;?>-room-<?php echo $index;?>' style='margin-right:4px;'>
-                            Room <?php echo $room['name'];?>
+                        <button class='button tablink formbuilder-form <?php if($index === 0){echo 'active';}?>' type='button' id='show-<?php echo esc_attr($subjectName);?>-room-<?php echo esc_attr($index);?>' data-target='<?php echo esc_attr($subjectName);?>-room-<?php echo esc_attr($index);?>' style='margin-right:4px;'>
+                            Room <?php echo esc_html($room['name']) ;?>
                         </button>
                         <?php
                     }
@@ -233,7 +232,7 @@ class Bookings{
                     $i++;
                     $name   = $room['name'];
                     ?>
-                    <div id="<?php echo $subjectName;?>-room-<?php echo $name;?>" class="tabcontent <?php if($i > 1){echo 'hidden';}?> lazy-post" data-post-id='<?php echo $room['post-id'];?>' >
+                    <div id="<?php echo esc_attr($subjectName);?>-room-<?php echo esc_attr($name);?>" class="tabcontent <?php if($i > 1){echo 'hidden';}?> lazy-post" data-post-id='<?php echo esc_attr($room['post-id']);?>' >
                     </div>
                     <?php
                 }
@@ -407,8 +406,8 @@ class Bookings{
                     $roomHidden = '';
                 }
                 ?>
-                <div class='room-wrapper <?php echo $roomHidden;?>'data-room='<?php echo $room['name'];?>'>
-                    <h4>Room <?php echo $room['name']?></h4>
+                <div class='room-wrapper <?php echo esc_attr($roomHidden);?>' data-room='<?php echo esc_attr($room['name']);?>'>
+                    <h4>Room <?php echo esc_html($room['name']);?></h4>
                     <div class='month-wrapper flex'>
                         <?php
                         echo $this->monthCalendar($subject, $room['name'], $date);
@@ -543,7 +542,8 @@ class Bookings{
     /**
      * Displays the selected dates
      *
-     * @param   bool    $hide   Wheter or not this should be hidden by default
+     * @param   \DOMElement  $node   The node to append to
+     * @param   boolean $hide   Wheter to hide the selected dates by default (when there are multiple rooms)
      *
      * @return  string          The html
      */
@@ -771,16 +771,20 @@ class Bookings{
 		}
 
         ?>
-        <div class="month-container" data-month='<?php echo date('m', $date);?>' data-year='<?php echo date('Y', $date);?>'>
+        <div class="month-container" data-month='<?php echo esc_attr(date('m', $date));?>' data-year='<?php echo esc_attr(date('Y', $date));?>'>
             <div class="current">
-                <?php echo date('F Y', $date);?>
+                <?php echo esc_html(date('F Y', $date));?>
             </div>
             <dl>
                 <?php
                 $workingDate	= strtotime("-$weekDay day", strtotime(date('Y-m-01', $date)));
                 for ($y = 0; $y <= 6; $y++) {
                     $name	= date('D', $workingDate);
-                    echo "<dt class='calendar day head'>$name</dt>";
+                    ?>
+                    <dt class='calendar day head'>
+                        <?php echo esc_html($name);?>
+                    </dt>
+                    <?php
                     $workingDate	= strtotime("+1 days", $workingDate);
                 }
                 ?>
@@ -808,33 +812,36 @@ class Bookings{
         $subId          = $submission->subId;
         
         $hidden         = '';
-        if($hide){
+        if(
+            $hide   &&
+            (
+                empty($_REQUEST['id']) || 
+                $_REQUEST['id'] != $this->forms->submission->id
+            )
+        ){
             $hidden         = 'hidden';
-            if(!empty($_REQUEST['id']) && $_REQUEST['id'] == $this->forms->submission->id){
-                $hidden = '';
-            }
         }
 
         ob_start();
 
         ?>
-        <div class='booking-detail-wrapper <?php echo $hidden;?>' data-booking-id='<?php echo esc_attr($submission->booking_id);?>'>
+        <div class='booking-detail-wrapper <?php echo esc_attr($hidden);?>' data-booking-id='<?php echo esc_attr($submission->booking_id);?>'>
             <h6 class='booking-title'>
                 Booking details
             </h6>
 
             <article class='booking'>
-                <h4 class='booking-title'><?php echo $submission->slug;?></h4>
+                <h4 class='booking-title'><?php echo esc_html($submission->slug);?></h4>
                 <div class='booking-detail'>
-                    <table data-form-id='<?php echo $submission->form_id;?>' style='width: unset;'>
+                    <table data-form-id='<?php echo esc_attr($submission->form_id);?>' style='width: unset;'>
                         <thead></thead>
                         <tbody>
-                            <tr class='<?php $this->bookingElements[0]->slug;?>' data-submission-id='<?php echo $submission->id;?>'>
+                            <tr class='<?php echo esc_attr($this->bookingElements[0]->slug);?>' data-submission-id='<?php echo esc_attr($submission->id);?>'>
                                 <td>
-                                    <img src='<?php echo esc_url($this->picturesUrl);?>/subject.png' loading='lazy' alt='<?php echo $this->bookingElements[0]->name;?>' class='booking-icon' title='<?php echo $this->bookingElements[0]->name;?>'>
+                                    <img src='<?php echo esc_url($this->picturesUrl);?>/subject.png' loading='lazy' alt='<?php echo esc_attr($this->bookingElements[0]->name);?>' class='booking-icon' title='<?php echo esc_attr($this->bookingElements[0]->name);?>'>
                                 </td>
-                                <td class='booking-data-wrapper edit forms-table' data-element-id='<?php echo $this->bookingElements[0]->id;?>' data-name='<?php echo $this->bookingElements[0]->slug;?>' data-booking-id='<?php echo esc_attr($submission->booking_id);?>'>
-                                    <?php echo $submission->{$this->bookingElements[0]->id};?>
+                                <td class='booking-data-wrapper edit forms-table' data-element-id='<?php echo esc_attr($this->bookingElements[0]->id);?>' data-name='<?php echo esc_attr($this->bookingElements[0]->slug);?>' data-booking-id='<?php echo esc_attr($submission->booking_id);?>'>
+                                    <?php echo esc_html($submission->{$this->bookingElements[0]->id})?>
                                 </td>
                             </tr>
                             <tr>
@@ -842,14 +849,14 @@ class Bookings{
                                     <img src='<?php echo esc_url($this->picturesUrl);?>/date.png' loading='lazy' alt='date' class='booking-icon'>
                                 </td>
                                 <td class='booking-data-wrapper edit forms-table'>
-                                    <table data-form-id='<?php echo $submission->form_id;?>' data-shortcode-id='<?php echo $this->forms->shortcodeId;?>' style='margin-bottom: 0px; width:unset;'>
-                                        <tr data-submission-id='<?php echo $submission->id;?>'>
-                                            <td data-name='booking-start-date' data-element-id='<?php echo $this->forms->getElementBySlug('booking-start-date')->id;?>' data-subid='<?php echo $subId;?>' data-booking-id='<?php echo esc_attr($submission->booking_id);?>' class='edit forms-table'>
+                                    <table data-form-id='<?php echo esc_attr($submission->form_id);?>' data-shortcode-id='<?php echo esc_attr($this->forms->shortcodeId);?>' style='margin-bottom: 0px; width:unset;'>
+                                        <tr data-submission-id='<?php echo esc_attr($submission->id);?>'>
+                                            <td data-name='booking-start-date' data-element-id='<?php echo esc_attr($this->forms->getElementBySlug('booking-start-date')->id);?>' data-subid='<?php echo esc_attr($subId);?>' data-booking-id='<?php echo esc_attr($submission->booking_id);?>' class='edit forms-table'>
                                                 <?php echo date(DATEFORMAT, strtotime($submission->{'booking-start-date'}));?>
                                             </td>
                                         </tr>
-                                        <tr data-submission-id='<?php echo $submission->id;?>'>
-                                            <td data-name='booking-start-date' data-element-id='<?php echo  $this->forms->getElementBySlug('booking-start-date')->id;?>' data-subid='<?php echo $subId;?>' data-booking-id='<?php echo esc_attr($submission->booking_id);?>' class='edit forms-table'>
+                                        <tr data-submission-id='<?php echo esc_attr($submission->id);?>'>
+                                            <td data-name='booking-start-date' data-element-id='<?php echo esc_attr($this->forms->getElementBySlug('booking-start-date')->id);?>' data-subid='<?php echo esc_attr($subId);?>' data-booking-id='<?php echo esc_attr($submission->booking_id);?>' class='edit forms-table'>
                                                 <?php echo date(DATEFORMAT, strtotime($submission->{'booking-start-date'}));?>
                                             </td>
                                         </tr>
@@ -860,11 +867,11 @@ class Bookings{
                             <?php 
                             if(!empty($submission->{'booking-rooms'})){
                                 ?>
-                                <tr class='room' data-submission-id='<?php echo $submission->id;?>'>
+                                <tr class='room' data-submission-id='<?php echo esc_attr($submission->id);?>'>
                                     <td>
                                         <img src='<?php echo esc_url($this->picturesUrl);?>/room.png' loading='lazy' alt='Room' class='booking-icon' title='Room'>
                                     </td>
-                                    <td class='booking-data-wrapper edit forms-table' data-element-id='-104' data-subid='<?php echo $subId;?>' data-name='booking-rooms' data-booking-id='<?php echo esc_attr($submission->booking_id);?>'>
+                                    <td class='booking-data-wrapper edit forms-table' data-element-id='-104' data-subid='<?php echo esc_attr($subId);?>' data-name='booking-rooms' data-booking-id='<?php echo esc_attr($submission->booking_id);?>'>
                                         <?php echo esc_attr($submission->{'booking-rooms'});?>
                                     </td>
                                 </tr>
@@ -1079,7 +1086,10 @@ class Bookings{
      * @param   int     $startDate      The start_date epoch of a booking
      * @param   int     $endDate        The end_date epoch of a booking
      * @param   string  $subject        The subject  of a booking
+     * @param   string  $room           The room of a booking
      * @param   int     $id             An booking id to ignore to check exclude the the booking itself
+     * 
+     * @return  array                   An array with overlapping bookings
      */
     public function checkOverlap($startDate, $endDate, $subject, $room, $id=-1){
         global $wpdb;
@@ -1135,9 +1145,10 @@ class Bookings{
     /**
      * Checks wheter a booking to be inserted should be a pending booking
      *
-     * @param   int     $user       the user or userId of the person for who the booking is done
+     * @param   int|\WP_User     $user      the user or userId of the person for who the booking is done
+     * @param   string          $subject    the subject of the booking
      * 
-     * @return  bool                true if is should be pending, false otherwise
+     * @return  bool                        true if is should be pending, false otherwise
      */
     public function checkPending($user, $subject){
         $els = $this->getBookingElements();
@@ -1186,8 +1197,8 @@ class Bookings{
     /**
      * Insert a new booking
      *
-     * @param   string      $start_date      The start_date string
-     * @param   string      $end_date        The end_date string
+     * @param   string      $startDate      The start_date string
+     * @param   string      $endDate        The end_date string
      * @param   string      $subject        The subject the booking is for
      * @param   string      $room           The room the booking is for
      * @param   int         $submissionId   The form submission id
@@ -1474,7 +1485,7 @@ class Bookings{
                 // if this is the booking for the room
                 if(in_array($room, $deleted)){
                     // Delete the booking
-                    $result = $this->removeBooking($booking);
+                    $this->removeBooking($booking);
                 }
             }
         }
@@ -1591,8 +1602,10 @@ class Bookings{
      * @param   int     $month          The month to retrieve bookings for
      * @param   int     $year           The year to retrieve bookings for
      * @param   string  $subject        The subject to retrieve bookings for
+     * @param   string  $room           The room to retrieve bookings for
      * @param   int     $extraDays      Extra days to block after each booking, default 0
      *
+     * @return  void                    The bookings are stored in the $this->bookings property and the unavailable dates in the $this->unavailable property
      */
     protected function retrieveMonthBookings($month, $year, $subject, $room, $extraDays=0){
         global $wpdb;
@@ -1707,6 +1720,10 @@ class Bookings{
 
     /**
      * Retrieves an array of start_date, end_date and room arrays
+     * 
+     * @param   int     $submissionId    The submission id to retrieve the dates for
+     * 
+     * @return  array                   An array with startDates, endDates and rooms arrays
      */
     function getBookingDates($submissionId){
         // Get all the bookings belonging to this form submission
