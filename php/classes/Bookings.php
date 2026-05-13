@@ -410,8 +410,8 @@ class Bookings{
                     <h4>Room <?php echo esc_html($room['name']);?></h4>
                     <div class='month-wrapper flex'>
                         <?php
-                        echo $this->monthCalendar($subject, $room['name'], $date);
-                        echo $this->monthCalendar($subject, $room['name'], strtotime('first day of next month', $date));
+                        $this->monthCalendar($subject, $room['name'], $date, true);
+                        $this->monthCalendar($subject, $room['name'], strtotime('first day of next month', $date), true);
                         ?>
                     </div>
                 </div>
@@ -645,22 +645,20 @@ class Bookings{
 	 * @param	string		$subject		The subject name
      * @param	string		$room		    The subject room
      * @param   int         $date           The time
+     * @param   boolean     $echo           Wheter to echo the result or return it
 	 *
-	 * @return	string				        Html of the calendar
+	 * @return	string				        Html of the calendar void if echo is true
 	 */
-	public function monthCalendar($subject, $room, $date){
+	public function monthCalendar($subject, $room, $date, $echo = false){
 		
         if(is_array($subject)){
             $subject    = $subject['name'];
         }
 
-		ob_start();
-		$curDate        = time();
         $month          = date('m', $date);
         $year           = date('Y', $date);
 		$weekDay		= date("w", strtotime(date('Y-m-01', $date)));
 		$workingDate	= strtotime("-$weekDay day", strtotime(date('Y-m-01', $date)));
-		$calendarRows	= '';
 
         // subject without optional room name
         $overlap            = false;
@@ -682,14 +680,64 @@ class Bookings{
         //get the bookings for this month
 		$this->retrieveMonthBookings($month, $year, $subject, $room, $gapDays);
 
-		//loop over all weeks of a month
+        if(!$echo ){
+		    ob_start();
+        }
+
+        ?>
+        <div class="month-container" data-month='<?php echo esc_attr(date('m', $date));?>' data-year='<?php echo esc_attr(date('Y', $date));?>'>
+            <div class="current">
+                <?php echo esc_html(date('F Y', $date));?>
+            </div>
+            <dl>
+                <?php
+                for ($y = 0; $y <= 6; $y++) {
+                    $name	= date('D', $workingDate);
+                    ?>
+                    <dt class='calendar day head'>
+                        <?php echo esc_html($name);?>
+                    </dt>
+                    <?php
+                    $workingDate	= strtotime("+1 days", $workingDate);
+                }
+                ?>
+            </dl>
+            <?php
+            $this->writeCalendarRows($date, $overlap);
+            ?>
+        </div>
+
+        <?php
+        if(!$echo ){
+		    return ob_get_clean();
+        }
+	}
+
+    /**
+     * Writes calendar rows to screen
+     * 
+     * @param   int     $date      The date to write the calendar for
+     * @param   bool    $overlap   Whether to enable overlap for this calendar or not
+     * 
+     * @return  void
+     */
+    public function writeCalendarRows($date, $overlap){
+
+        $month          = date('m', $date);
+		$weekDay		= date("w", strtotime(date('Y-m-01', $date)));
+		$workingDate	= strtotime("-$weekDay day", strtotime(date('Y-m-01', $date)));
+        $curDate        = time();
+
+        //loop over all weeks of a month
 		while(true){
             $hidden         = '';
             if($month != date('m', $date)){
                 $hidden = 'hidden';
             }
 
-			$calendarRows .= "<dl class='calendar row $hidden' data-month='$month'>";
+			?>
+            <dl class='calendar row <?php echo esc_attr($hidden);?>' data-month='<?php echo esc_attr($month);?>'>
+                <?php
                 //loop over all days of a week
                 while(true){
                     $workingDateStr		= date('Y-m-d', $workingDate);
@@ -699,7 +747,9 @@ class Bookings{
                     $class              = '';
 
                     if($workingMonth != $month){
-                        $calendarRows .=  "<dt class='empty'></dt>";
+                        ?>
+                        <dt class='empty'></dt>
+                        <?php
                     }else{
                         $data   = '';
                         // date is in the past, make it unavailable
@@ -750,9 +800,18 @@ class Bookings{
                             }
                         }
                         
-                        $calendarRows .=  "<dt class='calendar day $class' data-date='".date(DATEFORMAT, $workingDate)."' data-isodate='".date('Y-m-d', $workingDate)."' $data>";
-                            $calendarRows	.= "<span class='day-nr'>$workingDay</span>";
-                        $calendarRows	.= "</dt>";
+                        ?>
+                        <dt 
+                            class='calendar day <?php echo esc_attr($class);?>' 
+                            data-date='<?php echo esc_attr(date(DATEFORMAT, $workingDate));?>' 
+                            data-isodate='<?php echo esc_attr(date('Y-m-d', $workingDate));?>' 
+                            <?php echo esc_html($data);?>
+                        >
+                            <span class='day-nr'>
+                                <?php echo esc_html($workingDay);?>
+                            </span>
+                        </dt>
+                        <?php
                     }
                     
                     //calculate the next week
@@ -762,42 +821,16 @@ class Bookings{
                         break;
                     }
                 }
-			$calendarRows .= '</dl>';
+			?>
+            </dl>
+            <?php
 
 			// Break if next month
 			if(date('Ym', $workingDate) > date('Ym', $date)){
 				break;
 			}
 		}
-
-        ?>
-        <div class="month-container" data-month='<?php echo esc_attr(date('m', $date));?>' data-year='<?php echo esc_attr(date('Y', $date));?>'>
-            <div class="current">
-                <?php echo esc_html(date('F Y', $date));?>
-            </div>
-            <dl>
-                <?php
-                $workingDate	= strtotime("-$weekDay day", strtotime(date('Y-m-01', $date)));
-                for ($y = 0; $y <= 6; $y++) {
-                    $name	= date('D', $workingDate);
-                    ?>
-                    <dt class='calendar day head'>
-                        <?php echo esc_html($name);?>
-                    </dt>
-                    <?php
-                    $workingDate	= strtotime("+1 days", $workingDate);
-                }
-                ?>
-            </dl>
-            <?php
-            echo $calendarRows;
-            ?>
-        </div>
-
-        <?php
-
-		return ob_get_clean();
-	}
+    }
 
     /**
      * Creates the html for a booking's submission data
@@ -805,10 +838,11 @@ class Bookings{
      * @param   object  $booking    The booking to display data for
      * @param   object  $submission The submissiondata of this booking
      * @param   bool    $hide       Whether to hide the details or not, default true
+     * @param   bool    $echo       Whether to echo the result or return it, default false (echo)
      * 
      * @return  string              HTML
      */
-    public function submissionDetails($booking, $submission, $hide){
+    public function submissionDetails($booking, $submission, $hide, $echo = false){
         $subId          = $submission->subId;
         
         $hidden         = '';
@@ -822,7 +856,9 @@ class Bookings{
             $hidden         = 'hidden';
         }
 
-        ob_start();
+        if(!$echo){
+            ob_start();
+        }
 
         ?>
         <div class='booking-detail-wrapper <?php echo esc_attr($hidden);?>' data-booking-id='<?php echo esc_attr($submission->booking_id);?>'>
@@ -852,12 +888,12 @@ class Bookings{
                                     <table data-form-id='<?php echo esc_attr($submission->form_id);?>' data-shortcode-id='<?php echo esc_attr($this->forms->shortcodeId);?>' style='margin-bottom: 0px; width:unset;'>
                                         <tr data-submission-id='<?php echo esc_attr($submission->id);?>'>
                                             <td data-name='booking-start-date' data-element-id='<?php echo esc_attr($this->forms->getElementBySlug('booking-start-date')->id);?>' data-subid='<?php echo esc_attr($subId);?>' data-booking-id='<?php echo esc_attr($submission->booking_id);?>' class='edit forms-table'>
-                                                <?php echo date(DATEFORMAT, strtotime($submission->{'booking-start-date'}));?>
+                                                <?php echo esc_html(date(DATEFORMAT, strtotime($submission->{'booking-start-date'})));?>
                                             </td>
                                         </tr>
                                         <tr data-submission-id='<?php echo esc_attr($submission->id);?>'>
                                             <td data-name='booking-start-date' data-element-id='<?php echo esc_attr($this->forms->getElementBySlug('booking-start-date')->id);?>' data-subid='<?php echo esc_attr($subId);?>' data-booking-id='<?php echo esc_attr($submission->booking_id);?>' class='edit forms-table'>
-                                                <?php echo date(DATEFORMAT, strtotime($submission->{'booking-start-date'}));?>
+                                                <?php echo esc_html(date(DATEFORMAT, strtotime($submission->{'booking-start-date'})));?>
                                             </td>
                                         </tr>
                                     </table>
@@ -991,7 +1027,9 @@ class Bookings{
         </div>
         <?php
 
-        return ob_get_clean();
+        if(!$echo){
+            return ob_get_clean();
+        }
     }
 
     /**
@@ -1050,7 +1088,7 @@ class Bookings{
             }
 
             foreach($this->forms->submissions as $submission){
-                echo $this->submissionDetails($booking, $submission, $hide);                
+                $this->submissionDetails($booking, $submission, $hide, true);                
             }
         }
 
