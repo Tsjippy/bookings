@@ -7,6 +7,7 @@
 - date( to gmdate(
 
 ### Fixed
+- do not map end dates as start dates
 
 ### Updated
 
