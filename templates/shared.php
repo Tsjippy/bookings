@@ -70,7 +70,7 @@ function displayBooks(){
 		<div class="no-results not-found">
 			<div class="inside-article">
 				<div class="entry-content">
-					<?php echo apply_filters('tsjippy-empty-taxonomy', "There are no $name books yet", 'book'); ?>
+					<?php echo wp_kses_post(apply_filters('tsjippy-empty-taxonomy', "There are no $name books yet", 'book')); ?>
 				</div>
 			</div>
 		</div>

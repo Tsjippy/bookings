@@ -1140,16 +1140,24 @@ class Bookings{
         global $wpdb;
 
         // First check if a booking on these dates doesn't exist
-        $query	    = "SELECT * FROM $this->tableName WHERE pending=0 AND subject = '$subject' AND room = '$room' AND ('$startDate' BETWEEN start_date and end_date OR '$endDate' BETWEEN start_date and end_date)";
+        $query	    = "SELECT * FROM %i WHERE pending=0 AND subject = %s AND room = %s AND (%d BETWEEN start_date and end_date OR %d BETWEEN start_date and end_date)";
+        $values     = [
+            $this->tableName,
+            $subject, 
+            $room, 
+            $startDate, 
+            $endDate
+        ];
 
         if($id != -1){
-            $query  .= " AND NOT id=$id";
+            $query  .= " AND NOT id=%d";
+            $values[] = $id;
         }
         
         //sort on start_date
 		$query	            .= " ORDER BY `start_date`, `start_time` ASC";
 
-		$bookings           = $wpdb->get_results($query);
+		$bookings           = $wpdb->get_results($wpdb->prepare($query, $values));
 
         $overlap            = false;
 
@@ -1570,9 +1578,11 @@ class Bookings{
     public function removeSubject($subjectData){
         global $wpdb;
 
-        // Delete potential existing bookings
-        $query      = "Select * FROM `$this->tableName` WHERE `subject` LIKE '{$subjectData['name']}%'";
-        $results    = $wpdb->get_results($query);
+        // Delete potential existing bookings;
+        $results    = $wpdb->get_results($wpdb->prepare(
+            "Select * FROM %i WHERE `subject` LIKE '{$subjectData['name']}%'",
+            $this->tableName,
+        ));
 
         foreach($results as $booking){
             $this->removeBooking($booking);
@@ -1662,12 +1672,17 @@ class Bookings{
 		//select all bookings of this month
         $startDate  = "$year-$month-01";
         $endDate    = gmdate("Y-m-t", strtotime($startDate));
-		$query	    = "SELECT * FROM $this->tableName WHERE (`start_date` >= '$startDate' OR '$startDate' BETWEEN start_date and end_date) AND `start_date` <= '$endDate' AND subject = '$subject' AND room = '$room'";
 
-        //sort on start_date
-		$query	.= " ORDER BY `start_date`, `start_time` ASC";
-
-        $result             = $wpdb->get_results($query);
+        $result             = $wpdb->get_results($wpdb->prepare(
+            "SELECT * FROM %i WHERE (`start_date` >= %s OR %s BETWEEN start_date and end_date) AND `start_date` <= %s AND subject = %s AND room = %s ORDER BY `start_date`, `start_time` ASC",
+            $this->tableName,
+            $startDate,
+            $startDate,
+            $endDate,
+            $subject,
+            $room
+        ));
+        
 		$this->bookings 	=  array_merge($this->bookings, $result);
 
         $this->unavailable  = [];

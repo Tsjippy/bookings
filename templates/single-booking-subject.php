@@ -39,7 +39,7 @@ if(!isset($skipHeader) || !$skipHeader){
 			</nav>
 			
 			<?php */
-			echo apply_filters('tsjippy-single-template-bottom', '', 'book');
+			echo wp_kses_post(apply_filters('tsjippy-single-template-bottom', '', 'book'));
 			?>
 		</main>
 		

@@ -37,9 +37,14 @@ if(is_tax() || is_archive()){
 				$excerpt = force_balance_tags(wp_kses_post( get_the_excerpt()));
 				if(empty($excerpt)){
 					$url = get_permalink();
-					echo "<br><a href='$url'>View description »</a>";
+					?>
+					<br>
+					<a href='<?php echo esc_url($url); ?>'>
+						View description »
+					</a>
+					<?php
 				}else{
-					echo $excerpt;
+					echo wp_kses_post($excerpt);
 				}
 			//Show everything including category specific content
 			}else{
@@ -80,7 +85,9 @@ if(is_tax() || is_archive()){
 
 				$bookings->forms->getForm();
 				?>
-				<a href='<?php echo $bookings->forms->formData->form_url; ?>' class='tsjippy button' target='_blank'>Book this accomodation</a>
+				<a href='<?php echo esc_url($bookings->forms->formData->form_url); ?>' class='tsjippy button' target='_blank'>
+					Book this accomodation
+				</a>
 				<?php
 			}
 			?>
