@@ -10,29 +10,36 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 class Bookings{
-    public string $tableName;
+    public array|false $bookingElements;
     public array $bookings;
     public object $forms;
-    public array $unavailable;
-    public bool $showArchived;
-    public bool $tableEditPermissions;
-    public object $user;
-    public array $userRoles;
     public array $managers;
     public array $payables;
-    public array $bookingElements;
     public string $picturesUrl;
+    public bool $showArchived;
     protected array $subjects;
+    public bool $tableEditPermissions;
+    public string $tableName;
+    public array $unavailable;
+    public object $user;
+    public array $userRoles;
 
     public function __construct($formInstance=null){
         global $wpdb;
-		$this->tableName		            = $wpdb->prefix.'tsjippy_bookings';
+
+        $this->bookingElements              = false;
         $this->bookings                     = [];
+        $this->managers                     = [];
+        $this->payables                     = [];
+        $this->payables                     = [];
+        $this->picturesUrl	                = TSJIPPY\pathToUrl(PLUGINPATH.'pictures');
+        $this->showArchived                 = false;
+        $this->tableEditPermissions         = current_user_can('manage_options');
+        $this->subjects                     = [];
+        $this->tableName		            = $wpdb->prefix.'tsjippy_bookings';
+        $this->unavailable                  = [];
         $this->user                         = wp_get_current_user();
         $this->userRoles	                = $this->user->roles;
-        $this->payables                     = [];
-        $this->subjects                     = [];
-        $this->picturesUrl	                = TSJIPPY\pathToUrl(PLUGINPATH.'pictures');
 
         if(getType($formInstance) == 'object'){
             $this->forms        = $formInstance;
@@ -565,7 +572,7 @@ class Bookings{
                     </div>
                     <div></div>
                     <div class="booking-date-label-wrapper disabled end_date">
-                        <label class="booking-date-label" for="booking-start-date">
+                        <label class="booking-date-label" for="booking-end-date">
                             <div class="booking-date-label-text">Departure</div>
                             <div dir="ltr">
                                 <div class="booking-date-label-input-wrapper">
@@ -892,8 +899,8 @@ class Bookings{
                                             </td>
                                         </tr>
                                         <tr data-submission-id='<?php echo esc_attr($submission->id);?>'>
-                                            <td data-name='booking-start-date' data-element-id='<?php echo esc_attr($this->forms->getElementBySlug('booking-start-date')->id);?>' data-subid='<?php echo esc_attr($subId);?>' data-booking-id='<?php echo esc_attr($submission->booking_id);?>' class='edit forms-table'>
-                                                <?php echo esc_html(gmdate(DATEFORMAT, strtotime($submission->{'booking-start-date'})));?>
+                                            <td data-name='booking-end-date' data-element-id='<?php echo esc_attr($this->forms->getElementBySlug('booking-end-date')->id);?>' data-subid='<?php echo esc_attr($subId);?>' data-booking-id='<?php echo esc_attr($submission->booking_id);?>' class='edit forms-table'>
+                                                <?php echo esc_html(gmdate(DATEFORMAT, strtotime($submission->{'booking-end-date'})));?>
                                             </td>
                                         </tr>
                                     </table>
@@ -1927,9 +1934,6 @@ class Bookings{
 
         // get the booking selector element
         $this->getSubjects();
-
-        $this->managers = [];
-        $this->payables = [];
 
         // Loop over all subjects
         foreach($this->subjects as $subject){

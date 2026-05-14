@@ -342,8 +342,8 @@ function formdataRetrieved($submissions, $userId, $object){
         // Add submissions for each room, using the room name as sub id
         foreach($startDates as $i => $date){
             // Add the dates to the form results
-            $submission->{'booking-start-date'}  = $date;
-            $submission->{'booking-start-date'}    = $endDates[$i];
+            $submission->{'booking-start-date'} = $date;
+            $submission->{'booking-end-date'}   = $endDates[$i];
             $submission->booking_id             = $bookingIds[$i];
 
             if(!empty($rooms)){

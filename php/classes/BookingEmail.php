@@ -12,7 +12,8 @@ class BookingEmail extends ADMIN\MailSetting{
     public array $paymentDetailsRows;
 
     public function __construct(object $booking) {
-        $this->booking    = $booking;
+        $this->booking              = $booking;
+        $this->paymentDetailsRows   = [];
 
         // call parent constructor
 		parent::__construct('payment-reminder', 'bookings');

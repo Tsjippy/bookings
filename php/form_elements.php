@@ -392,7 +392,7 @@ function formElements($elements, $displayFormResults, $force){
 
         $end_date           = clone $element;
         $end_date->type     = 'date';
-        $end_date->slug     = 'booking-start-date';
+        $end_date->slug     = 'booking-end-date';
         $end_date->name     = 'Enddate';
         $end_date->id       = -103;
 
@@ -617,7 +617,7 @@ function bookingDateElementHtml(&$node, $object){
         $node->setAttribute('data-booking-id', $_POST['booking-id']);
     }
 
-    if($object->element->slug != 'booking-start-date' && $object->element->slug != 'booking-start-date'){
+    if($object->element->slug != 'booking-start-date' && $object->element->slug != 'booking-end-date'){
         return;
     }
 
@@ -625,7 +625,7 @@ function bookingDateElementHtml(&$node, $object){
     $subject    = $object->submission->{$object->getElementByType('booking-selector')[0]->slug};
         
     $startDates = (array) $object->submission->{'booking-start-date'};
-    $endDates   = (array) $object->submission->{'booking-start-date'};
+    $endDates   = (array) $object->submission->{'booking-end-date'};
 
     $early      = array_values($startDates)[0];
     $late       = array_values($endDates)[0];
@@ -651,7 +651,7 @@ function bookingDateElementHtml(&$node, $object){
         }
 
         $node->setAttribute('min', $early);
-    }elseif($object->element->slug == 'booking-start-date'){
+    }elseif($object->element->slug == 'booking-end-date'){
         // get the first event before this one
         $query  = "SELECT end_date FROM {$wpdb->prefix}tsjippy_bookings WHERE subject = '$subject' AND end_date <= '$early' ORDER BY end_date LIMIT 1";
         $min    = $wpdb->get_var($query);

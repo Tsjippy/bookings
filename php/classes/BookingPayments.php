@@ -315,6 +315,13 @@ class BookingPayments extends Bookings{
 
     /**
      * Adds the buttons to approve or delete a pending booking
+     * 
+     * @param   array   $buttonsHtml   The current html for the buttons
+     * @param   object  $submission    The submission for which the buttons are shown
+     * @param   int     $subId         The id of the submission
+     * @param   object  $object        The bookings object
+     * 
+     * @return  string                  The updated html for the buttons
      */
     public function pendingButtons($buttonsHtml, $submission, $subId, $object){
         $buttonsHtml['approve'] = "<button class='button approve' type='button' data-submission-id='{$submission->id}' data-form-id='{$object->submission->form_id}'>Approve</button>";
@@ -384,6 +391,11 @@ class BookingPayments extends Bookings{
 
     /**
      * Calculate the total amount due after booking update
+     * 
+     * @param   array   $startDates    The start dates of the booking
+     * @param   array   $endDates      The end dates of the booking
+     * 
+     * @return  string                  The total amount due
      */
     public function calculatePaymentAmount($startDates, $endDates){
         $startDates = TSJIPPY\cleanUpNestedArray($startDates);

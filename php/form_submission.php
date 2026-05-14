@@ -41,11 +41,11 @@ function beforeSavingFormData($submission, $object){
     }
 
     $endDates   = [];
-    if(isset($submission->{'booking-start-date'})){
-        $endDates   = (array)$submission->{'booking-start-date'};
+    if(isset($submission->{'booking-end-date'})){
+        $endDates   = (array)$submission->{'booking-end-date'};
         $endDates   = TSJIPPY\cleanUpNestedArray($endDates);
 
-        unset($submission->{'booking-start-date'});
+        unset($submission->{'booking-end-date'});
     }
 
     $rooms  = [];
@@ -61,7 +61,6 @@ function beforeSavingFormData($submission, $object){
 
     if(empty($startDates) || empty($endDates)){
         return new \WP_Error('bookings', "Please provide a start and end date");
-        return $submission;
     }
 
     // loop over all booking selectors (usually one)
@@ -151,10 +150,10 @@ function afterFormSubmission($message, $submission, $object){
     }
 
     $endDates   = [];
-    if(isset($submission['booking-start-date'])){
-        $endDates   = (array)$submission['booking-start-date'];
+    if(isset($submission['booking-end-date'])){
+        $endDates   = (array)$submission['booking-end-date'];
 
-        unset($submission['booking-start-date']);
+        unset($submission['booking-end-date']);
     }
 
     $rooms  = [];
