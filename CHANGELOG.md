@@ -4,6 +4,7 @@
 ### Added
 
 ### Changed
+- prepare sql query
 
 ### Fixed
 - load template files
