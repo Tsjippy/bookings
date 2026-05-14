@@ -44,6 +44,7 @@ if(is_tax() || is_archive()){
 			//Show everything including category specific content
 			}else{
 				if(empty($post->post_content)){
+					/** @disregard P1008 */
 					echo apply_filters('tsjippy_empty_description', 'No content found...', $post);
 				}
 

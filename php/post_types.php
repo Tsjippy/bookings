@@ -13,9 +13,16 @@ function addEventPostType(){
 }
 
 add_filter('tsjippy-template-filter', __NAMESPACE__.'\changeTemplatePath');
+/**
+ * Alters the template path for the booking post types
+ * 
+ * @param string $templateFile The template file path
+ * 
+ * @return string The altered template file path
+ */
 function  changeTemplatePath($templateFile){
-    $templateFile   = str_replace('/booking-subjects/', '/bookings/', $templateFile);
-    $templateFile   = str_replace('/booking-room/', '/bookings/', $templateFile);
+    $templateFile   = str_replace('/tsjippy-booking-subjects/', '/tsjippy-bookings/', $templateFile);
+    $templateFile   = str_replace('/tsjippy-booking-room/', '/tsjippy-bookings/', $templateFile);
 
     return $templateFile;
 }
@@ -29,7 +36,7 @@ add_filter('tsjippy-post-type-creation-args', function($args, $single){
             'slug'  => 'accomodation-rooms',
         ];
     }
-
+    
     if($single == 'booking-subject'){
         $args['hierarchical']   = false;
 
