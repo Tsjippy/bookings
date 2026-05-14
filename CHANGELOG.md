@@ -4,12 +4,19 @@
 ### Added
 
 ### Changed
+
+### Fixed
+
+### Updated
+
+## [10.1.1] - 2026-05-14
+
+
+### Changed
 - date( to gmdate(
 
 ### Fixed
 - do not map end dates as start dates
-
-### Updated
 
 ## [10.1.0] - 2026-05-13
 
