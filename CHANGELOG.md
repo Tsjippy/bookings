@@ -6,6 +6,7 @@
 ### Changed
 
 ### Fixed
+- load template files
 
 ### Updated
 
