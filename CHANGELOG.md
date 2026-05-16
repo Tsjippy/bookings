@@ -6,6 +6,7 @@
 ### Changed
 
 ### Fixed
+- allow booking elements of type wp error
 
 ### Updated
 
