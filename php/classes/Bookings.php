@@ -10,7 +10,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 class Bookings{
-    public array|false $bookingElements;
+    public array|false|\WP_Error $bookingElements;
     public array $bookings;
     public object $forms;
     public array $managers;
