@@ -6,9 +6,14 @@
 ### Changed
 
 ### Fixed
-- allow booking elements of type wp error
 
 ### Updated
+
+## [10.1.3] - 2026-05-16
+
+
+### Fixed
+- allow booking elements of type wp error
 
 ## [10.1.2] - 2026-05-14
 
