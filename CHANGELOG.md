@@ -6,9 +6,14 @@
 ### Changed
 
 ### Fixed
-- update check
 
 ### Updated
+
+## [10.1.5] - 2026-05-17
+
+
+### Fixed
+- update check
 
 ## [10.1.4] - 2026-05-16
 
