@@ -1427,7 +1427,7 @@ class Bookings{
         }
 
         // update the booking
-        $wpdb->upgmdate(
+        $wpdb->update(
             $this->tableName,
             $values,
             array(
