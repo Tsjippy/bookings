@@ -58,6 +58,10 @@ function changeTableViewPermissions($tableViewPermissions, $object){
     // get all booking selectors
     $elements       = $bookings->getBookingElements();
 
+    if(empty($elements)){
+        return $tableViewPermissions;
+    }
+
     // Loop over all subjects
     foreach($elements as $element){
         foreach($bookings->getElementSubjects($element->id) as $subject){
