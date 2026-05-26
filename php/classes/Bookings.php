@@ -614,9 +614,9 @@ class Bookings{
 			$dateStr	= "$year-$month-01";
 		}else{
 			$day	= gmdate('d');
-			$month	= $_GET['month'];
-			$year	= $_GET['yr'];
-			if(!is_numeric($month) || strlen($month)!=2){
+			$month	= $_GET['month'] ?? '';
+			$year	= $_GET['yr'] ?? '';
+			if(!is_numeric($month) || strlen($month) != 2){
 				$month	= gmdate('m');
 			}
 			if(!is_numeric($year) || strlen($year)!=4){
