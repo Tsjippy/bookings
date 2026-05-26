@@ -6,9 +6,14 @@
 ### Changed
 
 ### Fixed
-- index bug
 
 ### Updated
+
+## [10.2.1] - 2026-05-26
+
+
+### Fixed
+- index bug
 
 ## [10.2.0] - 2026-05-26
 
