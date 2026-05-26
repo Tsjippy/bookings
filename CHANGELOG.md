@@ -6,6 +6,7 @@
 ### Changed
 
 ### Fixed
+- non exiting array index bug
 
 ### Updated
 
