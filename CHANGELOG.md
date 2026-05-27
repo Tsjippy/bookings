@@ -6,6 +6,7 @@
 ### Changed
 
 ### Fixed
+- get class error
 
 ### Updated
 
