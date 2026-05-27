@@ -725,7 +725,7 @@ function elementHtml($node, $object){
 
     // Add a class for payment_amount_el
     elseif($object->element->id == $object->formData->payment_amount_el){
-        $class  = $node->getAttribute('class')->value;
+        $class  = $node->getAttribute('class');
 
         $class  .= ' payment-amount';
 
@@ -734,7 +734,7 @@ function elementHtml($node, $object){
 
     // Add a class for payment_details_el
     elseif($object->element->id == $object->formData->payment_details_el){
-        $class  = $node->getAttribute('class')->value;
+        $class  = $node->getAttribute('class');
 
         $class  .= ' payment-details';
 
@@ -743,7 +743,7 @@ function elementHtml($node, $object){
 
     // Add a class for payment_details_el
     elseif($object->element->id == $object->formData->price_per_night_el){
-        $class  = $node->getAttribute('class')->value;
+        $class  = $node->getAttribute('class');
 
         $class  .= ' price-per-night';
 
