@@ -388,8 +388,8 @@ function formdataRetrieved($submissions, $userId, $object){
         foreach($submissions as $index => $submission){
             // remove any submission not belonging to the $subjectsToKeep
             if(
-                !empty($submission->{$bookingSelector->slug})    &&
-                !in_array($submission->{$bookingSelector->slug}, $subjectsToKeep)    &&  // Not managed by us
+                !empty($submission->{$bookingSelector['slug']})    &&
+                !in_array($submission->{$bookingSelector['slug']}, $subjectsToKeep)    &&  // Not managed by us
                 $submission->user_id    != $booker->user->ID                      // Not our own sumissionn
 
             ){
