@@ -571,7 +571,7 @@ class Bookings{
                         </label>
                     </div>
                     <div></div>
-                    <div class="booking-date-label-wrapper disabled end_date">
+                    <div class="booking-date-label-wrapper disabled enddate">
                         <label class="booking-date-label" for="booking-end-date">
                             <div class="booking-date-label-text">Departure</div>
                             <div dir="ltr">
@@ -1140,7 +1140,7 @@ class Bookings{
         global $wpdb;
 
         // First check if a booking on these dates doesn't exist
-        $query	    = "SELECT * FROM %i WHERE pending=0 AND subject = %s AND room = %s AND (%d BETWEEN start_date and end_date OR %d BETWEEN start_date and end_date)";
+        $query	    = "SELECT * FROM %i WHERE pending=0 AND subject = %s AND room = %s AND (%s BETWEEN start_date and end_date OR %s BETWEEN start_date and end_date)";
         $values     = [
             $this->tableName,
             $subject, 
