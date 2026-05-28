@@ -4,6 +4,7 @@
 ### Added
 
 ### Changed
+- only show pending bookings to the managers
 
 ### Fixed
 
