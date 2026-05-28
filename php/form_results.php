@@ -384,6 +384,11 @@ function formdataRetrieved($submissions, $userId, $object){
     
     // Loop over all booking selctors in the form
     foreach($bookingSelectors as $bookingSelector){
+
+        if(empty($bookingSelector['slug'])){
+            TSJIPPY\printArray($bookingSelector);
+        }
+        
         // loop over all submissions
         foreach($submissions as $index => $submission){
             // remove any submission not belonging to the $subjectsToKeep
