@@ -5,6 +5,7 @@
 
 ### Changed
 - only show pending bookings to the managers
+- use esc funtions everywhere
 
 ### Fixed
 
