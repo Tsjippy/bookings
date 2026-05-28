@@ -2,15 +2,22 @@
 ## [Unreleased] - yyyy-mm-dd
 
 ### Added
-- inidicator for days that can only be booked as start or end of a booking
 
 ### Changed
 
 ### Fixed
-- get class error
-- overlapping bookings query
 
 ### Updated
+
+## [10.2.2] - 2026-05-28
+
+
+### Added
+- inidicator for days that can only be booked as start or end of a booking
+
+### Fixed
+- get class error
+- overlapping bookings query
 
 ## [10.2.1] - 2026-05-26
 
