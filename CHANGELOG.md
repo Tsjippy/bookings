@@ -6,9 +6,14 @@
 ### Changed
 
 ### Fixed
-- empty form settings bug
 
 ### Updated
+
+## [10.2.3] - 2026-05-28
+
+
+### Fixed
+- empty form settings bug
 
 ## [10.2.2] - 2026-05-28
 
