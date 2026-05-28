@@ -2,6 +2,9 @@
 namespace TSJIPPY\BOOKINGS;
 use TSJIPPY;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 
 function displayLocationTax(){
     wp_enqueue_style('tsjippy_taxonomy_style');

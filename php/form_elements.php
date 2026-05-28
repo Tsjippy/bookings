@@ -41,7 +41,7 @@ function addFormElementOptions($html, $object, $element){
     }
     
     //Get all available roles
-    $userRoles = $wp_roles->role_names;
+    $userRoles      = $wp_roles->role_names;
     
     //Sort the roles
     asort($userRoles);
@@ -84,7 +84,7 @@ function addFormElementOptions($html, $object, $element){
             // Render tab contents
             ?>
             <div id="element-settings" class="tabcontent">
-                <?php echo $html;?>
+                <?php echo wp_kses_post($html);?>
             </div>
             <?php
 
@@ -133,7 +133,7 @@ function addFormElementOptions($html, $object, $element){
                     <label class=" formfield form-label" style='width: auto;margin-right: 20px;'>
                         <h4>Enable Payments</h4>
                         <?php
-                        echo $bookings->forms->infoBoxHtml("Enable to send payment reminders.<br>Make sure to set the payment options in the form settings.");
+                        echo wp_kses_post($bookings->forms->infoBoxHtml("Enable to send payment reminders.<br>Make sure to set the payment options in the form settings."));
                         ?>
 
                         <label>
@@ -164,7 +164,7 @@ function addFormElementOptions($html, $object, $element){
                             <label>
                                 Minimum time between two bookings in days
                                 <?php
-                                echo $bookings->forms->infoBoxHtml("Use 0 for allowing guests to arrive the next day.<br>1 means there is one full day between the previous and the next booking");
+                                echo wp_kses_post($bookings->forms->infoBoxHtml("Use 0 for allowing guests to arrive the next day.<br>1 means there is one full day between the previous and the next booking"));
                                 ?>
                                 <input type='number' name='formfield[booking-details][<?php echo esc_attr($index);?>][overlap-period]' value='<?php echo esc_attr($subject['overlap-period']);?>' min='0'>
                             </label>
@@ -643,8 +643,12 @@ function bookingDateElementHtml(&$node, $object){
 
     if($object->element->slug == 'booking-start-date'){
         // get the first event after this one
-        $query  = "SELECT start_date FROM {$wpdb->prefix}tsjippy_bookings WHERE subject = '$subject' AND start_date > '$late' ORDER BY start_date LIMIT 1";
-        $max    = $wpdb->get_var($query);
+        $max    = $wpdb->get_var($wpdb->prepare(
+            "SELECT start_date FROM %i WHERE subject = %s AND start_date > %s ORDER BY start_date LIMIT 1",
+            "{$wpdb->prefix}tsjippy_bookings",
+            $subject,
+            $late
+        ));
 
         if(!empty($max)){
             $node->setAttribute('max', $max);
@@ -653,8 +657,12 @@ function bookingDateElementHtml(&$node, $object){
         $node->setAttribute('min', $early);
     }elseif($object->element->slug == 'booking-end-date'){
         // get the first event before this one
-        $query  = "SELECT end_date FROM {$wpdb->prefix}tsjippy_bookings WHERE subject = '$subject' AND end_date <= '$early' ORDER BY end_date LIMIT 1";
-        $min    = $wpdb->get_var($query);
+        $min    = $wpdb->get_var($wpdb->prepare(
+            "SELECT end_date FROM %i WHERE subject = %s AND end_date <= %s ORDER BY end_date LIMIT 1",
+            "{$wpdb->prefix}tsjippy_bookings",
+            $subject,
+            $early
+        ));
 
         if(!empty($min)){
             $node->setAttribute('min', $min);
@@ -775,10 +783,7 @@ function formElementUpdated($element, $instance, $oldElement){
     $bookings->getSubjects();
 
     // Get the updated subject data
-    $newSubjects  = $_POST['formfield']['booking-details'];
-    if(!$newSubjects){
-        $newSubjects  = [];
-    }
+    $newSubjects    = $_POST['formfield']['booking-details'] ?? [];
 
     // index by post ids
     foreach($newSubjects as $index => $subject){
@@ -828,9 +833,13 @@ function formElementUpdated($element, $instance, $oldElement){
                 // Subject detail changed
                 if($key == 'name'){
                     // update existing bookings
-                    $query  = "UPDATE `$bookings->tableName` SET subject = REPLACE( `subject`, '$value', '$newSubjects[$postId][$key]' ) WHERE `subject` LIKE '$value%'";
-                    
-                    $wpdb->query($query);
+                    $wpdb->query($wpdb->prepare(
+                        "UPDATE %i SET subject = REPLACE( `subject`, %s, %s ) WHERE `subject` LIKE %s",
+                        $bookings->tableName,
+                        $value,
+                        $newSubjects[$postId][$key],
+                        $wpdb->esc_like($value).'%'
+                    ));
 
                     // Update post title
                     wp_update_post([

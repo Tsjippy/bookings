@@ -50,7 +50,7 @@ if(is_tax() || is_archive()){
 			}else{
 				if(empty($post->post_content)){
 					/** @disregard P1008 */
-					echo apply_filters('tsjippy_empty_description', 'No content found...', $post);
+					echo wp_kses_post(apply_filters('tsjippy_empty_description', 'No content found...', $post));
 				}
 
 				the_content();

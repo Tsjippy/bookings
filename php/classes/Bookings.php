@@ -1035,7 +1035,7 @@ class Bookings{
                                 if(!empty($buttons)){
                                     ?>
                                     <tr class='actions' data-submission-id='<?php echo esc_attr($submission->id);?>'>
-                                        <td  colspan='2'><?php echo $buttons;?></td>
+                                        <td  colspan='2'><?php echo wp_kses_post($buttons);?></td>
                                     </tr>
                                     <?php
                                 }
@@ -1594,8 +1594,9 @@ class Bookings{
 
         // Delete potential existing bookings;
         $results    = $wpdb->get_results($wpdb->prepare(
-            "Select * FROM %i WHERE `subject` LIKE '{$subjectData['name']}%'",
+            "Select * FROM %i WHERE `subject` LIKE %s",
             $this->tableName,
+            $wpdb->esc_like($subjectData['name'] ?? '').'%'
         ));
 
         foreach($results as $booking){
@@ -1746,9 +1747,11 @@ class Bookings{
             $date   = gmdate('Y-m-d', $date);
         }
 
-        $query	    = "SELECT * FROM $this->tableName WHERE start_date = '$date'";
-
-		return $wpdb->get_results($query);
+		return $wpdb->get_results($wpdb->prepare(
+            "SELECT * FROM %i WHERE start_date = %s",
+            $this->tableName,
+            $date
+        ));
     }
 
     /** Get a booking by booking id 
@@ -1760,9 +1763,11 @@ class Bookings{
     public function getBookingById($id){
         global $wpdb;
 
-		$query	    = "SELECT * FROM $this->tableName WHERE id=$id ";
-
-		$results    =  $wpdb->get_results($query);
+		$results    =  $wpdb->get_results($wpdb->prepare(
+            "SELECT * FROM %i WHERE id=%d",
+            $this->tableName,
+            $id
+        ));
 
         if(!empty($results)){
             return $results[0];
