@@ -337,6 +337,15 @@ class BookingPayments extends Bookings{
      * @param   string  $type       One of approval or payment to show bookings that are pending approval or pending payment
      */
     public function pendingBookingsHtml($type='approval'){
+        /**
+         * Only managers should see this
+         */
+        $this->getSubjectManagers($this->user->ID);
+
+        if(count($this->managers) == 1){
+            return '';
+        }
+
         wp_enqueue_script('tsjippy_forms_table_script');
 
         if($type == 'approval'){

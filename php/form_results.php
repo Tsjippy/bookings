@@ -174,7 +174,7 @@ function shouldShow($shouldShow, $displayFormResults, $type){
             $displayFormResults->parseSubmissions($bookings->user->ID);
 
             if(empty($displayFormResults->submissions)){
-                return $html;
+                return $html."You do not have any bookings.";
             }
 
             $html       .= "<h4>Your Current Bookings</h4>";
@@ -385,7 +385,7 @@ function formdataRetrieved($submissions, $userId, $object){
     // Loop over all booking selctors in the form
     foreach($bookingSelectors as $bookingSelector){
 
-        if(empty($bookingSelector['slug'])){
+        if(empty($bookingSelector)){
             TSJIPPY\printArray($bookingSelector);
         }
         
@@ -393,8 +393,8 @@ function formdataRetrieved($submissions, $userId, $object){
         foreach($submissions as $index => $submission){
             // remove any submission not belonging to the $subjectsToKeep
             if(
-                !empty($submission->{$bookingSelector['slug']})    &&
-                !in_array($submission->{$bookingSelector['slug']}, $subjectsToKeep)    &&  // Not managed by us
+                !empty($submission->{$bookingSelector->slug})    &&
+                !in_array($submission->{$bookingSelector->slug}, $subjectsToKeep)    &&  // Not managed by us
                 $submission->user_id    != $booker->user->ID                      // Not our own sumissionn
 
             ){

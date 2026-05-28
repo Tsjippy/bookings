@@ -1943,9 +1943,8 @@ class Bookings{
             !empty($this->managers) &&                          // the current list is not empty
             (
                 (
-                    is_numeric($userId)     &&                  // we only need the subjects for a certain user
-                    isset($this->managers['only_for'])   &&      // the current manager list is only for a certain user
-                    $this->managers['only_for']  == $userId      // the current list is for the current user
+                    is_numeric($userId)     &&                          // we only need the subjects for a certain user
+                    ($this->managers['only_for'] ?? '')  == $userId     // the current list is for the current user
                 ) ||
                 (
                     empty($userId) &&                           // we want the generic list
@@ -1956,6 +1955,8 @@ class Bookings{
             // the current list is the list we need
             return;
         }
+
+        $this->managers = [];
 
         if(is_numeric($userId)){
             $this->managers['only_for']  = $userId;
