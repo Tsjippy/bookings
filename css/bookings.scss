@@ -44,10 +44,35 @@
 }
 
 .calendar.day{
-    &.available:not(.unavailable, .inbetween, .startdate, .enddate):hover, &.inbetween{
-        background-color: $primaryColor !important;
-        color: white;
-        border-radius: 30px;
+    &.available{
+        &.first:before, &.last:before {
+            content: " ";
+            display: block;
+            height: 2px;
+            width: 13px;
+            position: absolute;
+            top: calc(50% - 1px);
+            background: $primaryColor;
+        }
+
+        &.first:before{
+            right: 0;
+        }
+
+        &.last:before {
+            left: 0;
+        }
+
+        &:not(.unavailable, .inbetween, .startdate, .enddate):hover, &.inbetween{
+            background-color: $primaryColor !important;
+            color: white;
+            border-radius: 30px;
+        }
+
+        &.inbetween{
+            border-radius: unset;
+            opacity: 0.7;
+        }
     }
 
     &.startdate{
@@ -62,11 +87,6 @@
         color: white;
         border-bottom-right-radius: 30px;
         border-top-right-radius: 30px;
-    }
-
-    &.inbetween{
-        border-radius: unset;
-        opacity: 0.7;
     }
 
     .booked{
@@ -120,7 +140,7 @@ button.change-booking-date{
         height: 2px;
         width: 38px;
         position: absolute;
-        top: 50%;
+        top: calc(50% - 1px);
         left: 0;
         background: $primaryColor;
     }

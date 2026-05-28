@@ -252,7 +252,12 @@ function loadPost(){
 	if(empty($content)){
 		$managers        = get_post_meta($post->ID, 'managers');
 		if(!empty($managers[0])){
-			return "No details found, sorry.<br> Contact <a href='mailto:{$managers[0]->user_email}?subject=Please add some description for {$post->title}}&body=Dear {$managers[0]->display_name},'>the manager</a>";
+			$manager	= get_user($managers[0]);
+			if(empty($manager)){
+				return "No details found, sorry.";
+			}
+
+			return "No details found, sorry.<br> Contact <a href='mailto:{$manager->user_email}?subject=Please add some description for {$post->title}}&body=Dear {$manager->display_name},'>the manager</a>";
 		}
 
 		return "No details found, sorry.";

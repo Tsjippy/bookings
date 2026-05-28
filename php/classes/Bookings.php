@@ -771,17 +771,31 @@ class Bookings{
                         if(isset($this->unavailable[$workingDateStr])){
                             $bookingId  = $this->unavailable[$workingDateStr];
 
-                            // First and last day of a reservation are available if overlap is enabled
+                            $dayBefore  = gmdate('Y-m-d', strtotime('-1 day', $workingDate));                            
+                            $dayAfter   = gmdate('Y-m-d', strtotime('+1 day', $workingDate));
                             if(
                                 $class	!= 'unavailable' &&                                                                 // not in the past
                                 $overlap &&                                                                                 // overlap enabled
-                                get_class($this->forms) != 'TSJIPPY\FORMS\DisplayFormResults'   &&                              // we are not in the overview page           
+                                get_class($this->forms) != 'TSJIPPY\FORMS\DisplayFormResults'   &&                          // we are not in the overview page           
                                 (
-                                    !isset($this->unavailable[gmdate('Y-m-d', strtotime('-1 day', $workingDate))])    ||      // this is the first day of a booking
-                                    !isset($this->unavailable[gmdate('Y-m-d', strtotime('+1 day', $workingDate))])            // or the last day of a booking
+                                    !isset($this->unavailable[$dayBefore])    ||    // this is the first day of a booking
+                                    !isset($this->unavailable[$dayAfter])           // or the last day of a booking
                                 )
                             ){
+                                // First and last day of a reservation are available if overlap is enabled
                                 $class	.= ' available';
+
+                                // The day before this booking is available
+                                if(!isset($this->unavailable[$dayBefore])){
+                                    $class	.= ' first';
+
+                                    $data   .= "title='You can only book this as the last day of your stay'";
+                                }
+
+                                if(!isset($this->unavailable[$dayAfter])){
+                                    $class	.= ' last';
+                                    $data   .= "title='You can only book this as the first day of your stay'";
+                                }
                             }else{
                                 $class	.= ' booked';
                             }
@@ -812,7 +826,7 @@ class Bookings{
                             class='calendar day <?php echo esc_attr($class);?>' 
                             data-date='<?php echo esc_attr(gmdate(DATEFORMAT, $workingDate));?>' 
                             data-isodate='<?php echo esc_attr(gmdate('Y-m-d', $workingDate));?>' 
-                            <?php echo esc_html($data);?>
+                            <?php echo wp_kses_post($data);?>
                         >
                             <span class='day-nr'>
                                 <?php echo esc_html($workingDay);?>
