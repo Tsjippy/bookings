@@ -2,6 +2,7 @@
 ## [Unreleased] - yyyy-mm-dd
 
 ### Added
+- inidicator for days that can only be booked as start or end of a booking
 
 ### Changed
 
