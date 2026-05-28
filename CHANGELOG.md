@@ -7,6 +7,7 @@
 
 ### Fixed
 - get class error
+- overlapping bookings query
 
 ### Updated
 
