@@ -4,12 +4,17 @@
 ### Added
 
 ### Changed
-- only show pending bookings to the managers
-- use esc funtions everywhere
 
 ### Fixed
 
 ### Updated
+
+## [10.2.4] - 2026-05-28
+
+
+### Changed
+- only show pending bookings to the managers
+- use esc funtions everywhere
 
 ## [10.2.3] - 2026-05-28
 
