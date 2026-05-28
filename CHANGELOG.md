@@ -6,6 +6,7 @@
 ### Changed
 
 ### Fixed
+- empty form settings bug
 
 ### Updated
 
