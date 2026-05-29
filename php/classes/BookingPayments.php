@@ -436,7 +436,7 @@ class BookingPayments extends Bookings{
             $slug = $this->forms->getElementById($pricePerNightElId, 'slug');
 
             if($slug && !empty($_POST[$slug])){
-                $pricePerNight  = sanitize_text_field($_POST[$slug]);
+                $pricePerNight  = sanitize_text_field(wp_unslash($_POST[$slug]));
             }else{
                 TSJIPPY\printArray("Price per night not found in submission with id {$this->forms->submission->id}");
                 return;

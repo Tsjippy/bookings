@@ -138,12 +138,12 @@ function restapiInit() {
 function getNextMonth(){
 	$bookings	= new Bookings();
 
-	$bookings->forms->getForm($_POST['form-id']);
+	$bookings->forms->getForm( (int) $_POST['form-id']);
 
-	$bookings->forms->shortcodeId		= $_POST['shortcode-id'];
+	$bookings->forms->shortcodeId		= (int) $_POST['shortcode-id'];
 
 	if(isset($_POST['element-id']) && is_numeric($_POST['element-id'])){
-		$element						= $bookings->forms->getElementById($_POST['element-id']);
+		$element						= $bookings->forms->getElementById((int) $_POST['element-id']);
 	}else{
 		foreach($bookings->forms->formElements as $element){
 			if($element->type == 'booking-selector'){
@@ -153,8 +153,8 @@ function getNextMonth(){
 	}
 	$bookings->forms->currentElement	= $element;
 
-	$subjectName	= sanitize_text_field($_POST['subject']);
-	$date			= strtotime($_POST['year'].'-'.$_POST['month'].'-01');
+	$subjectName	= sanitize_text_field( wp_unslash($_POST['subject']));
+	$date			= strtotime((int)$_POST['year'].'-'.(int)$_POST['month'].'-01');
 
 	$months			= [];
 	foreach($bookings->getElementSubjects($element->id) as $subject){
