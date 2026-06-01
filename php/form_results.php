@@ -386,19 +386,19 @@ function formdataRetrieved($submissions, $userId, $object){
     foreach($bookingSelectors as $bookingSelector){
 
         if(empty($bookingSelector)){
-            TSJIPPY\printArray($bookingSelector);
-        }
-        
-        // loop over all submissions
-        foreach($submissions as $index => $submission){
-            // remove any submission not belonging to the $subjectsToKeep
-            if(
-                !empty($submission->{$bookingSelector->slug})    &&
-                !in_array($submission->{$bookingSelector->slug}, $subjectsToKeep)    &&  // Not managed by us
-                $submission->user_id    != $booker->user->ID                      // Not our own sumissionn
+            TSJIPPY\printArray($bookingSelectors);
+        }else{
+            // loop over all submissions
+            foreach($submissions as $index => $submission){
+                // remove any submission not belonging to the $subjectsToKeep
+                if(
+                    !empty($submission->{$bookingSelector->slug})    &&
+                    !in_array($submission->{$bookingSelector->slug}, $subjectsToKeep)    &&  // Not managed by us
+                    $submission->user_id    != $booker->user->ID                      // Not our own sumissionn
 
-            ){
-                unset($submissions[$index]);
+                ){
+                    unset($submissions[$index]);
+                }
             }
         }
     }
