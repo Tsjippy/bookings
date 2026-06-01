@@ -6,9 +6,14 @@
 ### Changed
 
 ### Fixed
-- update subject and room descriptions
 
 ### Updated
+
+## [10.2.7] - 2026-06-01
+
+
+### Fixed
+- update subject and room descriptions
 
 ## [10.2.6] - 2026-05-29
 
