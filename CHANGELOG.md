@@ -6,6 +6,7 @@
 ### Changed
 
 ### Fixed
+- update subject and room descriptions
 
 ### Updated
 
