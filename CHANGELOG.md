@@ -4,12 +4,19 @@
 ### Added
 
 ### Changed
+
+### Fixed
+
+### Updated
+
+## [10.2.8] - 2026-06-01
+
+
+### Changed
 - merged hooks.md into readme.md
 
 ### Fixed
 - empty booking selector bug
-
-### Updated
 
 ## [10.2.7] - 2026-06-01
 
