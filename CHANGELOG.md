@@ -7,6 +7,7 @@
 - merged hooks.md into readme.md
 
 ### Fixed
+- empty booking selector bug
 
 ### Updated
 
