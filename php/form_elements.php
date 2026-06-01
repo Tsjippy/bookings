@@ -108,19 +108,19 @@ function addFormElementOptions($html, $object, $element){
                     <label class=" formfield form-label" style='width: auto;margin-right: 20px;'>
                         <h4>Manager(s)</h4>
                         <?php
-                        TSJIPPY\userSelect('', false, false, '', "formfield[booking-details][$index][managers][]", [], $subject['managers'], [], 'select', '', true);
+                        TSJIPPY\userSelect(id: "formfield[booking-details][$index][managers][]", userId: $subject['managers'], multiple:true, echo: true);
                         ?>
                     </label>
 
                     <h4>Location Description</h4>
                     <?php
                     $settings = array(
-                        'wpautop' => false,
-                        'media_buttons' => false,
-                        'forced_root_block' => true,
-                        'convert_newlines_to_brs'=> true,
-                        'textarea_name' => "formfield[booking-details][$index][description]",
-                        'textarea_rows' => 10
+                        'wpautop'                   => false,
+                        'media_buttons'             => false,
+                        'forced_root_block'         => true,
+                        'convert_newlines_to_brs'   => true,
+                        'textarea_name'             => "formfield[booking-details][$index][description]",
+                        'textarea_rows'             => 10
                     );
                 
                     wp_editor(
@@ -150,17 +150,17 @@ function addFormElementOptions($html, $object, $element){
                         <h4 class="label-text">Allow overlap</h4>
                         Allow new arrivals on the day the previous people leave<br>
                         <label>
-                            <input type='radio' class='overlap' name='formfield[booking-details][<?php echo esc_attr($index);?>][overlap]' value='yes' <?php if($subject['overlap'] == 'yes'){echo 'checked';}?>>
+                            <input type='radio' class='overlap' name='formfield[booking-details][<?php echo esc_attr($index);?>][overlap]' value='1' <?php if($subject['overlap'] == '1'){echo 'checked';}?>>
                             Yes
                         </label>    
 
                         <label>
-                            <input type='radio' class='overlap' name='formfield[booking-details][<?php echo esc_attr($index);?>][overlap]' value='no' <?php if($subject['overlap'] == 'no'){echo 'checked';}?>>
+                            <input type='radio' class='overlap' name='formfield[booking-details][<?php echo esc_attr($index);?>][overlap]' value='0' <?php if($subject['overlap'] == '0'){echo 'checked';}?>>
                             No
                         </label>
                         <br>
                         <br>
-                        <div class='min-bookking-gap-time <?php if(!isset($subject['overlap']) || $subject['overlap'] == 'yes'){echo 'hidden';}?>'>
+                        <div class='min-bookking-gap-time <?php if(($subject['overlap'] ?? 1) == '1'){echo 'hidden';}?>'>
                             <label>
                                 Minimum time between two bookings in days
                                 <?php
@@ -248,7 +248,7 @@ function addFormElementOptions($html, $object, $element){
                         // Tab buttons
                         foreach($subject['rooms'] as $i => $room){
                             if(empty($room['name'])){
-                                continue;
+                                $room['name']   = "No Name ".$i+1;
                             }
 
                             $subjectName    = strtolower(str_replace(' ', '-', $subject['name']));
@@ -808,117 +808,163 @@ function formElementUpdated($element, $instance, $oldElement){
             continue;
         }
 
-        // This subject is changed
-        if($subject != $newSubjects[$postId]){
+        $removed    = TSJIPPY\arrayDiffAssocRecursive($subject, $newSubjects[$postId]);
+        $added      = TSJIPPY\arrayDiffAssocRecursive($newSubjects[$postId], $subject);
+        $changed    = array_intersect_key($added, $removed);
 
-            // Check what changed
-            foreach($subject as $key => $value){
-                // Remove empty array values
-                if(is_array($newSubjects[$postId][$key])){
-                    $newSubjects[$postId][$key] = array_filter($newSubjects[$postId][$key]);
+        foreach($changed as $key => $value){
+            unset($removed[$key]);
+        }
+
+        // See what is removed
+        foreach($removed as $key => $value){
+            delete_post_meta($postId, $key);
+
+            if($key == 'payments'){
+                // We disabled payments
+                if($value){
+                    // mark old bookings as paid
+                    foreach($bookings->retrieveUnPaidBookings(true, true) as $unpaidBooking){
+                        $bookings->updateBooking($unpaidBooking, ['paid' => 1]);
+                    }
                 }
 
-                // Delete this one
-                if(!isset($newSubjects[$postId][$key])){
-                    delete_post_meta($postId, $key);
+                update_post_meta($postId, $key, $value);
+            }
+        }
 
-                    continue;
+        // Walk over the changes
+        foreach($added as $key => $value){
+            // Remove empty array values
+            if(is_array($value)){
+                $value = array_filter($value);
+            }
+
+            // Subject detail changed
+            if($key == 'name'){
+                // update existing bookings
+                $wpdb->query($wpdb->prepare(
+                    "UPDATE %i SET subject = REPLACE( `subject`, %s, %s ) WHERE `subject` LIKE %s",
+                    $bookings->tableName,
+                    $subject[$key],
+                    $value,
+                    $wpdb->esc_like($value).'%'
+                ));
+
+                // Update post title
+                wp_update_post([
+                    'ID'            => $postId,
+                    'post_title'    => $value
+                ]);
+            }elseif($key == 'description'){
+                wp_update_post([
+                    'ID'            => $postId,
+                    'post_content'  => $value
+                ]);
+            }elseif($key == 'rooms'){
+                // index old rooms by post ids
+                $oldRooms   = [];
+                foreach($subject['rooms'] as $index => $oldValue){
+                    unset($oldValue[$index]);
+
+                    if(!empty($oldValue['post-id']) && $oldValue['post-id'] != -1){
+                        $oldRooms[$oldValue['post-id']]  = $oldValue;
+                    }
                 }
-                
-                // Nothing has changed
-                elseif( $newSubjects[$postId][$key] == $value){
-                    continue;
+
+                // index new rooms by post ids
+                $newRoomData    = [];
+                $addedRooms     = [];
+                foreach($value as $index => $v){
+                    unset($value[$index]);
+                    
+                    if(!isset($v['post-id'])){
+                        $v['post-id']   = $subject['rooms'][$index]['post-id'];
+                    }
+
+                    if(empty($v['post-id'])){
+                        $addedRooms[] = $v;
+                    }elseif($v['post-id'] != -1){
+                        $newRoomData[$v['post-id']]  = $v;
+                    }
                 }
 
-                // Subject detail changed
-                if($key == 'name'){
-                    // update existing bookings
-                    $wpdb->query($wpdb->prepare(
-                        "UPDATE %i SET subject = REPLACE( `subject`, %s, %s ) WHERE `subject` LIKE %s",
-                        $bookings->tableName,
-                        $value,
-                        $newSubjects[$postId][$key],
-                        $wpdb->esc_like($value).'%'
-                    ));
+                /**
+                 * Use the unfiltered data to check which rooms are removed
+                 * Cannot use the filtered data as rooms without change are also not present in there
+                 */
+                $submittedRooms = [];
+                foreach($newSubjects[$postId]['rooms'] as $room){
+                    $submittedRooms[$room['post-id']]   = $room; 
+                }
 
-                    // Update post title
-                    wp_update_post([
-                        'ID'            => $postId,
-                        'post_title'    => $newSubjects[$postId][$key]
+                $removedRooms   = array_diff_key($oldRooms, $submittedRooms);
+                $changedRooms   = TSJIPPY\arrayDiffAssocRecursive($newRoomData, $oldRooms);
+
+                $subjectName    = ucfirst($subject['name']);
+                foreach($addedRooms as $room){
+                    $name          = ucfirst($room['name']);
+                    $description   = $room['description'] ?? '';
+
+                    $roomId = wp_insert_post([
+                        'post_title'    => "$subjectName Room $name",
+                        'post_type'     => 'booking-room',
+                        'post_status'   => 'publish',
+                        'post_content'  => $description,
+                        'post_parent'   => $postId
                     ]);
-                }elseif($key == 'description'){
-                    wp_update_post([
-                        'ID'            => $postId,
-                        'post_content'  => $newSubjects[$postId][$key]
-                    ]);
-                }elseif($key == 'rooms'){
-
-                    // index old rooms by post ids
-                    $oldRooms   = [];
-                    foreach($value as $index => $v){
-                        unset($v[$index]);
-
-                        if($v['post-id'] != -1){
-                            $oldRooms[$v['post-id']]  = $v;
-                        }
-                    }
-
-                    // index new rooms by post ids
-                    $newRooms   = [];
-                    foreach($newSubjects[$postId][$key] as $index => $v){
-                        unset($newSubjects[$postId][$key][$index]);
-                        
-                        if($v['postid'] != -1){
-                            $newRooms[$v['post-id']]  = $v;
-                        }
-                    }
-
-                    $addedRooms     = array_diff_key($newRooms, $oldRooms);
-                    $subjectName    = ucfirst($subject['name']);
-                    foreach($addedRooms as $room){
-                        $name          = ucfirst($room['name']);
-                        $description   = isset($room['description']) ? $room['description'] : '';
-
-                        $roomId = wp_insert_post([
-                            'post_title'    => "$subjectName Room $name",
-                            'post_type'     => 'booking-room',
-                            'post_status'   => 'publish',
-                            'post_content'  => $description,
-                            'post_parent'   => $postId
-                        ]);
-                        
-                        add_post_meta($postId, 'room', [$roomId => $name]);
-                        add_post_meta($roomId, 'name', $name);
-                    }
-
-                    $removedRooms  = array_diff_key($oldRooms, $newRooms);
-                    foreach($removedRooms as $room){
-                        wp_delete_post($room['post-id']);
-
-                        $name          = ucfirst($room['name']);
-                        delete_post_meta($postId, 'room', [$room['post-id'] => $name]);
-                    }
-                }elseif($key == 'payments'){
-                    // We enabled payments
-                    if($newSubjects[$postId][$key]){
-                        // mark old bookings as paid
-                        foreach($bookings->retrieveUnPaidBookings(true, true) as $unpaidBooking){
-                            $bookings->updateBooking($unpaidBooking, ['paid' => 1]);
-                        }
-                    }
-
-                    update_post_meta($postId, $key, $newSubjects[$postId][$key]);
-                }elseif(is_array($newSubjects[$postId][$key])){
-                    // first delete all
-                    delete_post_meta($postId, $key);
-
-                    // Then add the new ones
-                    foreach($newSubjects[$postId][$key] as $k => $v){
-                        add_post_meta($postId, $key, $v);
-                    }
-                }else{
-                    update_post_meta($postId, $key, $newSubjects[$postId][$key]);
+                    
+                    add_post_meta($postId, 'room', [$roomId => $name]);
+                    add_post_meta($roomId, 'name', $name);
                 }
+
+                foreach($changedRooms as $roomId => $room){
+
+                    $update = [
+                        'ID'            => $roomId
+                    ];
+
+                    if(!empty($room['description'])){
+                        $update['post_content']  = $room['description'];
+                    }
+
+                    if(!empty($room['name'])){
+                        $update['post_title']    = "$subjectName Room {$room['name']}";
+
+                        update_post_meta($postId, 'room', [$roomId => $room['name']], [$roomId => $oldRooms[$roomId]['name']]);
+                        update_post_meta($roomId, 'name', $room['name']);
+                    }
+
+                    // Update room post
+                    wp_update_post($update);
+                }
+
+                foreach($removedRooms as $room){
+                    wp_delete_post($room['post-id']);
+
+                    $name          = ucfirst($room['name']);
+                    delete_post_meta($postId, 'room', [$room['post-id'] => $name]);
+                }
+            }elseif($key == 'payments'){
+                // We enabled payments
+                if($value){
+                    // mark old bookings as paid
+                    foreach($bookings->retrieveUnPaidBookings(true, true) as $unpaidBooking){
+                        $bookings->updateBooking($unpaidBooking, ['paid' => 1]);
+                    }
+                }
+
+                update_post_meta($postId, $key, $value);
+            }elseif($value){
+                // first delete all
+                delete_post_meta($postId, $key);
+
+                // Then add the new ones
+                foreach($value as $k => $v){
+                    add_post_meta($postId, $key, $v);
+                }
+            }else{
+                update_post_meta($postId, $key, $value);
             }
         }
     }

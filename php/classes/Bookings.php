@@ -82,6 +82,8 @@ class Bookings{
             $this->subjects[$post->post_title]['element-id']   = get_post_meta($post->ID, 'element-id', true);
             $this->subjects[$post->post_title]['post-id']      = $post->ID;
             $this->subjects[$post->post_title]['name']         = $post->post_title;
+            $this->subjects[$post->post_title]['description']  = $post->post_content;
+            
             $rooms       = get_children( [
                 'post_parent'   => $post->ID,
                 'post_type'     => 'any',
@@ -96,7 +98,8 @@ class Bookings{
             foreach($rooms as $roomPost){
                 $this->subjects[$post->post_title]['rooms'][] = [
                     'post-id'       => $roomPost->ID,
-                    'name'          => get_post_meta($roomPost->ID, 'name', true)
+                    'name'          => get_post_meta($roomPost->ID, 'name', true),
+                    'description'   => $roomPost->post_content
                 ];
             }
 
@@ -122,7 +125,7 @@ class Bookings{
 
         $subjects   = [];
         foreach($this->subjects as $subject){
-            if(isset($subject['element-id']) && $subject['element-id'] == $elementId){
+            if(($subject['element-id'] ?? '') == $elementId){
                 if(empty($subjectName)){
                     $subjects[] = $subject;
                 }elseif($subject['name'] == $subjectName){
@@ -1976,8 +1979,12 @@ class Bookings{
                 $this->payables[]   = $subject['name'];
             }
 
-            if(!is_array($subject['managers'])){
-                $subject['managers']    = [$subject['managers']];
+            if(!isset($subject['managers'])){
+                $subject['managers']    = [];
+            }
+
+            if(!is_array($subject['managers'] ?? '')){
+                $subject['managers']    = [$subject['managers'] ];
             }
 
             // loop over all the managers of this subject
