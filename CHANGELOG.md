@@ -6,6 +6,7 @@
 ### Changed
 
 ### Fixed
+- subject without rooms bug
 
 ### Updated
 
