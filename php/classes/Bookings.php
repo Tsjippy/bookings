@@ -310,7 +310,7 @@ class Bookings{
         /**
          * Add inputs based on the room numbering
          */
-        if(isset($subject['nrtype']) && $subject['nrtype'] == 'letters'){
+        if(($subject['nrtype'] ?? '') == 'letters'){
             $alphabet = range('A', 'Z');
 
             for ($x = 0; $x < $subject['amount']; $x++) {
@@ -338,7 +338,7 @@ class Bookings{
                 // Append the text node to the element
                 $wrapper->appendChild($textNode);
             }
-        }elseif(isset($subject['nrtype']) && $subject['nrtype'] == 'custom'){
+        }elseif(($subject['nrtype'] ?? '') == 'custom'){
             foreach($subject['rooms'] as $room){
                 $attributes  = [
                     'type'  => $type, 
@@ -486,35 +486,40 @@ class Bookings{
                 }
 
                 $navigators = $this->forms->addElement('div', $header, ['class' => "navigators ".( $subject['amount'] > 1 ? 'hidden': '')]);
-                
-                    $this->forms->addRawHtml($this->getNavigator($date), $navigators);
+                $this->forms->addRawHtml($this->getNavigator($date), $navigators);
 
-            $calendarTable  = $this->forms->addElement('div', $overview, ['class' => "calendar table ".( !empty($subject['amount']) && $subject['amount'] > 1 ? 'style="display:block;"': '')]);
+            $attributes =  ['class' => "calendar table"];
+            if(($subject['amount'] ?? []) > 1){
+                $attributes['style']    = "display:block;";
+            }
 
-                if(empty($subject['nrtype']) || $subject['nrtype'] == 'none'){
-                    $roomWrapper    = $this->forms->addElement('div', $calendarTable, ['class' => "room-wrapper"]);
-                        $monthWrapper   = $this->forms->addElement('div', $roomWrapper, ['class' => "month-wrapper flex"]);
+            $calendarTable  = $this->forms->addElement('div', $overview, $attributes);
 
-                            $this->forms->addRawHtml($this->monthCalendar($cleanSubject, '', $date), $monthWrapper);
-                            $this->forms->addRawHtml($this->monthCalendar($cleanSubject, '', strtotime('first day of next month', $date)), $monthWrapper);
-                }else{
-                    $rooms  = [];
+            // Show the month calendar if there are no rooms, otherwise show the room calendars
+            if(empty($subject['nrtype']) || $subject['nrtype'] == 'none' || $subject['amount'] == 0){
+                $roomWrapper    = $this->forms->addElement('div', $calendarTable, ['class' => "room-wrapper"]); // needed for layout purposes
+                $monthWrapper   = $this->forms->addElement('div', $roomWrapper, ['class' => "month-wrapper flex"]);
 
-                    if(isset($subject['nrtype']) && $subject['nrtype'] == 'letters'){
-                        $alphabet = range('A', 'Z');
-                        for ($x = 0; $x < $subject['amount']; $x++) {
-                            $rooms[]    = $alphabet[$x];
-                        }
-                    }elseif(isset($subject['nrtype']) && $subject['nrtype'] == 'custom'){
-                        $rooms  = $subject['rooms'];
-                    }else{
-                        for ($x = 1; $x <= $subject['amount']; $x++) {
-                            $rooms[]    = $x;
-                        }
+                $this->forms->addRawHtml($this->monthCalendar($cleanSubject, '', $date), $monthWrapper);
+                $this->forms->addRawHtml($this->monthCalendar($cleanSubject, '', strtotime('first day of next month', $date)), $monthWrapper);
+            }else{
+                $rooms  = [];
+
+                if(isset($subject['nrtype']) && $subject['nrtype'] == 'letters'){
+                    $alphabet = range('A', 'Z');
+                    for ($x = 0; $x < $subject['amount']; $x++) {
+                        $rooms[]    = $alphabet[$x];
                     }
-
-                    $this->forms->addRawHtml($this->roomCalendars($rooms, $cleanSubject, $date), $calendarTable);
+                }elseif(isset($subject['nrtype']) && $subject['nrtype'] == 'custom'){
+                    $rooms  = $subject['rooms'];
+                }else{
+                    for ($x = 1; $x <= $subject['amount']; $x++) {
+                        $rooms[]    = $x;
+                    }
                 }
+
+                $this->forms->addRawHtml($this->roomCalendars($rooms, $cleanSubject, $date), $calendarTable);
+            }
 
             if(!$isAdmin){
 
@@ -867,7 +872,11 @@ class Bookings{
      * @return  string              HTML
      */
     public function submissionDetails($booking, $submission, $hide, $echo = false){
-        $subId          = $submission->subId;
+        if(!empty($submission->subId)){
+            $subId  = "data-subid='$submission->subId'";
+        }else{
+            $subId  = '';
+        }
         
         $hidden         = '';
         if(
@@ -891,7 +900,7 @@ class Bookings{
             </h6>
 
             <article class='booking'>
-                <h4 class='booking-title'><?php echo esc_html($submission->slug);?></h4>
+                <h4 class='booking-title'><?php echo esc_html($submission->slug ?? '');?></h4>
                 <div class='booking-detail'>
                     <table data-form-id='<?php echo esc_attr($submission->form_id);?>' style='width: unset;'>
                         <thead></thead>
@@ -911,12 +920,12 @@ class Bookings{
                                 <td class='booking-data-wrapper edit forms-table'>
                                     <table data-form-id='<?php echo esc_attr($submission->form_id);?>' data-shortcode-id='<?php echo esc_attr($this->forms->shortcodeId);?>' style='margin-bottom: 0px; width:unset;'>
                                         <tr data-submission-id='<?php echo esc_attr($submission->id);?>'>
-                                            <td data-name='booking-start-date' data-element-id='<?php echo esc_attr($this->forms->getElementBySlug('booking-start-date')->id);?>' data-subid='<?php echo esc_attr($subId);?>' data-booking-id='<?php echo esc_attr($submission->booking_id);?>' class='edit forms-table'>
+                                            <td data-name='booking-start-date' data-element-id='<?php echo esc_attr($this->forms->getElementBySlug('booking-start-date')->id);?>' <?php echo esc_attr($subId);?> data-booking-id='<?php echo esc_attr($submission->booking_id);?>' class='edit forms-table'>
                                                 <?php echo esc_html(gmdate(DATEFORMAT, strtotime($submission->{'booking-start-date'})));?>
                                             </td>
                                         </tr>
                                         <tr data-submission-id='<?php echo esc_attr($submission->id);?>'>
-                                            <td data-name='booking-end-date' data-element-id='<?php echo esc_attr($this->forms->getElementBySlug('booking-end-date')->id);?>' data-subid='<?php echo esc_attr($subId);?>' data-booking-id='<?php echo esc_attr($submission->booking_id);?>' class='edit forms-table'>
+                                            <td data-name='booking-end-date' data-element-id='<?php echo esc_attr($this->forms->getElementBySlug('booking-end-date')->id);?>' <?php echo esc_attr($subId);?> data-booking-id='<?php echo esc_attr($submission->booking_id);?>' class='edit forms-table'>
                                                 <?php echo esc_html(gmdate(DATEFORMAT, strtotime($submission->{'booking-end-date'})));?>
                                             </td>
                                         </tr>
@@ -931,7 +940,7 @@ class Bookings{
                                     <td>
                                         <img src='<?php echo esc_url($this->picturesUrl);?>/room.png' loading='lazy' alt='Room' class='booking-icon' title='Room'>
                                     </td>
-                                    <td class='booking-data-wrapper edit forms-table' data-element-id='-104' data-subid='<?php echo esc_attr($subId);?>' data-name='booking-rooms' data-booking-id='<?php echo esc_attr($submission->booking_id);?>'>
+                                    <td class='booking-data-wrapper edit forms-table' data-element-id='-104' <?php echo esc_attr($subId);?> data-name='booking-rooms' data-booking-id='<?php echo esc_attr($submission->booking_id);?>'>
                                         <?php echo esc_attr($submission->{'booking-rooms'});?>
                                     </td>
                                 </tr>

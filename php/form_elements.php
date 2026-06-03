@@ -384,23 +384,27 @@ function formElements($elements, $displayFormResults, $force){
 
     if($element){
         // Add the start_date and end_date
-        $start_date         = clone $element;
-        $start_date->type   = 'date';
-        $start_date->slug   = 'booking-start-date';
-        $start_date->name   = 'Startdate';
-        $start_date->id     = -102;
+        $start_date                     = clone $element;
+        $start_date->type               = 'date';
+        $start_date->slug               = 'booking-start-date';
+        $start_date->name               = 'Startdate';
+        $start_date->id                 = -102;
+        $start_date->booking_details    = '';
 
-        $end_date           = clone $element;
-        $end_date->type     = 'date';
-        $end_date->slug     = 'booking-end-date';
-        $end_date->name     = 'Enddate';
-        $end_date->id       = -103;
+        $end_date                   = clone $element;
+        $end_date->type             = 'date';
+        $end_date->slug             = 'booking-end-date';
+        $end_date->name             = 'Enddate';
+        $end_date->id               = -103;
+        $end_date->booking_details  = '';
 
-        $room               = clone $element;
-        $room->type         = 'checkbox';
-        $room->slug         = 'booking-rooms';
-        $room->name         = 'Room';
-        $room->id           = -104;
+        $room                   = clone $element;
+        $room->type             = 'checkbox';
+        $room->slug             = 'booking-rooms';
+        $room->name             = 'Room';
+        $room->id               = -104;
+        $room->required         = false;
+        $room->booking_details  = '';
         
         $elements[]         = $start_date;
         $elements[]         = $end_date;
@@ -914,7 +918,7 @@ function formElementUpdated($element, $instance, $oldElement){
                         'post_parent'   => $postId
                     ]);
                     
-                    add_post_meta($postId, 'room', [$roomId => $name]);
+                    add_post_meta($postId, 'rooms', [$roomId => $name]);
                     add_post_meta($roomId, 'name', $name);
                 }
 
@@ -931,7 +935,7 @@ function formElementUpdated($element, $instance, $oldElement){
                     if(!empty($room['name'])){
                         $update['post_title']    = "$subjectName Room {$room['name']}";
 
-                        update_post_meta($postId, 'room', [$roomId => $room['name']], [$roomId => $oldRooms[$roomId]['name']]);
+                        update_post_meta($postId, 'rooms', [$roomId => $room['name']], [$roomId => $oldRooms[$roomId]['name']]);
                         update_post_meta($roomId, 'name', $room['name']);
                     }
 
@@ -943,7 +947,7 @@ function formElementUpdated($element, $instance, $oldElement){
                     wp_delete_post($room['post-id']);
 
                     $name          = ucfirst($room['name']);
-                    delete_post_meta($postId, 'room', [$room['post-id'] => $name]);
+                    delete_post_meta($postId, 'rooms', [$room['post-id'] => $name]);
                 }
             }elseif($key == 'payments'){
                 // We enabled payments
