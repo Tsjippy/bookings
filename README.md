@@ -33,6 +33,8 @@ This plugin adds a 'booking selector' element to the available form elements of 
 4. A calendar with selected days
 5. The form with selected dates
 6. The configuration screen with the possibility to select users as managers for an accommodation, change the description of the location and for each room and other options
+7. Admin menu
+8. The e-mail settings
 
 == Installation ==
 This plugin is dependent on the tsjippy-forms plugin which will automatically installed.
