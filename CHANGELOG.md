@@ -2,14 +2,21 @@
 ## [Unreleased] - yyyy-mm-dd
 
 ### Added
-- more screenshots
 
 ### Changed
 
 ### Fixed
-- subject without rooms bug
 
 ### Updated
+
+## [10.2.9] - 2026-06-03
+
+
+### Added
+- more screenshots
+
+### Fixed
+- subject without rooms bug
 
 ## [10.2.8] - 2026-06-01
 
