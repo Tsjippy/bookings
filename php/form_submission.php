@@ -2,18 +2,18 @@
 namespace TSJIPPY\BOOKINGS;
 use TSJIPPY;
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
+if ( ! defined('ABSPATH')) {
+    exit;
 }
 
 /**
  * This filter runs before the submission is inserted in the database.
  * We use it to check if the booking overlaps with an existing one.
  * It returns an error if there is an overlap, or an other issue that prevents creating the booking
- * 
+ *
  * It updates the amount to be paid if there are no issues
  */
-add_filter('tsjippy_before_inserting_formdata', __NAMESPACE__.'\beforeSavingFormData', 99, 2);
+add_filter('tsjippy_before_inserting_formdata', __NAMESPACE__ . '\beforeSavingFormData', 99, 2);
 /**
  * Check for booking overlaps before saving form data
  *
@@ -22,17 +22,17 @@ add_filter('tsjippy_before_inserting_formdata', __NAMESPACE__.'\beforeSavingForm
  *
  * @return object The updated form submission or an error
  */
-function beforeSavingFormData($submission, $object){
+function beforeSavingFormData($submission, $object) {
     $bookings                   = new BookingPayments($object);
 
     // Check if this is a form with a booking selector
     $elements             = $bookings->getBookingElements();
-    if(empty($elements) || is_wp_error($elements)){
+    if (empty($elements) || is_wp_error($elements)) {
         return $submission;
     }
 
     $startDates = [];
-    if(isset($submission->{'booking-start-date'})){
+    if (isset($submission->{'booking-start-date'})) {
         $startDates = (array)$submission->{'booking-start-date'};
 
         $startDates = TSJIPPY\cleanUpNestedArray($startDates);
@@ -41,7 +41,7 @@ function beforeSavingFormData($submission, $object){
     }
 
     $endDates   = [];
-    if(isset($submission->{'booking-end-date'})){
+    if (isset($submission->{'booking-end-date'})) {
         $endDates   = (array)$submission->{'booking-end-date'};
         $endDates   = TSJIPPY\cleanUpNestedArray($endDates);
 
@@ -49,48 +49,48 @@ function beforeSavingFormData($submission, $object){
     }
 
     $rooms  = [];
-    if(!empty($submission->{'booking-rooms'})){
+    if (!empty($submission->{'booking-rooms'})) {
         $rooms   = $submission->{'booking-rooms'};
 
-        if(!is_array($rooms)){
+        if (!is_array($rooms)) {
             $rooms  = [$rooms];
         }
 
         unset($submission->{'booking-rooms'});
     }
 
-    if(empty($startDates) || empty($endDates)){
+    if (empty($startDates) || empty($endDates)) {
         return new \WP_Error('bookings', "Please provide a start and end date");
     }
 
     // loop over all booking selectors (usually one)
-    foreach($elements as $element){
+    foreach ($elements as $element) {
         $subjects       = $bookings->getElementSubjects($element->id);
         $subjectName    = $submission->{$element->id};
 
         // Somehow we do not have any data
-        if(empty($subjects)){
+        if (empty($subjects)) {
             return new \WP_Error('bookings', "No booking subjects found");
         }
 
-        if(!empty($submission->id)){
+        if (!empty($submission->id)) {
             $currentBookings    = $bookings->getBookingsBySubmission($submission->id);
         }
 
         // Same start and end date
-        foreach($startDates as $index => $start_date){
-            if($start_date == $endDates[$index]){
+        foreach ($startDates as $index => $start_date) {
+            if ($start_date == $endDates[$index]) {
                 return new \WP_Error('bookings', "End date cannot be the same as the start date");
             }
 
             $bookingId = -1;
-            if(!empty($currentBookings)){
+            if (!empty($currentBookings)) {
                 $bookingId = $currentBookings[0]->id;
             }
 
             $overlappingBookings    = $bookings->checkOverlap($start_date, $endDates[$index], $subjectName, $rooms[$index], $bookingId);
-            if(!empty($overlappingBookings)){
-                if(!empty($rooms[$index])){
+            if (!empty($overlappingBookings)) {
+                if (!empty($rooms[$index])) {
                     $subjectName    .= " room {$rooms[$index]}";
                 }
 
@@ -101,17 +101,17 @@ function beforeSavingFormData($submission, $object){
         }
 
         // find the selected subject
-        foreach($subjects as $subject){
-            if(
-                !empty($subject['slug']) &&             // Subjects slug is set 
+        foreach ($subjects as $subject) {
+            if (
+                !empty($subject['slug']) &&             // Subjects slug is set
                 $subject['slug'] == $subjectName &&     // and this is the selected subject
                 !empty($subject['rooms'])   &&          // and the subject has a key called rooms
                 count($subject['rooms']) > 1 &&         // and there is more than 1 room for this subject
                 empty($rooms)                           // but there is no room selected
-            ){
+           ) {
                 return new \WP_Error('bookings', "Please select a room");
             }
-        }        
+        }
     }
 
     // Everything is ok - Update the amount to be paid
@@ -119,7 +119,7 @@ function beforeSavingFormData($submission, $object){
 
     $paymentAmountElId  = $bookings->forms->formData->payment_amount_el;
 
-    if(!empty($paymentAmountElId)){
+    if (!empty($paymentAmountElId)) {
         $slug = $bookings->forms->getElementById($paymentAmountElId, 'slug');
         $submission->{$slug} = $amount;
     }
@@ -131,7 +131,7 @@ function beforeSavingFormData($submission, $object){
  * This filter runs after the submission is inserted in the database.
  * We use it to create the booking in the database, and link it to the submission
  */
-add_filter('tsjippy_after_form_submission', __NAMESPACE__.'\afterFormSubmission', 99, 3);
+add_filter('tsjippy_after_form_submission', __NAMESPACE__ . '\afterFormSubmission', 99, 3);
 /**
  * Process the form submission after it has been saved
  *
@@ -141,23 +141,23 @@ add_filter('tsjippy_after_form_submission', __NAMESPACE__.'\afterFormSubmission'
  *
  * @return string The updated message
  */
-function afterFormSubmission($message, $submission, $object){
+function afterFormSubmission($message, $submission, $object) {
     $startDates = [];
-    if(isset($submission['booking-start-date'])){
+    if (isset($submission['booking-start-date'])) {
         $startDates = (array)$submission['booking-start-date'];
 
         unset($submission['booking-start-date']);
     }
 
     $endDates   = [];
-    if(isset($submission['booking-end-date'])){
+    if (isset($submission['booking-end-date'])) {
         $endDates   = (array)$submission['booking-end-date'];
 
         unset($submission['booking-end-date']);
     }
 
     $rooms  = [];
-    if(isset($submission['booking-rooms']) && is_array($submission['booking-rooms'])){
+    if (isset($submission['booking-rooms']) && is_array($submission['booking-rooms'])) {
         $rooms   = $submission['booking-rooms'];
 
         unset($submission['booking-rooms']);
@@ -167,23 +167,23 @@ function afterFormSubmission($message, $submission, $object){
 
     // find the subject
     $elements             = $bookings->getBookingElements();
-    if(is_wp_error($elements) || empty($elements)){
+    if (is_wp_error($elements) || empty($elements)) {
         return $message;
     }
 
     // loop over all booking selectors (usually one)
-    foreach($elements as $element){
+    foreach ($elements as $element) {
 
         $subject        = $submission[$element->slug];
         $submissionId   = $object->submission->id;
-        
+
         //Create a booking for each room
-        if(!empty($rooms)){
-            foreach($rooms as $index => $room){
+        if (!empty($rooms)) {
+            foreach ($rooms as $index => $room) {
                 // Create a booking for this room
                 $result     = $bookings->insertBooking($startDates[$index], $endDates[$index], $subject, $room, $submissionId);
 
-                if(is_wp_error($result)){
+                if (is_wp_error($result)) {
                     return $result;
                 }
             }
@@ -191,7 +191,7 @@ function afterFormSubmission($message, $submission, $object){
             // Create a booking
             $result         = $bookings->insertBooking($startDates[0], $endDates[0], $subject, '', $submissionId);
 
-            if(is_wp_error($result)){
+            if (is_wp_error($result)) {
                 return $result;
             }
         }

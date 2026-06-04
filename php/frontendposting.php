@@ -2,20 +2,20 @@
 namespace TSJIPPY\BOOKINGS;
 use TSJIPPY;
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
+if ( ! defined('ABSPATH')) {
+    exit;
 }
 
-add_action('tsjippy_frontend_post_content_title', __NAMESPACE__.'\contentTitle');
+add_action('tsjippy_frontend_post_content_title', __NAMESPACE__ . '\contentTitle');
 /**
  * Sets the title for the booking subject content
  *
  * @param string $postType The post type
  */
-function contentTitle($postType){
+function contentTitle($postType) {
     // Book content title
     $class = 'property booking-subject';
-    if($postType != 'booking-subject'){
+    if ($postType != 'booking-subject') {
         $class .= ' hidden';
     }
 
@@ -26,7 +26,7 @@ function contentTitle($postType){
     <?php
 }
 
-add_filter('tsjippy-frontendcontent-posttype', __NAMESPACE__.'\filterPostType');
+add_filter('tsjippy-frontendcontent-posttype', __NAMESPACE__ . '\filterPostType');
 /**
  * Filters the post type for frontend content
  *
@@ -34,14 +34,14 @@ add_filter('tsjippy-frontendcontent-posttype', __NAMESPACE__.'\filterPostType');
  *
  * @return string The filtered post type
  */
-function filterPostType($postType){
-    if($postType == 'booking-subject' || $postType == 'booking-room'){
+function filterPostType($postType) {
+    if ($postType == 'booking-subject' || $postType == 'booking-room') {
         return 'page';
     }
     return $postType;
 }
 
-add_filter('tsjippy_frontend_post_types_and_tax', __NAMESPACE__.'\filterPostTypes');
+add_filter('tsjippy_frontend_post_types_and_tax', __NAMESPACE__ . '\filterPostTypes');
 /**
  * Filters the post types for frontend content
  *
@@ -49,9 +49,9 @@ add_filter('tsjippy_frontend_post_types_and_tax', __NAMESPACE__.'\filterPostType
  *
  * @return array The filtered post types
  */
-function filterPostTypes($postTypes){
+function filterPostTypes($postTypes) {
     unset($postTypes['booking-subject']);
     unset($postTypes['booking-room']);
-    
+
     return $postTypes;
 }

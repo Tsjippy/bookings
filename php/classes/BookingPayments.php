@@ -5,8 +5,8 @@ use TSJIPPY\EVENTS;
 use TSJIPPY\FORMS;
 use WP_Error;
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
+if ( ! defined('ABSPATH')) {
+    exit;
 }
 
 class BookingPayments extends Bookings{
@@ -14,38 +14,38 @@ class BookingPayments extends Bookings{
     /**
      * Retrieve all the unpaid bookings
      *
-     * @param   bool    $onlyFinished       True to only return bookings that are finished 
+     * @param   bool    $onlyFinished       True to only return bookings that are finished
      * @param   bool    $all                Whether to get unpaid bookings for all users. Default false;
      */
-    public function retrieveUnPaidBookings($onlyFinished, $all=false){
+    public function retrieveUnPaidBookings($onlyFinished, $all=false) {
         global $wpdb;
 
         /**
          * Only show unpaid bookings this user has permissions for
          */
-        if(wp_doing_cron()){
+        if (wp_doing_cron()) {
             $userId = '';
         }else{
             $userId = $this->user->ID;
         }
         $this->getSubjectManagers($userId);
 
-        if(empty($this->managers)){
+        if (empty($this->managers)) {
             return [];
         }
 
-        $query	        = "SELECT * FROM %i WHERE (`paid` != 1 OR `paid` IS NULL)";
+        $query            = "SELECT * FROM %i WHERE (`paid` != 1 OR `paid` IS NULL)";
 
         $values         = [ $this->tableName ];
 
         // only show finished bookings
-        if($onlyFinished){
-            $query	.= " AND end_date < %s";
+        if ($onlyFinished) {
+            $query    .= " AND end_date < %s";
 
             $values[]   = gmdate('Y-m-d');
         }
 
-        if($all){
+        if ($all) {
             $userId = '';
         }else{
             $userId = $this->user->ID;
@@ -53,34 +53,35 @@ class BookingPayments extends Bookings{
 
         $this->getSubjectManagers($userId, true);
 
-        if(empty($this->payables)){
+        if (empty($this->payables)) {
             return [];
         }
 
-        foreach($this->payables as $index => $subject){
-            if($index == 0){
-                $query	.= " AND (";
+        foreach ($this->payables as $index => $subject) {
+            if ($index == 0) {
+                $query    .= " AND (";
             }else{
-                $query	.= " OR";
+                $query    .= " OR";
             }
 
-            $query	    .= " subject LIKE %s";
-            $values[]    = "%$subject%";
+            $query        .= " subject LIKE %s";
+            $values[]    = "%" .$wpdb->esc_like($subject). "%";
         }
 
         //sort on start_date
-		$query	.= ") ORDER BY id ASC";
+        $query    .= ") ORDER BY id ASC";
 
-		return $wpdb->get_results(
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        return $wpdb->get_results(
             $wpdb->prepare($query, ...$values)
-        );
+       );
     }
 
     /**
      * Retrieve all the pending bookings for the current user
      *
      */
-    public function retrievePendingBookings(){
+    public function retrievePendingBookings() {
         global $wpdb;
 
         /**
@@ -88,7 +89,7 @@ class BookingPayments extends Bookings{
          */
         $this->getSubjectManagers($this->user->ID);
 
-        if(empty($this->managers)){
+        if (empty($this->managers)) {
             return [];
         }
 
@@ -96,7 +97,7 @@ class BookingPayments extends Bookings{
 
         $placeholders   = implode(', ', array_fill(0, count($subjects), '%s'));
 
-        $query	    = "SELECT * FROM %i WHERE pending = 1 AND start_date >= %s AND subject IN ($placeholders)";
+        $query        = "SELECT * FROM %i WHERE pending = 1 AND start_date >= %s AND subject IN ($placeholders)";
 
         $values     = [
             $this->tableName,
@@ -104,36 +105,37 @@ class BookingPayments extends Bookings{
             ...$subjects
         ];
 
-        foreach(array_keys($this->managers) as $index => $subject){
-            if($index == 0){
-                $query	.= " AND (";
+        foreach (array_keys($this->managers) as $index => $subject) {
+            if ($index == 0) {
+                $query    .= " AND (";
             }else{
-                $query	.= " OR";
+                $query    .= " OR";
             }
 
-            $query	    .= " subject LIKE %s";
-            $values[]    = "%$subject%";
+            $query        .= " subject LIKE %s";
+            $values[]    = "%" .$wpdb->esc_like($subject). "%";
         }
 
         //sort on start_date
-		$query	.= ") ORDER BY id ASC";
+        $query    .= ") ORDER BY id ASC";
 
-		return $wpdb->get_results(
-            $wpdb->prepare( $query, ...$values )
-        );
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        return $wpdb->get_results(
+            $wpdb->prepare($query, ...$values)
+       );
     }
 
     /**
      * Creates an booking invoice pdf
-     * 
+     *
      * @param   object  $booking        The booking to create an invoice for
      * @param   object  $bookingEmail   The email to create the invoice for
-     * 
+     *
      * @return  string                  The path to the pdf invoice
      */
-    protected function createInvoice($booking, $bookingEmail){
+    protected function createInvoice($booking, $bookingEmail) {
         // Create a PDF invoice if possible
-        if(!class_exists('TSJIPPY\PDF\PdfHtml')){
+        if (!class_exists('TSJIPPY\PDF\PdfHtml')) {
             return [];
         }
 
@@ -143,11 +145,11 @@ class BookingPayments extends Bookings{
 
         $pdf->AddPage();
 
-        $pdf->setHeaderTitle("Guesthouse Invoice INV".sprintf("%06d", $booking->id));
+        $pdf->setHeaderTitle("Guesthouse Invoice INV" .sprintf("%06d", $booking->id));
 
         $pdf->Header();
 
-        $pdf->SetFont( 'Arial', '', 10 );
+        $pdf->SetFont('Arial', '', 10);
 
         $pdf->Write(10, "Invoice for {$bookingEmail->replaceArray['%subject%']} {$bookingEmail->replaceArray['%duration%']}");
         $pdf->Ln(10);
@@ -157,16 +159,16 @@ class BookingPayments extends Bookings{
 
         // Calculate cell size
         $colWidths  = [0, 0];
-        foreach($bookingEmail->paymentDetailsRows as &$row){
+        foreach ($bookingEmail->paymentDetailsRows as &$row) {
 
             $row    = str_replace(array_keys($bookingEmail->replaceArray), array_values($bookingEmail->replaceArray), $row);
 
             $cells  = explode(': ', $row);
 
-            foreach($cells as $index => $cell){
+            foreach ($cells as $index => $cell) {
                 $width = round($pdf->GetStringWidth($cell)) + 5;
-                
-                if($width > $colWidths[$index]){
+
+                if ($width > $colWidths[$index]) {
                     $colWidths[$index]  = $width;
                 }
             }
@@ -175,13 +177,13 @@ class BookingPayments extends Bookings{
 
         // Now write the rows
         $fill   = false;
-        foreach($bookingEmail->paymentDetailsRows as $row){
+        foreach ($bookingEmail->paymentDetailsRows as $row) {
             $cells  = explode(': ', $row);
             $pdf->writeTableRow($colWidths, $cells, $fill, []);
         }
 
         // Save the pdf
-        $path   = get_temp_dir()."Guesthouse Invoice INV{$booking->id}.pdf";
+        $path   = get_temp_dir(). "Guesthouse Invoice INV{$booking->id}.pdf";
 
         wp_delete_file($path);
 
@@ -193,19 +195,19 @@ class BookingPayments extends Bookings{
      /**
      * Sends a reminder to the owner of a booking to pay for it
      */
-    public function sendPaymentReminders(){
+    public function sendPaymentReminders() {
         // no form loaded, load them all, and send payment reminder for each of them
-         if(empty($this->forms->formData)){
+         if (empty($this->forms->formData)) {
             $this->forms->getForms();
 
             // Send payment reminder for each form
-            foreach($this->forms->forms as $form){
+            foreach ($this->forms->forms as $form) {
                 $this->forms->getForm($form->id);
 
                 $result = $this->getBookingElements(true);
 
                 // this form has booking selector in it
-                if(!is_wp_error($result) && !empty($result)){
+                if (!is_wp_error($result) && !empty($result)) {
                     $this->sendPaymentReminders();
                 }
             }
@@ -214,16 +216,16 @@ class BookingPayments extends Bookings{
         }
 
         $processed  =   [];
-        foreach($this->retrieveUnPaidBookings(true, true) as $booking){
+        foreach ($this->retrieveUnPaidBookings(true, true) as $booking) {
 
             // no subject set or this form submission is already processed
-            if(empty($booking->subject) || in_array($booking->submission_id, $processed)){
+            if (empty($booking->subject) || in_array($booking->submission_id, $processed)) {
                 continue;
             }
 
             $this->forms->parseSubmissions('', $booking->submission_id, false, true);
 
-            if(!$this->forms->submissions){
+            if (!$this->forms->submissions) {
                 continue;
             }
 
@@ -235,10 +237,10 @@ class BookingPayments extends Bookings{
             $accommodation  = $booking->subject;
 
             // check if payment is enabled for this subject
-            foreach($this->subjects as $subject){
+            foreach ($this->subjects as $subject) {
                 // this is the current subject
-                if($subject['name'] == $accommodation){
-                    if(!$subject['payments']){
+                if ($subject['name'] == $accommodation) {
+                    if (!$subject['payments']) {
                         // do not continue if disabled
                         continue 2;
                     }
@@ -249,13 +251,13 @@ class BookingPayments extends Bookings{
 
             $userId         = $this->forms->submission->user_id;
             $email          = false;
-            
+
             // Not an user
-            if(!is_numeric($userId) || $userId == 0){
+            if (!is_numeric($userId) || $userId == 0) {
                 $user       = '';
 
                 $nameElName = $this->forms->findUserNameElementName();
-                if($nameElName){
+                if ($nameElName) {
                     $slug   = $this->forms->submission->{$nameElName};
                     $user   = (object) ['display_name' => $slug ];
                 }
@@ -263,8 +265,8 @@ class BookingPayments extends Bookings{
                 // Find the phone number
                 $phoneElName    = $this->forms->findPhoneNumberElementName();
 
-                if($phoneElName){
-                    foreach($this->forms->submission->{$phoneElName} as $number){
+                if ($phoneElName) {
+                    foreach ($this->forms->submission->{$phoneElName} as $number) {
                         if (str_starts_with($number, '+')) {
                             $phonenumber = $number;
                             break;
@@ -274,7 +276,7 @@ class BookingPayments extends Bookings{
 
                 // Find the e-mail
                 $emailElName        = $this->forms->findEmailElementName();
-                if($emailElName){
+                if ($emailElName) {
                     $elementId      = $this->forms->getElementBySlug($emailElName, 'id');
                     $email          = $this->forms->submission->{$elementId};
                 }
@@ -285,21 +287,21 @@ class BookingPayments extends Bookings{
 
             /**
              * Filters whether we should send a payment reminder
-             * 
+             *
              * @param   bool    $continue       Whether we should continue
              * @param   object  $submission     The submission to be reminded about
              * @param   object  $user           The user to be send an e-mail to
              * @param   string  $email          The e-mail address
              * @param   object  $instance       This instance of the booking class
              */
-            if(!$email || apply_filters('tsjippy-bookings-should-not-send-payment-reminder', false, $this->forms->submission, $user, $email, $this)){
+            if (!$email || apply_filters('tsjippy-bookings-should-not-send-payment-reminder', false, $this->forms->submission, $user, $email, $this)) {
                 continue;
             }
 
             // Send an e-mail
             $bookingEmail    = new BookingEmail($booking);
             $bookingEmail->filterMail();
-                
+
             $subject        = $bookingEmail->subject;
             $message        = $bookingEmail->message;
             $headers        = $bookingEmail->headers;
@@ -308,22 +310,22 @@ class BookingPayments extends Bookings{
             $attachments[]  = $this->createInvoice($booking, $bookingEmail);
 
             add_filter('wp_mail', [$this->forms, 'addFormData'], 1);
-            wp_mail( $email, $subject, $message, $headers, $attachments);
+            wp_mail($email, $subject, $message, $headers, $attachments);
             remove_filter('wp_mail', [$this->forms, 'addFormData'], 1);
         }
     }
 
     /**
      * Adds the buttons to approve or delete a pending booking
-     * 
+     *
      * @param   array   $buttonsHtml   The current html for the buttons
      * @param   object  $submission    The submission for which the buttons are shown
      * @param   int     $subId         The id of the submission
      * @param   object  $object        The bookings object
-     * 
+     *
      * @return  string                  The updated html for the buttons
      */
-    public function pendingButtons($buttonsHtml, $submission, $subId, $object){
+    public function pendingButtons($buttonsHtml, $submission, $subId, $object) {
         $buttonsHtml['approve'] = "<button class='button approve' type='button' data-submission-id='{$submission->id}' data-form-id='{$object->submission->form_id}'>Approve</button>";
         $buttonsHtml['delete']  = "<button class='button delete' type='button' data-submission-id='{$submission->id}' data-form-id='{$object->submission->form_id}'>Delete</button><br>";
         unset($buttonsHtml['archive']);
@@ -333,43 +335,43 @@ class BookingPayments extends Bookings{
 
     /**
      * Shows the html to list, approve and or delete pending bookings
-     * 
+     *
      * @param   string  $type       One of approval or payment to show bookings that are pending approval or pending payment
      */
-    public function pendingBookingsHtml($type='approval'){
+    public function pendingBookingsHtml($type='approval') {
         /**
          * Only managers should see this
          */
         $this->getSubjectManagers($this->user->ID);
 
-        if(count($this->managers) == 1){
+        if (count($this->managers) == 1) {
             return '';
         }
 
         wp_enqueue_script('tsjippy_forms_table_script');
 
-        if($type == 'approval'){
+        if ($type == 'approval') {
             $bookings    = $this->retrievePendingBookings();
         }else{
             $bookings    = $this->retrieveUnPaidBookings(true);
         }
 
-        if(empty($bookings)){
+        if (empty($bookings)) {
             return '';
         }
 
-        $html   = "<h4>Bookings Pending ".ucfirst($type)."</h4>";
+        $html   = "<h4>Bookings Pending " .ucfirst($type). "</h4>";
 
         $submissions    = [];
 
         // Add a sub id to bookings which is equal to the booked room
-        foreach($bookings as $booking){
+        foreach ($bookings as $booking) {
             // one submission can have multiple bookings, only load the submission once
-            if(empty($this->forms->submission) || $this->forms->submission->id != $booking->submission_id){
+            if (empty($this->forms->submission) || $this->forms->submission->id != $booking->submission_id) {
                 $submission         = $this->forms->getSubmissions('', $booking->submission_id)[0];
 
                 // Submission not found
-                if(!$submission ){
+                if (!$submission) {
                     continue;
                 }
 
@@ -377,11 +379,11 @@ class BookingPayments extends Bookings{
             }
         }
 
-        if(empty($submissions)){
+        if (empty($submissions)) {
             return '';
         }
 
-        if($type == 'approval'){
+        if ($type == 'approval') {
             add_filter('tsjippy_form_actions_html', [$this, 'pendingButtons'], 10, 4);
         }
 
@@ -391,7 +393,7 @@ class BookingPayments extends Bookings{
 
         $html   .= ob_get_clean();
 
-        if($type == 'approval'){
+        if ($type == 'approval') {
             remove_filter('tsjippy_form_actions_html',  [$this, 'pendingButtons'], 10);
         }
 
@@ -400,25 +402,25 @@ class BookingPayments extends Bookings{
 
     /**
      * Calculate the total amount due after booking update
-     * 
+     *
      * @param   array   $startDates    The start dates of the booking
      * @param   array   $endDates      The end dates of the booking
-     * 
+     *
      * @return  string                  The total amount due
      */
-    public function calculatePaymentAmount($startDates, $endDates){
+    public function calculatePaymentAmount($startDates, $endDates) {
         $startDates = TSJIPPY\cleanUpNestedArray($startDates);
         $endDates   = TSJIPPY\cleanUpNestedArray($endDates);
 
         $pricePerNightElId    = $this->forms->formData->price_per_night_el;
 
-        if(empty($pricePerNightElId) || empty($startDates) || empty($endDates)){
+        if (empty($pricePerNightElId) || empty($startDates) || empty($endDates)) {
             return;
         }
 
         $nights = 0;
-        foreach($startDates as $index => $startDate){
-            if(empty($endDates[$index])){
+        foreach ($startDates as $index => $startDate) {
+            if (empty($endDates[$index])) {
                 $endDate    = array_values($endDates)[0]; // assume the end date is the same as the first given one
             }else{
                 $endDate    = $endDates[$index];
@@ -431,18 +433,18 @@ class BookingPayments extends Bookings{
         }
 
         $pricePerNight      = $this->forms->submission->{$pricePerNightElId};
-        if(empty($pricePerNight)){
+        if (empty($pricePerNight)) {
             // Check if the price is in the $_POST
             $slug = $this->forms->getElementById($pricePerNightElId, 'slug');
 
-            if($slug && !empty($_POST[$slug])){
+            if ($slug && !empty($_POST[$slug])) {
                 $pricePerNight  = sanitize_text_field(wp_unslash($_POST[$slug]));
             }else{
                 TSJIPPY\printArray("Price per night not found in submission with id {$this->forms->submission->id}");
                 return;
             }
         }
-        
+
         preg_match('/(.*?)([\d+|\.|,]+)/', "$pricePerNight", $matches);
         $amount             = $matches[2];
         $currency           = $matches[1];
