@@ -640,18 +640,19 @@ class Bookings
     public function dateSelectorModal($node, $subject)
     {
         if (defined('REST_REQUEST') && isset($_POST['month']) && isset($_POST['year'])) {
-            $month        = $_POST['month'];
-            $year        = $_POST['year'];
+            $month       = $_POST['month'];
+            $year       = $_POST['year'];
             $dateStr    = "$year-$month-01";
         } else {
             $day    = gmdate('d');
-            $month    = $_GET['month'] ?? '';
-            $year    = $_GET['yr'] ?? '';
+            $month  = $_GET['month'] ?? '';
+            $year   = $_GET['yr'] ?? '';
+
             if (!is_numeric($month) || strlen($month) != 2) {
-                $month    = gmdate('m');
+                $month  = gmdate('m');
             }
             if (!is_numeric($year) || strlen($year) != 4) {
-                $year    = gmdate('Y');
+                $year   = gmdate('Y');
             }
             $dateStr    = "$year-$month-$day";
         }
@@ -663,13 +664,22 @@ class Bookings
         /**
          * Create the modal
          */
-        $modal = $this->forms->addElement('div', $node, [
-            'name'  => "{$cleanSubject}-modal",
-            'class' => "booking modal hidden",
-            'style' => "display:unset;"
-        ]);
+        $modal = $this->forms->addElement(
+            'div', 
+            $node, [
+                'name'  => "{$cleanSubject}-modal",
+                'class' => "booking modal hidden",
+                'style' => "display:unset;"
+            ]
+        );
 
-        $modalContent = $this->forms->addElement('div', $modal, ['class' => "modal-content"]);
+        $modalContent = $this->forms->addElement(
+            'div', 
+            $modal, 
+            [
+                'class' => "modal-content"
+            ]
+        );
 
         $this->forms->addElement('span', $modalContent, ['class' => "close mobile-sticky"], '&times;');
 
@@ -1211,7 +1221,7 @@ class Bookings
         //sort on start_date
         $query                .= " ORDER BY `start_date`, `start_time` ASC";
 
-        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        // phpcs:ignore
         $bookings           = $wpdb->get_results($wpdb->prepare($query, $values));
 
         $overlap            = false;

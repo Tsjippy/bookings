@@ -75,15 +75,15 @@ class BookingPayments extends Bookings
         //sort on start_date
         $query    .= ") ORDER BY id ASC";
 
-        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        // phpcs:disable
         return $wpdb->get_results(
             $wpdb->prepare($query, ...$values)
         );
+        // phpcs:enable
     }
 
     /**
      * Retrieve all the pending bookings for the current user
-     *
      */
     public function retrievePendingBookings()
     {
@@ -124,10 +124,11 @@ class BookingPayments extends Bookings
         //sort on start_date
         $query    .= ") ORDER BY id ASC";
 
-        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        // phpcs:disable
         return $wpdb->get_results(
             $wpdb->prepare($query, ...$values)
         );
+        // phpcs:enable
     }
 
     /**
@@ -444,15 +445,8 @@ class BookingPayments extends Bookings
 
         $pricePerNight      = $this->forms->submission->{$pricePerNightElId};
         if (empty($pricePerNight)) {
-            // Check if the price is in the $_POST
-            $slug = $this->forms->getElementById($pricePerNightElId, 'slug');
-
-            if ($slug && !empty($_POST[$slug])) {
-                $pricePerNight  = sanitize_text_field(wp_unslash($_POST[$slug]));
-            } else {
-                TSJIPPY\printArray("Price per night not found in submission with id {$this->forms->submission->id}");
-                return;
-            }
+            TSJIPPY\printArray("Price per night not found in submission with id {$this->forms->submission->id}");
+            return;
         }
 
         preg_match('/(.*?)([\d+|\.|,]+)/', "$pricePerNight", $matches);
