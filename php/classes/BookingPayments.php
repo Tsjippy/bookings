@@ -1,15 +1,18 @@
 <?php
+
 namespace TSJIPPY\BOOKINGS;
+
 use TSJIPPY;
 use TSJIPPY\EVENTS;
 use TSJIPPY\FORMS;
 use WP_Error;
 
-if ( ! defined('ABSPATH')) {
+if (! defined('ABSPATH')) {
     exit;
 }
 
-class BookingPayments extends Bookings{
+class BookingPayments extends Bookings
+{
 
     /**
      * Retrieve all the unpaid bookings
@@ -17,7 +20,8 @@ class BookingPayments extends Bookings{
      * @param   bool    $onlyFinished       True to only return bookings that are finished
      * @param   bool    $all                Whether to get unpaid bookings for all users. Default false;
      */
-    public function retrieveUnPaidBookings($onlyFinished, $all=false) {
+    public function retrieveUnPaidBookings($onlyFinished, $all = false)
+    {
         global $wpdb;
 
         /**
@@ -25,7 +29,7 @@ class BookingPayments extends Bookings{
          */
         if (wp_doing_cron()) {
             $userId = '';
-        }else{
+        } else {
             $userId = $this->user->ID;
         }
         $this->getSubjectManagers($userId);
@@ -36,7 +40,7 @@ class BookingPayments extends Bookings{
 
         $query            = "SELECT * FROM %i WHERE (`paid` != 1 OR `paid` IS NULL)";
 
-        $values         = [ $this->tableName ];
+        $values         = [$this->tableName];
 
         // only show finished bookings
         if ($onlyFinished) {
@@ -47,7 +51,7 @@ class BookingPayments extends Bookings{
 
         if ($all) {
             $userId = '';
-        }else{
+        } else {
             $userId = $this->user->ID;
         }
 
@@ -60,12 +64,12 @@ class BookingPayments extends Bookings{
         foreach ($this->payables as $index => $subject) {
             if ($index == 0) {
                 $query    .= " AND (";
-            }else{
+            } else {
                 $query    .= " OR";
             }
 
             $query        .= " subject LIKE %s";
-            $values[]    = "%" .$wpdb->esc_like($subject). "%";
+            $values[]    = "%" . $wpdb->esc_like($subject) . "%";
         }
 
         //sort on start_date
@@ -74,14 +78,15 @@ class BookingPayments extends Bookings{
         // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         return $wpdb->get_results(
             $wpdb->prepare($query, ...$values)
-       );
+        );
     }
 
     /**
      * Retrieve all the pending bookings for the current user
      *
      */
-    public function retrievePendingBookings() {
+    public function retrievePendingBookings()
+    {
         global $wpdb;
 
         /**
@@ -108,12 +113,12 @@ class BookingPayments extends Bookings{
         foreach (array_keys($this->managers) as $index => $subject) {
             if ($index == 0) {
                 $query    .= " AND (";
-            }else{
+            } else {
                 $query    .= " OR";
             }
 
             $query        .= " subject LIKE %s";
-            $values[]    = "%" .$wpdb->esc_like($subject). "%";
+            $values[]    = "%" . $wpdb->esc_like($subject) . "%";
         }
 
         //sort on start_date
@@ -122,7 +127,7 @@ class BookingPayments extends Bookings{
         // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         return $wpdb->get_results(
             $wpdb->prepare($query, ...$values)
-       );
+        );
     }
 
     /**
@@ -133,7 +138,8 @@ class BookingPayments extends Bookings{
      *
      * @return  string                  The path to the pdf invoice
      */
-    protected function createInvoice($booking, $bookingEmail) {
+    protected function createInvoice($booking, $bookingEmail)
+    {
         // Create a PDF invoice if possible
         if (!class_exists('TSJIPPY\PDF\PdfHtml')) {
             return [];
@@ -145,7 +151,7 @@ class BookingPayments extends Bookings{
 
         $pdf->AddPage();
 
-        $pdf->setHeaderTitle("Guesthouse Invoice INV" .sprintf("%06d", $booking->id));
+        $pdf->setHeaderTitle("Guesthouse Invoice INV" . sprintf("%06d", $booking->id));
 
         $pdf->Header();
 
@@ -183,7 +189,7 @@ class BookingPayments extends Bookings{
         }
 
         // Save the pdf
-        $path   = get_temp_dir(). "Guesthouse Invoice INV{$booking->id}.pdf";
+        $path   = get_temp_dir() . "Guesthouse Invoice INV{$booking->id}.pdf";
 
         wp_delete_file($path);
 
@@ -192,12 +198,13 @@ class BookingPayments extends Bookings{
         return $path;
     }
 
-     /**
+    /**
      * Sends a reminder to the owner of a booking to pay for it
      */
-    public function sendPaymentReminders() {
+    public function sendPaymentReminders()
+    {
         // no form loaded, load them all, and send payment reminder for each of them
-         if (empty($this->forms->formData)) {
+        if (empty($this->forms->formData)) {
             $this->forms->getForms();
 
             // Send payment reminder for each form
@@ -259,7 +266,7 @@ class BookingPayments extends Bookings{
                 $nameElName = $this->forms->findUserNameElementName();
                 if ($nameElName) {
                     $slug   = $this->forms->submission->{$nameElName};
-                    $user   = (object) ['display_name' => $slug ];
+                    $user   = (object) ['display_name' => $slug];
                 }
 
                 // Find the phone number
@@ -280,7 +287,7 @@ class BookingPayments extends Bookings{
                     $elementId      = $this->forms->getElementBySlug($emailElName, 'id');
                     $email          = $this->forms->submission->{$elementId};
                 }
-            }else{
+            } else {
                 $user   = get_user($userId);
                 $email  = $user->user_email;
             }
@@ -325,7 +332,8 @@ class BookingPayments extends Bookings{
      *
      * @return  string                  The updated html for the buttons
      */
-    public function pendingButtons($buttonsHtml, $submission, $subId, $object) {
+    public function pendingButtons($buttonsHtml, $submission, $subId, $object)
+    {
         $buttonsHtml['approve'] = "<button class='button approve' type='button' data-submission-id='{$submission->id}' data-form-id='{$object->submission->form_id}'>Approve</button>";
         $buttonsHtml['delete']  = "<button class='button delete' type='button' data-submission-id='{$submission->id}' data-form-id='{$object->submission->form_id}'>Delete</button><br>";
         unset($buttonsHtml['archive']);
@@ -338,7 +346,8 @@ class BookingPayments extends Bookings{
      *
      * @param   string  $type       One of approval or payment to show bookings that are pending approval or pending payment
      */
-    public function pendingBookingsHtml($type='approval') {
+    public function pendingBookingsHtml($type = 'approval')
+    {
         /**
          * Only managers should see this
          */
@@ -352,7 +361,7 @@ class BookingPayments extends Bookings{
 
         if ($type == 'approval') {
             $bookings    = $this->retrievePendingBookings();
-        }else{
+        } else {
             $bookings    = $this->retrieveUnPaidBookings(true);
         }
 
@@ -360,7 +369,7 @@ class BookingPayments extends Bookings{
             return '';
         }
 
-        $html   = "<h4>Bookings Pending " .ucfirst($type). "</h4>";
+        $html   = "<h4>Bookings Pending " . ucfirst($type) . "</h4>";
 
         $submissions    = [];
 
@@ -408,7 +417,8 @@ class BookingPayments extends Bookings{
      *
      * @return  string                  The total amount due
      */
-    public function calculatePaymentAmount($startDates, $endDates) {
+    public function calculatePaymentAmount($startDates, $endDates)
+    {
         $startDates = TSJIPPY\cleanUpNestedArray($startDates);
         $endDates   = TSJIPPY\cleanUpNestedArray($endDates);
 
@@ -422,7 +432,7 @@ class BookingPayments extends Bookings{
         foreach ($startDates as $index => $startDate) {
             if (empty($endDates[$index])) {
                 $endDate    = array_values($endDates)[0]; // assume the end date is the same as the first given one
-            }else{
+            } else {
                 $endDate    = $endDates[$index];
             }
             $diff       = strtotime($endDate) - strtotime($startDate);
@@ -439,7 +449,7 @@ class BookingPayments extends Bookings{
 
             if ($slug && !empty($_POST[$slug])) {
                 $pricePerNight  = sanitize_text_field(wp_unslash($_POST[$slug]));
-            }else{
+            } else {
                 TSJIPPY\printArray("Price per night not found in submission with id {$this->forms->submission->id}");
                 return;
             }
@@ -450,7 +460,7 @@ class BookingPayments extends Bookings{
         $currency           = $matches[1];
 
         // Formatted number
-        $payable            = $currency.number_format(intval(str_replace(",", "", $amount)) * $nights, 2);
+        $payable            = $currency . number_format(intval(str_replace(",", "", $amount)) * $nights, 2);
 
         return $payable;
     }

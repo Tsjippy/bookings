@@ -1,8 +1,10 @@
 <?php
+
 namespace TSJIPPY\BOOKINGS;
+
 use TSJIPPY;
 
-if ( ! defined('ABSPATH')) {
+if (! defined('ABSPATH')) {
     exit;
 }
 
@@ -12,7 +14,8 @@ add_action('tsjippy-forms-extra-form-settings', __NAMESPACE__ . '\extraFormSetti
  *
  * @param   object  $object   The form object
  */
-function extraFormSettings($object) {
+function extraFormSettings($object)
+{
     // check if the form has a booking selector eement
     $bookingElements   = $object->getElementByType('booking-selector');
 
@@ -20,18 +23,20 @@ function extraFormSettings($object) {
         return;
     }
 
-    ?>
+?>
     <br>
     <h4>Payment Indicator Element</h4>
     <select name="payment-amount-el">
         <option value=''>---</option>
         <?php
         foreach ($object->formElements as $element) {
-            ?>
-            <option value='<?php echo esc_attr($element->id); ?>' <?php if ($object->formData->payment_indicator == $element->id) { echo 'selected'; } ?>>
+        ?>
+            <option value='<?php echo esc_attr($element->id); ?>' <?php if ($object->formData->payment_indicator == $element->id) {
+                                                                        echo 'selected';
+                                                                    } ?>>
                 <?php echo esc_html($element->name); ?>
             </option>
-            <?php
+        <?php
         }
         ?>
     </select>
@@ -42,11 +47,13 @@ function extraFormSettings($object) {
         <option value=''>---</option>
         <?php
         foreach ($object->formElements as $element) {
-            ?>
-            <option value='<?php echo esc_attr($element->id); ?>' <?php if ($object->formData->payment_amount_el == $element->id) { echo 'selected'; } ?>>
+        ?>
+            <option value='<?php echo esc_attr($element->id); ?>' <?php if ($object->formData->payment_amount_el == $element->id) {
+                                                                        echo 'selected';
+                                                                    } ?>>
                 <?php echo esc_html($element->name); ?>
             </option>
-            <?php
+        <?php
         }
         ?>
     </select>
@@ -57,11 +64,13 @@ function extraFormSettings($object) {
         <option value=''>---</option>
         <?php
         foreach ($object->formElements as $element) {
-            ?>
-            <option value='<?php echo esc_attr($element->id); ?>' <?php if ($object->formData->payment_details_el == $element->id) { echo 'selected'; } ?>>
+        ?>
+            <option value='<?php echo esc_attr($element->id); ?>' <?php if ($object->formData->payment_details_el == $element->id) {
+                                                                        echo 'selected';
+                                                                    } ?>>
                 <?php echo esc_html($element->name); ?>
             </option>
-            <?php
+        <?php
         }
         ?>
     </select>
@@ -72,15 +81,17 @@ function extraFormSettings($object) {
         <option value=''>---</option>
         <?php
         foreach ($object->formElements as $element) {
-            ?>
-            <option value='<?php echo esc_attr($element->id); ?>' <?php if ($object->formData->price_per_night_el == $element->id) { echo 'selected'; } ?>>
+        ?>
+            <option value='<?php echo esc_attr($element->id); ?>' <?php if ($object->formData->price_per_night_el == $element->id) {
+                                                                        echo 'selected';
+                                                                    } ?>>
                 <?php echo esc_html($element->name); ?>
             </option>
-            <?php
+        <?php
         }
         ?>
     </select>
-    <?php
+<?php
 }
 
 add_filter('tsjippy-forms-before-saving-settings', __NAMESPACE__ . '\beforeSavingSettings', 10, 3);
@@ -92,7 +103,8 @@ add_filter('tsjippy-forms-before-saving-settings', __NAMESPACE__ . '\beforeSavin
  *
  * @param   int     $formId    The id of the form being saved
  */
-function beforeSavingSettings($settings, $object, $formId) {
+function beforeSavingSettings($settings, $object, $formId)
+{
     $settings['payment_amount_el']    = is_numeric($_POST['payment-amount-el'] ?? '')   ? $_POST['payment-amount-el'] : false;
 
     $settings['payment_indicator']    = is_numeric($_POST['payment-amount-el'] ?? '')   ? $_POST['payment-amount-el'] : false;

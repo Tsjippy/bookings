@@ -1,12 +1,14 @@
 <?php
+
 namespace TSJIPPY\BOOKINGS;
+
 use TSJIPPY;
 
 /**
  * The Template for displaying all single books
  */
 
-if ( ! defined('ABSPATH')) {
+if (! defined('ABSPATH')) {
     exit; // Exit if accessed directly.
 }
 

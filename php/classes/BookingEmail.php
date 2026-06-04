@@ -1,17 +1,21 @@
 <?php
+
 namespace TSJIPPY\BOOKINGS;
+
 use TSJIPPY;
 use TSJIPPY\ADMIN;
 
-if ( ! defined('ABSPATH')) {
+if (! defined('ABSPATH')) {
     exit;
 }
 
-class BookingEmail extends ADMIN\MailSetting{
+class BookingEmail extends ADMIN\MailSetting
+{
     public object $booking;
     public array $paymentDetailsRows;
 
-    public function __construct(object $booking) {
+    public function __construct(object $booking)
+    {
         $this->booking              = $booking;
         $this->paymentDetailsRows   = [];
 
@@ -20,7 +24,7 @@ class BookingEmail extends ADMIN\MailSetting{
 
         $this->replaceArray['%id%']                         = $this->booking->id;
         $this->replaceArray['%subject%']                    = $this->booking->subject;
-        $this->replaceArray['%duration%']                   = "from " .gmdate(DATEFORMAT, strtotime($this->booking->start_date)). " till " .gmdate(DATEFORMAT, strtotime($this->booking->end_date));
+        $this->replaceArray['%duration%']                   = "from " . gmdate(DATEFORMAT, strtotime($this->booking->start_date)) . " till " . gmdate(DATEFORMAT, strtotime($this->booking->end_date));
         $this->replaceArray['%payable%']                    = '';
         $this->replaceArray['%payment_details%']            = '';
         $this->replaceArray['%price_per_night%']            = '';
@@ -36,7 +40,8 @@ class BookingEmail extends ADMIN\MailSetting{
         $this->defaultMessage     .= '%payment_details%<br>';
     }
 
-    public function loadBookings() {
+    public function loadBookings()
+    {
         if (!isset($this->booking->submission_id)) {
             return;
         }
@@ -78,7 +83,7 @@ class BookingEmail extends ADMIN\MailSetting{
         if (!empty($rooms)) {
             if (count($rooms) == 1) {
                 $this->replaceArray['%subject%']   .= " room " . array_values($rooms)[0];
-            }else{
+            } else {
                 $rooms  = implode('&', $rooms);
                 $this->replaceArray['%subject%']   .= " rooms $rooms";
             }
@@ -114,17 +119,17 @@ class BookingEmail extends ADMIN\MailSetting{
         $this->paymentDetailsRows   = explode("\n",  $paymentDetails);
 
         $table  = '<table border="1" style="padding: 5px;border: none;">';
-            foreach ($this->paymentDetailsRows  as $row) {
-                $cols   = explode(":", $row);
-                $table  .= '<tr>';
-                    $table  .= "<td style='border: none;width: 120px;'>";
-                        $table  .= "<b>" .trim($cols[0]). "</b>";
-                    $table  .= "</td>";
-                    $table  .= "<td style='border: none;'>";
-                        $table  .= trim($cols[1]);
-                    $table  .= "</td>";
-                $table  .= "</tr>";
-            }
+        foreach ($this->paymentDetailsRows  as $row) {
+            $cols   = explode(":", $row);
+            $table  .= '<tr>';
+            $table  .= "<td style='border: none;width: 120px;'>";
+            $table  .= "<b>" . trim($cols[0]) . "</b>";
+            $table  .= "</td>";
+            $table  .= "<td style='border: none;'>";
+            $table  .= trim($cols[1]);
+            $table  .= "</td>";
+            $table  .= "</tr>";
+        }
         $table  .= '</table>';
 
         $this->replaceArray['%payment_details%']    = $table;

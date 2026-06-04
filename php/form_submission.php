@@ -1,8 +1,10 @@
 <?php
+
 namespace TSJIPPY\BOOKINGS;
+
 use TSJIPPY;
 
-if ( ! defined('ABSPATH')) {
+if (! defined('ABSPATH')) {
     exit;
 }
 
@@ -22,7 +24,8 @@ add_filter('tsjippy_before_inserting_formdata', __NAMESPACE__ . '\beforeSavingFo
  *
  * @return object The updated form submission or an error
  */
-function beforeSavingFormData($submission, $object) {
+function beforeSavingFormData($submission, $object)
+{
     $bookings                   = new BookingPayments($object);
 
     // Check if this is a form with a booking selector
@@ -108,7 +111,7 @@ function beforeSavingFormData($submission, $object) {
                 !empty($subject['rooms'])   &&          // and the subject has a key called rooms
                 count($subject['rooms']) > 1 &&         // and there is more than 1 room for this subject
                 empty($rooms)                           // but there is no room selected
-           ) {
+            ) {
                 return new \WP_Error('bookings', "Please select a room");
             }
         }
@@ -141,7 +144,8 @@ add_filter('tsjippy_after_form_submission', __NAMESPACE__ . '\afterFormSubmissio
  *
  * @return string The updated message
  */
-function afterFormSubmission($message, $submission, $object) {
+function afterFormSubmission($message, $submission, $object)
+{
     $startDates = [];
     if (isset($submission['booking-start-date'])) {
         $startDates = (array)$submission['booking-start-date'];
@@ -187,7 +191,7 @@ function afterFormSubmission($message, $submission, $object) {
                     return $result;
                 }
             }
-        }else{
+        } else {
             // Create a booking
             $result         = $bookings->insertBooking($startDates[0], $endDates[0], $subject, '', $submissionId);
 

@@ -1,8 +1,10 @@
 <?php
+
 namespace TSJIPPY\BOOKINGS;
+
 use TSJIPPY;
 
-if ( ! defined('ABSPATH')) {
+if (! defined('ABSPATH')) {
     exit;
 }
 
@@ -18,11 +20,11 @@ add_filter('tsjippy-forms-transform-array', __NAMESPACE__ . '\transformArray', 1
  *
  * @return string The updated string
  */
-function transformArray($string, $replaceValue, $forms, $match) {
+function transformArray($string, $replaceValue, $forms, $match)
+{
     if (count(array_unique($replaceValue)) == 1) {
         $string = array_unique($replaceValue)[0];
-    }else{
-
+    } else {
     }
     return $string;
 }
@@ -34,7 +36,8 @@ add_action('tsjippy-add-email-placeholder-option', __NAMESPACE__ . '\placeholder
  *
  * @param object $formBuilderForm The form builder form object
  */
-function placeholderOption($formBuilderForm) {
+function placeholderOption($formBuilderForm)
+{
     if ($formBuilderForm->getElementByType('booking-selector')) {
         echo "<option>%booking-start-date%</option>";
         echo "<option>%booking-end-date%</option>";
@@ -59,14 +62,15 @@ add_filter('tsjippy-forms-transform-empty', __NAMESPACE__ . '\transformEmpty', 1
  *
  * @return string The updated value
  */
-function transformEmpty($replaceValue, $match, $replaceValues, $instance) {
+function transformEmpty($replaceValue, $match, $replaceValues, $instance)
+{
     if (
         $match != "booking-details" ||
         (
             empty($_POST['booking-start-date']) &&
             empty($replaceValues['booking-start-date'])
-       )
-   ) {
+        )
+    ) {
         return $replaceValue;
     }
 
@@ -74,7 +78,7 @@ function transformEmpty($replaceValue, $match, $replaceValues, $instance) {
         $startDates     = (array)$replaceValues['booking-start-date'];
         $endDates       = (array)$replaceValues['booking-end-date'];
         $rooms          = (array)$replaceValues['booking-rooms'];
-    }else{
+    } else {
         $startDates     = $_POST['booking-start-date'];
         $endDates       = $_POST['booking-end-date'];
         $rooms          = (array)$_POST['booking-rooms'];
@@ -85,7 +89,7 @@ function transformEmpty($replaceValue, $match, $replaceValues, $instance) {
         $startDate      = gmdate(DATEFORMAT, strtotime((string)$startDates[0]));
         $endDate        = gmdate(DATEFORMAT, strtotime((string)$endDates[0]));
         $replaceValue   = "from $startDate till $endDate";
-    }else{
+    } else {
         if (count(array_unique($startDates)) == 1 && count(array_unique($endDates)) == 1) {
             $startDate      = array_values($startDates)[0];
             $endDate        = array_values($endDates)[0];
@@ -93,7 +97,7 @@ function transformEmpty($replaceValue, $match, $replaceValues, $instance) {
             $startDate      = gmdate(DATEFORMAT, strtotime((string)$startDate));
             $endDate        = gmdate(DATEFORMAT, strtotime((string)$endDate));
             $replaceValue   = "room $rooms from $startDate till $endDate";
-        }else{
+        } else {
             $replaceValue   = "room:<br>";
             foreach ($rooms as $room) {
                 $startDate      = gmdate(DATEFORMAT, strtotime((string)$startDates[$room]));

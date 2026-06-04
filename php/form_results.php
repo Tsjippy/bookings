@@ -1,8 +1,10 @@
 <?php
+
 namespace TSJIPPY\BOOKINGS;
+
 use TSJIPPY;
 
-if ( ! defined('ABSPATH')) {
+if (! defined('ABSPATH')) {
     exit;
 }
 
@@ -12,7 +14,8 @@ add_action('tsjippy-formstable-after-table-settings', __NAMESPACE__ . '\tableSet
  * Add the option to choose between table view and calendar view in the form results
  * @param    object    $displayFormResults    The current instance of the form table class, can be used to get more information about the form and the user to decide which options to show
  */
-function tableSettings($displayFormResults) {
+function tableSettings($displayFormResults)
+{
     // Check if it has an booking selector
     if (empty($displayFormResults->getElementByType('booking-selector'))) {
         return;
@@ -23,22 +26,26 @@ function tableSettings($displayFormResults) {
         $setting    = $displayFormResults->tableSettings->booking_display;
     }
 
-    ?>
+?>
     <div class="table-rights-wrapper">
         <label>
             Select if you want to see the bookings as table or as calendar
         </label>
         <br>
         <label>
-            <input type='radio' name='table-settings[booking-display]' value='table' <?php if ($setting == 'table') {echo 'checked';}?>>
+            <input type='radio' name='table-settings[booking-display]' value='table' <?php if ($setting == 'table') {
+                                                                                            echo 'checked';
+                                                                                        } ?>>
             Table
         </label>
         <label>
-            <input type='radio' name='table-settings[booking-display]' value='calendar'<?php if ($setting == 'calendar') {echo 'checked';}?>>
+            <input type='radio' name='table-settings[booking-display]' value='calendar' <?php if ($setting == 'calendar') {
+                                                                                            echo 'checked';
+                                                                                        } ?>>
             Calendar
         </label>
     </div>
-    <?php
+<?php
 }
 
 // give table view permissions if we are a subject manager
@@ -48,7 +55,8 @@ add_filter('tsjippy-table-edit-permissions', __NAMESPACE__ . '\changeTableViewPe
  * @param    bool    $tableViewPermissions    Whether or not the user has permissions to view the table, default false
  * @param    object    $object                    The current instance of the form table class, can be used to get more information about the form and the user to decide whether or not to give permissions
  */
-function changeTableViewPermissions($tableViewPermissions, $object) {
+function changeTableViewPermissions($tableViewPermissions, $object)
+{
     if ($tableViewPermissions) {
         return $tableViewPermissions;
     }
@@ -83,17 +91,18 @@ add_filter('tsjippy-formstable-should-show', __NAMESPACE__ . '\shouldShow', 10, 
  * @param    object    $displayFormResults        The current instance of the form table class, can be used to get more information about the form and the user to decide whether or not to show the table
  * @param    string    $type                    The type of results that would be shown, either 'own', 'others' or 'all'
  */
-function shouldShow($shouldShow, $displayFormResults, $type) {
+function shouldShow($shouldShow, $displayFormResults, $type)
+{
     // Check if we should show the table view
     if (
         !isset($displayFormResults->tableSettings->booking_display)   ||          // no option choosen
         (
             isset($displayFormResults->tableSettings->booking_display) &&         // option chosen
             $displayFormResults->tableSettings->booking_display != 'calendar'     // but choose table view
-       )      ||
+        )      ||
         isset($_REQUEST['export-xls'])  ||                                          // exporting an excel
         isset($_REQUEST['export-pdf'])                                              // exporting a pdf
-   ) {
+    ) {
         return $shouldShow;
     }
 
@@ -146,99 +155,99 @@ function shouldShow($shouldShow, $displayFormResults, $type) {
 
     $html   .= '<div class="tables-wrapper">';
 
-        $calendars  = '';
-        $subjects   = [];
+    $calendars  = '';
+    $subjects   = [];
 
-        // Find the subject names
-        foreach ($elements as $element) {
-            foreach ($bookings->getElementSubjects($element->id) as $subject) {
-                // Only show the subjects we are manager of
-                if (!is_array($subject['managers']) || !in_array($bookings->user->ID, $subject['managers'])) {
-                    continue;
-                }
-
-                $subjects[]   = $subject;
-            }
-        }
-
-        /**
-         * Display a list of bookings
-         */
-        if ($type == 'own') {
-
-            // Pending bookings
-            $html       .= $bookings->pendingBookingsHtml('approval');
-            $html       .= $bookings->pendingBookingsHtml('payment');
-
-            // Get the bookings for the current user
-            $displayFormResults->parseSubmissions($bookings->user->ID);
-
-            if (empty($displayFormResults->submissions)) {
-                return $html. "You do not have any bookings. ";
+    // Find the subject names
+    foreach ($elements as $element) {
+        foreach ($bookings->getElementSubjects($element->id) as $subject) {
+            // Only show the subjects we are manager of
+            if (!is_array($subject['managers']) || !in_array($bookings->user->ID, $subject['managers'])) {
+                continue;
             }
 
-            $html       .= "<h4>Your Current Bookings</h4>";
-            $html       .= "<div class='details-wrapper' style='max-width:500px;display:flex;'>";
+            $subjects[]   = $subject;
+        }
+    }
 
-                foreach ($displayFormResults->submissions as $submission) {
-                    $result = $bookings->getBookingsBySubmission($submission->id);
+    /**
+     * Display a list of bookings
+     */
+    if ($type == 'own') {
 
-                    if (is_array($result)) {
-                        // We only need the details for the first booking of each submission
-                        $html   .= $bookings->submissionDetails($result[0], $submission, false);
-                    }
-                }
-            $html       .= '</div>';
+        // Pending bookings
+        $html       .= $bookings->pendingBookingsHtml('approval');
+        $html       .= $bookings->pendingBookingsHtml('payment');
 
-            return $html. '</div>';
+        // Get the bookings for the current user
+        $displayFormResults->parseSubmissions($bookings->user->ID);
+
+        if (empty($displayFormResults->submissions)) {
+            return $html . "You do not have any bookings. ";
         }
 
-        // Only show subject selection if there is something to choose
-        $checkboxes = '';
+        $html       .= "<h4>Your Current Bookings</h4>";
+        $html       .= "<div class='details-wrapper' style='max-width:500px;display:flex;'>";
+
+        foreach ($displayFormResults->submissions as $submission) {
+            $result = $bookings->getBookingsBySubmission($submission->id);
+
+            if (is_array($result)) {
+                // We only need the details for the first booking of each submission
+                $html   .= $bookings->submissionDetails($result[0], $submission, false);
+            }
+        }
+        $html       .= '</div>';
+
+        return $html . '</div>';
+    }
+
+    // Only show subject selection if there is something to choose
+    $checkboxes = '';
+    if (count($subjects) > 1) {
+        $checkboxes = '<h4>Please select the calendar you like to see</h4>';
+    }
+
+    foreach ($subjects as $subject) {
+        $bookings->bookings  = [];   // reset the bookings so they do not include the previous location
+
+        $checked    = '';
+        $hidden     = true;
+        if ($subject['name'] == $bookedSubject || count($subjects) == 1) {
+            $checked    = 'checked';
+            $hidden     = false;
+        }
+
+        $cleanSubject   = trim($subject['name']);
+
         if (count($subjects) > 1) {
-            $checkboxes = '<h4>Please select the calendar you like to see</h4>';
+            $checkboxes .= "<label>";
+            $checkboxes .= "<input type='checkbox' class='admin-booking-subject-selector' value='$cleanSubject' $checked>";
+            $checkboxes .= $cleanSubject;
+            $checkboxes .= "</label>";
         }
 
-        foreach ($subjects as $subject) {
-            $bookings->bookings  = [];   // reset the bookings so they do not include the previous location
+        $calendars  .= $bookings->modalContent('', $subject, $targetDate, true, $hidden, true);
+    }
 
-            $checked    = '';
-            $hidden     = true;
-            if ($subject['name'] == $bookedSubject || count($subjects) == 1) {
-                $checked    = 'checked';
-                $hidden     = false;
-            }
+    $html   .= '<div class="form-data-table">';
+    $html   .= $checkboxes;
+    $html   .= $calendars;
+    $html   .= "</div>";
 
-            $cleanSubject   = trim($subject['name']);
-
-            if (count($subjects) > 1) {
-                $checkboxes .= "<label>";
-                    $checkboxes .= "<input type='checkbox' class='admin-booking-subject-selector' value='$cleanSubject' $checked>";
-                    $checkboxes .= $cleanSubject;
-                $checkboxes .= "</label>";
-            }
-
-            $calendars  .= $bookings->modalContent('', $subject, $targetDate, true, $hidden, true);
+    // Export buttons
+    if (array_intersect($bookings->forms->userRoles, array_keys($bookings->forms->tableSettings->view_right_roles))) {
+        $html   .= "<div>";
+        $html   .= "<form method='post' class='export-form' id='export-xls'>";
+        $html   .= "<button class='button button-primary' type='submit' name='export-xls'>Export data to excel</button>'";
+        $html   .= "</form>";
+        if (SETTINGS['pdf'] ?? false) {
+            $html   .= "<form method='post' class='export-form' id='export-pdf'>";
+            $html   .= "<button class=button button-primary type='submit' name='export-pdf'>Export data to pdf</button>";
+            $html   .= "</form>";
         }
-
-        $html   .= '<div class="form-data-table">';
-            $html   .= $checkboxes;
-            $html   .= $calendars;
         $html   .= "</div>";
-
-        // Export buttons
-        if (array_intersect($bookings->forms->userRoles, array_keys($bookings->forms->tableSettings->view_right_roles))) {
-            $html   .= "<div>";
-                $html   .= "<form method='post' class='export-form' id='export-xls'>";
-                    $html   .= "<button class='button button-primary' type='submit' name='export-xls'>Export data to excel</button>'";
-                $html   .= "</form>";
-                if (SETTINGS['pdf'] ?? false) {
-                    $html   .= "<form method='post' class='export-form' id='export-pdf'>";
-                        $html   .= "<button class=button button-primary type='submit' name='export-pdf'>Export data to pdf</button>";
-                    $html   .= "</form>";
-                }
-            $html   .= "</div>";
-        }
+    }
     $html   .= '</div>';
 
     return $html;
@@ -253,7 +262,8 @@ add_filter('tsjippy_form_actions_html', __NAMESPACE__ . '\actionHtml', 10, 4);
  * @param    int        $index        The index of the submission in the table, can be used to decide whether or not to change the buttons
  * @param    object    $instance    The current instance of the form table class, can be used to get more information about the form and the user to decide whether or not to change the buttons
  */
-function actionHtml($buttonsHtml, $submission, $index, $instance) {
+function actionHtml($buttonsHtml, $submission, $index, $instance)
+{
     if (get_class($instance) != 'TSJIPPY\BOOKINGS\Bookings' || !isset($buttonsHtml['archive'])) {
         return $buttonsHtml;
     }
@@ -306,7 +316,8 @@ add_filter('tsjippy_retrieved_formdata', __NAMESPACE__ . '\formdataRetrieved', 1
  * used to get more information about the form and the user to decide how to alter the data
  * @return array   The altered form submissions
  */
-function formdataRetrieved($submissions, $userId, $object) {
+function formdataRetrieved($submissions, $userId, $object)
+{
     $bookingSelectors   = $object->getElementByType('booking-selector');
     if (!$bookingSelectors) {
         return $submissions;
@@ -387,7 +398,7 @@ function formdataRetrieved($submissions, $userId, $object) {
 
         if (empty($bookingSelector)) {
             TSJIPPY\printArray($bookingSelectors);
-        }else{
+        } else {
             // loop over all submissions
             foreach ($submissions as $index => $submission) {
                 // remove any submission not belonging to the $subjectsToKeep
@@ -396,7 +407,7 @@ function formdataRetrieved($submissions, $userId, $object) {
                     !in_array($submission->{$bookingSelector->slug}, $subjectsToKeep)    &&  // Not managed by us
                     $submission->user_id    != $booker->user->ID                      // Not our own sumissionn
 
-               ) {
+                ) {
                     unset($submissions[$index]);
                 }
             }
@@ -418,8 +429,9 @@ add_filter('tsjippy_formdata_retrieval_query', __NAMESPACE__ . '\alterQuery', 10
  * to get more information about the form and the user to decide how to alter the query
  * @return array   The altered query params
  */
-function alterQuery($params, $userId, $instance) {
-    if ( empty($instance->getElementByType('booking-selector'))) {
+function alterQuery($params, $userId, $instance)
+{
+    if (empty($instance->getElementByType('booking-selector'))) {
         return $params;
     }
 
@@ -429,14 +441,14 @@ function alterQuery($params, $userId, $instance) {
     if (
         isset($params['values'][2]) &&
         intval($params['values'][2]) < -101
-   ) {
+    ) {
         $elementId      = $params['values'][2];
         $submissionId   = $_POST['submission-id'];
         if (!is_numeric($submissionId)) {
             return $params;
         }
 
-        switch($elementId) {
+        switch ($elementId) {
             case -102:
                 $column = 'start_date';
                 break;
@@ -469,7 +481,7 @@ function alterQuery($params, $userId, $instance) {
     elseif (
         !in_array("S.id=%d", $params['where']) &&
         !in_array("submission_id = %d", $params['where'])
-   ) {
+    ) {
         $params['where'][] .= "S.id IN(SELECT submission_id FROM %i WHERE end_date >= %s ORDER BY 'start_date')";
         $params['values'][] = $bookings->tableName;
         $params['values'][] = gmdate('Y-m-d');
@@ -490,15 +502,16 @@ add_filter('tsjippy-forms-should-update-form-data', __NAMESPACE__ . '\updateBook
  * @param    object    $instance        The current instance of the form table class, can be used to get more information about the form and the user to decide whether or not to update the booking data
  * @return bool    Return false if you have already updated the data yourself and do not want the default update to run, return true if you want the default update process to run after this function
  */
-function updateBookingData($shouldContinue, $elementId, $submissionId, $subId, $value, $instance) {
+function updateBookingData($shouldContinue, $elementId, $submissionId, $subId, $value, $instance)
+{
     // Change to paid / unpaid
     $paymentIndicatorElId    = $instance->formData->payment_indicator;
 
-    if ( $elementId > -102 && $elementId != $paymentIndicatorElId) {
+    if ($elementId > -102 && $elementId != $paymentIndicatorElId) {
         return $shouldContinue;
     }
 
-    switch($elementId) {
+    switch ($elementId) {
         // Mark as paid if the payment status changed to paid or free
         case $paymentIndicatorElId:
             $column = 'paid';
@@ -538,7 +551,7 @@ function updateBookingData($shouldContinue, $elementId, $submissionId, $subId, $
             empty($subId) ||
             $booking->room == $subId &&
             $value != $booking->$column
-       ) {
+        ) {
             $bookings->updateBooking($booking, [$column => $value], true);
 
             $booking->{$column} = $value;
@@ -550,7 +563,7 @@ function updateBookingData($shouldContinue, $elementId, $submissionId, $subId, $
     }
 
     // Update the amount to be paid if start_date or end_date are changed
-    if ( $elementId == -102 || $elementId == -103) {
+    if ($elementId == -102 || $elementId == -103) {
         $amount             = $bookings->calculatePaymentAmount($startDates, $endDates);
 
         $paymentAmountElId  = $bookings->forms->formData->payment_amount_el;
@@ -558,7 +571,7 @@ function updateBookingData($shouldContinue, $elementId, $submissionId, $subId, $
         if (!empty($paymentAmountElId)) {
             /**
              * @disregard P1013
-            */
+             */
             $result = $bookings->forms->updateSubmission($paymentAmountElId, $amount);
 
             if (is_wp_error($result)) {

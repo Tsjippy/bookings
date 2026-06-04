@@ -1,4 +1,5 @@
 <?php
+
 namespace TSJIPPY\BOOKINGS;
 
 use PHP_CodeSniffer\Standards\PSR2\Sniffs\Methods\FunctionCallSignatureSniff;
@@ -8,11 +9,12 @@ use TSJIPPY\ADMIN;
 use function TSJIPPY\addElement;
 use function TSJIPPY\addRawHtml;
 
-if ( ! defined('ABSPATH')) {
+if (! defined('ABSPATH')) {
     exit;
 }
 
-class AdminMenu extends ADMIN\SubAdminMenu{
+class AdminMenu extends ADMIN\SubAdminMenu
+{
 
     /**
      * AdminMenu constructor.
@@ -20,20 +22,23 @@ class AdminMenu extends ADMIN\SubAdminMenu{
      * @param array $settings The settings for the plugin
      * @param string $name The name of the plugin
      */
-    public function __construct($settings, $name) {
+    public function __construct($settings, $name)
+    {
         parent::__construct($settings, $name);
     }
 
-    public function settings($parent) {
+    public function settings($parent)
+    {
         $this->recurrenceSelector('payment-reminder-freq', $this->settings['payment-reminder-freq'] ?? '', 'How often should people be reminded to pay?', $parent);
 
         return true;
     }
 
-    public function emails($parent) {
+    public function emails($parent)
+    {
         ob_start();
 
-        ?>
+?>
         <h4>
             Define the e-mail people get when they still need to pay for some booking(s).
         </h4>
@@ -46,12 +51,12 @@ class AdminMenu extends ADMIN\SubAdminMenu{
                 "end_date"        => "2000-01-01",
                 "payable"        => "$23"
             ]
-       );
+        );
         $emails->printPlaceholders();
         ?>
 
         <h4>Payment Reminder E-mail</h4>
-        <?php
+<?php
 
         $emails->printInputs();
 
@@ -60,12 +65,14 @@ class AdminMenu extends ADMIN\SubAdminMenu{
         return true;
     }
 
-    public function data($parent='') {
+    public function data($parent = '')
+    {
 
         return false;
     }
 
-    public function functions($parent) {
+    public function functions($parent)
+    {
 
         return false;
     }
@@ -73,8 +80,9 @@ class AdminMenu extends ADMIN\SubAdminMenu{
     /**
      * Schedules the tasks for this plugin
      *
-    */
-    public function postSettingsSave() {
+     */
+    public function postSettingsSave()
+    {
         scheduleTasks();
     }
 }

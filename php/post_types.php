@@ -1,13 +1,16 @@
 <?php
+
 namespace TSJIPPY\BOOKINGS;
+
 use TSJIPPY;
 
-if ( ! defined('ABSPATH')) {
+if (! defined('ABSPATH')) {
     exit;
 }
 
 add_action('init', __NAMESPACE__ . '\addEventPostType', 999);
-function addEventPostType() {
+function addEventPostType()
+{
     TSJIPPY\registerPostTypeAndTax('booking-subject', 'booking-subjects');
     TSJIPPY\registerPostTypeAndTax('booking-room', 'booking-rooms');
 }
@@ -20,7 +23,8 @@ add_filter('tsjippy-template-filter', __NAMESPACE__ . '\changeTemplatePath');
  *
  * @return string The altered template file path
  */
-function  changeTemplatePath($templateFile) {
+function  changeTemplatePath($templateFile)
+{
     $templateFile   = str_replace('/tsjippy-booking-subjects/', '/tsjippy-bookings/', $templateFile);
     $templateFile   = str_replace('/tsjippy-booking-room/', '/tsjippy-bookings/', $templateFile);
 

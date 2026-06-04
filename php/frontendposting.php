@@ -1,8 +1,10 @@
 <?php
+
 namespace TSJIPPY\BOOKINGS;
+
 use TSJIPPY;
 
-if ( ! defined('ABSPATH')) {
+if (! defined('ABSPATH')) {
     exit;
 }
 
@@ -12,18 +14,19 @@ add_action('tsjippy_frontend_post_content_title', __NAMESPACE__ . '\contentTitle
  *
  * @param string $postType The post type
  */
-function contentTitle($postType) {
+function contentTitle($postType)
+{
     // Book content title
     $class = 'property booking-subject';
     if ($postType != 'booking-subject') {
         $class .= ' hidden';
     }
 
-    ?>
-    <h4 class='<?php echo esc_attr($class);?>' name='location-content-label'>
+?>
+    <h4 class='<?php echo esc_attr($class); ?>' name='location-content-label'>
         Please describe the location
     </h4>
-    <?php
+<?php
 }
 
 add_filter('tsjippy-frontendcontent-posttype', __NAMESPACE__ . '\filterPostType');
@@ -34,7 +37,8 @@ add_filter('tsjippy-frontendcontent-posttype', __NAMESPACE__ . '\filterPostType'
  *
  * @return string The filtered post type
  */
-function filterPostType($postType) {
+function filterPostType($postType)
+{
     if ($postType == 'booking-subject' || $postType == 'booking-room') {
         return 'page';
     }
@@ -49,7 +53,8 @@ add_filter('tsjippy_frontend_post_types_and_tax', __NAMESPACE__ . '\filterPostTy
  *
  * @return array The filtered post types
  */
-function filterPostTypes($postTypes) {
+function filterPostTypes($postTypes)
+{
     unset($postTypes['booking-subject']);
     unset($postTypes['booking-room']);
 

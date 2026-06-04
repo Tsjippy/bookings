@@ -1,8 +1,10 @@
 <?php
+
 namespace TSJIPPY\BOOKINGS;
+
 use TSJIPPY;
 
-if ( ! defined('ABSPATH')) {
+if (! defined('ABSPATH')) {
     exit;
 }
 
@@ -15,19 +17,21 @@ add_filter('tsjippy_allowed_rest_api_urls', __NAMESPACE__ . '\allowedRestApiUrls
  *
  * @return array    The updated list of allowed REST API URLs
  */
-function allowedRestApiUrls($urls) {
-    $urls[]    = RESTAPIPREFIX. '/bookings/get_next_month';
-    $urls[]    = RESTAPIPREFIX. '/bookings/remove';
-    $urls[]    = RESTAPIPREFIX. '/bookings/load_post';
+function allowedRestApiUrls($urls)
+{
+    $urls[]    = RESTAPIPREFIX . '/bookings/get_next_month';
+    $urls[]    = RESTAPIPREFIX . '/bookings/remove';
+    $urls[]    = RESTAPIPREFIX . '/bookings/load_post';
 
     return $urls;
 }
 
 add_action('rest_api_init', __NAMESPACE__ . '\restapiInit');
-function restapiInit() {
+function restapiInit()
+{
     // Next month
     register_rest_route(
-        RESTAPIPREFIX. '/bookings',
+        RESTAPIPREFIX . '/bookings',
         '/get_next_month',
         array(
             'methods'                 => 'POST',
@@ -39,23 +43,23 @@ function restapiInit() {
                     'validate_callback' => function ($month) {
                         return is_numeric($month);
                     }
-               ),
+                ),
                 'year'        => array(
                     'required'    => true,
                     'validate_callback' => function ($year) {
                         return is_numeric($year);
                     }
-               ),
+                ),
                 'subject'        => array(
                     'required'    => true
-               )
-           )
-       )
-   );
+                )
+            )
+        )
+    );
 
     // Approve pending booking
     register_rest_route(
-        RESTAPIPREFIX. '/bookings',
+        RESTAPIPREFIX . '/bookings',
         '/approve',
         array(
             'methods'                 => 'POST',
@@ -80,14 +84,14 @@ function restapiInit() {
                     'validate_callback' => function ($bookingId) {
                         return is_numeric($bookingId);
                     }
-               )
-           )
-       )
-   );
+                )
+            )
+        )
+    );
 
     // Delete a booking
     register_rest_route(
-        RESTAPIPREFIX. '/bookings',
+        RESTAPIPREFIX . '/bookings',
         '/remove',
         array(
             'methods'                 => 'POST',
@@ -109,14 +113,14 @@ function restapiInit() {
                     'validate_callback' => function ($bookingId) {
                         return is_numeric($bookingId);
                     }
-               )
-           )
-       )
-   );
+                )
+            )
+        )
+    );
 
     // Load room and subject pages
     register_rest_route(
-        RESTAPIPREFIX. '/bookings',
+        RESTAPIPREFIX . '/bookings',
         '/load_post',
         array(
             'methods'                 => 'POST',
@@ -128,14 +132,15 @@ function restapiInit() {
                     'validate_callback' => function ($postId) {
                         return is_numeric($postId);
                     }
-               )
-           )
-       )
-   );
+                )
+            )
+        )
+    );
 }
 
 
-function getNextMonth() {
+function getNextMonth()
+{
     $bookings    = new Bookings();
 
     $bookings->forms->getForm((int) $_POST['form-id']);
@@ -144,7 +149,7 @@ function getNextMonth() {
 
     if (isset($_POST['element-id']) && is_numeric($_POST['element-id'])) {
         $element                        = $bookings->forms->getElementById((int) $_POST['element-id']);
-    }else{
+    } else {
         foreach ($bookings->forms->formElements as $element) {
             if ($element->type == 'booking-selector') {
                 break;
@@ -154,7 +159,7 @@ function getNextMonth() {
     $bookings->forms->currentElement    = $element;
 
     $subjectName    = sanitize_text_field(wp_unslash($_POST['subject']));
-    $date            = strtotime((int)$_POST['year']. '-' .(int)$_POST['month']. '-01');
+    $date            = strtotime((int)$_POST['year'] . '-' . (int)$_POST['month'] . '-01');
 
     $months            = [];
     foreach ($bookings->getElementSubjects($element->id) as $subject) {
@@ -165,16 +170,16 @@ function getNextMonth() {
                     for ($x = 0; $x < $subject['amount']; $x++) {
                         $months[]    = $bookings->monthCalendar($subject['name'], $alphabet[$x], $date);
                     }
-                }elseif (isset($subject['nrtype']) && $subject['nrtype'] == 'custom') {
+                } elseif (isset($subject['nrtype']) && $subject['nrtype'] == 'custom') {
                     foreach ($subject['rooms'] as $room) {
                         $months[]    = $bookings->monthCalendar($subject['name'], $room, $date);
                     }
-                }else{
+                } else {
                     for ($x = 1; $x <= $subject['amount']; $x++) {
                         $months[]    = $bookings->monthCalendar($subject['name'], $x, $date);
                     }
                 }
-            }else{
+            } else {
                 $months[]    = $bookings->monthCalendar($subject['name'], '', $date);
             }
         }
@@ -187,7 +192,7 @@ function getNextMonth() {
      */
     if (isset($_POST['type']) && $_POST['type'] == 'prev') {
         $navDate    = $date;
-    }else{
+    } else {
         $navDate    = strtotime('-1 month', $date);
     }
     $navigator    = $bookings->getNavigator($navDate);
@@ -219,7 +224,8 @@ function getNextMonth() {
  *
  * @return bool|\WP_Error    True if the booking was approved successfully, WP_Error otherwise
  */
-function approveBooking($rest) {
+function approveBooking($rest)
+{
     $result                        = false;
     foreach ($rest->bookings as $booking) {
         $result    = $rest->bookingsObject->updateBooking($booking, ['pending' => 0]);
@@ -232,7 +238,8 @@ function approveBooking($rest) {
     return $result;
 }
 
-function removeBooking() {
+function removeBooking()
+{
     $bookings    = new Bookings();
 
     $bookings->removeBooking((int) $_POST['id']);
@@ -240,7 +247,8 @@ function removeBooking() {
     return 'Booking removed succesfully';
 }
 
-function loadPost() {
+function loadPost()
+{
     global $post;
 
     $post        = get_post($_POST['post-id']);
@@ -261,7 +269,7 @@ function loadPost() {
         }
 
         return "No details found, sorry. ";
-    }else{
+    } else {
         return $content;
     }
 }

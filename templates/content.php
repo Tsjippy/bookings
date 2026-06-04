@@ -1,12 +1,14 @@
 <?php
+
 namespace TSJIPPY\BOOKINGS;
+
 use TSJIPPY;
 
 /**
  * The content of a book shared between a single post, archive or the recipes page.
-**/
+ **/
 
-if ( ! defined('ABSPATH')) {
+if (! defined('ABSPATH')) {
     exit; // Exit if accessed directly.
 }
 
@@ -20,13 +22,15 @@ if (is_tax() || is_archive()) {
 
 </style>
 <article id="post-<?php the_ID(); ?>" <?php post_class(); ?>>
-    <div class="cat-card<?php if ($archive) {echo ' inside-article';}?>">
+    <div class="cat-card<?php if ($archive) {
+                            echo ' inside-article';
+                        } ?>">
 
         <?php
         if ($archive) {
             $url = get_permalink(get_the_ID());
             the_title("<h3 class='archivetitle'><a href='$url'>", '</a></h3>', true);
-        }else{
+        } else {
             do_action('tsjippy_before_content');
         }
         ?>
@@ -37,17 +41,17 @@ if (is_tax() || is_archive()) {
                 $excerpt = force_balance_tags(wp_kses_post(get_the_excerpt()));
                 if (empty($excerpt)) {
                     $url = get_permalink();
-                    ?>
+            ?>
                     <br>
                     <a href='<?php echo esc_url($url); ?>'>
                         View description »
                     </a>
-                    <?php
-                }else{
+            <?php
+                } else {
                     echo wp_kses_post($excerpt);
                 }
-            //Show everything including category specific content
-            }else{
+                //Show everything including category specific content
+            } else {
                 if (empty($post->post_content)) {
                     /** @disregard P1008 */
                     echo wp_kses_post(apply_filters('tsjippy_empty_description', 'No content found... ', $post));
@@ -60,8 +64,8 @@ if (is_tax() || is_archive()) {
                 array(
                     'before' => '<div class="page-links">Pages:',
                     'after'  => '</div>',
-               )
-           );
+                )
+            );
             ?>
         </div>
 
@@ -84,11 +88,11 @@ if (is_tax() || is_archive()) {
                 $bookings->forms->formData->id        = $wpdb->get_var($wpdb->prepare("SELECT form_id FROM {$bookings->forms->elTableName} WHERE ID=%d", $elementId));
 
                 $bookings->forms->getForm();
-                ?>
+            ?>
                 <a href='<?php echo esc_url($bookings->forms->formData->form_url); ?>' class='tsjippy button' target='_blank'>
                     Book this accomodation
                 </a>
-                <?php
+            <?php
             }
             ?>
         </div>

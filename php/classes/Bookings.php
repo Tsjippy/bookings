@@ -1,15 +1,18 @@
 <?php
+
 namespace TSJIPPY\BOOKINGS;
+
 use TSJIPPY;
 use TSJIPPY\EVENTS;
 use TSJIPPY\FORMS;
 use WP_Error;
 
-if ( ! defined('ABSPATH')) {
+if (! defined('ABSPATH')) {
     exit;
 }
 
-class Bookings{
+class Bookings
+{
     public array|false|\WP_Error $bookingElements;
     public array $bookings;
     public object $forms;
@@ -24,7 +27,8 @@ class Bookings{
     public object $user;
     public array $userRoles;
 
-    public function __construct($formInstance=null) {
+    public function __construct($formInstance = null)
+    {
         global $wpdb;
 
         $this->bookingElements              = false;
@@ -32,31 +36,32 @@ class Bookings{
         $this->managers                     = [];
         $this->payables                     = [];
         $this->payables                     = [];
-        $this->picturesUrl                    = TSJIPPY\pathToUrl(PLUGINPATH. 'pictures');
+        $this->picturesUrl                    = TSJIPPY\pathToUrl(PLUGINPATH . 'pictures');
         $this->showArchived                 = false;
         $this->tableEditPermissions         = current_user_can('manage_options');
         $this->subjects                     = [];
-        $this->tableName                    = $wpdb->prefix. 'tsjippy_bookings';
+        $this->tableName                    = $wpdb->prefix . 'tsjippy_bookings';
         $this->unavailable                  = [];
         $this->user                         = wp_get_current_user();
         $this->userRoles                    = $this->user->roles;
 
         if (getType($formInstance) == 'object') {
             $this->forms        = $formInstance;
-        }else{
+        } else {
             $this->forms        = new TSJIPPY\FORMS\DisplayFormResults([]);
         }
 
         // Load the managers
         $this->getSubjectManagers();
 
-        wp_enqueue_style('tsjippy_bookings_style', TSJIPPY\pathToUrl(PLUGINPATH. 'css/bookings.min.css'), array(), PLUGINVERSION);
+        wp_enqueue_style('tsjippy_bookings_style', TSJIPPY\pathToUrl(PLUGINPATH . 'css/bookings.min.css'), array(), PLUGINVERSION);
     }
 
     /**
      * Retrieves the subjects of a specific element from the database
      */
-    public function getSubjects() {
+    public function getSubjects()
+    {
         if (!empty($this->subjects)) {
             return;
         }
@@ -75,7 +80,7 @@ class Bookings{
             foreach ($metas as $key => $value) {
                 if (count($value) == 1 && $key != 'managers') {
                     $this->subjects[$post->post_title][$key]    = maybe_unserialize($value[0]);
-                }else{
+                } else {
                     $this->subjects[$post->post_title][$key]    = array_map('maybe_unserialize', $value);
                 }
             }
@@ -118,7 +123,8 @@ class Bookings{
      * @param   int     $elementId      The id of the booking element
      * @param   string  $subjectName    The optional name of a particular accomodation you want to retrieve the details of
      */
-    public function getElementSubjects($elementId, $subjectName='') {
+    public function getElementSubjects($elementId, $subjectName = '')
+    {
         if (empty($this->subjects)) {
             $this->getSubjects();
         }
@@ -128,7 +134,7 @@ class Bookings{
             if (($subject['element-id'] ?? '') == $elementId) {
                 if (empty($subjectName)) {
                     $subjects[] = $subject;
-                }elseif ($subject['name'] == $subjectName) {
+                } elseif ($subject['name'] == $subjectName) {
                     return $subject;
                 }
             }
@@ -140,8 +146,9 @@ class Bookings{
     /**
      * Creates the table holding all bookings if it does not exist
      */
-    public function createTables() {
-        if ( !function_exists('maybe_create_table')) {
+    public function createTables()
+    {
+        if (!function_exists('maybe_create_table')) {
             require_once ABSPATH . 'wp-admin/includes/upgrade.php';
         }
 
@@ -173,7 +180,8 @@ class Bookings{
      *
      * @return  string          Html of the navigator
      */
-    public function getNavigator($date) {
+    public function getNavigator($date)
+    {
         $minusMonth        = strtotime("first day of 1 months ago", $date);
         $minusMonthStr    = gmdate('m', $minusMonth);
         $minusYearStr    = gmdate('Y', $minusMonth);
@@ -185,21 +193,24 @@ class Bookings{
         $plusYearStr    = gmdate('Y', $plusMonth);
 
         ob_start();
-        ?>
-        <div class="navigator" data-month='<?php echo esc_attr(gmdate('m', $firstMonth));?>' data-year='<?php echo esc_attr(gmdate('Y', $firstMonth));?>'>
-            <div class="prev <?php if (gmdate('ym', $minusMonth) < gmdate('ym')) { echo 'hidden';}?>">
-                <a class="prevnext" data-month="<?php echo esc_attr($minusMonthStr);?>" data-year="<?php echo esc_attr($minusYearStr);?>">
-                    <span><</span> <?php echo esc_html(gmdate('F', $minusMonth));?>
+?>
+        <div class="navigator" data-month='<?php echo esc_attr(gmdate('m', $firstMonth)); ?>' data-year='<?php echo esc_attr(gmdate('Y', $firstMonth)); ?>'>
+            <div class="prev <?php if (gmdate('ym', $minusMonth) < gmdate('ym')) {
+                                    echo 'hidden';
+                                } ?>">
+                <a class="prevnext" data-month="<?php echo esc_attr($minusMonthStr); ?>" data-year="<?php echo esc_attr($minusYearStr); ?>">
+                    <span>
+                        << /span> <?php echo esc_html(gmdate('F', $minusMonth)); ?>
                 </a>
             </div>
             <div class="next">
-                <a class="prevnext" data-month="<?php echo esc_attr($plusMonthStr);?>" data-year="<?php echo esc_attr($plusYearStr);?>">
-                    <?php echo esc_html(gmdate('F', $plusMonth));?> <span>></span>
+                <a class="prevnext" data-month="<?php echo esc_attr($plusMonthStr); ?>" data-year="<?php echo esc_attr($plusYearStr); ?>">
+                    <?php echo esc_html(gmdate('F', $plusMonth)); ?> <span>></span>
                 </a>
             </div>
         </div>
 
-        <?php
+    <?php
         return ob_get_clean();
     }
 
@@ -210,13 +221,14 @@ class Bookings{
      *
      * @return  string              The html of the room description modal
      */
-    public function roomDescription($subject) {
+    public function roomDescription($subject)
+    {
         ob_start();
 
         $subjectName    = strtolower(str_replace(' ', '_', $subject['name']));
 
-        ?>
-        <div name='<?php echo esc_attr($subjectName);?>-room-modal' class="booking rooms modal hidden" style="display:unset; z-index: 999999999 !important;">
+    ?>
+        <div name='<?php echo esc_attr($subjectName); ?>-room-modal' class="booking rooms modal hidden" style="display:unset; z-index: 999999999 !important;">
             <div class="modal-content">
                 <span class="close mobile-sticky">&times;</span>
 
@@ -226,13 +238,15 @@ class Bookings{
                     <?php
                     // Render tablink buttons
                     foreach ($subject['rooms'] as $index => $room) {
-                        ?>
-                        <button class='button tablink formbuilder-form <?php if ($index === 0) {echo 'active';}?>' type='button' id='show-<?php echo esc_attr($subjectName);?>-room-<?php echo esc_attr($index);?>' data-target='<?php echo esc_attr($subjectName);?>-room-<?php echo esc_attr($index);?>' style='margin-right:4px;'>
-                            Room <?php echo esc_html($room['name']) ;?>
+                    ?>
+                        <button class='button tablink formbuilder-form <?php if ($index === 0) {
+                                                                            echo 'active';
+                                                                        } ?>' type='button' id='show-<?php echo esc_attr($subjectName); ?>-room-<?php echo esc_attr($index); ?>' data-target='<?php echo esc_attr($subjectName); ?>-room-<?php echo esc_attr($index); ?>' style='margin-right:4px;'>
+                            Room <?php echo esc_html($room['name']); ?>
                         </button>
-                        <?php
+                    <?php
                     }
-                ?>
+                    ?>
                 </div>
                 <?php
 
@@ -241,15 +255,17 @@ class Bookings{
                 foreach ($subject['rooms'] as $index => $room) {
                     $i++;
                     $name   = $room['name'];
-                    ?>
-                    <div id="<?php echo esc_attr($subjectName);?>-room-<?php echo esc_attr($name);?>" class="tabcontent <?php if ($i > 1) {echo 'hidden';}?> lazy-post" data-post-id='<?php echo esc_attr($room['post-id']);?>' >
+                ?>
+                    <div id="<?php echo esc_attr($subjectName); ?>-room-<?php echo esc_attr($name); ?>" class="tabcontent <?php if ($i > 1) {
+                                                                                                                                echo 'hidden';
+                                                                                                                            } ?> lazy-post" data-post-id='<?php echo esc_attr($room['post-id']); ?>'>
                     </div>
-                    <?php
+                <?php
                 }
                 ?>
             </div>
         </div>
-        <?php
+    <?php
 
         return ob_get_clean();
     }
@@ -262,14 +278,15 @@ class Bookings{
      * @param   boolean $isResult   Wheter we are looking at the form or the formresult
      * @param   bool    $radio      true for radio choice, false for checkboxes
      */
-    public function roomSelector($node, $subject, $isResult, $radio=false) {
+    public function roomSelector($node, $subject, $isResult, $radio = false)
+    {
         if (empty($subject['amount']) || $subject['amount'] == 1) {
             return;
         }
 
         if ($radio) {
             $type   = 'radio';
-        }else{
+        } else {
             $type   = 'checkbox';
         }
 
@@ -289,7 +306,7 @@ class Bookings{
         if ($isResult) {
             $wrapper->textContent = "Select the room$s you want to see the calendar for";
             $this->forms->addElement('br', $wrapper);
-        }else{
+        } else {
             $subjectName            = strtolower(str_replace(' ', '_', $subject['name']));
             $wrapper->textContent   = "Select one or more room(s) you want to book";
 
@@ -302,7 +319,7 @@ class Bookings{
                     'data-target'   => "{$subjectName}-room-modal"
                 ],
                 "Show room details"
-           );
+            );
 
             $this->forms->addElement('br', $wrapper);
         }
@@ -326,7 +343,7 @@ class Bookings{
                     !empty($_REQUEST['id']) &&
                     is_array($this->forms->submission->{'booking-rooms'}) &&
                     in_array($alphabet[$x], $this->forms->submission->{'booking-rooms'})
-               ) {
+                ) {
                     $attributes['checked']    = 'checked';
                 }
 
@@ -338,7 +355,7 @@ class Bookings{
                 // Append the text node to the element
                 $wrapper->appendChild($textNode);
             }
-        }elseif (($subject['nrtype'] ?? '') == 'custom') {
+        } elseif (($subject['nrtype'] ?? '') == 'custom') {
             foreach ($subject['rooms'] as $room) {
                 $attributes  = [
                     'type'  => $type,
@@ -352,7 +369,7 @@ class Bookings{
                     !empty($_REQUEST['id']) &&
                     is_array($this->forms->submission->{'booking-rooms'}) &&
                     in_array($room['name'], $this->forms->submission->{'booking-rooms'})
-               ) {
+                ) {
                     $attributes['checked']    = 'checked';
                 }
 
@@ -364,7 +381,7 @@ class Bookings{
                 // Append the text node to the element
                 $wrapper->appendChild($textNode);
             }
-        }else{
+        } else {
             for ($x = 1; $x <= $subject['amount']; $x++) {
                 $attributes  = [
                     'type'  => $type,
@@ -378,7 +395,7 @@ class Bookings{
                     !empty($_REQUEST['id']) &&
                     isset($this->forms->submission->{'booking-rooms'}) &&
                     in_array($x, $this->forms->submission->{'booking-rooms'})
-               ) {
+                ) {
                     $attributes['checked']    = 'checked';
                 }
 
@@ -400,9 +417,10 @@ class Bookings{
      * @param   string  $subject    Subject name
      * @param   int     $date       Date the calendar should start
      */
-    private function roomCalendars($rooms, $subject, $date) {
+    private function roomCalendars($rooms, $subject, $date)
+    {
         ob_start();
-        ?>
+    ?>
         <div class='rooms-wrapper'>
             <?php
             foreach ($rooms as $room) {
@@ -412,12 +430,12 @@ class Bookings{
                     isset($_REQUEST['id'])                                  &&              // We should display a specific submission
                     is_array($this->forms->submission->{'booking-rooms'})   &&    // and a room is set
                     in_array($room['name'], $this->forms->submission->{'booking-rooms'})  // and it is this room
-               ) {
+                ) {
                     $roomHidden = '';
                 }
-                ?>
-                <div class='room-wrapper <?php echo esc_attr($roomHidden);?>' data-room='<?php echo esc_attr($room['name']);?>'>
-                    <h4>Room <?php echo esc_html($room['name']);?></h4>
+            ?>
+                <div class='room-wrapper <?php echo esc_attr($roomHidden); ?>' data-room='<?php echo esc_attr($room['name']); ?>'>
+                    <h4>Room <?php echo esc_html($room['name']); ?></h4>
                     <div class='month-wrapper flex'>
                         <?php
                         $this->monthCalendar($subject, $room['name'], $date, true);
@@ -425,11 +443,11 @@ class Bookings{
                         ?>
                     </div>
                 </div>
-                <?php
+            <?php
             }
-        ?>
+            ?>
         </div>
-        <?php
+    <?php
 
         return ob_get_clean();
     }
@@ -444,13 +462,14 @@ class Bookings{
      *
      * @return  string                  The html
      */
-    public function modalContent($node, $subject, $date, $isAdmin = false, $hidden = false, $isResult=false) {
+    public function modalContent($node, $subject, $date, $isAdmin = false, $hidden = false, $isResult = false)
+    {
         $returnHtml = false;
         if (empty($node)) {
             // Create a new DOMDocument object
             $node         = $this->forms->dom;
 
-               $returnHtml = true;
+            $returnHtml = true;
         }
 
         $monthStr        = gmdate('m', $date);
@@ -475,79 +494,79 @@ class Bookings{
 
         $overview       = $this->forms->addElement('div', $wrapper, ['class' => "booking overview"]);
 
-            $header         = $this->forms->addElement('div', $overview, ['class' => "header mobile-sticky"]);
+        $header         = $this->forms->addElement('div', $overview, ['class' => "header mobile-sticky"]);
 
-                $this->forms->addElement('h4', $header, ['style' => 'text-align:center;'], ucfirst($cleanSubject) . ' Calendar');
+        $this->forms->addElement('h4', $header, ['style' => 'text-align:center;'], ucfirst($cleanSubject) . ' Calendar');
 
-                $this->roomSelector($header, $subject, $isResult);
+        $this->roomSelector($header, $subject, $isResult);
 
-                if (!$isAdmin) {
-                    $this->showSelectedModalDates($header, $subject['amount'] > 1);
+        if (!$isAdmin) {
+            $this->showSelectedModalDates($header, $subject['amount'] > 1);
+        }
+
+        $navigators = $this->forms->addElement('div', $header, ['class' => "navigators " . ($subject['amount'] > 1 ? 'hidden' : '')]);
+        $this->forms->addRawHtml($this->getNavigator($date), $navigators);
+
+        $attributes =  ['class' => "calendar table"];
+        if (($subject['amount'] ?? []) > 1) {
+            $attributes['style']    = "display:block;";
+        }
+
+        $calendarTable  = $this->forms->addElement('div', $overview, $attributes);
+
+        // Show the month calendar if there are no rooms, otherwise show the room calendars
+        if (empty($subject['nrtype']) || $subject['nrtype'] == 'none' || $subject['amount'] == 0) {
+            $roomWrapper    = $this->forms->addElement('div', $calendarTable, ['class' => "room-wrapper"]); // needed for layout purposes
+            $monthWrapper   = $this->forms->addElement('div', $roomWrapper, ['class' => "month-wrapper flex"]);
+
+            $this->forms->addRawHtml($this->monthCalendar($cleanSubject, '', $date), $monthWrapper);
+            $this->forms->addRawHtml($this->monthCalendar($cleanSubject, '', strtotime('first day of next month', $date)), $monthWrapper);
+        } else {
+            $rooms  = [];
+
+            if (isset($subject['nrtype']) && $subject['nrtype'] == 'letters') {
+                $alphabet = range('A', 'Z');
+                for ($x = 0; $x < $subject['amount']; $x++) {
+                    $rooms[]    = $alphabet[$x];
+                }
+            } elseif (isset($subject['nrtype']) && $subject['nrtype'] == 'custom') {
+                $rooms  = $subject['rooms'];
+            } else {
+                for ($x = 1; $x <= $subject['amount']; $x++) {
+                    $rooms[]    = $x;
+                }
+            }
+
+            $this->forms->addRawHtml($this->roomCalendars($rooms, $cleanSubject, $date), $calendarTable);
+        }
+
+        if (!$isAdmin) {
+
+            $actions         = $this->forms->addElement('div', $overview, ['class' => "actions mobile-sticky bottom"]);
+
+            $this->forms->addElement('button', $actions, ['class' => "button action reset disabled", "type" => 'button'], 'Reset');
+
+            $this->forms->addElement('button', $actions, ['class' => "button action confirm disabled", "type" => 'button'], 'Confirm');
+        } else {
+            $details         = $this->forms->addElement('div', $wrapper, ['class' => "booking details-wrapper"]);
+
+            $this->forms->addRawHtml($this->detailHtml(), $details);
+        }
+
+        // We don't need this on mobile devices
+        if (!wp_is_mobile()) {
+            $roomDetails         = $this->forms->addElement('div', $wrapper);
+            // Room description
+            foreach ($subject['rooms'] as $room) {
+                if ($room['post-id'] == -1) {
+                    continue;
                 }
 
-                $navigators = $this->forms->addElement('div', $header, ['class' => "navigators " .( $subject['amount'] > 1 ? 'hidden': '')]);
-                $this->forms->addRawHtml($this->getNavigator($date), $navigators);
-
-            $attributes =  ['class' => "calendar table"];
-            if (($subject['amount'] ?? []) > 1) {
-                $attributes['style']    = "display:block;";
+                $roomDescription        = $this->forms->addElement('div', $roomDetails, ['class' => 'hidden room-description', 'data-room-name' => $room['name']]);
+                $this->forms->addElement('h4', $roomDescription, [], "Room " . $room['name']);
+                $this->forms->addElement('div', $roomDescription, ['class' => 'lazy-post', 'data-post-id' => $room['post-id']]);
             }
-
-            $calendarTable  = $this->forms->addElement('div', $overview, $attributes);
-
-            // Show the month calendar if there are no rooms, otherwise show the room calendars
-            if (empty($subject['nrtype']) || $subject['nrtype'] == 'none' || $subject['amount'] == 0) {
-                $roomWrapper    = $this->forms->addElement('div', $calendarTable, ['class' => "room-wrapper"]); // needed for layout purposes
-                $monthWrapper   = $this->forms->addElement('div', $roomWrapper, ['class' => "month-wrapper flex"]);
-
-                $this->forms->addRawHtml($this->monthCalendar($cleanSubject, '', $date), $monthWrapper);
-                $this->forms->addRawHtml($this->monthCalendar($cleanSubject, '', strtotime('first day of next month', $date)), $monthWrapper);
-            }else{
-                $rooms  = [];
-
-                if (isset($subject['nrtype']) && $subject['nrtype'] == 'letters') {
-                    $alphabet = range('A', 'Z');
-                    for ($x = 0; $x < $subject['amount']; $x++) {
-                        $rooms[]    = $alphabet[$x];
-                    }
-                }elseif (isset($subject['nrtype']) && $subject['nrtype'] == 'custom') {
-                    $rooms  = $subject['rooms'];
-                }else{
-                    for ($x = 1; $x <= $subject['amount']; $x++) {
-                        $rooms[]    = $x;
-                    }
-                }
-
-                $this->forms->addRawHtml($this->roomCalendars($rooms, $cleanSubject, $date), $calendarTable);
-            }
-
-            if (!$isAdmin) {
-
-                $actions         = $this->forms->addElement('div', $overview, ['class' => "actions mobile-sticky bottom"]);
-
-                    $this->forms->addElement('button', $actions, ['class' => "button action reset disabled", "type" => 'button'], 'Reset');
-
-                    $this->forms->addElement('button', $actions, ['class' => "button action confirm disabled", "type" => 'button'], 'Confirm');
-            }else{
-                $details         = $this->forms->addElement('div', $wrapper, ['class' => "booking details-wrapper"]);
-
-                    $this->forms->addRawHtml($this->detailHtml(), $details);
-            }
-
-            // We don't need this on mobile devices
-            if (!wp_is_mobile()) {
-                $roomDetails         = $this->forms->addElement('div', $wrapper);
-                    // Room description
-                    foreach ($subject['rooms'] as $room) {
-                        if ($room['post-id'] == -1) {
-                            continue;
-                        }
-
-                        $roomDescription        = $this->forms->addElement('div', $roomDetails, ['class' => 'hidden room-description', 'data-room-name' => $room['name']]);
-                            $this->forms->addElement('h4', $roomDescription, [], "Room " .$room['name']);
-                            $this->forms->addElement('div', $roomDescription, ['class' => 'lazy-post', 'data-post-id' => $room['post-id']]);
-                    }
-            }
+        }
 
         if ($returnHtml) {
             return $this->forms->dom->saveHtml();
@@ -562,10 +581,13 @@ class Bookings{
      *
      * @return  string          The html
      */
-    protected function showSelectedModalDates($node, $hide) {
+    protected function showSelectedModalDates($node, $hide)
+    {
         ob_start();
-        ?>
-        <div class="booking-date-wrapper <?php if ($hide) {echo 'hidden';}?>">
+    ?>
+        <div class="booking-date-wrapper <?php if ($hide) {
+                                                echo 'hidden';
+                                            } ?>">
             <div class="booking-dates-input-wrapper">
                 <div class="-h0i9fjw">
                     <div class="booking-date-label-wrapper">
@@ -603,7 +625,7 @@ class Bookings{
             </div>
         </div>
 
-        <?php
+    <?php
 
         return $this->forms->addRawHtml(ob_get_clean(), $node);
     }
@@ -615,19 +637,20 @@ class Bookings{
      * @param   object  $node       The node to append the modal to
      * @param   array   $subject    array with The name of the building/event and the amount of rooms
      */
-    public function dateSelectorModal($node, $subject) {
+    public function dateSelectorModal($node, $subject)
+    {
         if (defined('REST_REQUEST') && isset($_POST['month']) && isset($_POST['year'])) {
             $month        = $_POST['month'];
             $year        = $_POST['year'];
             $dateStr    = "$year-$month-01";
-        }else{
+        } else {
             $day    = gmdate('d');
             $month    = $_GET['month'] ?? '';
             $year    = $_GET['yr'] ?? '';
             if (!is_numeric($month) || strlen($month) != 2) {
                 $month    = gmdate('m');
             }
-            if (!is_numeric($year) || strlen($year)!=4) {
+            if (!is_numeric($year) || strlen($year) != 4) {
                 $year    = gmdate('Y');
             }
             $dateStr    = "$year-$month-$day";
@@ -664,7 +687,8 @@ class Bookings{
      *
      * @return    string                        Html of the calendar void if echo is true
      */
-    public function monthCalendar($subject, $room, $date, $echo = false) {
+    public function monthCalendar($subject, $room, $date, $echo = false)
+    {
 
         if (is_array($subject)) {
             $subject    = $subject['name'];
@@ -684,7 +708,7 @@ class Bookings{
             if ($s['name'] == $subject && !empty($s['overlap'])) {
                 if ($s['overlap'] == 'yes') {
                     $overlap    = true;
-                }elseif (!empty($s['overlap-period']) && is_numeric($s['overlap-period'])) {
+                } elseif (!empty($s['overlap-period']) && is_numeric($s['overlap-period'])) {
                     $gapDays    = $s['overlap-period'];
                 }
 
@@ -699,20 +723,20 @@ class Bookings{
             ob_start();
         }
 
-        ?>
-        <div class="month-container" data-month='<?php echo esc_attr(gmdate('m', $date));?>' data-year='<?php echo esc_attr(gmdate('Y', $date));?>'>
+    ?>
+        <div class="month-container" data-month='<?php echo esc_attr(gmdate('m', $date)); ?>' data-year='<?php echo esc_attr(gmdate('Y', $date)); ?>'>
             <div class="current">
-                <?php echo esc_html(gmdate('F Y', $date));?>
+                <?php echo esc_html(gmdate('F Y', $date)); ?>
             </div>
             <dl>
                 <?php
                 for ($y = 0; $y <= 6; $y++) {
                     $name    = gmdate('D', $workingDate);
-                    ?>
+                ?>
                     <dt class='calendar day head'>
-                        <?php echo esc_html($name);?>
+                        <?php echo esc_html($name); ?>
                     </dt>
-                    <?php
+                <?php
                     $workingDate    = strtotime("+1 days", $workingDate);
                 }
                 ?>
@@ -736,7 +760,8 @@ class Bookings{
      *
      * @return  void
      */
-    public function writeCalendarRows($date, $overlap) {
+    public function writeCalendarRows($date, $overlap)
+    {
 
         $month          = gmdate('m', $date);
         $weekDay        = gmdate("w", strtotime(gmdate('Y-m-01', $date)));
@@ -744,17 +769,17 @@ class Bookings{
         $curDate        = time();
 
         //loop over all weeks of a month
-        while(true) {
+        while (true) {
             $hidden         = '';
             if ($month != gmdate('m', $date)) {
                 $hidden = 'hidden';
             }
 
-            ?>
-            <dl class='calendar row <?php echo esc_attr($hidden);?>' data-month='<?php echo esc_attr($month);?>'>
+        ?>
+            <dl class='calendar row <?php echo esc_attr($hidden); ?>' data-month='<?php echo esc_attr($month); ?>'>
                 <?php
                 //loop over all days of a week
-                while(true) {
+                while (true) {
                     $workingDateStr        = gmdate('Y-m-d', $workingDate);
                     $workingMonth        = gmdate('m', $workingDate);
                     $workingDay            = gmdate('j', $workingDate);
@@ -762,16 +787,16 @@ class Bookings{
                     $class              = '';
 
                     if ($workingMonth != $month) {
-                        ?>
+                ?>
                         <dt class='empty'></dt>
-                        <?php
-                    }else{
+                    <?php
+                    } else {
                         $data   = '';
                         // date is in the past, make it unavailable
                         if (gmdate('Ymd', $workingDate) < gmdate('Ymd', $curDate)) {
                             $class    = 'unavailable';
-                        // not booked
-                        }elseif (!isset($this->unavailable[$workingDateStr])) {
+                            // not booked
+                        } elseif (!isset($this->unavailable[$workingDateStr])) {
                             $class    = 'available';
                         }
 
@@ -788,8 +813,8 @@ class Bookings{
                                 (
                                     !isset($this->unavailable[$dayBefore])    ||    // this is the first day of a booking
                                     !isset($this->unavailable[$dayAfter])           // or the last day of a booking
-                               )
-                           ) {
+                                )
+                            ) {
                                 // First and last day of a reservation are available if overlap is enabled
                                 $class    .= ' available';
 
@@ -804,7 +829,7 @@ class Bookings{
                                     $class    .= ' last';
                                     $data   .= "title='You can only book this as the first day of your stay'";
                                 }
-                            }else{
+                            } else {
                                 $class    .= ' booked';
                             }
 
@@ -829,18 +854,17 @@ class Bookings{
                             }
                         }
 
-                        ?>
+                    ?>
                         <dt
-                            class='calendar day <?php echo esc_attr($class);?>'
-                            data-date='<?php echo esc_attr(gmdate(DATEFORMAT, $workingDate));?>'
-                            data-isodate='<?php echo esc_attr(gmdate('Y-m-d', $workingDate));?>'
-                            <?php echo wp_kses_post($data);?>
-                        >
+                            class='calendar day <?php echo esc_attr($class); ?>'
+                            data-date='<?php echo esc_attr(gmdate(DATEFORMAT, $workingDate)); ?>'
+                            data-isodate='<?php echo esc_attr(gmdate('Y-m-d', $workingDate)); ?>'
+                            <?php echo wp_kses_post($data); ?>>
                             <span class='day-nr'>
-                                <?php echo esc_html($workingDay);?>
+                                <?php echo esc_html($workingDay); ?>
                             </span>
                         </dt>
-                        <?php
+                <?php
                     }
 
                     //calculate the next week
@@ -850,9 +874,9 @@ class Bookings{
                         break;
                     }
                 }
-            ?>
+                ?>
             </dl>
-            <?php
+        <?php
 
             // Break if next month
             if (gmdate('Ym', $workingDate) > gmdate('Ym', $date)) {
@@ -871,10 +895,11 @@ class Bookings{
      *
      * @return  string              HTML
      */
-    public function submissionDetails($booking, $submission, $hide, $echo = false) {
+    public function submissionDetails($booking, $submission, $hide, $echo = false)
+    {
         if (!empty($submission->subId)) {
             $subId  = "data-subid='$submission->subId'";
-        }else{
+        } else {
             $subId  = '';
         }
 
@@ -884,8 +909,8 @@ class Bookings{
             (
                 empty($_REQUEST['id']) ||
                 $_REQUEST['id'] != $this->forms->submission->id
-           )
-       ) {
+            )
+        ) {
             $hidden         = 'hidden';
         }
 
@@ -894,39 +919,39 @@ class Bookings{
         }
 
         ?>
-        <div class='booking-detail-wrapper <?php echo esc_attr($hidden);?>' data-booking-id='<?php echo esc_attr($submission->booking_id);?>'>
+        <div class='booking-detail-wrapper <?php echo esc_attr($hidden); ?>' data-booking-id='<?php echo esc_attr($submission->booking_id); ?>'>
             <h6 class='booking-title'>
                 Booking details
             </h6>
 
             <article class='booking'>
-                <h4 class='booking-title'><?php echo esc_html($submission->slug ?? '');?></h4>
+                <h4 class='booking-title'><?php echo esc_html($submission->slug ?? ''); ?></h4>
                 <div class='booking-detail'>
-                    <table data-form-id='<?php echo esc_attr($submission->form_id);?>' style='width: unset;'>
+                    <table data-form-id='<?php echo esc_attr($submission->form_id); ?>' style='width: unset;'>
                         <thead></thead>
                         <tbody>
-                            <tr class='<?php echo esc_attr($this->bookingElements[0]->slug);?>' data-submission-id='<?php echo esc_attr($submission->id);?>'>
+                            <tr class='<?php echo esc_attr($this->bookingElements[0]->slug); ?>' data-submission-id='<?php echo esc_attr($submission->id); ?>'>
                                 <td>
-                                    <img src='<?php echo esc_url($this->picturesUrl);?>/subject.png' loading='lazy' alt='<?php echo esc_attr($this->bookingElements[0]->name);?>' class='booking-icon' title='<?php echo esc_attr($this->bookingElements[0]->name);?>'>
+                                    <img src='<?php echo esc_url($this->picturesUrl); ?>/subject.png' loading='lazy' alt='<?php echo esc_attr($this->bookingElements[0]->name); ?>' class='booking-icon' title='<?php echo esc_attr($this->bookingElements[0]->name); ?>'>
                                 </td>
-                                <td class='booking-data-wrapper edit forms-table' data-element-id='<?php echo esc_attr($this->bookingElements[0]->id);?>' data-name='<?php echo esc_attr($this->bookingElements[0]->slug);?>' data-booking-id='<?php echo esc_attr($submission->booking_id);?>'>
-                                    <?php echo esc_html($submission->{$this->bookingElements[0]->id})?>
+                                <td class='booking-data-wrapper edit forms-table' data-element-id='<?php echo esc_attr($this->bookingElements[0]->id); ?>' data-name='<?php echo esc_attr($this->bookingElements[0]->slug); ?>' data-booking-id='<?php echo esc_attr($submission->booking_id); ?>'>
+                                    <?php echo esc_html($submission->{$this->bookingElements[0]->id}) ?>
                                 </td>
                             </tr>
                             <tr>
                                 <td>
-                                    <img src='<?php echo esc_url($this->picturesUrl);?>/date.png' loading='lazy' alt='date' class='booking-icon'>
+                                    <img src='<?php echo esc_url($this->picturesUrl); ?>/date.png' loading='lazy' alt='date' class='booking-icon'>
                                 </td>
                                 <td class='booking-data-wrapper edit forms-table'>
-                                    <table data-form-id='<?php echo esc_attr($submission->form_id);?>' data-shortcode-id='<?php echo esc_attr($this->forms->shortcodeId);?>' style='margin-bottom: 0px; width:unset;'>
-                                        <tr data-submission-id='<?php echo esc_attr($submission->id);?>'>
-                                            <td data-name='booking-start-date' data-element-id='<?php echo esc_attr($this->forms->getElementBySlug('booking-start-date')->id);?>' <?php echo esc_attr($subId);?> data-booking-id='<?php echo esc_attr($submission->booking_id);?>' class='edit forms-table'>
-                                                <?php echo esc_html(gmdate(DATEFORMAT, strtotime($submission->{'booking-start-date'})));?>
+                                    <table data-form-id='<?php echo esc_attr($submission->form_id); ?>' data-shortcode-id='<?php echo esc_attr($this->forms->shortcodeId); ?>' style='margin-bottom: 0px; width:unset;'>
+                                        <tr data-submission-id='<?php echo esc_attr($submission->id); ?>'>
+                                            <td data-name='booking-start-date' data-element-id='<?php echo esc_attr($this->forms->getElementBySlug('booking-start-date')->id); ?>' <?php echo esc_attr($subId); ?> data-booking-id='<?php echo esc_attr($submission->booking_id); ?>' class='edit forms-table'>
+                                                <?php echo esc_html(gmdate(DATEFORMAT, strtotime($submission->{'booking-start-date'}))); ?>
                                             </td>
                                         </tr>
-                                        <tr data-submission-id='<?php echo esc_attr($submission->id);?>'>
-                                            <td data-name='booking-end-date' data-element-id='<?php echo esc_attr($this->forms->getElementBySlug('booking-end-date')->id);?>' <?php echo esc_attr($subId);?> data-booking-id='<?php echo esc_attr($submission->booking_id);?>' class='edit forms-table'>
-                                                <?php echo esc_html(gmdate(DATEFORMAT, strtotime($submission->{'booking-end-date'})));?>
+                                        <tr data-submission-id='<?php echo esc_attr($submission->id); ?>'>
+                                            <td data-name='booking-end-date' data-element-id='<?php echo esc_attr($this->forms->getElementBySlug('booking-end-date')->id); ?>' <?php echo esc_attr($subId); ?> data-booking-id='<?php echo esc_attr($submission->booking_id); ?>' class='edit forms-table'>
+                                                <?php echo esc_html(gmdate(DATEFORMAT, strtotime($submission->{'booking-end-date'}))); ?>
                                             </td>
                                         </tr>
                                     </table>
@@ -935,16 +960,16 @@ class Bookings{
 
                             <?php
                             if (!empty($submission->{'booking-rooms'})) {
-                                ?>
-                                <tr class='room' data-submission-id='<?php echo esc_attr($submission->id);?>'>
+                            ?>
+                                <tr class='room' data-submission-id='<?php echo esc_attr($submission->id); ?>'>
                                     <td>
-                                        <img src='<?php echo esc_url($this->picturesUrl);?>/room.png' loading='lazy' alt='Room' class='booking-icon' title='Room'>
+                                        <img src='<?php echo esc_url($this->picturesUrl); ?>/room.png' loading='lazy' alt='Room' class='booking-icon' title='Room'>
                                     </td>
-                                    <td class='booking-data-wrapper edit forms-table' data-element-id='-104' <?php echo esc_attr($subId);?> data-name='booking-rooms' data-booking-id='<?php echo esc_attr($submission->booking_id);?>'>
-                                        <?php echo esc_attr($submission->{'booking-rooms'});?>
+                                    <td class='booking-data-wrapper edit forms-table' data-element-id='-104' <?php echo esc_attr($subId); ?> data-name='booking-rooms' data-booking-id='<?php echo esc_attr($submission->booking_id); ?>'>
+                                        <?php echo esc_attr($submission->{'booking-rooms'}); ?>
                                     </td>
                                 </tr>
-                                <?php
+                            <?php
                             }
 
                             foreach ($this->forms->columnSettings as $key => $setting) {
@@ -975,8 +1000,8 @@ class Bookings{
                                             'name',
                                             $this->bookingElements[0]->slug
                                         ]
-                                   )
-                               ) {
+                                    )
+                                ) {
                                     continue;
                                 }
 
@@ -990,25 +1015,25 @@ class Bookings{
                                     $transformedData    = 'X';
                                 }
 
-                                ?>
-                                <tr class='<?php echo esc_attr($slug);?>' data-submission-id='<?php echo esc_attr($submission->id);?>'>
+                            ?>
+                                <tr class='<?php echo esc_attr($slug); ?>' data-submission-id='<?php echo esc_attr($submission->id); ?>'>
                                     <?php
                                     if (file_exists(TSJIPPY\urlToPath("$this->picturesUrl/$slug.png"))) {
-                                        ?>
+                                    ?>
                                         <td>
-                                            <img src='<?php echo esc_url("$this->picturesUrl/$slug.png");?>' loading='lazy' alt='<?php echo esc_attr($name);?>' class='booking-icon' title='<?php echo esc_attr($name);?>'>
+                                            <img src='<?php echo esc_url("$this->picturesUrl/$slug.png"); ?>' loading='lazy' alt='<?php echo esc_attr($name); ?>' class='booking-icon' title='<?php echo esc_attr($name); ?>'>
                                         </td>
-                                        <?php
-                                    }else{
-                                        ?>
+                                    <?php
+                                    } else {
+                                    ?>
                                         <td>
-                                            <?php echo esc_html($name);?>:
+                                            <?php echo esc_html($name); ?>:
                                         </td>
-                                        <?php
+                                    <?php
                                     }
                                     ?>
-                                    <td class='booking-data-wrapper edit forms-table' data-element-id='<?php echo esc_attr($element->id);?>' data-name='<?php echo esc_attr($slug);?>' data-booking-id='<?php echo esc_attr($booking->id);?>'>
-                                        <?php echo wp_kses_post($transformedData);?>
+                                    <td class='booking-data-wrapper edit forms-table' data-element-id='<?php echo esc_attr($element->id); ?>' data-name='<?php echo esc_attr($slug); ?>' data-booking-id='<?php echo esc_attr($booking->id); ?>'>
+                                        <?php echo wp_kses_post($transformedData); ?>
                                     </td>
                                 </tr>
                                 <?php
@@ -1023,7 +1048,7 @@ class Bookings{
                                     if ($action == 'archive' && $this->showArchived && $this->forms->submissions->archived) {
                                         $action = 'unarchive';
                                     }
-                                    $buttonsHtml[$action]    = "<button class='$action button forms-table-action' name='{$action}-action' value='$action'>" .ucfirst($action). "</button>";
+                                    $buttonsHtml[$action]    = "<button class='$action button forms-table-action' name='{$action}-action' value='$action'>" . ucfirst($action) . "</button>";
                                 }
                                 $buttonsHtml = apply_filters('tsjippy_form_actions_html', $buttonsHtml, $submission, $slug, $this, $this->forms->submission);
 
@@ -1039,17 +1064,17 @@ class Bookings{
                                         $this->tableEditPermissions ||                                                                             //if we are allowed to do all actions
                                         $submission->user_id == $this->user->ID ||                                                             //or this is our own entry
                                         array_intersect($this->userRoles, $editRoles)        //or we have permission for this specific button
-                                   ) {
+                                    ) {
                                         $buttons .= $button;
                                     }
                                 }
 
                                 if (!empty($buttons)) {
-                                    ?>
-                                    <tr class='actions' data-submission-id='<?php echo esc_attr($submission->id);?>'>
-                                        <td  colspan='2'><?php echo wp_kses_post($buttons);?></td>
+                                ?>
+                                    <tr class='actions' data-submission-id='<?php echo esc_attr($submission->id); ?>'>
+                                        <td colspan='2'><?php echo wp_kses_post($buttons); ?></td>
                                     </tr>
-                                    <?php
+                            <?php
                                 }
                             }
                             ?>
@@ -1070,7 +1095,8 @@ class Bookings{
      *
      * @param   bool    $hide   Whether to hide the details or not, default true
      */
-    public function detailHtml($hide=true) {
+    public function detailHtml($hide = true)
+    {
         if (!method_exists($this->forms, 'parseSubmissions')) {
             return '';
         }
@@ -1110,13 +1136,13 @@ class Bookings{
 
                 // This is not our own booking
                 $this->forms->submission->user_id != $this->forms->user->ID
-           ) {
+            ) {
                 // no right to see this
-                ?>
-                <div class='booking-detail-wrapper warning hidden' data-booking-id='<?php echo esc_attr($booking->id);?>'>
+        ?>
+                <div class='booking-detail-wrapper warning hidden' data-booking-id='<?php echo esc_attr($booking->id); ?>'>
                     No permission to see this booking
                 </div>
-                <?php
+<?php
                 continue;
             }
 
@@ -1132,7 +1158,8 @@ class Bookings{
      * Retrieve the subject data
      * @param   bool    $force      Do not send cached data, default false
      */
-    public function getBookingElements($force = false) {
+    public function getBookingElements($force = false)
+    {
         if (!empty($this->bookingElements) && !$force) {
             return $this->bookingElements;
         }
@@ -1162,7 +1189,8 @@ class Bookings{
      *
      * @return  array                   An array with overlapping bookings
      */
-    public function checkOverlap($startDate, $endDate, $subject, $room, $id=-1) {
+    public function checkOverlap($startDate, $endDate, $subject, $room, $id = -1)
+    {
         global $wpdb;
 
         // First check if a booking on these dates doesn't exist
@@ -1199,14 +1227,14 @@ class Bookings{
                 $detail['name'] == $subject &&
                 !empty($detail['overlap']) &&
                 $detail['overlap'] == 'yes'
-           ) {
+            ) {
                 $overlap    = true;
             }
         }
 
         // start and end_date may overlap so remove any of those
         if ($overlap) {
-            foreach ($bookings as $index=>$booking) {
+            foreach ($bookings as $index => $booking) {
                 // this booking ends on the first day of the booking we are checking
                 if ($booking->end_date == $startDate) {
                     unset($bookings[$index]);
@@ -1230,7 +1258,8 @@ class Bookings{
      *
      * @return  bool                        true if is should be pending, false otherwise
      */
-    public function checkPending($user, $subject) {
+    public function checkPending($user, $subject)
+    {
         $els = $this->getBookingElements();
         if (!$els) {
             return true;
@@ -1252,18 +1281,18 @@ class Bookings{
                 }
 
                 // user who submitted the form
-                $submittingUser = get_userdata($this->forms->submission->user-id);
+                $submittingUser = get_userdata($this->forms->submission->user - id);
 
                 if (
                     (
                         $user  &&          //user found
                         array_intersect($user->roles, $confirmRoles) // and allowed
-                   )   ||
+                    )   ||
                     (
                         $submittingUser  &&          // user found
                         array_intersect($submittingUser->roles, $confirmRoles) // and allowed
-                   )
-               ) {
+                    )
+                ) {
                     return    true;
                 }
             }
@@ -1283,7 +1312,8 @@ class Bookings{
      * @param   string      $room           The room the booking is for
      * @param   int         $submissionId   The form submission id
      */
-    public function insertBooking($startDate, $endDate, $subject, $room, $submissionId) {
+    public function insertBooking($startDate, $endDate, $subject, $room, $submissionId)
+    {
         global $wpdb;
 
         $overlappingBookings    = $this->checkOverlap($startDate, $endDate, $subject, $room);
@@ -1314,7 +1344,7 @@ class Bookings{
                 'post_content'  => "Booking for $subjectWithRoom",
                 'post_status'   => 'publish',
                 'post_author'   => $userId
-           );
+            );
 
             $eventId     = wp_insert_post($post, true, false);
 
@@ -1344,8 +1374,8 @@ class Bookings{
                 'submission_id'        => $submissionId,
                 'event_id'          => $eventId,
                 'pending'           => $pending
-           )
-       );
+            )
+        );
 
         if (!empty($wpdb->last_error)) {
             return new \WP_Error('bookings', $wpdb->last_error);
@@ -1362,7 +1392,8 @@ class Bookings{
      *
      * @return  WP_error|bool               Error object if overlapping with another booking, true if ok.
      */
-    protected function validateDates($booking, &$values) {
+    protected function validateDates($booking, &$values)
+    {
         if (!isset($values['start_date']) && !isset($values['end_date'])) {
             return true;
         }
@@ -1377,7 +1408,7 @@ class Bookings{
             if (is_array($start_date)) {
                 if (!empty($_POST['subid']) && isset($start_date[$_POST['subid']])) {
                     $start_date  = $start_date[$_POST['subid']];
-                }else{
+                } else {
                     $start_date  = array_values($start_date)[0];
                 }
             }
@@ -1393,7 +1424,7 @@ class Bookings{
             if (is_array($end_date)) {
                 if (!empty($_POST['subid']) && isset($end_date[$_POST['subid']])) {
                     $end_date  = $end_date[$_POST['subid']];
-                }else{
+                } else {
                     $end_date  = array_values($end_date)[0];
                 }
             }
@@ -1430,7 +1461,8 @@ class Bookings{
      * @param   array       $values     The values to update in an a named array
      * @param   bool        $skipHtml   Whether to return new details html, default false
      */
-    public function updateBooking($booking, $values, $skipHtml=false) {
+    public function updateBooking($booking, $values, $skipHtml = false)
+    {
         global $wpdb;
 
         // Get the booking
@@ -1443,7 +1475,9 @@ class Bookings{
         }
 
         // only keep valid values
-        $values         = array_filter($values, function ($val) {return in_array($val, ['start_date', 'end_date', 'start_time', 'end_time', 'subject', 'room', 'pending', 'paid']);}, ARRAY_FILTER_USE_KEY);
+        $values         = array_filter($values, function ($val) {
+            return in_array($val, ['start_date', 'end_date', 'start_time', 'end_time', 'subject', 'room', 'pending', 'paid']);
+        }, ARRAY_FILTER_USE_KEY);
 
         // Validate updated dates and adjusts the values array to only the relevant date for this booking
         $result         = $this->validateDates($booking, $values);
@@ -1459,12 +1493,12 @@ class Bookings{
             $values,
             array(
                 'id'        => $booking->id
-           ),
-       );
+            ),
+        );
 
         if (empty($wpdb->last_error)) {
             $message            = 'Succesfully updated the booking';
-        }else{
+        } else {
             $message            = $wpdb->last_error;
         }
 
@@ -1517,7 +1551,8 @@ class Bookings{
      * @param   array   $newRooms           An array of the new rooms names
      * @param   array   $currentBookings    An array of the bookings to be updated
      */
-    function updateRooms($newRooms, $currentBookings) {
+    function updateRooms($newRooms, $currentBookings)
+    {
         $oldRooms   = [];
         foreach ($currentBookings as $booking) {
             $oldRooms[] = $booking->room;
@@ -1578,7 +1613,8 @@ class Bookings{
      *
      * @param   int|object     $booking  The booking or booking id
      */
-    public function removeBooking($booking) {
+    public function removeBooking($booking)
+    {
         global $wpdb;
 
         // Get the booking
@@ -1595,22 +1631,23 @@ class Bookings{
             $this->tableName,
             ['id' => $booking->id],
             ['%d'],
-       );
+        );
     }
 
     /**
      * Remove a subject
      * @param   array  $subjectData    The subject data of the subject to remove
      */
-    public function removeSubject($subjectData) {
+    public function removeSubject($subjectData)
+    {
         global $wpdb;
 
         // Delete potential existing bookings;
         $results    = $wpdb->get_results($wpdb->prepare(
             "Select * FROM %i WHERE `subject` LIKE %s",
             $this->tableName,
-            $wpdb->esc_like($subjectData['name'] ?? ''). '%'
-       ));
+            $wpdb->esc_like($subjectData['name'] ?? '') . '%'
+        ));
 
         foreach ($results as $booking) {
             $this->removeBooking($booking);
@@ -1641,7 +1678,8 @@ class Bookings{
      * Stores a new subject
      * @param   array  $subjectData    The subject data of the subject to add
      */
-    public function addSubject($subjectData) {
+    public function addSubject($subjectData)
+    {
         $subjectName    = ucfirst($subjectData['name']);
 
         // insert a post for subject description
@@ -1690,7 +1728,8 @@ class Bookings{
      *
      * @return  void                    The bookings are stored in the $this->bookings property and the unavailable dates in the $this->unavailable property
      */
-    protected function retrieveMonthBookings($month, $year, $subject, $room, $extraDays=0) {
+    protected function retrieveMonthBookings($month, $year, $subject, $room, $extraDays = 0)
+    {
         global $wpdb;
 
         if (is_array($room)) {
@@ -1709,7 +1748,7 @@ class Bookings{
             $endDate,
             $subject,
             $room
-       ));
+        ));
 
         $this->bookings     =  array_merge($this->bookings, $result);
 
@@ -1724,7 +1763,7 @@ class Bookings{
                 $last   = strtotime("+$extraDays days", $last);
             }
 
-            while($current <= $last) {
+            while ($current <= $last) {
                 $this->unavailable[gmdate('Y-m-d', $current)] = $booking->id;
                 $current                = strtotime('+1 day', $current);
             }
@@ -1736,7 +1775,8 @@ class Bookings{
      *
      *  @param  string|int  $date   The date in 'Y-m-d' format or unix timestamp
      */
-    public function retrieveBookingsByEndgmdate($date) {
+    public function retrieveBookingsByEndgmdate($date)
+    {
         global $wpdb;
 
         if (is_numeric($date)) {
@@ -1745,7 +1785,7 @@ class Bookings{
 
         return $wpdb->get_results(
             $wpdb->prepare("SELECT * FROM %i WHERE end_date = %s", $this->tableName, $date)
-       );
+        );
     }
 
     /**
@@ -1753,7 +1793,8 @@ class Bookings{
      *
      *  @param  string|int  $date   The date in 'Y-m-d' format or unix timestamp
      */
-    public function retrieveBookingsByStartgmdate($date) {
+    public function retrieveBookingsByStartgmdate($date)
+    {
         global $wpdb;
 
         if (is_numeric($date)) {
@@ -1764,7 +1805,7 @@ class Bookings{
             "SELECT * FROM %i WHERE start_date = %s",
             $this->tableName,
             $date
-       ));
+        ));
     }
 
     /** Get a booking by booking id
@@ -1773,14 +1814,15 @@ class Bookings{
      *
      * @return  object|false    The booking or false if not found
      */
-    public function getBookingById($id) {
+    public function getBookingById($id)
+    {
         global $wpdb;
 
         $results    =  $wpdb->get_results($wpdb->prepare(
             "SELECT * FROM %i WHERE id=%d",
             $this->tableName,
             $id
-       ));
+        ));
 
         if (!empty($results)) {
             return $results[0];
@@ -1796,12 +1838,13 @@ class Bookings{
      *
      * @return  array|false             An array of bookings or false if no booking found
      * */
-    public function getBookingsBySubmission($id) {
+    public function getBookingsBySubmission($id)
+    {
         global $wpdb;
 
         $results    = $wpdb->get_results(
             $wpdb->prepare("SELECT * FROM %i WHERE submission_id=%d", $this->tableName, $id)
-       );
+        );
 
         if (!empty($results)) {
             return $results;
@@ -1817,7 +1860,8 @@ class Bookings{
      *
      * @return  array                   An array with startDates, endDates and rooms arrays
      */
-    function getBookingDates($submissionId) {
+    function getBookingDates($submissionId)
+    {
         // Get all the bookings belonging to this form submission
         $bookings   = $this->getBookingsBySubmission($submissionId);
 
@@ -1842,7 +1886,8 @@ class Bookings{
     /**
      * Sends a reminder to the owner of a booking and to the managers
      */
-    public function sendBookingEmails() {
+    public function sendBookingEmails()
+    {
         $this->forms->getForms();
 
         foreach ($this->forms->forms as $form) {
@@ -1867,9 +1912,7 @@ class Bookings{
                     if ($mail->email_trigger == 'before-stay') {
                         $date       = gmdate('Y-m-d', strtotime("+{$mail->days_before} days", time()));
                         $bookings   = $this->retrieveBookingsByStartgmdate($date);
-                    }
-
-                    elseif ($mail->email_trigger == 'after-stay') {
+                    } elseif ($mail->email_trigger == 'after-stay') {
                         $date       = gmdate('Y-m-d', strtotime("-{$mail->days_after} days", time()));
                         $bookings   = $this->retrieveBookingsByEndgmdate($date);
                     }
@@ -1911,7 +1954,7 @@ class Bookings{
                         }
 
                         add_filter('wp_mail', [$this->forms, 'addFormData'], 1);
-                        wp_mail($to , $subject, $message, $headers);
+                        wp_mail($to, $subject, $message, $headers);
                         remove_filter('wp_mail', [$this->forms, 'addFormData'], 1);
 
                         if ($mail->email_trigger == 'before-stay') {
@@ -1938,8 +1981,8 @@ class Bookings{
                                 $newMessage = str_replace($name, $manager->display_name, $message);
 
                                 // Then replace your with the name
-                                $newSubject = str_replace('your', $name. "'s", $newSubject);
-                                $newMessage = str_replace('your', $name. "'s", $newMessage);
+                                $newSubject = str_replace('your', $name . "'s", $newSubject);
+                                $newMessage = str_replace('your', $name . "'s", $newMessage);
 
                                 wp_mail($manager->user_email, $newSubject, $newMessage, $headers);
                             }
@@ -1955,7 +1998,8 @@ class Bookings{
      *
      * @param   int     $userId     If supplied gets the subjects for this user only.
      */
-    public function getSubjectManagers($userId = '', $force=false) {
+    public function getSubjectManagers($userId = '', $force = false)
+    {
         if (
             !$force &&
             !empty($this->managers) &&                          // the current list is not empty
@@ -1963,13 +2007,13 @@ class Bookings{
                 (
                     is_numeric($userId)     &&                          // we only need the subjects for a certain user
                     ($this->managers['only_for'] ?? '')  == $userId     // the current list is for the current user
-               ) ||
+                ) ||
                 (
                     empty($userId) &&                           // we want the generic list
                     empty($this->managers['only_for'])          // the current list is generic
-               )
-           )
-       ) {
+                )
+            )
+        ) {
             // the current list is the list we need
             return;
         }
@@ -1994,7 +2038,7 @@ class Bookings{
             }
 
             if (!is_array($subject['managers'] ?? '')) {
-                $subject['managers']    = [$subject['managers'] ];
+                $subject['managers']    = [$subject['managers']];
             }
 
             // loop over all the managers of this subject
@@ -2008,17 +2052,17 @@ class Bookings{
                 $manager    = get_userdata($managerId);
 
                 // this manager is not the current user
-                if (( is_numeric($userId) && $managerId != $userId) || !$manager) {
+                if ((is_numeric($userId) && $managerId != $userId) || !$manager) {
                     continue;
                 }
 
                 // create an empty array if needed for this subject
-                if (empty($this->managers[$subject['name'] ])) {
-                    $this->managers[$subject['name'] ]  = [];
+                if (empty($this->managers[$subject['name']])) {
+                    $this->managers[$subject['name']]  = [];
                 }
 
                 // add the manager to the subject
-                $this->managers[$subject['name'] ][$manager->ID]    = $manager;
+                $this->managers[$subject['name']][$manager->ID]    = $manager;
             }
         }
     }

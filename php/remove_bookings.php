@@ -1,14 +1,17 @@
 <?php
+
 namespace TSJIPPY\BOOKINGS;
+
 use TSJIPPY;
 
-if ( ! defined('ABSPATH')) {
+if (! defined('ABSPATH')) {
     exit;
 }
 
 add_action('tsjippy-forms-entry-archived', __NAMESPACE__ . '\removeBookings', 10, 2);
 add_action('tsjippy-forms-entry-removed', __NAMESPACE__ . '\removeBookings', 10, 2);
-function removeBookings($instance, $submissionId) {
+function removeBookings($instance, $submissionId)
+{
     // remove the booking
     $bookings           = new Bookings();
 
@@ -29,7 +32,7 @@ function removeBookings($instance, $submissionId) {
 
             $bookings->removeBooking($booking);
         }
-    }else{
+    } else {
         // to do re-insert booking on inarchive
     }
 }

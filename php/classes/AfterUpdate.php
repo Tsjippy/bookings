@@ -1,12 +1,16 @@
 <?php
+
 namespace TSJIPPY\BOOKINGS;
+
 use TSJIPPY;
 
-if ( ! defined('ABSPATH')) exit;
+if (! defined('ABSPATH')) exit;
 
-class AfterUpdate extends TSJIPPY\AfterPluginUpdate {
+class AfterUpdate extends TSJIPPY\AfterPluginUpdate
+{
 
-    public function afterPluginUpdate($oldVersion) {
+    public function afterPluginUpdate($oldVersion)
+    {
         global $wpdb;
 
         if (version_compare('10.0.5', $oldVersion) === 1) {
@@ -19,7 +23,7 @@ class AfterUpdate extends TSJIPPY\AfterPluginUpdate {
                 RENAME COLUMN `enddate` to `end_date`,
                 RENAME COLUMN `starttime` to `start_time`,
                 RENAME COLUMN `endtime` to `end_time`;"
-           );
+            );
         }
     }
 }
