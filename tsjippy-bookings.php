@@ -14,7 +14,7 @@ namespace TSJIPPY\BOOKINGS;
  * Plugin URI:            https://github.com/Tsjippy/bookings/
  * Tested:                6.9
  * TextDomain:            tsjippy
- * Requires Plugins:    tsjippy-shared-functionality, tsjippy-forms, tsjippy-events
+ * Requires Plugins:      tsjippy-forms, tsjippy-events
  * License: GPLv2 or later
  * License URI: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
  *
@@ -55,3 +55,8 @@ register_activation_hook(__FILE__, function () {
     maybe_add_column($forms->formEmailTable, 'days_before', "ALTER TABLE $forms->formEmailTable ADD COLUMN `days_before` int");
     maybe_add_column($forms->formEmailTable, 'days_after', "ALTER TABLE $forms->formEmailTable ADD COLUMN `days_after` int");
 });
+
+// Load shared code
+if(file_exists(__DIR__  . '/shared_functionality/loader.php')){
+    require_once(__DIR__  . '/shared_functionality/loader.php');
+}
