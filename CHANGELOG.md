@@ -7,6 +7,7 @@
 - comply to coding standards
 - code layout
 - removed shared-functionality plugin dependency
+- namespaced all constants
 
 ### Fixed
 - spacing problem
