@@ -19,9 +19,9 @@ add_filter('tsjippy_allowed_rest_api_urls', __NAMESPACE__ . '\allowedRestApiUrls
  */
 function allowedRestApiUrls($urls)
 {
-    $urls[]    = RESTAPIPREFIX . '/bookings/get_next_month';
-    $urls[]    = RESTAPIPREFIX . '/bookings/remove';
-    $urls[]    = RESTAPIPREFIX . '/bookings/load_post';
+    $urls[]    = TSJIPPY\RESTAPIPREFIX . '/bookings/get_next_month';
+    $urls[]    = TSJIPPY\RESTAPIPREFIX . '/bookings/remove';
+    $urls[]    = TSJIPPY\RESTAPIPREFIX . '/bookings/load_post';
 
     return $urls;
 }
@@ -31,7 +31,7 @@ function restapiInit()
 {
     // Next month
     register_rest_route(
-        RESTAPIPREFIX . '/bookings',
+        TSJIPPY\RESTAPIPREFIX . '/bookings',
         '/get_next_month',
         array(
             'methods'                 => 'POST',
@@ -59,7 +59,7 @@ function restapiInit()
 
     // Approve pending booking
     register_rest_route(
-        RESTAPIPREFIX . '/bookings',
+        TSJIPPY\RESTAPIPREFIX . '/bookings',
         '/approve',
         array(
             'methods'                 => 'POST',
@@ -91,7 +91,7 @@ function restapiInit()
 
     // Delete a booking
     register_rest_route(
-        RESTAPIPREFIX . '/bookings',
+        TSJIPPY\RESTAPIPREFIX . '/bookings',
         '/remove',
         array(
             'methods'                 => 'POST',
@@ -120,7 +120,7 @@ function restapiInit()
 
     // Load room and subject pages
     register_rest_route(
-        RESTAPIPREFIX . '/bookings',
+        TSJIPPY\RESTAPIPREFIX . '/bookings',
         '/load_post',
         array(
             'methods'                 => 'POST',
