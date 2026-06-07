@@ -443,7 +443,7 @@ function alterQuery($params, $userId, $instance)
         intval($params['values'][2]) < -101
     ) {
         $elementId      = $params['values'][2];
-        $submissionId   = $_POST['submission-id'];
+        $submissionId   = (int) $_POST['submission-id'];
         if (!is_numeric($submissionId)) {
             return $params;
         }

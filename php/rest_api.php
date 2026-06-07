@@ -68,7 +68,7 @@ function restapiInit()
                 // Get the bookings related to this submission
                 $rest->bookingsObject    = new Bookings();
 
-                $rest->bookingsObject->forms->formData->id    = $_POST['form-id'];
+                $rest->bookingsObject->forms->formData->id    = (int) $_POST['form-id'];
 
                 $rest->bookings           = $rest->bookingsObject->getBookingsBySubmission((int) $_POST['id']);
 
@@ -158,8 +158,8 @@ function getNextMonth()
     }
     $bookings->forms->currentElement    = $element;
 
-    $subjectName    = sanitize_text_field(wp_unslash($_POST['subject']));
-    $date            = strtotime((int)$_POST['year'] . '-' . (int)$_POST['month'] . '-01');
+    $subjectName    = TSJIPPY\sanitize($_POST['subject']);
+    $date           = strtotime((int)$_POST['year'] . '-' . (int)$_POST['month'] . '-01');
 
     $months            = [];
     foreach ($bookings->getElementSubjects($element->id) as $subject) {

@@ -638,9 +638,20 @@ function bookingSelectorHtml($node, $object)
 
     wp_enqueue_script('tsjippy-bookings');
 
+    $day    = gmdate('d');
+    $month  = (int) $_GET['month'] ?? '';
+    $year   = (int) $_GET['yr'] ?? '';
+
+    if (!is_numeric($month) || strlen($month) != 2) {
+        $month  = gmdate('m');
+    }
+    if (!is_numeric($year) || strlen($year) != 4) {
+        $year   = gmdate('Y');
+    }
+
     // Find the subject names
     foreach ($subjects as $subject) {
-        $bookings->dateSelectorModal($node, $subject);
+        $bookings->dateSelectorModal($day, $month, $year, $node, $subject);
     }
 
     return $flexDiv;
@@ -654,12 +665,12 @@ function bookingSelectorHtml($node, $object)
  *
  * @return object The rendered element
  */
-function bookingDateElementHtml(&$node, $object)
+function bookingDateElementHtml(&$node, $object, $bookingId = false)
 {
     global $wpdb;
 
-    if (isset($_POST['booking-id']) && is_numeric($_POST['booking-id'])) {
-        $node->setAttribute('data-booking-id', $_POST['booking-id']);
+    if (is_numeric($bookingId)) {
+        $node->setAttribute('data-booking-id', $bookingId);
     }
 
     if ($object->element->slug != 'booking-start-date' && $object->element->slug != 'booking-end-date') {
@@ -775,7 +786,7 @@ function elementHtml($node, $object)
 
     // Display existing form entry element element
     elseif (!empty($object->submission)) {
-        bookingDateElementHtml($node, $object);
+        bookingDateElementHtml($node, $object, (int) $_POST['booking-id']);
     }
 
     // Add a class for payment_amount_el
@@ -831,7 +842,7 @@ function formElementUpdated($element, $instance, $oldElement)
     $bookings->getSubjects();
 
     // Get the updated subject data
-    $newSubjects    = $_POST['formfield']['booking-details'] ?? [];
+    $newSubjects    = TSJIPPY\sanitize($_POST['formfield']['booking-details'] ?? []);
 
     // index by post ids
     foreach ($newSubjects as $index => $subject) {

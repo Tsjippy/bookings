@@ -58,7 +58,7 @@ class Bookings
     }
 
     /**
-     * Retrieves the subjects of a specific element from the database
+     * Retrieves all the subjects
      */
     public function getSubjects()
     {
@@ -75,14 +75,10 @@ class Bookings
         ]);
 
         foreach ($posts as $post) {
-            $metas                                              = get_post_meta($post->ID);
+            $metas                                            = get_post_meta($post->ID);
 
             foreach ($metas as $key => $value) {
-                if (count($value) == 1 && $key != 'managers') {
-                    $this->subjects[$post->post_title][$key]    = maybe_unserialize($value[0]);
-                } else {
-                    $this->subjects[$post->post_title][$key]    = array_map('maybe_unserialize', $value);
-                }
+                $this->subjects[$post->post_title][$key]      = array_map('maybe_unserialize', $value);
             }
             $this->subjects[$post->post_title]['element-id']   = get_post_meta($post->ID, 'element-id', true);
             $this->subjects[$post->post_title]['post-id']      = $post->ID;
@@ -637,29 +633,13 @@ class Bookings
      * @param   object  $node       The node to append the modal to
      * @param   array   $subject    array with The name of the building/event and the amount of rooms
      */
-    public function dateSelectorModal($node, $subject)
+    public function dateSelectorModal($day, $month, $year, $node, $subject)
     {
-        if (defined('REST_REQUEST') && isset($_POST['month']) && isset($_POST['year'])) {
-            $month       = $_POST['month'];
-            $year       = $_POST['year'];
-            $dateStr    = "$year-$month-01";
-        } else {
-            $day    = gmdate('d');
-            $month  = $_GET['month'] ?? '';
-            $year   = $_GET['yr'] ?? '';
+        $dateStr      = "$year-$month-$day";
 
-            if (!is_numeric($month) || strlen($month) != 2) {
-                $month  = gmdate('m');
-            }
-            if (!is_numeric($year) || strlen($year) != 4) {
-                $year   = gmdate('Y');
-            }
-            $dateStr    = "$year-$month-$day";
-        }
+        $date         = strtotime($dateStr);
 
-        $date            = strtotime($dateStr);
-
-        $cleanSubject   = trim($subject['name']);
+        $cleanSubject = trim($subject['name']);
 
         /**
          * Create the modal
@@ -1408,34 +1388,34 @@ class Bookings
             return true;
         }
 
-        $start_date      = $booking->start_date;
+        $startDate      = $booking->start_date;
 
         // Start date is updated
         if (isset($values['start_date'])) {
-            $start_date  = &$values['start_date'];
+            $startDate  = &$values['start_date'];
 
             // get the relevant date
-            if (is_array($start_date)) {
-                if (!empty($_POST['subid']) && isset($start_date[$_POST['subid']])) {
-                    $start_date  = $start_date[$_POST['subid']];
+            if (is_array($startDate)) {
+                if (!empty($_POST['subid']) && isset($startDate[$_POST['subid']])) {
+                    $startDate  = $startDate[$_POST['subid']];
                 } else {
-                    $start_date  = array_values($start_date)[0];
+                    $startDate  = array_values($startDate)[0];
                 }
             }
         }
 
-        $end_date      = $booking->end_date;
+        $endDate      = $booking->end_date;
 
         // End date is updated
         if (isset($values['end_date'])) {
-            $end_date  = &$values['end_date'];
+            $endDate  = &$values['end_date'];
 
             // get the relevant date
-            if (is_array($end_date)) {
-                if (!empty($_POST['subid']) && isset($end_date[$_POST['subid']])) {
-                    $end_date  = $end_date[$_POST['subid']];
+            if (is_array($endDate)) {
+                if (!empty($_POST['subid']) && isset($endDate[$_POST['subid']])) {
+                    $endDate  = $endDate[$_POST['subid']];
                 } else {
-                    $end_date  = array_values($end_date)[0];
+                    $endDate  = array_values($endDate)[0];
                 }
             }
         }
@@ -1450,7 +1430,7 @@ class Bookings
             $room  = $values['room'];
         }
 
-        $overlappingBookings    = $this->checkOverlap($start_date, $end_date, $subject, $room, $booking->id);
+        $overlappingBookings    = $this->checkOverlap($startDate, $endDate, $subject, $room, $booking->id);
         if (!empty($overlappingBookings)) {
             if (!empty($room)) {
                 $subject    .= " room $room";

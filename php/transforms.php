@@ -79,9 +79,9 @@ function transformEmpty($replaceValue, $match, $replaceValues, $instance)
         $endDates       = (array)$replaceValues['booking-end-date'];
         $rooms          = (array)$replaceValues['booking-rooms'];
     } else {
-        $startDates     = $_POST['booking-start-date'];
-        $endDates       = $_POST['booking-end-date'];
-        $rooms          = (array)$_POST['booking-rooms'];
+        $startDates     = TSJIPPY\sanitize($_POST['booking-start-date'] ?? '');
+        $endDates       = TSJIPPY\sanitize($_POST['booking-end-date'] ?? '');
+        $rooms          = TSJIPPY\sanitize((array)$_POST['booking-rooms'] ?? []);
     }
 
     // NO ROOMS

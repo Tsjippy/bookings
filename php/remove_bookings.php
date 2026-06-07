@@ -21,7 +21,7 @@ function removeBookings($instance, $submissionId)
         return;
     }
 
-    if ($_POST['action'] == 'archive') {
+    if (($_POST['action'] ?? '') == 'archive') {
 
         foreach ($currentBookings as $booking) {
 
