@@ -8,6 +8,7 @@
 - code layout
 - removed shared-functionality plugin dependency
 - namespaced all constants
+- sanitize all posts and get vars
 
 ### Fixed
 - spacing problem
