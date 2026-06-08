@@ -254,23 +254,23 @@ function shouldShow($shouldShow, $displayFormResults, $type)
 }
 
 // Change Archive button text
-add_filter('tsjippy_form_actions_html', __NAMESPACE__ . '\actionHtml', 10, 4);
+add_filter('tsjippy-formresults-row-actions', __NAMESPACE__ . '\actionHtml', 10, 3);
 /**
  * Change the Archive button text
- * @param    array    $buttonsHtml    The current html of the action buttons, can be altered to change the buttons shown
- * @param    object    $submission    The submission for which the buttons are shown, can be used to decide whether or not to change the buttons
- * @param    int        $index        The index of the submission in the table, can be used to decide whether or not to change the buttons
- * @param    object    $instance    The current instance of the form table class, can be used to get more information about the form and the user to decide whether or not to change the buttons
+ * @param    array    $attributes   Array of button attributes
+ * @param    object   $submission   The submission for which the buttons are shown, can be used to decide whether or not to change the buttons
+ * @param    object   $instance     The current instance of the form table class, can be used to get more information about the form and the user to decide whether or not to change the buttons
  */
-function actionHtml($buttonsHtml, $submission, $index, $instance)
+function actionHtml($attributes, $submission, $instance)
 {
     if (get_class($instance) != 'TSJIPPY\BOOKINGS\Bookings' || !isset($buttonsHtml['archive'])) {
-        return $buttonsHtml;
+        return $attributes;
     }
 
-    $buttonsHtml['archive'] = str_replace('>Archive', 'style="width: max-content;">Cancel booking', $buttonsHtml['archive']);
+    $attributes['archive']['style'] = "width: max-content;";
+    $attributes['archive']['text']  = 'Cancel booking';
 
-    return $buttonsHtml;
+    return $attributes;
 }
 
 // Show the possible booking rooms

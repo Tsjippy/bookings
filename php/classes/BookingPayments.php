@@ -326,20 +326,33 @@ class BookingPayments extends Bookings
     /**
      * Adds the buttons to approve or delete a pending booking
      *
-     * @param   array   $buttonsHtml   The current html for the buttons
+     * @param   array   $attributes   The current html for the buttons
      * @param   object  $submission    The submission for which the buttons are shown
-     * @param   int     $subId         The id of the submission
      * @param   object  $object        The bookings object
      *
      * @return  string                  The updated html for the buttons
      */
-    public function pendingButtons($buttonsHtml, $submission, $subId, $object)
+    public function pendingButtons($attributes, $submission, $object)
     {
-        $buttonsHtml['approve'] = "<button class='button approve' type='button' data-submission-id='{$submission->id}' data-form-id='{$object->submission->form_id}'>Approve</button>";
-        $buttonsHtml['delete']  = "<button class='button delete' type='button' data-submission-id='{$submission->id}' data-form-id='{$object->submission->form_id}'>Delete</button><br>";
-        unset($buttonsHtml['archive']);
+        $attributes['approve'] = [
+            'class'              => 'button approve',
+            'type'               => 'button',
+            'data-submission-id' => $submission->id,
+            'data-form-id'       => $object->submission->form_id,
+            'text'               => 'Approve'
+        ];
 
-        return $buttonsHtml;
+        $attributes['delete']  = [
+            'class'              => 'button delete',
+            'type'               => 'button',
+            'data-submission-id' => $submission->id,
+            'data-form-id'       => $object->submission->form_id,
+            'text'               => 'Delete'
+        ];
+        
+        unset($attributes['archive']);
+
+        return $attributes;
     }
 
     /**
@@ -394,7 +407,7 @@ class BookingPayments extends Bookings
         }
 
         if ($type == 'approval') {
-            add_filter('tsjippy_form_actions_html', [$this, 'pendingButtons'], 10, 4);
+            add_filter('tsjippy-formresults-row-actions', [$this, 'pendingButtons'], 10, 3);
         }
 
         ob_start();
@@ -404,7 +417,7 @@ class BookingPayments extends Bookings
         $html   .= ob_get_clean();
 
         if ($type == 'approval') {
-            remove_filter('tsjippy_form_actions_html',  [$this, 'pendingButtons'], 10);
+            remove_filter('tsjippy-formresults-row-actions',  [$this, 'pendingButtons'], 10);
         }
 
         return $html;

@@ -645,8 +645,9 @@ class Bookings
          * Create the modal
          */
         $modal = $this->forms->addElement(
-            'div', 
-            $node, [
+            'div',
+            $node,
+            [
                 'name'  => "{$cleanSubject}-modal",
                 'class' => "booking modal hidden",
                 'style' => "display:unset;"
@@ -654,8 +655,8 @@ class Bookings
         );
 
         $modalContent = $this->forms->addElement(
-            'div', 
-            $modal, 
+            'div',
+            $modal,
             [
                 'class' => "modal-content"
             ]
@@ -1032,37 +1033,67 @@ class Bookings
                             //if there are actions
                             if (!empty($this->forms->formData->actions)) {
                                 //loop over all the actions
-                                $buttonsHtml    = [];
+                                $attributes    = [];
                                 $buttons        = '';
                                 foreach ($this->forms->formData->actions as $action) {
-                                    if ($action == 'archive' && $this->showArchived && $this->forms->submissions->archived) {
-                                        $action = 'unarchive';
-                                    }
-                                    $buttonsHtml[$action]    = "<button class='$action button forms-table-action' name='{$action}-action' value='$action'>" . ucfirst($action) . "</button>";
-                                }
-                                $buttonsHtml = apply_filters('tsjippy_form_actions_html', $buttonsHtml, $submission, $slug, $this, $this->forms->submission);
+                                    $editRoles  = (array)$this->forms->columnSettings[$action]['edit_right_roles'] ?? [];
 
-                                //we have te html now, check for which one we have permission
-                                foreach ($buttonsHtml as $action => $button) {
-                                    $editRoles  = (array)$this->forms->columnSettings[$action]['edit_right_roles'];
                                     // Use the table settings if no specific rights are set
                                     if (empty($editRoles)) {
-                                        $editRoles  = $this->forms->tableSettings->edit_right_roles;
+                                        $editRoles  = $this->forms->tableSettings->edit_right_roles ?? [];
                                     }
 
                                     if (
-                                        $this->tableEditPermissions ||                                                                             //if we are allowed to do all actions
-                                        $submission->user_id == $this->user->ID ||                                                             //or this is our own entry
-                                        array_intersect($this->userRoles, $editRoles)        //or we have permission for this specific button
+                                        !$this->tableEditPermissions &&                       //if we are not allowed to do all actions
+                                        $submission->user_id != $this->user->ID ||            //this is not our own entry
+                                        !array_intersect($this->userRoles, $editRoles)        // we don't have permission for this specific button
                                     ) {
-                                        $buttons .= $button;
+                                        continue;
                                     }
+
+                                    if ($action == 'archive' && $this->showArchived && $this->forms->submissions->archived) {
+                                        $action = 'unarchive';
+                                    }
+                                    $attributes[$action]    = [
+                                        'class' => "$action button forms-table-action",
+                                        'name'  => "{$action}-action",
+                                        'value' => $action,
+                                        'text'  => ucfirst($action)
+                                    ];
                                 }
 
-                                if (!empty($buttons)) {
+                                /**
+                                 * Filters the avaiable buttons and their attributes
+                                 * 
+                                 * @param   array   $attributes Array of arrays with attributes
+                                 * @param   object  $submission The current submission
+                                 * @param   object  $object     The current DisplayFormResults object
+                                 */
+                                $attributes = apply_filters('tsjippy-formresults-row-actions', $attributes, $submission, $this);
+
+                                if (!empty($attributes)) {
                                 ?>
                                     <tr class='actions' data-submission-id='<?php echo esc_attr($submission->id); ?>'>
-                                        <td colspan='2'><?php echo wp_kses_post($buttons); ?></td>
+                                        <td colspan='2'>
+                                            <?php
+                                            //we have the buttons now, check for which one we have permission
+                                            foreach ($attributes as $action => $buttonAttributes) {
+                                                $text   = $buttonAttributes['text'] ?? '';
+
+                                                unset($buttonAttributes['text']);
+                                            ?>
+                                                <button
+                                                    <?php
+                                                    foreach ($buttonAttributes as $key => $value) {
+                                                        echo esc_attr($key . "=" . value);
+                                                    }
+                                                    ?>>
+                                                    <?php echo esc_html($text); ?>
+                                                </button>
+                                            <?php
+                                            }
+                                            ?>
+                                        </td>
                                     </tr>
                             <?php
                                 }
