@@ -1,5 +1,11 @@
-@use "../../../plugins/tsjippy-shared-functionality/includes/css/scss/global"
+@use "./../../tsjippy-shared-functionality/css/scss/global"
   as *;
+
+.primary-booking{
+  @media (min-width: 991px) {
+    width: 70%;
+  }
+}
 
 .booking-data-wrapper {
   display: inline-block;

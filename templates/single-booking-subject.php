@@ -16,14 +16,7 @@ if (!isset($skipHeader) || !$skipHeader) {
     get_header();
 }
 ?>
-<div id="primary">
-    <style>
-        @media (min-width: 991px) {
-            #primary:not(:only-child) {
-                width: 70%;
-            }
-        }
-    </style>
+<div id="primary" class="primary-booking">
     <main id="main">
         <?php
         while (have_posts()) :

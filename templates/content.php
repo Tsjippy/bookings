@@ -18,9 +18,6 @@ if (is_tax() || is_archive()) {
 }
 
 ?>
-<style>
-
-</style>
 <article id="post-<?php the_ID(); ?>" <?php post_class(); ?>>
     <div class="cat-card<?php if ($archive) {
                             echo ' inside-article';
