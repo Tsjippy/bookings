@@ -4,6 +4,15 @@
 ### Added
 
 ### Changed
+
+### Fixed
+
+### Updated
+
+## [10.3.0] - 2026-06-09
+
+
+### Changed
 - comply to coding standards
 - code layout
 - removed shared-functionality plugin dependency
@@ -13,8 +22,6 @@
 
 ### Fixed
 - spacing problem
-
-### Updated
 
 ## [10.2.9] - 2026-06-03
 
