@@ -258,7 +258,7 @@ function loadPost()
     $content    = apply_filters('the_content', $content);
 
     if (empty($content)) {
-        $managers        = get_post_meta($post->ID, 'managers');
+        $managers        = get_post_meta($post->ID, 'tsjippy_managers');
         if (!empty($managers[0])) {
             $manager    = get_user($managers[0]);
             if (empty($manager)) {

@@ -80,7 +80,7 @@ class Bookings
             foreach ($metas as $key => $value) {
                 $this->subjects[$post->post_title][$key]      = array_map('maybe_unserialize', $value);
             }
-            $this->subjects[$post->post_title]['element-id']   = get_post_meta($post->ID, 'element-id', true);
+            $this->subjects[$post->post_title]['element-id']   = get_post_meta($post->ID, 'tsjippy_element-id', true);
             $this->subjects[$post->post_title]['post-id']      = $post->ID;
             $this->subjects[$post->post_title]['name']         = $post->post_title;
             $this->subjects[$post->post_title]['description']  = $post->post_content;
@@ -99,7 +99,7 @@ class Bookings
             foreach ($rooms as $roomPost) {
                 $this->subjects[$post->post_title]['rooms'][] = [
                     'post-id'       => $roomPost->ID,
-                    'name'          => get_post_meta($roomPost->ID, 'name', true),
+                    'name'          => get_post_meta($roomPost->ID, 'tsjippy_name', true),
                     'description'   => $roomPost->post_content
                 ];
             }
@@ -1377,8 +1377,8 @@ class Bookings
             $event['location']                = $subjectWithRoom;
             $event['organizer-id']            = $userId;
             $event['only_for']               = $userId;
-            update_post_meta($eventId, 'eventdetails', json_encode($event));
-            update_post_meta($eventId, 'only_for', $userId);
+            update_post_meta($eventId, 'tsjippy_eventdetails', json_encode($event));
+            update_post_meta($eventId, 'tsjippy_only_for', $userId);
         }
 
         // Determine the pending state
@@ -1524,9 +1524,9 @@ class Bookings
         }
 
         // update event
-        $event                  = json_decode(get_post_meta($booking->event_id, 'eventdetails', true), true);
+        $event                  = json_decode(get_post_meta($booking->event_id, 'tsjippy_eventdetails', true), true);
         if (!empty($event)) {
-            update_post_meta($booking->event_id, 'eventdetails', json_encode(array_merge($event, $values)));
+            update_post_meta($booking->event_id, 'tsjippy_eventdetails', json_encode(array_merge($event, $values)));
         }
 
         if ($skipHtml) {
@@ -1734,7 +1734,7 @@ class Bookings
         unset($subjectData['rooms']);
 
         foreach ($subjectData as $key => $value) {
-            update_post_meta($postId, $key, $value);
+            update_post_meta($postId, "tsjippy_".$key, $value);
         }
     }
 

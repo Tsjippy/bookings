@@ -70,12 +70,12 @@ if (is_tax() || is_archive()) {
             <?php
             global $wpdb;
 
-            $elementId    = get_post_meta(get_the_ID(), 'element-id', true);
+            $elementId    = get_post_meta(get_the_ID(), 'tsjippy_element-id', true);
             if (empty($elementId)) {
                 $parentId    = wp_get_post_parent_id();
 
                 if ($parentId) {
-                    $elementId    = get_post_meta($parentId, 'element-id', true);
+                    $elementId    = get_post_meta($parentId, 'tsjippy_element-id', true);
                 }
             }
 

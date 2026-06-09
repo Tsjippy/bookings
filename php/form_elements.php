@@ -877,7 +877,7 @@ function formElementUpdated($element, $instance, $oldElement)
 
         // See what is removed
         foreach ($removed as $key => $value) {
-            delete_post_meta($postId, $key);
+            delete_post_meta($postId, "tsjippy_$key");
 
             if ($key == 'payments') {
                 // We disabled payments
@@ -888,7 +888,7 @@ function formElementUpdated($element, $instance, $oldElement)
                     }
                 }
 
-                update_post_meta($postId, $key, $value);
+                update_post_meta($postId, 'tsjippy_payments', $value);
             }
         }
 
@@ -990,8 +990,8 @@ function formElementUpdated($element, $instance, $oldElement)
                     if (!empty($room['name'])) {
                         $update['post_title']    = "$subjectName Room {$room['name']}";
 
-                        update_post_meta($postId, 'rooms', [$roomId => $room['name']], [$roomId => $oldRooms[$roomId]['name']]);
-                        update_post_meta($roomId, 'name', $room['name']);
+                        update_post_meta($postId, 'tsjippy_rooms', [$roomId => $room['name']], [$roomId => $oldRooms[$roomId]['name']]);
+                        update_post_meta($roomId, 'tsjippy_name', $room['name']);
                     }
 
                     // Update room post
@@ -1002,7 +1002,7 @@ function formElementUpdated($element, $instance, $oldElement)
                     wp_delete_post($room['post-id']);
 
                     $name          = ucfirst($room['name']);
-                    delete_post_meta($postId, 'rooms', [$room['post-id'] => $name]);
+                    delete_post_meta($postId, 'tsjippy_rooms', [$room['post-id'] => $name]);
                 }
             } elseif ($key == 'payments') {
                 // We enabled payments
@@ -1013,17 +1013,17 @@ function formElementUpdated($element, $instance, $oldElement)
                     }
                 }
 
-                update_post_meta($postId, $key, $value);
+                update_post_meta($postId, 'tsjippy_payments', $value);
             } elseif ($value) {
                 // first delete all
-                delete_post_meta($postId, $key);
+                delete_post_meta($postId, "tsjippy_$key");
 
                 // Then add the new ones
                 foreach ($value as $k => $v) {
                     add_post_meta($postId, $key, $v);
                 }
             } else {
-                update_post_meta($postId, $key, $value);
+                update_post_meta($postId, "tsjippy_".$key, $value);
             }
         }
     }
