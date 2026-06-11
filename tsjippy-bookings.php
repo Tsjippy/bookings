@@ -57,6 +57,6 @@ register_activation_hook(__FILE__, function () {
 });
 
 // Load shared code
-if(file_exists(__DIR__  . '/shared_functionality/loader.php')){
-    require_once(__DIR__  . '/shared_functionality/loader.php');
+if(file_exists(__DIR__  . '/shared-functionality/loader.php')){
+    require_once(__DIR__  . '/shared-functionality/loader.php');
 }
