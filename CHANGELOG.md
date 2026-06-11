@@ -4,11 +4,16 @@
 ### Added
 
 ### Changed
-- prefixed post metas and shortcodes
 
 ### Fixed
 
 ### Updated
+
+## [10.3.1] - 2026-06-11
+
+
+### Changed
+- prefixed post metas and shortcodes
 
 ## [10.3.0] - 2026-06-09
 
