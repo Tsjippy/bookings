@@ -8,6 +8,7 @@
 ### Fixed
 - shared code loader
 - activation hook
+- payment index error
 
 ### Updated
 
