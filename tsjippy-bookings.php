@@ -24,6 +24,10 @@ if (! defined('ABSPATH')) {
     exit;
 }
 
+if(file_exists(__DIR__  . '/shared-functionality/loader.php')){
+    require_once(__DIR__  . '/shared-functionality/loader.php');
+}
+
 // Define constants
 define(__NAMESPACE__ . '\PLUGIN', plugin_basename(__FILE__));
 define(__NAMESPACE__ . '\PLUGINPATH', __DIR__ . '/');
@@ -33,6 +37,10 @@ define(__NAMESPACE__ . '\SETTINGS', get_option('tsjippy_' . PLUGINSLUG . '_setti
 
 // run right before activation
 register_activation_hook(__FILE__, function () {
+    if(file_exists(__DIR__  . '/shared-functionality/loader.php')){
+        require_once(__DIR__  . '/shared-functionality/loader.php');
+    }
+
     // Create the table
     $bookings    = new Bookings();
     $bookings->createTables();
@@ -55,8 +63,3 @@ register_activation_hook(__FILE__, function () {
     maybe_add_column($forms->formEmailTable, 'days_before', "ALTER TABLE $forms->formEmailTable ADD COLUMN `days_before` int");
     maybe_add_column($forms->formEmailTable, 'days_after', "ALTER TABLE $forms->formEmailTable ADD COLUMN `days_after` int");
 });
-
-// Load shared code
-if(file_exists(__DIR__  . '/shared-functionality/loader.php')){
-    require_once(__DIR__  . '/shared-functionality/loader.php');
-}
