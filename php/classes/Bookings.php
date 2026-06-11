@@ -2050,7 +2050,7 @@ class Bookings
 
         // Loop over all subjects
         foreach ($this->subjects as $subject) {
-            if ($subject['payments']) {
+            if ($subject['payments'] ?? false) {
                 $this->payables[]   = $subject['name'];
             }
 
