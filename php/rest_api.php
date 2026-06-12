@@ -145,10 +145,10 @@ function getNextMonth()
 
     $bookings->forms->getForm((int) $_POST['form-id']);
 
-    $bookings->forms->shortcodeId        = (int) $_POST['shortcode-id'];
+    $bookings->forms->shortcodeId  = (int) $_POST['shortcode-id'];
 
     if (isset($_POST['element-id']) && is_numeric($_POST['element-id'])) {
-        $element                        = $bookings->forms->getElementById((int) $_POST['element-id']);
+        $element                   = $bookings->forms->getElementById((int) $_POST['element-id']);
     } else {
         foreach ($bookings->forms->formElements as $element) {
             if ($element->type == 'booking-selector') {
@@ -161,7 +161,7 @@ function getNextMonth()
     $subjectName    = TSJIPPY\sanitize($_POST['subject']);
     $date           = strtotime((int)$_POST['year'] . '-' . (int)$_POST['month'] . '-01');
 
-    $months            = [];
+    $months         = [];
     foreach ($bookings->getElementSubjects($element->id) as $subject) {
         if ($subject['name'] == $subjectName) {
             if ($subject['amount'] > 1) {
