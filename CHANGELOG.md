@@ -6,11 +6,16 @@
 ### Changed
 
 ### Fixed
+
+### Updated
+
+## [10.3.2] - 2026-06-13
+
+
+### Fixed
 - shared code loader
 - activation hook
 - payment index error
-
-### Updated
 
 ## [10.3.1] - 2026-06-11
 
