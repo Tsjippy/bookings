@@ -1001,7 +1001,7 @@ class Bookings
                                 $element    = $this->forms->getElementBySlug($slug);
                                 $data       = $submission->{$element->id};
 
-                                $transformedData   = $this->forms->transformInputData($data, $slug, $submission);
+                                $transformedData   = $this->forms->transformInputData($data, $element, $submission);
                                 if (empty($transformedData)) {
                                     $transformedData    = 'X';
                                 }
