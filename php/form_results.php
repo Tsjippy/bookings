@@ -162,7 +162,7 @@ function shouldShow($shouldShow, $displayFormResults, $type)
     foreach ($elements as $element) {
         foreach ($bookings->getElementSubjects($element->id) as $subject) {
             // Only show the subjects we are manager of
-            if (!is_array($subject['managers']) || !in_array($bookings->user->ID, $subject['managers'])) {
+            if (!in_array($bookings->user->ID, $subject['managers'] ?? [])) {
                 continue;
             }
 
