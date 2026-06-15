@@ -4,11 +4,16 @@
 ### Added
 
 ### Changed
-- transform inputdata now requires element
 
 ### Fixed
 
 ### Updated
+
+## [10.3.4] - 2026-06-15
+
+
+### Changed
+- transform inputdata now requires element
 
 ## [10.3.3] - 2026-06-13
 
