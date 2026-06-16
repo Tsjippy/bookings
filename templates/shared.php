@@ -49,7 +49,7 @@ function displayBooks()
 {
     $name                 = get_queried_object()->name;
     if (have_posts()) {
-        do_action('tsjippy_before_archive', 'book');
+        do_action('tsjippy-before-archive', 'book');
 
         //only show the map if logged in
         if (is_user_logged_in()) {

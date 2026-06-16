@@ -28,7 +28,7 @@ if (is_tax() || is_archive()) {
             $url = get_permalink(get_the_ID());
             the_title("<h3 class='archivetitle'><a href='$url'>", '</a></h3>', true);
         } else {
-            do_action('tsjippy_before_content');
+            do_action('tsjippy-before-content');
         }
         ?>
         <div class="description">
@@ -51,7 +51,7 @@ if (is_tax() || is_archive()) {
             } else {
                 if (empty($post->post_content)) {
                     /** @disregard P1008 */
-                    echo wp_kses_post(apply_filters('tsjippy_empty_description', 'No content found... ', $post));
+                    echo wp_kses_post(apply_filters('tsjippy-empty-description', 'No content found... ', $post));
                 }
 
                 the_content();

@@ -15,7 +15,7 @@ if (! defined('ABSPATH')) {
  *
  * It updates the amount to be paid if there are no issues
  */
-add_filter('tsjippy_before_inserting_formdata', __NAMESPACE__ . '\beforeSavingFormData', 99, 2);
+add_filter('tsjippy-before-inserting-formdata', __NAMESPACE__ . '\beforeSavingFormData', 99, 2);
 /**
  * Check for booking overlaps before saving form data
  *
@@ -134,7 +134,7 @@ function beforeSavingFormData($submission, $object)
  * This filter runs after the submission is inserted in the database.
  * We use it to create the booking in the database, and link it to the submission
  */
-add_filter('tsjippy_after_form_submission', __NAMESPACE__ . '\afterFormSubmission', 99, 3);
+add_filter('tsjippy-after-form-submission', __NAMESPACE__ . '\afterFormSubmission', 99, 3);
 /**
  * Process the form submission after it has been saved
  *

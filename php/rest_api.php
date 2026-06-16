@@ -9,7 +9,7 @@ if (! defined('ABSPATH')) {
 }
 
 // Make mailtracker rest api url publicy available
-add_filter('tsjippy_allowed_rest_api_urls', __NAMESPACE__ . '\allowedRestApiUrls');
+add_filter('tsjippy-allowed-rest-api-urls', __NAMESPACE__ . '\allowedRestApiUrls');
 /**
  * Allow additional REST API URLs
  *

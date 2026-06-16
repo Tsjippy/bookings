@@ -307,7 +307,7 @@ add_filter('tsjippy-forms-checkbox-options', function ($options, $object) {
 }, 10, 2);
 
 // Alter form results
-add_filter('tsjippy_retrieved_formdata', __NAMESPACE__ . '\formdataRetrieved', 10, 3);
+add_filter('tsjippy-retrieved-formdata', __NAMESPACE__ . '\formdataRetrieved', 10, 3);
 /**
  * Alter the form results
  * @param    array    $submissions    The current form submissions retrieved, can be altered to change the data shown in the form results
@@ -420,7 +420,7 @@ function formdataRetrieved($submissions, $userId, $object)
 /**
  * Change the submission data retrieved
  */
-add_filter('tsjippy_formdata_retrieval_query', __NAMESPACE__ . '\alterQuery', 10, 4);
+add_filter('tsjippy-formdata-retrieval-query', __NAMESPACE__ . '\alterQuery', 10, 4);
 /**
  * Change the submission data retrieved
  * @param    array    $params        The current query params, can be altered to change the data retrieved from the database

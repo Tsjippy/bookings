@@ -11,25 +11,25 @@ if (! defined('ABSPATH')) {
 add_action('init', __NAMESPACE__ . '\initTasks');
 function initTasks()
 {
-    add_action('payment_reminder_action', __NAMESPACE__ . '\paymentReminder');
+    add_action('tsjippy-payment-reminder', __NAMESPACE__ . '\paymentReminder');
 
-    add_action('booking_emails_action', __NAMESPACE__ . '\bookingEmails');
+    add_action('tsjippy-booking-emails', __NAMESPACE__ . '\bookingEmails');
 }
 
 function scheduleTasks()
 {
-    TSJIPPY\scheduleTask('booking_emails_action', 'daily');
+    TSJIPPY\scheduleTask('tsjippy-booking-emails', 'daily');
 
     $freq   = SETTINGS['payment-reminder-freq'] ?? false;
     if ($freq) {
-        TSJIPPY\scheduleTask('payment_reminder_action', $freq);
+        TSJIPPY\scheduleTask('tsjippy-payment-reminder', $freq);
     }
 }
 
 function paymentReminder()
 {
-    $forms         = new TSJIPPY\FORMS\EditFormResults([]);
-    $bookings     = new BookingPayments($forms);
+    $forms    = new TSJIPPY\FORMS\EditFormResults([]);
+    $bookings = new BookingPayments($forms);
     $bookings->sendPaymentReminders();
 }
 
@@ -38,7 +38,7 @@ function paymentReminder()
  */
 function bookingEmails()
 {
-    $bookings            = new Bookings();
+    $bookings = new Bookings();
 
     $bookings->sendBookingEmails();
 }
