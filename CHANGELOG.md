@@ -4,6 +4,7 @@
 ### Added
 
 ### Changed
+- hook and filer name update
 
 ### Fixed
 
