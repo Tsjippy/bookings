@@ -1034,7 +1034,7 @@ function formElementUpdated($element, $instance, $oldElement)
     }
 }
 
-add_filter('forms-shortcode-table-formats', __NAMESPACE__ . '\addShortcodeFormat', 10, 2);
+add_filter('tsjippy-forms-shortcode-table-formats', __NAMESPACE__ . '\addShortcodeFormat', 10, 2);
 /**
  * Add extra formats for the booking selector shortcode
  *
