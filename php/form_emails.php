@@ -41,7 +41,7 @@ function addBookingEmails($key, $email)
 }
 
 // adds validation for the extra columns in the emails table
-add_filter('forms-email-table-formats', __NAMESPACE__ . '\addEmailTableFormats', 10, 2);
+add_filter('tsjippy-forms-email-table-formats', __NAMESPACE__ . '\addEmailTableFormats', 10, 2);
 /**
  * Adds the formats for the extra columns in the emails table
  *

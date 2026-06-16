@@ -1050,7 +1050,7 @@ function addShortcodeFormat($formats, $object)
     return $formats;
 }
 
-add_filter('forms-form-table-formats', __NAMESPACE__ . '\addFormFormat', 10, 2);
+add_filter('tsjippy-forms-form-table-formats', __NAMESPACE__ . '\addFormFormat', 10, 2);
 /**
  * Add extra formats for the form table
  *
