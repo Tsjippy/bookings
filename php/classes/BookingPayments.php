@@ -407,7 +407,7 @@ class BookingPayments extends Bookings
         }
 
         if ($type == 'approval') {
-            add_filter('tsjippy-formresults-row-actions', [$this, 'pendingButtons'], 10, 3);
+            add_filter('tsjippy-forms-results-row-actions', [$this, 'pendingButtons'], 10, 3);
         }
 
         ob_start();
@@ -417,7 +417,7 @@ class BookingPayments extends Bookings
         $html   .= ob_get_clean();
 
         if ($type == 'approval') {
-            remove_filter('tsjippy-formresults-row-actions',  [$this, 'pendingButtons'], 10);
+            remove_filter('tsjippy-forms-results-row-actions',  [$this, 'pendingButtons'], 10);
         }
 
         return $html;

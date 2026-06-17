@@ -1069,7 +1069,7 @@ class Bookings
                                  * @param   object  $submission The current submission
                                  * @param   object  $object     The current DisplayFormResults object
                                  */
-                                $attributes = apply_filters('tsjippy-formresults-row-actions', $attributes, $submission, $this);
+                                $attributes = apply_filters('tsjippy-forms-results-row-actions', $attributes, $submission, $this);
 
                                 if (!empty($attributes)) {
                                 ?>

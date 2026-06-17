@@ -9,7 +9,7 @@ if (! defined('ABSPATH')) {
 }
 
 // the choice for table view or calendar view
-add_action('tsjippy-formstable-after-table-settings', __NAMESPACE__ . '\tableSettings');
+add_action('tsjippy-forms-after-table-settings', __NAMESPACE__ . '\tableSettings');
 /**
  * Add the option to choose between table view and calendar view in the form results
  * @param    object    $displayFormResults    The current instance of the form table class, can be used to get more information about the form and the user to decide which options to show
@@ -49,7 +49,7 @@ function tableSettings($displayFormResults)
 }
 
 // give table view permissions if we are a subject manager
-add_filter('tsjippy-table-edit-permissions', __NAMESPACE__ . '\changeTableViewPermissions', 10, 2);
+add_filter('tsjippy-forms-table-edit-permissions', __NAMESPACE__ . '\changeTableViewPermissions', 10, 2);
 /**
  * Give table view permissions if we are a subject manager
  * @param    bool    $tableViewPermissions    Whether or not the user has permissions to view the table, default false
@@ -84,7 +84,7 @@ function changeTableViewPermissions($tableViewPermissions, $object)
 }
 
 // Display calendar instead of a table
-add_filter('tsjippy-formstable-should-show', __NAMESPACE__ . '\shouldShow', 10, 3);
+add_filter('tsjippy-forms-table-should-show', __NAMESPACE__ . '\shouldShow', 10, 3);
 /**
  * Filter whether or not to show the table, this can be used to for example show a message instead of the table when there are no submissions or when the user has no permissions
  * @param    bool    $shouldShow                Whether or not to show the table, default true
@@ -254,7 +254,7 @@ function shouldShow($shouldShow, $displayFormResults, $type)
 }
 
 // Change Archive button text
-add_filter('tsjippy-formresults-row-actions', __NAMESPACE__ . '\actionHtml', 10, 3);
+add_filter('tsjippy-forms-results-row-actions', __NAMESPACE__ . '\actionHtml', 10, 3);
 /**
  * Change the Archive button text
  * @param    array    $attributes   Array of button attributes
