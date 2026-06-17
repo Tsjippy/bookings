@@ -848,7 +848,7 @@ class Bookings
                     ?>
                         <dt
                             class='calendar day <?php echo esc_attr($class); ?>'
-                            data-date='<?php echo esc_attr(gmdate(TSJIPPY\DATEFORMATTEFORMATTEFORMATTEFORMATTEFORMAT, $workingDate)); ?>'
+                            data-date='<?php echo esc_attr(gmdate(TSJIPPY\DATEFORMATTEFORMATTEFORMAT, $workingDate)); ?>'
                             data-isodate='<?php echo esc_attr(gmdate('Y-m-d', $workingDate)); ?>'
                             <?php echo wp_kses_post($data); ?>>
                             <span class='day-nr'>
@@ -937,12 +937,12 @@ class Bookings
                                     <table data-form-id='<?php echo esc_attr($submission->form_id); ?>' data-shortcode-id='<?php echo esc_attr($this->forms->shortcodeId); ?>' style='margin-bottom: 0px; width:unset;'>
                                         <tr data-submission-id='<?php echo esc_attr($submission->id); ?>'>
                                             <td data-name='booking-start-date' data-element-id='<?php echo esc_attr($this->forms->getElementBySlug('booking-start-date')->id); ?>' <?php echo esc_attr($subId); ?> data-booking-id='<?php echo esc_attr($submission->booking_id); ?>' class='edit forms-table'>
-                                                <?php echo esc_html(gmdate(TSJIPPY\DATEFORMATTEFORMATTEFORMATTEFORMATTEFORMAT, strtotime($submission->{'booking-start-date'}))); ?>
+                                                <?php echo esc_html(gmdate(TSJIPPY\DATEFORMATTEFORMATTEFORMAT, strtotime($submission->{'booking-start-date'}))); ?>
                                             </td>
                                         </tr>
                                         <tr data-submission-id='<?php echo esc_attr($submission->id); ?>'>
                                             <td data-name='booking-end-date' data-element-id='<?php echo esc_attr($this->forms->getElementBySlug('booking-end-date')->id); ?>' <?php echo esc_attr($subId); ?> data-booking-id='<?php echo esc_attr($submission->booking_id); ?>' class='edit forms-table'>
-                                                <?php echo esc_html(gmdate(TSJIPPY\DATEFORMATTEFORMATTEFORMATTEFORMATTEFORMAT, strtotime($submission->{'booking-end-date'}))); ?>
+                                                <?php echo esc_html(gmdate(TSJIPPY\DATEFORMATTEFORMATTEFORMAT, strtotime($submission->{'booking-end-date'}))); ?>
                                             </td>
                                         </tr>
                                     </table>
@@ -1343,8 +1343,8 @@ class Bookings
                 $subject    .= " room $room";
             }
 
-            $startDateString    = gmdate(TSJIPPY\DATEFORMATTEFORMATTEFORMATTEFORMATTEFORMAT, strtotime($overlappingBookings[0]->start_date));
-            $endDateString      = gmdate(TSJIPPY\DATEFORMATTEFORMATTEFORMATTEFORMATTEFORMAT, strtotime($overlappingBookings[0]->end_date));
+            $startDateString    = gmdate(TSJIPPY\DATEFORMATTEFORMATTEFORMAT, strtotime($overlappingBookings[0]->start_date));
+            $endDateString      = gmdate(TSJIPPY\DATEFORMATTEFORMATTEFORMAT, strtotime($overlappingBookings[0]->end_date));
             return new \WP_Error('booking', "The booking for $subject overlaps with an existing one from $startDateString till $endDateString, try again");
         }
 
@@ -1467,8 +1467,8 @@ class Bookings
                 $subject    .= " room $room";
             }
 
-            $startDateString    = gmdate(TSJIPPY\DATEFORMATTEFORMATTEFORMATTEFORMATTEFORMAT, strtotime($overlappingBookings[0]->start_date));
-            $endDateString      = gmdate(TSJIPPY\DATEFORMATTEFORMATTEFORMATTEFORMATTEFORMAT, strtotime($overlappingBookings[0]->end_date));
+            $startDateString    = gmdate(TSJIPPY\DATEFORMATTEFORMATTEFORMAT, strtotime($overlappingBookings[0]->start_date));
+            $endDateString      = gmdate(TSJIPPY\DATEFORMATTEFORMATTEFORMAT, strtotime($overlappingBookings[0]->end_date));
             return new \WP_Error('booking', "The booking for $subject overlaps with an existing one from $startDateString till $endDateString, try again");
         }
 
