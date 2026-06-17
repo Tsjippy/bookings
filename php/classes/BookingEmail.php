@@ -24,7 +24,7 @@ class BookingEmail extends ADMIN\MailSetting
 
         $this->replaceArray['%id%']                         = $this->booking->id;
         $this->replaceArray['%subject%']                    = $this->booking->subject;
-        $this->replaceArray['%duration%']                   = "from " . gmdate(TSJIPPY\DATEFORMATTEFORMATTEFORMATTEFORMATTEFORMAT, strtotime($this->booking->sTSJIPPY\DATEFORMATJIPPY\DATEFORMATJIPPY\DATEFORMATJIPPY\DATEFORMATJIPPY\DATEFORMAT, strtotime($this->booking->end_date));
+        $this->replaceArray['%duration%']                   = "from " . gmdate(TSJIPPY\DATEFORMAT, strtotime($this->booking->start_date)) . " till " . gmdate(TSJIPPY\DATEFORMAT, strtotime($this->booking->end_date));
         $this->replaceArray['%payable%']                    = '';
         $this->replaceArray['%payment_details%']            = '';
         $this->replaceArray['%price_per_night%']            = '';

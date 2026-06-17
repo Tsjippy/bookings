@@ -30,7 +30,7 @@ function transformArray($string, $replaceValue, $forms, $match)
 }
 
 // add the booking details to the drop down for use in e-mails
-add_action('tsjippy-add-email-placeholder-option', __NAMESPACE__ . '\placeholderOption');
+add_action('tsjippy-forms-add-email-placeholder-option', __NAMESPACE__ . '\placeholderOption');
 /**
  * Add booking details as email placeholders
  *

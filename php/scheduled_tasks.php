@@ -8,21 +8,14 @@ if (! defined('ABSPATH')) {
     exit;
 }
 
-add_action('init', __NAMESPACE__ . '\initTasks');
-function initTasks()
-{
-    add_action('tsjippy-payment-reminder', __NAMESPACE__ . '\paymentReminder');
-
-    add_action('tsjippy-booking-emails', __NAMESPACE__ . '\bookingEmails');
-}
-
+add_action('init', __NAMESPACE__ . '\scheduleTasks');
 function scheduleTasks()
 {
-    TSJIPPY\scheduleTask('tsjippy-booking-emails', 'daily');
+    TSJIPPY\scheduleTask('tsjippy-bookings-emails', 'daily', __NAMESPACE__, 'bookingEmails');
 
     $freq   = SETTINGS['payment-reminder-freq'] ?? false;
     if ($freq) {
-        TSJIPPY\scheduleTask('tsjippy-payment-reminder', $freq);
+        TSJIPPY\scheduleTask('tsjippy-bookings-payment-reminder', $freq, __NAMESPACE__, 'paymentReminder');
     }
 }
 

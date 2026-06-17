@@ -8,7 +8,7 @@ if (! defined('ABSPATH')) {
     exit;
 }
 
-add_action('tsjippy-frontend-post-content-title', __NAMESPACE__ . '\contentTitle');
+add_action('tsjippy-frontend-content-post-content-title', __NAMESPACE__ . '\contentTitle');
 /**
  * Sets the title for the booking subject content
  *
@@ -29,7 +29,7 @@ function contentTitle($postType)
 <?php
 }
 
-add_filter('tsjippy-frontendcontent-posttype', __NAMESPACE__ . '\filterPostType');
+add_filter('tsjippy-frontend-content-posttype', __NAMESPACE__ . '\filterPostType');
 /**
  * Filters the post type for frontend content
  *

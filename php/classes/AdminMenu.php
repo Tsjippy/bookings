@@ -76,13 +76,4 @@ class AdminMenu extends ADMIN\SubAdminMenu
 
         return false;
     }
-
-    /**
-     * Schedules the tasks for this plugin
-     *
-     */
-    public function postSettingsSave()
-    {
-        scheduleTasks();
-    }
 }

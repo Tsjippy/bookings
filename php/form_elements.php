@@ -9,7 +9,7 @@ if (! defined('ABSPATH')) {
 }
 
 // Add a new type to the element choice dropdown
-add_filter('tsjippy-special-form-elements', __NAMESPACE__ . '\specialFormElements');
+add_filter('tsjippy-forms-special-form-elements', __NAMESPACE__ . '\specialFormElements');
 /**
  * Add booking selector to the list of special form elements
  *

@@ -19,9 +19,9 @@ if (is_tax() || is_archive()) {
 
 ?>
 <article id="post-<?php the_ID(); ?>" <?php post_class(); ?>>
-    <div class="cat-card<?php if ($archive) {
-                            echo ' inside-article';
-                        } ?>">
+    <div 
+        class="cat-card
+        <?php if ($archive) {  echo ' inside-article'; } ?>">
 
         <?php
         if ($archive) {
