@@ -10,6 +10,7 @@
 - prefix all hooks with plugin name
 
 ### Fixed
+- load forms on scheduled task
 
 ### Updated
 
