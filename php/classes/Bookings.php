@@ -1915,6 +1915,8 @@ class Bookings
 
             $this->forms->formData  = $form;
 
+            $this->forms->getForm($form->id);
+
             $this->getBookingElements(true);
 
             if (empty($this->bookingElements)) {

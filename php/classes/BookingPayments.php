@@ -205,7 +205,7 @@ class BookingPayments extends Bookings
     public function sendPaymentReminders()
     {
         // no form loaded, load them all, and send payment reminder for each of them
-        if (empty($this->forms->formData)) {
+        if (empty((array) $this->forms->formData)) {
             $this->forms->getForms();
 
             // Send payment reminder for each form
@@ -214,8 +214,9 @@ class BookingPayments extends Bookings
 
                 $result = $this->getBookingElements(true);
 
-                // this form has booking selector in it
+                // this form has a booking selector in it
                 if (!is_wp_error($result) && !empty($result)) {
+                    // Call this function again but now with the formdata loaded
                     $this->sendPaymentReminders();
                 }
             }
