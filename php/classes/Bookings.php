@@ -78,7 +78,7 @@ class Bookings
             $metas                                            = get_post_meta($post->ID);
 
             foreach ($metas as $key => $value) {
-                $this->subjects[$post->post_title][$key]      = array_map('maybe_unserialize', $value);
+                $this->subjects[$post->post_title][str_replace('tsjippy_', '', $key)] = array_map('maybe_unserialize', $value);
             }
             $this->subjects[$post->post_title]['element-id']   = get_post_meta($post->ID, 'tsjippy_element-id', true);
             $this->subjects[$post->post_title]['post-id']      = $post->ID;
