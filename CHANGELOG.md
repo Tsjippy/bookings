@@ -11,6 +11,7 @@
 
 ### Fixed
 - load forms on scheduled task
+- get subject managers
 
 ### Updated
 
