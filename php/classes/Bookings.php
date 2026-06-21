@@ -1796,7 +1796,7 @@ class Bookings
      *
      *  @param  string|int  $date   The date in 'Y-m-d' format or unix timestamp
      */
-    public function retrieveBookingsByEndgmdate($date)
+    public function retrieveBookingsByEndDate($date)
     {
         global $wpdb;
 
@@ -1814,7 +1814,7 @@ class Bookings
      *
      *  @param  string|int  $date   The date in 'Y-m-d' format or unix timestamp
      */
-    public function retrieveBookingsByStartgmdate($date)
+    public function retrieveBookingsByStartDate($date)
     {
         global $wpdb;
 
@@ -1837,13 +1837,14 @@ class Bookings
      */
     public function getBookingById($id)
     {
-        global $wpdb;
 
-        $results    =  $wpdb->get_results($wpdb->prepare(
+        $results = TSJIPPY\getFromDb(
+            "booking_id_$id", 
+            'bookings', 
             "SELECT * FROM %i WHERE id=%d",
             $this->tableName,
             $id
-        ));
+        );
 
         if (!empty($results)) {
             return $results[0];
@@ -1861,10 +1862,12 @@ class Bookings
      * */
     public function getBookingsBySubmission($id)
     {
-        global $wpdb;
-
-        $results    = $wpdb->get_results(
-            $wpdb->prepare("SELECT * FROM %i WHERE submission_id=%d", $this->tableName, $id)
+        $results    = TSJIPPY\getFromDb(
+            "booking_by_submission_$id",
+            'bookings',
+            "SELECT * FROM %i WHERE submission_id=%d", 
+            $this->tableName, 
+            $id
         );
 
         if (!empty($results)) {
@@ -1934,10 +1937,10 @@ class Bookings
 
                     if ($mail->email_trigger == 'before-stay') {
                         $date       = gmdate('Y-m-d', strtotime("+{$mail->days_before} days", time()));
-                        $bookings   = $this->retrieveBookingsByStartgmdate($date);
+                        $bookings   = $this->retrieveBookingsByStartDate($date);
                     } elseif ($mail->email_trigger == 'after-stay') {
                         $date       = gmdate('Y-m-d', strtotime("-{$mail->days_after} days", time()));
-                        $bookings   = $this->retrieveBookingsByEndgmdate($date);
+                        $bookings   = $this->retrieveBookingsByEndDate($date);
                     }
 
                     foreach ($bookings as $booking) {

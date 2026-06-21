@@ -17,8 +17,8 @@ class BookingPayments extends Bookings
     /**
      * Retrieve all the unpaid bookings
      *
-     * @param   bool    $onlyFinished       True to only return bookings that are finished
-     * @param   bool    $all                Whether to get unpaid bookings for all users. Default false;
+     * @param   bool    $onlyFinished True to only return bookings that are finished
+     * @param   bool    $all          Whether to get unpaid bookings for all users. Default false;
      */
     public function retrieveUnPaidBookings($onlyFinished, $all = false)
     {
@@ -38,7 +38,7 @@ class BookingPayments extends Bookings
             return [];
         }
 
-        $query            = "SELECT * FROM %i WHERE (`paid` != 1 OR `paid` IS NULL)";
+        $query          = "SELECT * FROM %i WHERE (`paid` != 1 OR `paid` IS NULL)";
 
         $values         = [$this->tableName];
 
