@@ -5,6 +5,7 @@
 
 ### Changed
 - payments html to dom elements
+- implemented db caching
 
 ### Fixed
 
