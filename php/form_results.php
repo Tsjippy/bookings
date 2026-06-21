@@ -3,6 +3,7 @@
 namespace TSJIPPY\BOOKINGS;
 
 use TSJIPPY;
+use function TSJIPPY\addElement as addElement;
 
 if (! defined('ABSPATH')) {
     exit;
@@ -106,7 +107,7 @@ function shouldShow($shouldShow, $displayFormResults, $type)
         return $shouldShow;
     }
 
-    $html   = '';
+    $dom    = new \DOMDocument();
 
     /**
      * Data should always be splitted if we are in calendar view
@@ -114,7 +115,7 @@ function shouldShow($shouldShow, $displayFormResults, $type)
      * We render our own submissions as a table, before continuing with the calendar view
      */
     if ($type == 'all') {
-        $html       = $displayFormResults->renderTable('own');
+        $displayFormResults->renderTable(type: 'own', parent: $dom);
 
         $type       = 'others';
     }
@@ -153,9 +154,8 @@ function shouldShow($shouldShow, $displayFormResults, $type)
         $targetDate                     = strtotime($targetDate);
     }
 
-    $html   .= '<div class="tables-wrapper">';
+    $div    = addElement('div', $dom, ['class' => "tables-wrapper"]);
 
-    $calendars  = '';
     $subjects   = [];
 
     // Find the subject names
@@ -176,81 +176,80 @@ function shouldShow($shouldShow, $displayFormResults, $type)
     if ($type == 'own') {
 
         // Pending bookings
-        $html       .= $bookings->pendingBookingsHtml('approval');
-        $html       .= $bookings->pendingBookingsHtml('payment');
+        $bookings->pendingBookingsHtml($div, 'approval');
+        $bookings->pendingBookingsHtml($div, 'payment');
 
         // Get the bookings for the current user
         $displayFormResults->parseSubmissions($bookings->user->ID);
 
         if (empty($displayFormResults->submissions)) {
-            return $html . "You do not have any bookings. ";
+            return $dom->saveHTML() . "You do not have any bookings. ";
         }
 
-        $html       .= "<h4>Your Current Bookings</h4>";
-        $html       .= "<div class='details-wrapper' style='max-width:500px;display:flex;'>";
+        addElement('h4', $div, [], "Your Current Bookings");
+
+        $detailsWrapper = addElement('div', $div, ['class' => 'details-wrapper', 'style' => 'max-width:500px;display:flex;']);
 
         foreach ($displayFormResults->submissions as $submission) {
             $result = $bookings->getBookingsBySubmission($submission->id);
 
             if (is_array($result)) {
                 // We only need the details for the first booking of each submission
-                $html   .= $bookings->submissionDetails($result[0], $submission, false);
+                TSJIPPY\addRawHtml($bookings->submissionDetails($result[0], $submission, false), $detailsWrapper);
             }
         }
-        $html       .= '</div>';
 
-        return $html . '</div>';
+        return $dom->saveHTML();
     }
 
     // Only show subject selection if there is something to choose
-    $checkboxes = '';
+    $formDataTable      = addElement('div', $div, ['class' => "form-data-table"]);
+    $checkBoxWrapper    = addElement('div', $formDataTable, ['class' => 'checkbox-wrapper']);
+    $calendarWrapper    = addElement('div', $formDataTable, ['class' => 'calendar-wrapper']);
+
     if (count($subjects) > 1) {
-        $checkboxes = '<h4>Please select the calendar you like to see</h4>';
+        addElement('h4', $checkBoxWrapper, [], 'Please select the calendar you like to see');
     }
 
     foreach ($subjects as $subject) {
         $bookings->bookings  = [];   // reset the bookings so they do not include the previous location
 
-        $checked    = '';
+        $cleanSubject   = trim($subject['name']);
+
+        $attributes = [
+            'type'  => 'checkbox',
+            'class' => 'admin-booking-subject-selector',
+            'value' => $cleanSubject
+        ];
+
         $hidden     = true;
         if ($subject['name'] == $bookedSubject || count($subjects) == 1) {
-            $checked    = 'checked';
+            $attributes['checked']    = 'checked';
             $hidden     = false;
         }
 
-        $cleanSubject   = trim($subject['name']);
-
         if (count($subjects) > 1) {
-            $checkboxes .= "<label>";
-            $checkboxes .= "<input type='checkbox' class='admin-booking-subject-selector' value='$cleanSubject' $checked>";
-            $checkboxes .= $cleanSubject;
-            $checkboxes .= "</label>";
+            $label  = addElement('label', $checkBoxWrapper, [], $cleanSubject);
+            addElement('input', $label, $attributes);
         }
 
-        $calendars  .= $bookings->modalContent('', $subject, $targetDate, true, $hidden, true);
+        $bookings->modalContent($calendarWrapper, $subject, $targetDate, true, $hidden, true);
     }
-
-    $html   .= '<div class="form-data-table">';
-    $html   .= $checkboxes;
-    $html   .= $calendars;
-    $html   .= "</div>";
 
     // Export buttons
     if (array_intersect($bookings->forms->userRoles, array_keys($bookings->forms->tableSettings->view_right_roles))) {
-        $html   .= "<div>";
-        $html   .= "<form method='post' class='export-form' id='export-xls'>";
-        $html   .= "<button class='button button-primary' type='submit' name='export-xls'>Export data to excel</button>'";
-        $html   .= "</form>";
-        if (SETTINGS['pdf'] ?? false) {
-            $html   .= "<form method='post' class='export-form' id='export-pdf'>";
-            $html   .= "<button class=button button-primary type='submit' name='export-pdf'>Export data to pdf</button>";
-            $html   .= "</form>";
-        }
-        $html   .= "</div>";
-    }
-    $html   .= '</div>';
+        $div    = addElement('div', $div);
 
-    return $html;
+        $form   = addElement('form', $div, ['method' => 'post', 'class' => 'export-form', 'id' => 'export-xls']);
+        addElement('button', $form, ['class' => 'button button-primary', 'type' => 'submit', 'name' => 'export-xls'], 'Export data to excel');
+
+        if (SETTINGS['pdf'] ?? false) {
+            $form   = addElement('form', $div, ['method' => 'post', 'class' => 'export-form', 'id' => 'export-pdf']);
+            addElement('button', $form, ['class' => 'button button-primary', 'type' => 'submit', 'name' => 'export-pdf'], 'Export data to pdf');
+        }
+    }
+
+    return $dom->saveHTML();
 }
 
 // Change Archive button text

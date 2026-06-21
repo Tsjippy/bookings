@@ -450,7 +450,7 @@ class Bookings
 
     /**
      * Displays the booking calendars
-     * @param   object      $node       The node to append to
+     * @param   object      $parent     The node to append to
      * @param   array       $subject    The subject of the calendar
      * @param   int         $date       The date to retrieve the calendar for
      * @param   boolean     $isAdmin    Wheter to show for admin purposes
@@ -458,12 +458,12 @@ class Bookings
      *
      * @return  string                  The html
      */
-    public function modalContent($node, $subject, $date, $isAdmin = false, $hidden = false, $isResult = false)
+    public function modalContent($parent, $subject, $date, $isAdmin = false, $hidden = false, $isResult = false)
     {
         $returnHtml = false;
-        if (empty($node)) {
+        if (empty($parent)) {
             // Create a new DOMDocument object
-            $node         = $this->forms->dom;
+            $parent         = $this->forms->dom;
 
             $returnHtml = true;
         }
@@ -486,7 +486,7 @@ class Bookings
             $attributes["data-shortcode-id"] = $this->forms->shortcodeId;
         }
 
-        $wrapper        = $this->forms->addElement('div', $node, $attributes);
+        $wrapper        = $this->forms->addElement('div', $parent, $attributes);
 
         $overview       = $this->forms->addElement('div', $wrapper, ['class' => "booking overview"]);
 

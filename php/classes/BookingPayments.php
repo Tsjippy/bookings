@@ -359,9 +359,10 @@ class BookingPayments extends Bookings
     /**
      * Shows the html to list, approve and or delete pending bookings
      *
-     * @param   string  $type       One of approval or payment to show bookings that are pending approval or pending payment
+     * @param   \DOMElement $parent  The element to add to
+     * @param   string      $type    One of approval or payment to show bookings that are pending approval or pending payment
      */
-    public function pendingBookingsHtml($type = 'approval')
+    public function pendingBookingsHtml($parent, $type = 'approval')
     {
         /**
          * Only managers should see this
@@ -384,7 +385,7 @@ class BookingPayments extends Bookings
             return '';
         }
 
-        $html   = "<h4>Bookings Pending " . ucfirst($type) . "</h4>";
+        TSJIPPY\addElement('h4', $parent, [], "Bookings Pending " . ucfirst($type) . "</h4>");
 
         $submissions    = [];
 
@@ -407,21 +408,17 @@ class BookingPayments extends Bookings
             return '';
         }
 
+        // Add filter to add extra buttons to the table
         if ($type == 'approval') {
             add_filter('tsjippy-forms-results-row-actions', [$this, 'pendingButtons'], 10, 3);
         }
 
-        ob_start();
+        $this->forms->theTable('all', $submissions, $parent);
 
-        $this->forms->theTable('all', $submissions);
-
-        $html   .= ob_get_clean();
-
+        // Remove the filter again
         if ($type == 'approval') {
             remove_filter('tsjippy-forms-results-row-actions',  [$this, 'pendingButtons'], 10);
         }
-
-        return $html;
     }
 
     /**
