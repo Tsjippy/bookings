@@ -4,6 +4,7 @@
 ### Added
 
 ### Changed
+- payments html to dom elements
 
 ### Fixed
 
