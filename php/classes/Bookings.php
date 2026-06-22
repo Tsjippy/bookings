@@ -848,7 +848,7 @@ class Bookings
                     ?>
                         <dt
                             class='calendar day <?php echo esc_attr($class); ?>'
-                            data-date='<?php echo esc_attr(gmdate(TSJIPPY\DATEFORMATTEFORMATTEFORMAT, $workingDate)); ?>'
+                            data-date='<?php echo esc_attr(gmdate(TSJIPPY\DATEFORMAT, $workingDate)); ?>'
                             data-isodate='<?php echo esc_attr(gmdate('Y-m-d', $workingDate)); ?>'
                             <?php echo wp_kses_post($data); ?>>
                             <span class='day-nr'>
@@ -888,8 +888,8 @@ class Bookings
      */
     public function submissionDetails($booking, $submission, $hide, $echo = false)
     {
-        if (!empty($submission->subId)) {
-            $subId  = "data-subid='$submission->subId'";
+        if (!empty($booking->room)) {
+            $subId  = "data-subid='$booking->room'";
         } else {
             $subId  = '';
         }
@@ -910,13 +910,13 @@ class Bookings
         }
 
         ?>
-        <div class='booking-detail-wrapper <?php echo esc_attr($hidden); ?>' data-booking-id='<?php echo esc_attr($submission->booking_id); ?>'>
+        <div class='booking-detail-wrapper <?php echo esc_attr($hidden); ?>' data-booking-id='<?php echo esc_attr($booking->id); ?>'>
             <h6 class='booking-title'>
                 Booking details
             </h6>
 
             <article class='booking'>
-                <h4 class='booking-title'><?php echo esc_html($submission->slug ?? ''); ?></h4>
+                <h4 class='booking-title'><?php echo esc_html($booking->subject ?? ''); ?></h4>
                 <div class='booking-detail'>
                     <table data-form-id='<?php echo esc_attr($submission->form_id); ?>' style='width: unset;'>
                         <thead></thead>
@@ -925,8 +925,8 @@ class Bookings
                                 <td>
                                     <img src='<?php echo esc_url($this->picturesUrl); ?>/subject.png' loading='lazy' alt='<?php echo esc_attr($this->bookingElements[0]->name); ?>' class='booking-icon' title='<?php echo esc_attr($this->bookingElements[0]->name); ?>'>
                                 </td>
-                                <td class='booking-data-wrapper edit forms-table' data-element-id='<?php echo esc_attr($this->bookingElements[0]->id); ?>' data-name='<?php echo esc_attr($this->bookingElements[0]->slug); ?>' data-booking-id='<?php echo esc_attr($submission->booking_id); ?>'>
-                                    <?php echo esc_html($submission->{$this->bookingElements[0]->id}) ?>
+                                <td class='booking-data-wrapper edit forms-table' data-element-id='<?php echo esc_attr($this->bookingElements[0]->id); ?>' data-name='<?php echo esc_attr($this->bookingElements[0]->slug); ?>' data-booking-id='<?php echo esc_attr($booking->id); ?>'>
+                                    <?php echo esc_html($this->bookingElements[0]->name) ?>
                                 </td>
                             </tr>
                             <tr>
@@ -936,13 +936,13 @@ class Bookings
                                 <td class='booking-data-wrapper edit forms-table'>
                                     <table data-form-id='<?php echo esc_attr($submission->form_id); ?>' data-shortcode-id='<?php echo esc_attr($this->forms->shortcodeId); ?>' style='margin-bottom: 0px; width:unset;'>
                                         <tr data-submission-id='<?php echo esc_attr($submission->id); ?>'>
-                                            <td data-name='booking-start-date' data-element-id='<?php echo esc_attr($this->forms->getElementBySlug('booking-start-date')->id); ?>' <?php echo esc_attr($subId); ?> data-booking-id='<?php echo esc_attr($submission->booking_id); ?>' class='edit forms-table'>
-                                                <?php echo esc_html(gmdate(TSJIPPY\DATEFORMATTEFORMATTEFORMAT, strtotime($submission->{'booking-start-date'}))); ?>
+                                            <td data-name='booking-start-date' data-element-id='<?php echo esc_attr($this->forms->getElementBySlug('booking-start-date')->id); ?>' <?php echo esc_attr($subId); ?> data-booking-id='<?php echo esc_attr($booking->id); ?>' class='edit forms-table'>
+                                                <?php echo esc_html(gmdate(TSJIPPY\DATEFORMAT, strtotime($booking->start_date))); ?>
                                             </td>
                                         </tr>
                                         <tr data-submission-id='<?php echo esc_attr($submission->id); ?>'>
-                                            <td data-name='booking-end-date' data-element-id='<?php echo esc_attr($this->forms->getElementBySlug('booking-end-date')->id); ?>' <?php echo esc_attr($subId); ?> data-booking-id='<?php echo esc_attr($submission->booking_id); ?>' class='edit forms-table'>
-                                                <?php echo esc_html(gmdate(TSJIPPY\DATEFORMATTEFORMATTEFORMAT, strtotime($submission->{'booking-end-date'}))); ?>
+                                            <td data-name='booking-end-date' data-element-id='<?php echo esc_attr($this->forms->getElementBySlug('booking-end-date')->id); ?>' <?php echo esc_attr($subId); ?> data-booking-id='<?php echo esc_attr($booking->id); ?>' class='edit forms-table'>
+                                                <?php echo esc_html(gmdate(TSJIPPY\DATEFORMAT, strtotime($booking->end_date))); ?>
                                             </td>
                                         </tr>
                                     </table>
@@ -950,14 +950,14 @@ class Bookings
                             </tr>
 
                             <?php
-                            if (!empty($submission->{'booking-rooms'})) {
+                            if (!empty($booking->room)) {
                             ?>
                                 <tr class='room' data-submission-id='<?php echo esc_attr($submission->id); ?>'>
                                     <td>
                                         <img src='<?php echo esc_url($this->picturesUrl); ?>/room.png' loading='lazy' alt='Room' class='booking-icon' title='Room'>
                                     </td>
-                                    <td class='booking-data-wrapper edit forms-table' data-element-id='-104' <?php echo esc_attr($subId); ?> data-name='booking-rooms' data-booking-id='<?php echo esc_attr($submission->booking_id); ?>'>
-                                        <?php echo esc_attr($submission->{'booking-rooms'}); ?>
+                                    <td class='booking-data-wrapper edit forms-table' data-element-id='-104' <?php echo esc_attr($subId); ?> data-name='booking-rooms' data-booking-id='<?php echo esc_attr($booking->id); ?>'>
+                                        <?php echo esc_attr($booking->room); ?>
                                     </td>
                                 </tr>
                             <?php
@@ -1034,7 +1034,6 @@ class Bookings
                             if (!empty($this->forms->formData->actions)) {
                                 //loop over all the actions
                                 $attributes    = [];
-                                $buttons        = '';
                                 foreach ($this->forms->formData->actions as $action) {
                                     $editRoles  = (array)$this->forms->columnSettings[$action]['edit_right_roles'] ?? [];
 
@@ -1206,14 +1205,12 @@ class Bookings
      * @param   int     $endDate        The end_date epoch of a booking
      * @param   string  $subject        The subject  of a booking
      * @param   string  $room           The room of a booking
-     * @param   int     $id             An booking id to ignore to check exclude the the booking itself
+     * @param   int     $id             An booking id to ignore to exclude the booking itself
      *
      * @return  array                   An array with overlapping bookings
      */
     public function checkOverlap($startDate, $endDate, $subject, $room, $id = -1)
     {
-        global $wpdb;
-
         // First check if a booking on these dates doesn't exist
         $query        = "SELECT * FROM %i WHERE pending=0 AND subject = %s AND room = %s AND (%s BETWEEN start_date and end_date OR %s BETWEEN start_date and end_date)";
         $values     = [
@@ -1224,16 +1221,25 @@ class Bookings
             $endDate
         ];
 
+        $cacheKey   = "get_bookings_for_{$subject}_room_{$room}_startdate_{$startDate}_enddate_{$endDate}";
+
         if ($id != -1) {
-            $query  .= " AND NOT id=%d";
-            $values[] = $id;
+            $query      .= " AND NOT id=%d";
+            $values[]    = $id;
+
+            $cacheKey   .= "_excluding{$id}";
         }
 
         //sort on start_date
         $query                .= " ORDER BY `start_date`, `start_time` ASC";
 
         // phpcs:ignore
-        $bookings           = $wpdb->get_results($wpdb->prepare($query, $values));
+        $bookings           = TSJIPPY\getFromDb(
+            $cacheKey,
+            "bookings",
+            $query, 
+            $values
+        );
 
         $overlap            = false;
 
@@ -1343,8 +1349,8 @@ class Bookings
                 $subject    .= " room $room";
             }
 
-            $startDateString    = gmdate(TSJIPPY\DATEFORMATTEFORMATTEFORMAT, strtotime($overlappingBookings[0]->start_date));
-            $endDateString      = gmdate(TSJIPPY\DATEFORMATTEFORMATTEFORMAT, strtotime($overlappingBookings[0]->end_date));
+            $startDateString    = gmdate(TSJIPPY\DATEFORMAT, strtotime($overlappingBookings[0]->start_date));
+            $endDateString      = gmdate(TSJIPPY\DATEFORMAT, strtotime($overlappingBookings[0]->end_date));
             return new \WP_Error('booking', "The booking for $subject overlaps with an existing one from $startDateString till $endDateString, try again");
         }
 
@@ -1467,8 +1473,8 @@ class Bookings
                 $subject    .= " room $room";
             }
 
-            $startDateString    = gmdate(TSJIPPY\DATEFORMATTEFORMATTEFORMAT, strtotime($overlappingBookings[0]->start_date));
-            $endDateString      = gmdate(TSJIPPY\DATEFORMATTEFORMATTEFORMAT, strtotime($overlappingBookings[0]->end_date));
+            $startDateString    = gmdate(TSJIPPY\DATEFORMAT, strtotime($overlappingBookings[0]->start_date));
+            $endDateString      = gmdate(TSJIPPY\DATEFORMAT, strtotime($overlappingBookings[0]->end_date));
             return new \WP_Error('booking', "The booking for $subject overlaps with an existing one from $startDateString till $endDateString, try again");
         }
 
@@ -1664,11 +1670,13 @@ class Bookings
         global $wpdb;
 
         // Delete potential existing bookings;
-        $results    = $wpdb->get_results($wpdb->prepare(
-            "Select * FROM %i WHERE `subject` LIKE %s",
+        $results    = TSJIPPY\getFromDb(
+            "get_bookings_for_".($subjectData['name'] ?? ''),
+            "bookings",
+            "select * FROM %i WHERE `subject` LIKE %s",
             $this->tableName,
             $wpdb->esc_like($subjectData['name'] ?? '') . '%'
-        ));
+        );
 
         foreach ($results as $booking) {
             $this->removeBooking($booking);
@@ -1761,7 +1769,9 @@ class Bookings
         $startDate  = "$year-$month-01";
         $endDate    = gmdate("Y-m-t", strtotime($startDate));
 
-        $result             = $wpdb->get_results($wpdb->prepare(
+        $result     = TSJIPPY\getFromDb(
+            "get_bookings_for_{$subject}_room_{$room}_between_{$startDate}_and_$endDate",
+            "bookings",
             "SELECT * FROM %i WHERE (`start_date` >= %s OR %s BETWEEN start_date and end_date) AND `start_date` <= %s AND subject = %s AND room = %s ORDER BY `start_date`, `start_time` ASC",
             $this->tableName,
             $startDate,
@@ -1769,7 +1779,7 @@ class Bookings
             $endDate,
             $subject,
             $room
-        ));
+        );
 
         $this->bookings     =  array_merge($this->bookings, $result);
 
@@ -1798,14 +1808,16 @@ class Bookings
      */
     public function retrieveBookingsByEndDate($date)
     {
-        global $wpdb;
-
         if (is_numeric($date)) {
             $date   = gmdate('Y-m-d', $date);
         }
 
-        return $wpdb->get_results(
-            $wpdb->prepare("SELECT * FROM %i WHERE end_date = %s", $this->tableName, $date)
+        return TSJIPPY\getFromDb(
+            "get_booking_by_end_date_$date",
+            "bookings",
+            "SELECT * FROM %i WHERE end_date = %s", 
+            $this->tableName,
+            $date
         );
     }
 
@@ -1822,11 +1834,13 @@ class Bookings
             $date   = gmdate('Y-m-d', $date);
         }
 
-        return $wpdb->get_results($wpdb->prepare(
-            "SELECT * FROM %i WHERE start_date = %s",
+        return TSJIPPY\getFromDb(
+            "get_booking_by_start_date_$date",
+            "bookings",
+            "SELECT * FROM %i WHERE start_date = %s", 
             $this->tableName,
             $date
-        ));
+        );
     }
 
     /** Get a booking by booking id

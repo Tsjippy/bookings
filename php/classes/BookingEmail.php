@@ -73,9 +73,9 @@ class BookingEmail extends ADMIN\MailSetting
             }
         }
 
-        $this->replaceArray['%start_date%']  = gmdate(TSJIPPY\DATEFORMATTEFORMATTEFORMAT, strtotime($startDates[0]));
+        $this->replaceArray['%start_date%']  = gmdate(TSJIPPY\DATEFORMAT, strtotime($startDates[0]));
 
-        $this->replaceArray['%end_date%']    = gmdate(TSJIPPY\DATEFORMATTEFORMATTEFORMAT, strtotime($endDates[0]));
+        $this->replaceArray['%end_date%']    = gmdate(TSJIPPY\DATEFORMAT, strtotime($endDates[0]));
 
         $this->replaceArray['%rooms%']      = $rooms[0];
 
@@ -93,8 +93,8 @@ class BookingEmail extends ADMIN\MailSetting
         if (count(array_unique($startDates)) > 1 || count(array_unique($endDates)) > 1) {
             $this->replaceArray['%duration%']   = '';
             foreach ($startDates as $room => $d) {
-                $startDate  = gmdate(TSJIPPY\DATEFORMATTEFORMATTEFORMAT, strtotime($d));
-                $endDate    = gmdate(TSJIPPY\DATEFORMATTEFORMATTEFORMAT, strtotime($endDates[$room]));
+                $startDate  = gmdate(TSJIPPY\DATEFORMAT, strtotime($d));
+                $endDate    = gmdate(TSJIPPY\DATEFORMAT, strtotime($endDates[$room]));
 
                 if (!empty($this->replaceArray['%duration%'])) {
                     $this->replaceArray['%duration%']   .= " and ";

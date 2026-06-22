@@ -393,14 +393,14 @@ class BookingPayments extends Bookings
         foreach ($bookings as $booking) {
             // one submission can have multiple bookings, only load the submission once
             if (empty($this->forms->submission) || $this->forms->submission->id != $booking->submission_id) {
-                $submission         = $this->forms->getSubmissions('', $booking->submission_id)[0];
+                $submission         = $this->forms->getSubmissions('', $booking->submission_id);
 
                 // Submission not found
-                if (!$submission) {
+                if (empty($submission)) {
                     continue;
                 }
 
-                $submissions[]  = $submission;
+                $submissions[]  = $submission[0];
             }
         }
 

@@ -5,7 +5,7 @@ namespace TSJIPPY\BOOKINGS;
 use TSJIPPY;
 
 /**
- * The content of a book shared between a single post, archive or the recipes page.
+ * The content of a booking shared between a single post, archive or the recipes page.
  **/
 
 if (! defined('ABSPATH')) {
@@ -82,14 +82,19 @@ if (is_tax() || is_archive()) {
             if (!empty($elementId)) {
                 $bookings    = new Bookings();
 
-                $bookings->forms->formData->id        = $wpdb->get_var($wpdb->prepare("SELECT form_id FROM {$bookings->forms->elTableName} WHERE ID=%d", $elementId));
+                $bookings->forms->formData->id = TSJIPPY\getFromDb(
+                    "get_form_id_from_element_id_$elementId",
+                    "bookings",
+                    "SELECT form_id FROM {$bookings->forms->elTableName} WHERE id=%d LIMIT 1",
+                    $elementId
+                );
 
                 $bookings->forms->getForm();
-            ?>
+                ?>
                 <a href='<?php echo esc_url($bookings->forms->formData->form_url); ?>' class='tsjippy button' target='_blank'>
                     Book this accomodation
                 </a>
-            <?php
+                <?php
             }
             ?>
         </div>

@@ -699,12 +699,14 @@ function bookingDateElementHtml(&$node, $object, $bookingId = false)
 
     if ($object->element->slug == 'booking-start-date') {
         // get the first event after this one
-        $max    = $wpdb->get_var($wpdb->prepare(
+        $max    = TSJIPPY\getFromDb(
+            "get_start_date_for_{$subject}_after_$late",
+            "bookings",
             "SELECT start_date FROM %i WHERE subject = %s AND start_date > %s ORDER BY start_date LIMIT 1",
             "{$wpdb->prefix}tsjippy_bookings",
             $subject,
             $late
-        ));
+        );
 
         if (!empty($max)) {
             $node->setAttribute('max', $max);
@@ -713,12 +715,14 @@ function bookingDateElementHtml(&$node, $object, $bookingId = false)
         $node->setAttribute('min', $early);
     } elseif ($object->element->slug == 'booking-end-date') {
         // get the first event before this one
-        $min    = $wpdb->get_var($wpdb->prepare(
+        $min    = TSJIPPY\getFromDb(
+            "get_end_date_for_{$subject}_before_$early",
+            "bookings",
             "SELECT end_date FROM %i WHERE subject = %s AND end_date <= %s ORDER BY end_date LIMIT 1",
             "{$wpdb->prefix}tsjippy_bookings",
             $subject,
             $early
-        ));
+        );
 
         if (!empty($min)) {
             $node->setAttribute('min', $min);
