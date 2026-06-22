@@ -1513,27 +1513,21 @@ class Bookings
         }
 
         // update the booking
-        $wpdb->update(
+        $result = TSJIPPY\updateDbValue(
             $this->tableName,
             $values,
             array(
                 'id'        => $booking->id
             ),
+            [],
+            ['%d'],
+            'bookings'
         );
 
-        /**
-         * Flush db cache
-         */
-        if(wp_cache_supports( 'flush_group' )){
-            wp_cache_flush_group('bookings');
-        }else{
-            wp_cache_flush();
-        }
-
-        if (empty($wpdb->last_error)) {
+        if (!is_wp_error($result)) {
             $message            = 'Succesfully updated the booking';
         } else {
-            $message            = $wpdb->last_error;
+            $message            = $result;
         }
 
         // update event
