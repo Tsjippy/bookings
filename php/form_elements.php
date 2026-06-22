@@ -914,6 +914,13 @@ function formElementUpdated($element, $instance, $oldElement)
                     $wpdb->esc_like($value) . '%'
                 ));
 
+                // Flush the cache to force new db queries
+                if(wp_cache_supports( 'flush_group' )){
+                    wp_cache_flush_group('bookings');
+                }else{
+                    wp_cache_flush();
+                }
+
                 // Update post title
                 wp_update_post([
                     'ID'            => $postId,

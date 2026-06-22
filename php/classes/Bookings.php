@@ -1391,24 +1391,22 @@ class Bookings
         $pending    = $this->checkPending($userId, $subject);
 
         // Insert booking in db
-        $wpdb->insert(
+        $result = TSJIPPY\insertInDb(
             $this->tableName,
             array(
-                'start_date'        => $startDate,
-                'end_date'            => $endDate,
-                'subject'            => $subject,
-                'room'                => $room,
-                'submission_id'        => $submissionId,
-                'event_id'          => $eventId,
-                'pending'           => $pending
-            )
+                'start_date'    => $startDate,
+                'end_date'      => $endDate,
+                'subject'       => $subject,
+                'room'          => $room,
+                'submission_id' => $submissionId,
+                'event_id'      => $eventId,
+                'pending'       => $pending
+            ),
+            [],
+            'bookings'
         );
 
-        if (!empty($wpdb->last_error)) {
-            return new \WP_Error('bookings', $wpdb->last_error);
-        }
-
-        return $wpdb->insert_id;
+        return $result;
     }
 
     /**
@@ -1522,6 +1520,15 @@ class Bookings
                 'id'        => $booking->id
             ),
         );
+
+        /**
+         * Flush db cache
+         */
+        if(wp_cache_supports( 'flush_group' )){
+            wp_cache_flush_group('bookings');
+        }else{
+            wp_cache_flush();
+        }
 
         if (empty($wpdb->last_error)) {
             $message            = 'Succesfully updated the booking';
@@ -1654,10 +1661,11 @@ class Bookings
         $events->removeDbRows($booking->event_id, true);
 
         // Remove the booking
-        $wpdb->delete(
+        TSJIPPY\removeFromDb(
             $this->tableName,
             ['id' => $booking->id],
             ['%d'],
+            'bookings'
         );
     }
 
