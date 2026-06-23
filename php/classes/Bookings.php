@@ -3,6 +3,10 @@
 namespace TSJIPPY\BOOKINGS;
 
 use TSJIPPY;
+
+use function TSJIPPY\addElement as addElement;
+use function TSJIPPY\addRawHtml as addRawHtml;
+
 use TSJIPPY\EVENTS;
 use TSJIPPY\FORMS;
 use WP_Error;
@@ -290,7 +294,7 @@ class Bookings
             $this->forms->submission = (object) $this->forms->getSubmissions('', $_REQUEST['id']);
         }
 
-        $wrapper    = $this->forms->addElement('div', $node, ['class' => 'rooms']);
+        $wrapper    = addElement('div', $node, ['class' => 'rooms']);
         $s  = 's';
         if ($radio) {
             $s  = '';
@@ -301,12 +305,12 @@ class Bookings
          */
         if ($isResult) {
             $wrapper->textContent = "Select the room$s you want to see the calendar for";
-            $this->forms->addElement('br', $wrapper);
+            addElement('br', $wrapper);
         } else {
             $subjectName            = strtolower(str_replace(' ', '_', $subject['name']));
             $wrapper->textContent   = "Select one or more room(s) you want to book";
 
-            $this->forms->addElement(
+            addElement(
                 'button',
                 $node,
                 [
@@ -317,7 +321,7 @@ class Bookings
                 "Show room details"
             );
 
-            $this->forms->addElement('br', $wrapper);
+            addElement('br', $wrapper);
         }
 
         /**
@@ -343,13 +347,9 @@ class Bookings
                     $attributes['checked']    = 'checked';
                 }
 
-                $this->forms->addElement('input', $wrapper, $attributes);
-
-                // Create a text node
-                $textNode = $this->forms->dom->createTextNode($alphabet[$x]);
-
-                // Append the text node to the element
-                $wrapper->appendChild($textNode);
+                addElement('input', $wrapper, $attributes);
+                
+                $wrapper->append($alphabet[$x]);
             }
         } elseif (($subject['nrtype'] ?? '') == 'custom') {
             foreach ($subject['rooms'] as $room) {
@@ -369,13 +369,9 @@ class Bookings
                     $attributes['checked']    = 'checked';
                 }
 
-                $this->forms->addElement('input', $wrapper, $attributes);
+                addElement('input', $wrapper, $attributes);
 
-                // Create a text node
-                $textNode = $this->forms->dom->createTextNode($room['name']);
-
-                // Append the text node to the element
-                $wrapper->appendChild($textNode);
+                $wrapper->append($room['name']);
             }
         } else {
             for ($x = 1; $x <= $subject['amount']; $x++) {
@@ -395,13 +391,9 @@ class Bookings
                     $attributes['checked']    = 'checked';
                 }
 
-                $this->forms->addElement('input', $wrapper, $attributes);
+                addElement('input', $wrapper, $attributes);
 
-                // Create a text node
-                $textNode = $this->forms->dom->createTextNode($x);
-
-                // Append the text node to the element
-                $wrapper->appendChild($textNode);
+                $wrapper->append(strval($x));
             }
         }
     }
@@ -416,7 +408,7 @@ class Bookings
     private function roomCalendars($rooms, $subject, $date)
     {
         ob_start();
-    ?>
+        ?>
         <div class='rooms-wrapper'>
             <?php
             foreach ($rooms as $room) {
@@ -429,7 +421,7 @@ class Bookings
                 ) {
                     $roomHidden = '';
                 }
-            ?>
+                ?>
                 <div class='room-wrapper <?php echo esc_attr($roomHidden); ?>' data-room='<?php echo esc_attr($room['name']); ?>'>
                     <h4>Room <?php echo esc_html($room['name']); ?></h4>
                     <div class='month-wrapper flex'>
@@ -443,7 +435,7 @@ class Bookings
             }
             ?>
         </div>
-    <?php
+        <?php
 
         return ob_get_clean();
     }
@@ -460,15 +452,7 @@ class Bookings
      */
     public function modalContent($parent, $subject, $date, $isAdmin = false, $hidden = false, $isResult = false)
     {
-        $returnHtml = false;
-        if (empty($parent)) {
-            // Create a new DOMDocument object
-            $parent         = $this->forms->dom;
-
-            $returnHtml = true;
-        }
-
-        $monthStr        = gmdate('m', $date);
+        $monthStr       = gmdate('m', $date);
         $yearStr        = gmdate('Y', $date);
         $cleanSubject   = trim($subject['name']);
 
@@ -486,13 +470,13 @@ class Bookings
             $attributes["data-shortcode-id"] = $this->forms->shortcodeId;
         }
 
-        $wrapper        = $this->forms->addElement('div', $parent, $attributes);
+        $wrapper        = addElement('div', $parent, $attributes);
 
-        $overview       = $this->forms->addElement('div', $wrapper, ['class' => "booking overview"]);
+        $overview       = addElement('div', $wrapper, ['class' => "booking overview"]);
 
-        $header         = $this->forms->addElement('div', $overview, ['class' => "header mobile-sticky"]);
+        $header         = addElement('div', $overview, ['class' => "header mobile-sticky"]);
 
-        $this->forms->addElement('h4', $header, ['style' => 'text-align:center;'], ucfirst($cleanSubject) . ' Calendar');
+        addElement('h4', $header, ['style' => 'text-align:center;'], ucfirst($cleanSubject) . ' Calendar');
 
         $this->roomSelector($header, $subject, $isResult);
 
@@ -500,23 +484,23 @@ class Bookings
             $this->showSelectedModalDates($header, $subject['amount'] > 1);
         }
 
-        $navigators = $this->forms->addElement('div', $header, ['class' => "navigators " . ($subject['amount'] > 1 ? 'hidden' : '')]);
-        $this->forms->addRawHtml($this->getNavigator($date), $navigators);
+        $navigators = addElement('div', $header, ['class' => "navigators " . ($subject['amount'] > 1 ? 'hidden' : '')]);
+        addRawHtml($this->getNavigator($date), $navigators);
 
         $attributes =  ['class' => "calendar table"];
         if (($subject['amount'] ?? []) > 1) {
             $attributes['style']    = "display:block;";
         }
 
-        $calendarTable  = $this->forms->addElement('div', $overview, $attributes);
+        $calendarTable  = addElement('div', $overview, $attributes);
 
         // Show the month calendar if there are no rooms, otherwise show the room calendars
         if (empty($subject['nrtype']) || $subject['nrtype'] == 'none' || $subject['amount'] == 0) {
-            $roomWrapper    = $this->forms->addElement('div', $calendarTable, ['class' => "room-wrapper"]); // needed for layout purposes
-            $monthWrapper   = $this->forms->addElement('div', $roomWrapper, ['class' => "month-wrapper flex"]);
+            $roomWrapper    = addElement('div', $calendarTable, ['class' => "room-wrapper"]); // needed for layout purposes
+            $monthWrapper   = addElement('div', $roomWrapper, ['class' => "month-wrapper flex"]);
 
-            $this->forms->addRawHtml($this->monthCalendar($cleanSubject, '', $date), $monthWrapper);
-            $this->forms->addRawHtml($this->monthCalendar($cleanSubject, '', strtotime('first day of next month', $date)), $monthWrapper);
+            addRawHtml($this->monthCalendar($cleanSubject, '', $date), $monthWrapper);
+            addRawHtml($this->monthCalendar($cleanSubject, '', strtotime('first day of next month', $date)), $monthWrapper);
         } else {
             $rooms  = [];
 
@@ -533,39 +517,39 @@ class Bookings
                 }
             }
 
-            $this->forms->addRawHtml($this->roomCalendars($rooms, $cleanSubject, $date), $calendarTable);
+            addRawHtml($this->roomCalendars($rooms, $cleanSubject, $date), $calendarTable);
         }
 
         if (!$isAdmin) {
 
-            $actions         = $this->forms->addElement('div', $overview, ['class' => "actions mobile-sticky bottom"]);
+            $actions         = addElement('div', $overview, ['class' => "actions mobile-sticky bottom"]);
 
-            $this->forms->addElement('button', $actions, ['class' => "button action reset disabled", "type" => 'button'], 'Reset');
+            addElement('button', $actions, ['class' => "button action reset disabled", "type" => 'button'], 'Reset');
 
-            $this->forms->addElement('button', $actions, ['class' => "button action confirm disabled", "type" => 'button'], 'Confirm');
+            addElement('button', $actions, ['class' => "button action confirm disabled", "type" => 'button'], 'Confirm');
         } else {
-            $details         = $this->forms->addElement('div', $wrapper, ['class' => "booking details-wrapper"]);
+            $details         = addElement('div', $wrapper, ['class' => "booking details-wrapper"]);
 
-            $this->forms->addRawHtml($this->detailHtml(), $details);
+            addRawHtml($this->detailHtml(), $details);
         }
 
         // We don't need this on mobile devices
         if (!wp_is_mobile()) {
-            $roomDetails         = $this->forms->addElement('div', $wrapper);
+            $roomDetails         = addElement('div', $wrapper);
             // Room description
             foreach ($subject['rooms'] as $room) {
                 if ($room['post-id'] == -1) {
                     continue;
                 }
 
-                $roomDescription        = $this->forms->addElement('div', $roomDetails, ['class' => 'hidden room-description', 'data-room-name' => $room['name']]);
-                $this->forms->addElement('h4', $roomDescription, [], "Room " . $room['name']);
-                $this->forms->addElement('div', $roomDescription, ['class' => 'lazy-post', 'data-post-id' => $room['post-id']]);
+                $roomDescription        = addElement('div', $roomDetails, ['class' => 'hidden room-description', 'data-room-name' => $room['name']]);
+                addElement('h4', $roomDescription, [], "Room " . $room['name']);
+                addElement('div', $roomDescription, ['class' => 'lazy-post', 'data-post-id' => $room['post-id']]);
             }
         }
 
-        if ($returnHtml) {
-            return $this->forms->dom->saveHtml();
+        if (empty($parent)) {
+            return $wrapper->ownerDocument->saveHtml();
         }
     }
 
@@ -623,7 +607,7 @@ class Bookings
 
     <?php
 
-        return $this->forms->addRawHtml(ob_get_clean(), $node);
+        return addRawHtml(ob_get_clean(), $node);
     }
 
     /**
@@ -644,7 +628,7 @@ class Bookings
         /**
          * Create the modal
          */
-        $modal = $this->forms->addElement(
+        $modal = addElement(
             'div',
             $node,
             [
@@ -654,7 +638,7 @@ class Bookings
             ]
         );
 
-        $modalContent = $this->forms->addElement(
+        $modalContent = addElement(
             'div',
             $modal,
             [
@@ -662,7 +646,7 @@ class Bookings
             ]
         );
 
-        $this->forms->addElement('span', $modalContent, ['class' => "close mobile-sticky"], '&times;');
+        addElement('span', $modalContent, ['class' => "close mobile-sticky"], '&times;');
 
         // Append the modal content HTML
         $this->modalContent($modalContent, $subject, $date);

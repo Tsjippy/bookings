@@ -4,6 +4,8 @@ namespace TSJIPPY\BOOKINGS;
 
 use TSJIPPY;
 
+use function TSJIPPY\addElement as addElement;
+
 if (! defined('ABSPATH')) {
     exit;
 }
@@ -60,7 +62,7 @@ function addFormElementOptions($html, $object, $element)
 
     ob_start();
 
-?>
+    ?>
     <div class='element-option booking-selector hidden'>
         <div class="clone-divs-wrapper">
             <button class='button tablink formbuilder-form active' type='button' id='show-element-settings' data-target='element-settings' style='margin-right:4px;'>
@@ -384,7 +386,7 @@ function addFormElementOptions($html, $object, $element)
         </div>
         <br>
     </div>
-<?php
+    <?php
 
     return ob_get_clean();
 }
@@ -467,13 +469,13 @@ function bookingSelectorHtml($node, $object)
     $subjects       = $bookings->getElementSubjects($object->element->id);
 
     if (empty($subjects)) {
-        return $object->addElement('div', $node, ['class' => 'warning'], 'Please add one or more subjects');
+        return addElement('div', $node, ['class' => 'warning'], 'Please add one or more subjects');
     }
 
     /**
      * Build the modal
      */
-    $modal      = $object->addElement(
+    $modal      = addElement(
         'div',
         $node,
         [
@@ -482,9 +484,9 @@ function bookingSelectorHtml($node, $object)
         ]
     );
 
-    $modalContent   = $object->addElement('div', $modal, ['class' => 'modal-content']);
+    $modalContent   = addElement('div', $modal, ['class' => 'modal-content']);
 
-    $object->addElement('span', $modalContent, ['class' => 'close mobile-sticky'], '&times;');
+    addElement('span', $modalContent, ['class' => 'close mobile-sticky'], '&times;');
 
     // Render tab buttons
     foreach ($subjects as $index => $subject) {
@@ -501,7 +503,7 @@ function bookingSelectorHtml($node, $object)
             $attributes['class'] .= ' active';
         }
 
-        $object->addElement('button', $modalContent, $attributes, $subject['name']);
+        addElement('button', $modalContent, $attributes, $subject['name']);
     }
 
     // Render tab contents
@@ -516,14 +518,14 @@ function bookingSelectorHtml($node, $object)
             $attributes['class'] .= ' hidden';
         }
 
-        $object->addElement('div', $modalContent, $attributes, $subject['name']);
+        addElement('div', $modalContent, $attributes, $subject['name']);
     }
 
     /**
      * Build the element
      */
-    $object->addElement('button', $node, ['class' => 'small tsjippy button location-details', 'type' => 'button'], 'Show Location Descriptions');
-    $object->addElement('br', $node);
+    addElement('button', $node, ['class' => 'small tsjippy button location-details', 'type' => 'button'], 'Show Location Descriptions');
+    addElement('br', $node);
 
     $hidden     = 'hidden';
     $buttonText = 'Change';
@@ -544,16 +546,14 @@ function bookingSelectorHtml($node, $object)
                 $attributes['checked']    = 'checked';
             }
 
-            $label  = $object->addElement('label', $node, ['style' => 'margin-right:5px;']);
-            $object->addElement(
+            $label  = addElement('label', $node, ['style' => 'margin-right:5px;']);
+            addElement(
                 'input',
                 $label,
                 $attributes
             );
 
-            $textNode = $object->dom->createTextNode(trim($subject['name']));
-
-            $label->appendChild($textNode);
+            $label->append(trim($subject['name']));
         }
     } else {
         $attributes = [
@@ -565,26 +565,26 @@ function bookingSelectorHtml($node, $object)
             $attributes['required']    = 'required';
         }
 
-        $select  = $object->addElement('select', $node, $attributes);
+        $select  = addElement('select', $node, $attributes);
 
         foreach ($subjects as $subject) {
-            $object->addElement('option', $select, ['value' => trim($subject['name'])], trim($subject['name']));
+            addElement('option', $select, ['value' => trim($subject['name'])], trim($subject['name']));
         }
     }
 
-    $flexDiv = $object->addElement('div', $node, ['style' => 'display:flex;align-items: center;']);
+    $flexDiv = addElement('div', $node, ['style' => 'display:flex;align-items: center;']);
 
-    $cloneDivsWrapper = $object->addElement('div', $flexDiv, [
+    $cloneDivsWrapper = addElement('div', $flexDiv, [
         'class' => "clone-divs-wrapper selected-booking-dates $hidden"
     ]);
 
-    $cloneDiv       = $object->addElement('div', $cloneDivsWrapper, ['class' => 'clone-div', 'data-div-id' => '0']);
+    $cloneDiv       = addElement('div', $cloneDivsWrapper, ['class' => 'clone-div', 'data-div-id' => '0']);
 
-    $buttonWrapper  = $object->addElement('div', $cloneDiv, ['class' => 'button-wrapper']);
+    $buttonWrapper  = addElement('div', $cloneDiv, ['class' => 'button-wrapper']);
 
-    $roomDiv        = $object->addElement('div', $buttonWrapper, ['class' => 'hidden']);
+    $roomDiv        = addElement('div', $buttonWrapper, ['class' => 'hidden']);
 
-    $object->addElement('h4', $roomDiv, [], 'Room');
+    addElement('h4', $roomDiv, [], 'Room');
 
     $attributes = [
         'type'      => 'text',
@@ -596,11 +596,11 @@ function bookingSelectorHtml($node, $object)
         $attributes['required']   = 'required';
     }
 
-    $object->addElement('input', $roomDiv, $attributes);
+    addElement('input', $roomDiv, $attributes);
 
-    $arrivalDiv = $object->addElement('div', $buttonWrapper);
+    $arrivalDiv = addElement('div', $buttonWrapper);
 
-    $object->addElement('h4', $arrivalDiv, [], 'Arrival Date');
+    addElement('h4', $arrivalDiv, [], 'Arrival Date');
 
     $attributes = [
         'type'      => 'date',
@@ -612,11 +612,11 @@ function bookingSelectorHtml($node, $object)
         $attributes['required']   = 'required';
     }
 
-    $object->addElement('input', $arrivalDiv, $attributes);
+    addElement('input', $arrivalDiv, $attributes);
 
-    $departureDiv   = $object->addElement('div', $buttonWrapper);
+    $departureDiv   = addElement('div', $buttonWrapper);
 
-    $object->addElement('h4', $departureDiv, [], 'Departure Date');
+    addElement('h4', $departureDiv, [], 'Departure Date');
 
     $attributes = [
         'type'      => 'date',
@@ -628,9 +628,9 @@ function bookingSelectorHtml($node, $object)
         $attributes['required']   = 'required';
     }
 
-    $object->addElement('input', $departureDiv, $attributes);
+    addElement('input', $departureDiv, $attributes);
 
-    $object->addElement('button', $flexDiv, [
+    addElement('button', $flexDiv, [
         'class' => 'button change-booking-date hidden',
         'type'  => 'button',
         'style' => 'margin-left: 20px;'
@@ -733,7 +733,7 @@ function bookingDateElementHtml(&$node, $object, $bookingId = false)
 }
 
 // Display the date selector in the form
-add_filter('tsjippy-form-element-html-short-circuit', __NAMESPACE__ . '\bookingSelectorElementHtml', 10, 3);
+add_filter('tsjippy-forms-element-html-short-circuit', __NAMESPACE__ . '\bookingSelectorElementHtml', 10, 3);
 /**
  * Render the booking selector element on the form
  *
