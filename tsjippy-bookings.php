@@ -11,10 +11,10 @@ namespace TSJIPPY\BOOKINGS;
  * Requires at least:    6.3
  * Requires PHP:         8.3
  * Tested up to:         6.9
- * Plugin URI:            https://github.com/Tsjippy/bookings/
- * Tested:                6.9
- * TextDomain:            tsjippy
- * Requires Plugins:      tsjippy-forms, tsjippy-events
+ * Plugin URI:           https://github.com/Tsjippy/bookings/
+ * Tested:               6.9
+ * TextDomain:           tsjippy
+ * Requires Plugins:     tsjippy-forms, tsjippy-events
  * License: GPLv2 or later
  * License URI: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
  *
