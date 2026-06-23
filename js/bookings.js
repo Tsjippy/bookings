@@ -622,7 +622,7 @@ document.addEventListener("click", (ev) => {
 document.addEventListener("change", (ev) => {
   let target = ev.target;
 
-  if (target.name.includes("default-booking-state")) {
+  if (target.name != null && target.name.includes("default-booking-state")) {
     if (target.value == "pending" && target.checked) {
       target
         .closest(".formfield.form-label")
@@ -634,7 +634,7 @@ document.addEventListener("change", (ev) => {
         .querySelectorAll("button.confirmed-roles-switcher:not(.hidden)")
         .forEach((but) => but.classList.add("hidden"));
     }
-  } else if (target.name.includes("amount")) {
+  } else if (target.name != null && target.name.includes("amount")) {
     let tabContent = target.closest(".tabcontent");
     if (tabContent == null) {
       return;

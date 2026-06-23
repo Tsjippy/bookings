@@ -458,18 +458,18 @@ function formElements($elements, $displayFormResults, $force)
 /**
  * Render the booking selector element on the form
  *
- * @param object $node The current DOM node to render the element in
+ * @param object $parent   The current DOM parent to add the element to
  * @param object $object The form object
  *
  * @return object The rendered element
  */
-function bookingSelectorHtml($node, $object)
+function bookingSelectorHtml($parent, $object)
 {
     $bookings       = new Bookings($object);
     $subjects       = $bookings->getElementSubjects($object->element->id);
 
     if (empty($subjects)) {
-        return addElement('div', $node, ['class' => 'warning'], 'Please add one or more subjects');
+        return addElement('div', $parent, ['class' => 'warning'], 'Please add one or more subjects');
     }
 
     /**
@@ -477,7 +477,7 @@ function bookingSelectorHtml($node, $object)
      */
     $modal      = addElement(
         'div',
-        $node,
+        $parent,
         [
             'name'  => 'location-details-modal',
             'class' => 'modal hidden'
@@ -486,7 +486,7 @@ function bookingSelectorHtml($node, $object)
 
     $modalContent   = addElement('div', $modal, ['class' => 'modal-content']);
 
-    addElement('span', $modalContent, ['class' => 'close mobile-sticky'], '&times;');
+    TSJIPPY\addCloseButtton($modalContent);
 
     // Render tab buttons
     foreach ($subjects as $index => $subject) {
@@ -524,8 +524,8 @@ function bookingSelectorHtml($node, $object)
     /**
      * Build the element
      */
-    addElement('button', $node, ['class' => 'small tsjippy button location-details', 'type' => 'button'], 'Show Location Descriptions');
-    addElement('br', $node);
+    addElement('button', $parent, ['class' => 'small tsjippy button location-details', 'type' => 'button'], 'Show Location Descriptions');
+    addElement('br', $parent);
 
     $hidden     = 'hidden';
     $buttonText = 'Change';
@@ -546,7 +546,7 @@ function bookingSelectorHtml($node, $object)
                 $attributes['checked']    = 'checked';
             }
 
-            $label  = addElement('label', $node, ['style' => 'margin-right:5px;']);
+            $label  = addElement('label', $parent, ['style' => 'margin-right:5px;']);
             addElement(
                 'input',
                 $label,
@@ -565,14 +565,14 @@ function bookingSelectorHtml($node, $object)
             $attributes['required']    = 'required';
         }
 
-        $select  = addElement('select', $node, $attributes);
+        $select  = addElement('select', $parent, $attributes);
 
         foreach ($subjects as $subject) {
             addElement('option', $select, ['value' => trim($subject['name'])], trim($subject['name']));
         }
     }
 
-    $flexDiv = addElement('div', $node, ['style' => 'display:flex;align-items: center;']);
+    $flexDiv = addElement('div', $parent, ['style' => 'display:flex;align-items: center;']);
 
     $cloneDivsWrapper = addElement('div', $flexDiv, [
         'class' => "clone-divs-wrapper selected-booking-dates $hidden"
@@ -651,7 +651,7 @@ function bookingSelectorHtml($node, $object)
 
     // Find the subject names
     foreach ($subjects as $subject) {
-        $bookings->dateSelectorModal($day, $month, $year, $node, $subject);
+        $bookings->dateSelectorModal($day, $month, $year, $parent, $subject);
     }
 
     return $flexDiv;
@@ -737,17 +737,17 @@ add_filter('tsjippy-forms-element-html-short-circuit', __NAMESPACE__ . '\booking
 /**
  * Render the booking selector element on the form
  *
- * @param object $node The current DOM node to render the element in
- * @param object $parent The parent form element
- * @param object $object The form object
+ * @param object $override  default null, return a node to skip element html rendering
+ * @param object $parent    The parent form element
+ * @param object $object    The form object
  *
  * @return object The rendered element
  */
-function bookingSelectorElementHtml($node, $parent, $object)
+function bookingSelectorElementHtml($override, $parent, $object)
 {
     // Check if the form has a booking selector
     if ($object->element->type != 'booking-selector') {
-        return $node;
+        return $override;
     }
 
     return bookingSelectorHtml($parent, $object);
