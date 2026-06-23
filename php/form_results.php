@@ -192,7 +192,7 @@ function shouldShow($shouldShow, $displayFormResults, $type, $parent)
         $detailsWrapper = addElement('div', $div, ['class' => 'details-wrapper', 'style' => 'max-width:500px;display:flex;']);
 
         foreach ($userBookings as $booking) {
-            $submission = $displayFormResults->getSubmissions(submissionId: $booking->submission_id);
+            $submission = $displayFormResults->getSubmissions(submissionId: $booking->submission_id)[0] ?? [];
 
             TSJIPPY\addRawHtml($bookings->submissionDetails($booking, $submission, false), $detailsWrapper);
         }
@@ -392,7 +392,6 @@ function formdataRetrieved($submissions, $userId, $object)
 
     // Loop over all booking selctors in the form
     foreach ($bookingSelectors as $bookingSelector) {
-
         if (empty($bookingSelector)) {
             TSJIPPY\printArray($bookingSelectors);
         } else {

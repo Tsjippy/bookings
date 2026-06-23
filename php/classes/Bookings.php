@@ -1792,7 +1792,7 @@ class Bookings
             "bookings",
             "SELECT distinct submission_id, bookings.id as booking_id, start_date, end_date, subject, pending, event_id, paid, room FROM %i as bookings join %i as submission on bookings.submission_id = submission.id where bookings.start_date > %s and submission.user_id = %d", 
             $this->tableName,
-            $this->forms->submissionTable,
+            $this->forms->submissionTableName,
             $date,
             $userId
         );
