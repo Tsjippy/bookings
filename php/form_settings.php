@@ -23,7 +23,7 @@ function extraFormSettings($object)
         return;
     }
 
-?>
+    ?>
     <br>
     <h4>Payment Indicator Element</h4>
     <select name="payment-amount-el">
@@ -91,7 +91,7 @@ function extraFormSettings($object)
         }
         ?>
     </select>
-<?php
+    <?php
 }
 
 add_filter('tsjippy-forms-before-saving-settings', __NAMESPACE__ . '\beforeSavingSettings', 10, 3);

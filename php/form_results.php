@@ -85,14 +85,15 @@ function changeTableViewPermissions($tableViewPermissions, $object)
 }
 
 // Display calendar instead of a table
-add_filter('tsjippy-forms-table-should-show', __NAMESPACE__ . '\shouldShow', 10, 3);
+add_filter('tsjippy-forms-table-should-show', __NAMESPACE__ . '\shouldShow', 10, 4);
 /**
  * Filter whether or not to show the table, this can be used to for example show a message instead of the table when there are no submissions or when the user has no permissions
- * @param    bool    $shouldShow                Whether or not to show the table, default true
- * @param    object    $displayFormResults        The current instance of the form table class, can be used to get more information about the form and the user to decide whether or not to show the table
- * @param    string    $type                    The type of results that would be shown, either 'own', 'others' or 'all'
+ * @param    bool           $shouldShow                Whether or not to show the table, default true
+ * @param    object         $displayFormResults        The current instance of the form table class, can be used to get more information about the form and the user to decide whether or not to show the table
+ * @param    string         $type                      The type of results that would be shown, either 'own', 'others' or 'all'
+ * @param    \DOMElement    $parent                    The parent node to append to
  */
-function shouldShow($shouldShow, $displayFormResults, $type)
+function shouldShow($shouldShow, $displayFormResults, $type, $parent)
 {
     // Check if we should show the table view
     if (
@@ -107,15 +108,14 @@ function shouldShow($shouldShow, $displayFormResults, $type)
         return $shouldShow;
     }
 
-    $dom    = new \DOMDocument();
-
     /**
      * Data should always be splitted if we are in calendar view
      * So the type 'all' is not allowed.
      * We render our own submissions as a table, before continuing with the calendar view
      */
     if ($type == 'all') {
-        $displayFormResults->renderTable(type: 'own', parent: $dom);
+        $displayFormResults->renderTableButtons($parent);
+        $displayFormResults->renderTable(type: 'own', parent: $parent);
 
         $type       = 'others';
     }
@@ -154,7 +154,7 @@ function shouldShow($shouldShow, $displayFormResults, $type)
         $targetDate                     = strtotime($targetDate);
     }
 
-    $div    = addElement('div', $dom, ['class' => "tables-wrapper"]);
+    $div    = addElement('div', $parent, ['class' => "tables-wrapper"]);
 
     $subjects   = [];
 
@@ -180,26 +180,24 @@ function shouldShow($shouldShow, $displayFormResults, $type)
         $bookings->pendingBookingsHtml($div, 'payment');
 
         // Get the bookings for the current user
-        $displayFormResults->parseSubmissions($bookings->user->ID);
+        $userBookings    = $bookings->getUserBookingsByStartDate($displayFormResults->userId, date("Y-m-d"));
 
-        if (empty($displayFormResults->submissions)) {
-            return $dom->saveHTML() . "You do not have any bookings. ";
+        if (empty($userBookings)) {
+            $div->append("You do not have any bookings. ");
+            return false;
         }
 
-        addElement('h4', $div, [], "Your Current Bookings");
+        addElement('h4', $div, [], "Your Upcoming Bookings");
 
         $detailsWrapper = addElement('div', $div, ['class' => 'details-wrapper', 'style' => 'max-width:500px;display:flex;']);
 
-        foreach ($displayFormResults->submissions as $submission) {
-            $result = $bookings->getBookingsBySubmission($submission->id);
+        foreach ($userBookings as $booking) {
+            $submission = $displayFormResults->getSubmissions(submissionId: $booking->submission_id);
 
-            if (is_array($result)) {
-                // We only need the details for the first booking of each submission
-                TSJIPPY\addRawHtml($bookings->submissionDetails($result[0], $submission, false), $detailsWrapper);
-            }
+            TSJIPPY\addRawHtml($bookings->submissionDetails($booking, $submission, false), $detailsWrapper);
         }
 
-        return $dom->saveHTML();
+        return false;
     }
 
     // Only show subject selection if there is something to choose
@@ -249,7 +247,7 @@ function shouldShow($shouldShow, $displayFormResults, $type)
         }
     }
 
-    return $dom->saveHTML();
+    return false;
 }
 
 // Change Archive button text
@@ -306,7 +304,7 @@ add_filter('tsjippy-forms-checkbox-options', function ($options, $object) {
 }, 10, 2);
 
 // Alter form results
-add_filter('tsjippy-retrieved-formdata', __NAMESPACE__ . '\formdataRetrieved', 10, 3);
+add_filter('tsjippy-forms-retrieved-formdata', __NAMESPACE__ . '\formdataRetrieved', 10, 3);
 /**
  * Alter the form results
  * @param    array    $submissions    The current form submissions retrieved, can be altered to change the data shown in the form results
@@ -419,7 +417,7 @@ function formdataRetrieved($submissions, $userId, $object)
 /**
  * Change the submission data retrieved
  */
-add_filter('tsjippy-formdata-retrieval-query', __NAMESPACE__ . '\alterQuery', 10, 4);
+add_filter('tsjippy-forms-formdata-retrieval-query', __NAMESPACE__ . '\alterQuery', 10, 4);
 /**
  * Change the submission data retrieved
  * @param    array    $params        The current query params, can be altered to change the data retrieved from the database

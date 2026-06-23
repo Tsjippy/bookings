@@ -45,7 +45,7 @@ function filterPostType($postType)
     return $postType;
 }
 
-add_filter('tsjippy-frontend-post-types-and-tax', __NAMESPACE__ . '\filterPostTypes');
+add_filter('tsjippy-frontend-content-post-types-and-tax', __NAMESPACE__ . '\filterPostTypes');
 /**
  * Filters the post types for frontend content
  *

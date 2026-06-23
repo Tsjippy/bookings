@@ -385,7 +385,7 @@ class BookingPayments extends Bookings
             return '';
         }
 
-        TSJIPPY\addElement('h4', $parent, [], "Bookings Pending " . ucfirst($type) . "</h4>");
+        TSJIPPY\addElement('h4', $parent, [], "Bookings Pending " . ucfirst($type) );
 
         $submissions    = [];
 

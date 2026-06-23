@@ -989,7 +989,8 @@ class Bookings
                                         'class' => "$action button forms-table-action",
                                         'name'  => "{$action}-action",
                                         'value' => $action,
-                                        'text'  => ucfirst($action)
+                                        'text'  => ucfirst($action),
+                                        'type'  => 'button'
                                     ];
                                 }
 
@@ -1012,11 +1013,11 @@ class Bookings
                                                 $text   = $buttonAttributes['text'] ?? '';
 
                                                 unset($buttonAttributes['text']);
-                                            ?>
+                                                ?>
                                                 <button
                                                     <?php
                                                     foreach ($buttonAttributes as $key => $value) {
-                                                        echo esc_attr($key . "=" . value);
+                                                        echo esc_attr($key)."='".esc_attr($value)."'";
                                                     }
                                                     ?>>
                                                     <?php echo esc_html($text); ?>
@@ -1760,8 +1761,6 @@ class Bookings
      */
     public function retrieveBookingsByStartDate($date)
     {
-        global $wpdb;
-
         if (is_numeric($date)) {
             $date   = gmdate('Y-m-d', $date);
         }
@@ -1772,6 +1771,30 @@ class Bookings
             "SELECT * FROM %i WHERE start_date = %s", 
             $this->tableName,
             $date
+        );
+    }
+
+    /**
+     * Gets the bookings for a specific user after a specifice date
+     * 
+     * @param int           $userId The userid to get bookings for
+     * @param int|string    $date   The date as a string (yyyy-mm-dd) or epoch
+     * 
+     * @return array                An array with all bookings
+     */
+    function getUserBookingsByStartDate($userId, $date){
+        if (is_numeric($date)) {
+            $date   = gmdate('Y-m-d', $date);
+        }
+
+        return TSJIPPY\getFromDb(
+            "get_booking_for_user_{$userId}_by_start_date_$date",
+            "bookings",
+            "SELECT distinct submission_id, bookings.id as booking_id, start_date, end_date, subject, pending, event_id, paid, room FROM %i as bookings join %i as submission on bookings.submission_id = submission.id where bookings.start_date > %s and submission.user_id = %d", 
+            $this->tableName,
+            $this->forms->submissionTable,
+            $date,
+            $userId
         );
     }
 

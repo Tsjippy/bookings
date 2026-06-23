@@ -754,7 +754,7 @@ function bookingSelectorElementHtml($override, $parent, $object)
 }
 
 // Display the date selector in the form
-add_filter('tsjippy-form-element-html', __NAMESPACE__ . '\elementHtml', 10, 2);
+add_filter('tsjippy-forms-element-html', __NAMESPACE__ . '\elementHtml', 10, 2);
 /**
  * Render the form element HTML
  *
@@ -824,7 +824,7 @@ function elementHtml($node, $object)
 }
 
 // Update the booking-subjects name if the form name has changed
-add_action('tsjippy-after-formelement-updated', __NAMESPACE__ . '\formElementUpdated', 10, 3);
+add_action('tsjippy-forms-after-formelement-updated', __NAMESPACE__ . '\formElementUpdated', 10, 3);
 /**
  * Handle updates to form elements
  *
@@ -912,7 +912,7 @@ function formElementUpdated($element, $instance, $oldElement)
                     $subject[$key],
                     $value,
                     $wpdb->esc_like($value) . '%'
-                ));
+                )); 
 
                 // Flush the cache to force new db queries
                 if(wp_cache_supports( 'flush_group' )){

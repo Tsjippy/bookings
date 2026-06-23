@@ -18,26 +18,46 @@ add_action('tsjippy-forms-after-email-triggers', __NAMESPACE__ . '\addBookingEma
  */
 function addBookingEmails($key, $email)
 {
-?>
+    ?>
     <label>
-        <input type='radio' name='emails[<?php echo esc_attr($key); ?>][email-trigger]' class='email-trigger' value='before-stay' <?php if ($email->email_trigger == 'before-stay') {
-                                                                                                                                        echo 'checked';
-                                                                                                                                    } ?>>
-        <input type='number' name='emails[<?php echo esc_attr($key); ?>][days-before]' <?php if (is_numeric($email->days_before)) {
-                                                                                            echo esc_attr("value='{$email->days_before}'");
-                                                                                        } ?> style='max-width: 70px;'> days before their booking starts
+        <input 
+            type='radio' 
+            name='emails[<?php echo esc_attr($key); ?>][email-trigger]' 
+            class='email-trigger' 
+            value='before-stay' 
+            <?php if ($email->email_trigger == 'before-stay') {
+                echo 'checked';
+            } ?>>
+        <input 
+            type='number' 
+            name='emails[<?php echo esc_attr($key); ?>][days-before]' 
+            <?php if (is_numeric($email->days_before)) {
+                echo esc_attr("value='{$email->days_before}'");
+            } ?> 
+            style='max-width: 70px;'> 
+            days before their booking starts
     </label>
     <br>
     <label>
-        <input type='radio' name='emails[<?php echo esc_attr($key); ?>][email-trigger]' class='email-trigger' value='after-stay' <?php if ($email->email_trigger == 'after-stay') {
-                                                                                                                                        echo 'checked';
-                                                                                                                                    } ?>>
-        <input type='number' name='emails[<?php echo esc_attr($key); ?>][days-after]' <?php if (is_numeric($email->days_after)) {
-                                                                                            echo esc_attr("value='{$email->days_after}'");
-                                                                                        } ?> style='max-width: 70px;'> days after their booking finished (0 means on the end date)
+        <input 
+            type='radio' 
+            name='emails[<?php echo esc_attr($key); ?>][email-trigger]' 
+            class='email-trigger' 
+            value='after-stay' 
+            <?php if ($email->email_trigger == 'after-stay') {
+                echo 'checked';
+            } ?>>
+        <input 
+            type='number' 
+            name='emails[<?php echo esc_attr($key); ?>][days-after]' 
+            <?php if (is_numeric($email->days_after)) {
+                echo esc_attr("value='{$email->days_after}'");
+            } ?> 
+            style='max-width: 70px;'> 
+            days after their booking finished (0 means on the end date)
     </label>
     <br>
-<?php
+    <?php
 }
 
 // adds validation for the extra columns in the emails table
