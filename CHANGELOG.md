@@ -4,15 +4,20 @@
 ### Added
 
 ### Changed
+
+### Fixed
+
+### Updated
+
+## [10.4.2] - 2026-06-23
+
+
+### Changed
 - payments html to dom elements
 - implemented db caching
 - implemented db caching
 - implemented db caching
 - replaced wpdb->update with updateDbFunction
-
-### Fixed
-
-### Updated
 
 ## [10.4.1] - 2026-06-21
 
