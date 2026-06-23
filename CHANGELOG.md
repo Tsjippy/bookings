@@ -6,10 +6,15 @@
 ### Changed
 
 ### Fixed
-- addElement code
-- booking selector problems
 
 ### Updated
+
+## [10.4.5] - 2026-06-23
+
+
+### Fixed
+- addElement code
+- booking selector problems
 
 ## [10.4.4] - 2026-06-23
 
