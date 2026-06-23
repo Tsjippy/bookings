@@ -228,7 +228,7 @@ function shouldShow($shouldShow, $displayFormResults, $type, $parent)
 
         if (count($subjects) > 1) {
             $label  = addElement('label', $checkBoxWrapper, [], $cleanSubject);
-            addElement('input', $label, $attributes);
+            addElement('input', $label, $attributes, '', 'afterBegin');
         }
 
         $bookings->modalContent($calendarWrapper, $subject, $targetDate, true, $hidden, true);
