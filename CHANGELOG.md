@@ -6,6 +6,7 @@
 ### Changed
 
 ### Fixed
+- accomodation selector
 
 ### Updated
 
