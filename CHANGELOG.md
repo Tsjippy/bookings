@@ -7,6 +7,7 @@
 
 ### Fixed
 - hook names
+- wrong table name
 
 ### Updated
 
