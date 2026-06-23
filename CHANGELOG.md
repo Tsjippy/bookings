@@ -6,10 +6,15 @@
 ### Changed
 
 ### Fixed
-- hook names
-- wrong table name
 
 ### Updated
+
+## [10.4.8] - 2026-06-23
+
+
+### Fixed
+- hook names
+- wrong table name
 
 ## [10.4.7] - 2026-06-23
 
