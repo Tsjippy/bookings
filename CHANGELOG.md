@@ -7,6 +7,7 @@
 
 ### Fixed
 - addElement code
+- booking selector problems
 
 ### Updated
 
