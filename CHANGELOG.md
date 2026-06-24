@@ -6,9 +6,14 @@
 ### Changed
 
 ### Fixed
-- accomodation selector
 
 ### Updated
+
+## [10.4.9] - 2026-06-24
+
+
+### Fixed
+- accomodation selector
 
 ## [10.4.8] - 2026-06-23
 
