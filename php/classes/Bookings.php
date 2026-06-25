@@ -1419,8 +1419,6 @@ class Bookings
      */
     public function updateBooking($booking, $values, $skipHtml = false)
     {
-        global $wpdb;
-
         // Get the booking
         if (is_numeric($booking)) {
             $booking        = $this->getBookingById($booking);

@@ -98,20 +98,19 @@ add_filter('tsjippy-forms-before-saving-settings', __NAMESPACE__ . '\beforeSavin
 /**
  * Add extra form settings for booking forms
  *
- * @param   array   $settings   The current settings of the form
- * @param   object  $object     The form object
+ * @param   array   $request   The origal request data
+ * @param   object  $object    The form object
  *
  * @param   int     $formId    The id of the form being saved
  */
-function beforeSavingSettings($settings, $object, $formId)
+function beforeSavingSettings($request, $object, $formId)
 {
-    $settings['payment_amount_el']    = is_numeric($_POST['payment-amount-el'] ?? '')   ? $_POST['payment-amount-el'] : false;
+    $request['payment_amount_el']  = is_numeric($request['payment-amount-el'] ?? '') ? $request['payment-amount-el'] : false;
 
-    $settings['payment_indicator']    = is_numeric($_POST['payment-amount-el'] ?? '')   ? $_POST['payment-amount-el'] : false;
+    $request['payment_indicator']  = is_numeric($request['payment-amount-el'] ?? '') ? $request['payment-amount-el'] : false;
+    $request['payment_details_el'] = is_numeric($request['payment-details-el'] ?? '') ? $request['payment-details-el'] : false;
 
-    $settings['payment_details_el']    = is_numeric($_POST['payment-details-el'] ?? '')   ? $_POST['payment-details-el'] : false;
+    $request['price_per_night_el'] = is_numeric($request['price-per-night-el'] ?? '') ? $request['price-per-night-el'] : false;
 
-    $settings['price_per_night_el']    = is_numeric($_POST['price-per-night-el'] ?? '')   ? $_POST['price-per-night-el'] : false;
-
-    return $settings;
+    return $request;
 }

@@ -639,8 +639,8 @@ function bookingSelectorHtml($parent, $object)
     wp_enqueue_script('tsjippy-bookings');
 
     $day    = gmdate('d');
-    $month  = (int) $_GET['month'] ?? '';
-    $year   = (int) $_GET['yr'] ?? '';
+    $month  = (int) ($_GET['month'] ?? '');
+    $year   = (int) ($_GET['yr'] ?? '');
 
     if (!is_numeric($month) || strlen($month) != 2) {
         $month  = gmdate('m');

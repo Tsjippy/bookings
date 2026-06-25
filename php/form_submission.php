@@ -19,24 +19,24 @@ add_filter('tsjippy-forms-before-inserting-formdata', __NAMESPACE__ . '\beforeSa
 /**
  * Check for booking overlaps before saving form data
  *
- * @param object $submission The form submission
- * @param object $object The form object
+ * @param object $request   The form submission request data
+ * @param object $object    The form object
  *
  * @return object The updated form submission or an error
  */
-function beforeSavingFormData($submission, $object)
+function beforeSavingFormData($request, $object)
 {
     $bookings                   = new BookingPayments($object);
 
     // Check if this is a form with a booking selector
     $elements             = $bookings->getBookingElements();
     if (empty($elements) || is_wp_error($elements)) {
-        return $submission;
+        return $request;
     }
 
     $startDates = [];
     if (isset($submission->{'booking-start-date'})) {
-        $startDates = (array)$submission->{'booking-start-date'};
+        $startDates = (array)$request->{'booking-start-date'};
 
         $startDates = TSJIPPY\cleanUpNestedArray($startDates);
 
@@ -45,7 +45,7 @@ function beforeSavingFormData($submission, $object)
 
     $endDates   = [];
     if (isset($submission->{'booking-end-date'})) {
-        $endDates   = (array)$submission->{'booking-end-date'};
+        $endDates   = (array)$request->{'booking-end-date'};
         $endDates   = TSJIPPY\cleanUpNestedArray($endDates);
 
         unset($submission->{'booking-end-date'});
@@ -53,7 +53,7 @@ function beforeSavingFormData($submission, $object)
 
     $rooms  = [];
     if (!empty($submission->{'booking-rooms'})) {
-        $rooms   = $submission->{'booking-rooms'};
+        $rooms   = $request->{'booking-rooms'};
 
         if (!is_array($rooms)) {
             $rooms  = [$rooms];
@@ -69,7 +69,7 @@ function beforeSavingFormData($submission, $object)
     // loop over all booking selectors (usually one)
     foreach ($elements as $element) {
         $subjects       = $bookings->getElementSubjects($element->id);
-        $subjectName    = $submission->{$element->id};
+        $subjectName    = $request->{$element->id};
 
         // Somehow we do not have any data
         if (empty($subjects)) {
@@ -124,10 +124,10 @@ function beforeSavingFormData($submission, $object)
 
     if (!empty($paymentAmountElId)) {
         $slug = $bookings->forms->getElementById($paymentAmountElId, 'slug');
-        $submission->{$slug} = $amount;
+        $request->{$slug} = $amount;
     }
 
-    return $submission;
+    return $request;
 }
 
 /**
