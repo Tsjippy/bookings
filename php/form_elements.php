@@ -62,7 +62,7 @@ function addFormElementOptions($html, $object, $element)
 
     ob_start();
 
-    ?>
+?>
     <div class='element-option booking-selector hidden'>
         <div class="clone-divs-wrapper">
             <button class='button tablink formbuilder-form active' type='button' id='show-element-settings' data-target='element-settings' style='margin-right:4px;'>
@@ -86,9 +86,11 @@ function addFormElementOptions($html, $object, $element)
                 </button>
             <?php
             }
-
-            // Render tab contents
             ?>
+            <button type="button" class="add button" style="flex: 1; max-width: 150px; margin: 10px 5px 3px 0px;">
+                Add a Subject
+            </button>
+
             <div id="element-settings" class="tabcontent">
                 <?php echo wp_kses_post($html); ?>
             </div>
@@ -99,11 +101,19 @@ function addFormElementOptions($html, $object, $element)
                 if ($index === 0) {
                     //$hidden = '';
                 }
-
             ?>
                 <div id="subject-<?php echo esc_attr($index); ?>" class="clone-div tabcontent <?php echo esc_attr($hidden); ?>" data-div-id="<?php echo esc_attr($index); ?>">
                     <input type="hidden" class="no-reset" name="formfield[booking-details][<?php echo esc_attr($index); ?>][post-id]" value="<?php echo esc_attr($subject['post-id']); ?>">
                     <input type="hidden" class="no-reset" name="formfield[booking-details][<?php echo esc_attr($index); ?>][element-id]" value="<?php echo esc_attr($element->id); ?>">
+                    <?php
+                    $hidden = 'hidden';
+                    if (count($subjects) > 1) {
+                        $hidden = '';
+                    }
+                    ?>
+                    <button type="button" class="remove button <?php echo esc_attr($hidden); ?>" style="flex: 1; max-width: 220px;margin-top: 10px">
+                        Remove this Subject
+                    </button>
 
                     <label name="Subject" class=" formfield form-label" style='width: auto;margin-right: 20px;'>
                         <h4>Name</h4>
@@ -143,15 +153,25 @@ function addFormElementOptions($html, $object, $element)
                         ?>
 
                         <label>
-                            <input type="radio" name="formfield[booking-details][<?php echo esc_attr($index); ?>][payments]" class=" formfield formfield-input" value="1" <?php if ($subject['payments']) {
-                                                                                                                                                                                echo 'checked';
-                                                                                                                                                                            } ?>>
+                            <input
+                                type="radio"
+                                name="formfield[booking-details][<?php echo esc_attr($index); ?>][payments]"
+                                class="formfield formfield-input"
+                                value="1"
+                                <?php if ($subject['payments']) {
+                                    echo 'checked';
+                                } ?>>
                             Yes
                         </label>
                         <label>
-                            <input type="radio" name="formfield[booking-details][<?php echo esc_attr($index); ?>][payments]" class=" formfield formfield-input" value="0" <?php if (!$subject['payments']) {
-                                                                                                                                                                                echo 'checked';
-                                                                                                                                                                            } ?>>
+                            <input
+                                type="radio"
+                                name="formfield[booking-details][<?php echo esc_attr($index); ?>][payments]"
+                                class=" formfield formfield-input"
+                                value="0"
+                                <?php if (!$subject['payments']) {
+                                    echo 'checked';
+                                } ?>>
                             No
                         </label>
                     </label>
@@ -160,23 +180,35 @@ function addFormElementOptions($html, $object, $element)
                         <h4 class="label-text">Allow overlap</h4>
                         Allow new arrivals on the day the previous people leave<br>
                         <label>
-                            <input type='radio' class='overlap' name='formfield[booking-details][<?php echo esc_attr($index); ?>][overlap]' value='1' <?php if ($subject['overlap'] == '1') {
-                                                                                                                                                            echo 'checked';
-                                                                                                                                                        } ?>>
+                            <input
+                                type='radio'
+                                class='overlap'
+                                name='formfield[booking-details][<?php echo esc_attr($index); ?>][overlap]'
+                                value='1'
+                                <?php if ($subject['overlap'] == '1') {
+                                    echo 'checked';
+                                } ?>>
                             Yes
                         </label>
 
                         <label>
-                            <input type='radio' class='overlap' name='formfield[booking-details][<?php echo esc_attr($index); ?>][overlap]' value='0' <?php if ($subject['overlap'] == '0') {
-                                                                                                                                                            echo 'checked';
-                                                                                                                                                        } ?>>
+                            <input
+                                type='radio'
+                                class='overlap'
+                                name='formfield[booking-details][<?php echo esc_attr($index); ?>][overlap]'
+                                value='0'
+                                <?php if ($subject['overlap'] == '0') {
+                                    echo 'checked';
+                                } ?>>
                             No
                         </label>
                         <br>
                         <br>
-                        <div class='min-bookking-gap-time <?php if (($subject['overlap'] ?? 1) == '1') {
-                                                                echo 'hidden';
-                                                            } ?>'>
+                        <div
+                            class='min-bookking-gap-time 
+                        <?php if (($subject['overlap'] ?? 1) == '1') {
+                            echo 'hidden';
+                        } ?>'>
                             <label>
                                 Minimum time between two bookings in days
                                 <?php
@@ -188,32 +220,50 @@ function addFormElementOptions($html, $object, $element)
                     </label>
 
                     <label>
-                        <input type='checkbox' name='formfield[booking-details][<?php echo esc_attr($index); ?>][oneday]' value='1' <?php if (isset($subjects['oneday']) && $subjects['oneday'] == 'yes') {
-                                                                                                                                        echo 'checked';
-                                                                                                                                    } ?>>
+                        <input
+                            type='checkbox'
+                            name='formfield[booking-details][<?php echo esc_attr($index); ?>][oneday]'
+                            value='1'
+                            <?php if (isset($subjects['oneday']) && $subjects['oneday'] == 'yes') {
+                                echo 'checked';
+                            } ?>>
                         Allow one day events
                     </label>
 
                     <label class="formfield form-label">
                         <h4>Default status for new bookings</h4>
                         <label>
-                            <input type='radio' name='formfield[booking-details][<?php echo esc_attr($index); ?>][default-booking-state]' value='pending' <?php if ($subject['default-booking-state'] == 'pending') {
-                                                                                                                                                                echo 'checked';
-                                                                                                                                                            } ?>>
+                            <input
+                                type='radio'
+                                name='formfield[booking-details][<?php echo esc_attr($index); ?>][default-booking-state]'
+                                value='pending'
+                                <?php if ($subject['default-booking-state'] == 'pending') {
+                                    echo 'checked';
+                                } ?>>
                             Pending
                         </label>
                         <br>
                         <label>
-                            <input type='radio' name='formfield[booking-details][<?php echo esc_attr($index); ?>][default-booking-state]' value='confimed' <?php if ($subject['default-booking-state'] == 'confimed') {
-                                                                                                                                                                echo 'checked';
-                                                                                                                                                            } ?>>
+                            <input
+                                type='radio'
+                                name='formfield[booking-details][<?php echo esc_attr($index); ?>][default-booking-state]'
+                                value='confimed'
+                                <?php if ($subject['default-booking-state'] == 'confimed') {
+                                    echo 'checked';
+                                } ?>>
                             Confimed
                         </label>
                         <br>
                         <br>
-                        <button class="button tsjippy small confirmed-roles-switcher <?php if ($subject['default-booking-state'] != 'pending') {
-                                                                                            echo 'hidden';
-                                                                                        } ?>" type="button" style='max-width: unset;'>Advanced</button>
+                        <button
+                            class="button tsjippy small confirmed-roles-switcher 
+                        <?php if ($subject['default-booking-state'] != 'pending') {
+                            echo 'hidden';
+                        } ?>"
+                            type="button"
+                            style='max-width: unset;'>
+                            Advanced
+                        </button>
                         <div class='confirmed-roles-wrapper hidden'>
                             <h4>Select roles for which bookings are confirmed by default</h4>
                             <div class="role-info">
@@ -226,9 +276,14 @@ function addFormElementOptions($html, $object, $element)
                                     }
                                 ?>
                                     <label class='option-label'>
-                                        <input type='checkbox' class='formbuilder form-element-setting' name='formfield[booking-details][<?php echo esc_attr($index); ?>][confirmed-booking-roles][]' value='<?php echo esc_attr($key); ?>' <?php if (in_array($key, $subject['confirmed-booking-roles'])) {
-                                                                                                                                                                                                                                                echo 'checked=checked';
-                                                                                                                                                                                                                                            } ?>>
+                                        <input
+                                            type='checkbox'
+                                            class='formbuilder form-element-setting'
+                                            name='formfield[booking-details][<?php echo esc_attr($index); ?>][confirmed-booking-roles][]'
+                                            value='<?php echo esc_attr($key); ?>'
+                                            <?php if (in_array($key, $subject['confirmed-booking-roles'])) {
+                                                echo 'checked=checked';
+                                            } ?>>
                                         <?php echo esc_html($roleName); ?>
                                     </label><br>
                                 <?php
@@ -246,32 +301,52 @@ function addFormElementOptions($html, $object, $element)
                     <br>
 
                     <br>
-                    <label class=" formfield form-label room-numbering <?php if ($subject['amount'] == 1 || empty($subject['amount'])) {
-                                                                            echo 'hidden';
-                                                                        } ?>">
+                    <label
+                        class=" formfield form-label room-numbering 
+                    <?php if ($subject['amount'] == 1 || empty($subject['amount'])) {
+                        echo 'hidden';
+                    } ?>">
                         <h4>Room numbering type</h4>
-                        <input type='radio' class='numbering-type' name='formfield[booking-details][<?php echo esc_attr($index); ?>][nrtype]' value='numbers' <?php if ($subject['nrtype'] == 'numbers') {
-                                                                                                                                                                    echo 'checked';
-                                                                                                                                                                } ?>>
+                        <input
+                            type='radio'
+                            class='numbering-type'
+                            name='formfield[booking-details][<?php echo esc_attr($index); ?>][nrtype]'
+                            value='numbers'
+                            <?php if ($subject['nrtype'] == 'numbers') {
+                                echo 'checked';
+                            } ?>>
                         Numbers
                         <br>
 
-                        <input type='radio' class='numbering-type' name='formfield[booking-details][<?php echo esc_attr($index); ?>][nrtype]' value='letters' <?php if ($subject['nrtype'] == 'letters') {
-                                                                                                                                                                    echo 'checked';
-                                                                                                                                                                } ?>>
+                        <input
+                            type='radio'
+                            class='numbering-type'
+                            name='formfield[booking-details][<?php echo esc_attr($index); ?>][nrtype]'
+                            value='letters'
+                            <?php if ($subject['nrtype'] == 'letters') {
+                                echo 'checked';
+                            } ?>>
                         Letters
                         <br>
 
-                        <input type='radio' class='numbering-type' name='formfield[booking-details][<?php echo esc_attr($index); ?>][nrtype]' value='custom' <?php if ($subject['nrtype'] == 'custom') {
-                                                                                                                                                                    echo 'checked';
-                                                                                                                                                                } ?>>
+                        <input
+                            type='radio'
+                            class='numbering-type'
+                            name='formfield[booking-details][<?php echo esc_attr($index); ?>][nrtype]'
+                            value='custom'
+                            <?php if ($subject['nrtype'] == 'custom') {
+                                echo 'checked';
+                            } ?>>
                         Custom
                     </label>
                     <br>
                     <br>
-                    <div class="rooms clone-divs-wrapper <?php if ($subject['amount'] == 1 || empty($subject['amount'])) {
-                                                                echo 'hidden';
-                                                            } ?>" style='background: lightgrey;padding-bottom: 10px;padding-left: 10px;margin-right:10px'>
+                    <div
+                        class="rooms clone-divs-wrapper 
+                    <?php if ($subject['amount'] == 1 || empty($subject['amount'])) {
+                        echo 'hidden';
+                    } ?>"
+                        style='background: lightgrey;padding-bottom: 10px;padding-left: 10px;margin-right:10px'>
                         <?php
                         if (empty($subject['rooms'])) {
                             $subject['rooms']   = ['0'];
@@ -290,9 +365,15 @@ function addFormElementOptions($html, $object, $element)
                             $subjectName    = strtolower(str_replace(' ', '-', $subject['name']));
 
                         ?>
-                            <button class='button tablink formbuilder-form <?php if ($i === 0) {
-                                                                                echo 'active';
-                                                                            } ?>' type='button' id='<?php echo esc_attr("show-$subjectName-room-$i"); ?>' data-target='<?php echo esc_attr("$subjectName-room-$i"); ?>' style='margin-right:4px;max-width: 100px;'>
+                            <button
+                                class='button tablink formbuilder-form 
+                            <?php if ($i === 0) {
+                                echo 'active';
+                            } ?>'
+                                type='button'
+                                id='<?php echo esc_attr("show-$subjectName-room-$i"); ?>'
+                                data-target='<?php echo esc_attr("$subjectName-room-$i"); ?>'
+                                style='margin-right:4px;max-width: 100px;'>
                                 Room <?php echo esc_html($room['name']); ?>
                             </button>
                         <?php
@@ -319,9 +400,13 @@ function addFormElementOptions($html, $object, $element)
                             $subjectName    = strtolower(str_replace(' ', '-', $subject['name']));
 
                         ?>
-                            <div id="<?php echo esc_attr($subjectName); ?>-room-<?php echo esc_attr($i); ?>" class="clone-div tabcontent <?php if ($i !== 0) {
-                                                                                                                                                echo 'hidden';
-                                                                                                                                            } ?>" data-div-id="<?php echo esc_attr($i); ?>">
+                            <div
+                                id="<?php echo esc_attr($subjectName); ?>-room-<?php echo esc_attr($i); ?>"
+                                class="clone-div tabcontent 
+                            <?php if ($i !== 0) {
+                                echo 'hidden';
+                            } ?>"
+                                data-div-id="<?php echo esc_attr($i); ?>">
                                 <input type="hidden" name="formfield[booking-details][<?php echo esc_attr($index); ?>][rooms][<?php echo esc_attr($i); ?>][post-id]" value="<?php echo esc_attr($room['post-id']); ?>">
                                 <label name="roomname" class=" formfield form-label roomname">
                                     <h4>Room name</h4>
@@ -366,19 +451,6 @@ function addFormElementOptions($html, $object, $element)
                         }
                         ?>
                     </div>
-
-                    <div class="button-wrapper" style="display: flex;">
-                        <button type="button" class="add button" style="flex: 1; max-width: 150px; margin: 10px 5px 3px 0px;">Add a Subject</button>
-                        <?php
-                        $hidden = 'hidden';
-                        if (count($subjects) > 1) {
-                            $hidden = '';
-                        }
-                        ?>
-                        <button type="button" class="remove button <?php echo esc_attr($hidden); ?>" style="flex: 1; max-width: 220px;margin-top: 10px">
-                            Remove this Subject
-                        </button>
-                    </div>
                 </div>
             <?php
             }
@@ -386,7 +458,7 @@ function addFormElementOptions($html, $object, $element)
         </div>
         <br>
     </div>
-    <?php
+<?php
 
     return ob_get_clean();
 }
@@ -912,12 +984,12 @@ function formElementUpdated($element, $instance, $oldElement)
                     $subject[$key],
                     $value,
                     $wpdb->esc_like($value) . '%'
-                )); 
+                ));
 
                 // Flush the cache to force new db queries
-                if(wp_cache_supports( 'flush_group' )){
+                if (wp_cache_supports('flush_group')) {
                     wp_cache_flush_group('bookings');
-                }else{
+                } else {
                     wp_cache_flush();
                 }
 
@@ -1034,7 +1106,7 @@ function formElementUpdated($element, $instance, $oldElement)
                     add_post_meta($postId, $key, $v);
                 }
             } else {
-                update_post_meta($postId, "tsjippy_".$key, $value);
+                update_post_meta($postId, "tsjippy_" . $key, $value);
             }
         }
     }

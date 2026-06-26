@@ -237,7 +237,7 @@ class Bookings
         ?>
         <div name='<?php echo esc_attr($subjectName); ?>-room-modal' class="booking rooms modal hidden" style="display:unset; z-index: 999999999 !important;">
             <div class="modal-content">
-                <?php echo TSJIPPY\addCloseButtton('');?>
+                <?php TSJIPPY\addCloseButtton();?>
 
                 <h4>Room descriptions</h4>
                 <p>Select a room to see its description</p>
