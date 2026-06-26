@@ -4,14 +4,21 @@
 ### Added
 
 ### Changed
+
+### Fixed
+
+### Updated
+
+## [10.5.1] - 2026-06-26
+
+
+### Changed
 - sanitize post on original function
 - print close buttont in funtion
 
 ### Fixed
 - non-prefixd post meta's
 - save post meta when value is array
-
-### Updated
 
 ## [10.5.0] - 2026-06-25
 
