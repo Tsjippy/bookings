@@ -9,6 +9,7 @@
 
 ### Fixed
 - non-prefixd post meta's
+- save post meta when value is array
 
 ### Updated
 
