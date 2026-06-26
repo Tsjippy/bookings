@@ -953,7 +953,14 @@ function formElementUpdated($element, $instance, $oldElement)
 
         // See what is removed
         foreach ($removed as $key => $value) {
-            delete_post_meta($postId, "tsjippy_$key", $value);
+            // Only delete a specific post meta
+            if(is_array($value)){
+                foreach($value as $v){
+                    delete_post_meta($postId, "tsjippy_$key", $v);
+                }
+            }else{  
+                delete_post_meta($postId, "tsjippy_$key");
+            }
 
             if ($key == 'payments') {
                 // We disabled payments
@@ -1097,11 +1104,7 @@ function formElementUpdated($element, $instance, $oldElement)
                 }
 
                 update_post_meta($postId, 'tsjippy_payments', $value);
-            } elseif ($value) {
-                // first delete all
-                delete_post_meta($postId, "tsjippy_$key");
-
-                // Then add the new ones
+            } elseif (is_array($value)) {
                 foreach ($value as $k => $v) {
                     add_post_meta($postId, "tsjippy_$key", $v);
                 }
