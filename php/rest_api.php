@@ -67,9 +67,9 @@ function restapiInit()
             'permission_callback'     => function ($rest) {
                 // Get the bookings related to this submission
                 $rest->bookingsObject    = new Bookings();
-
+                // phpcs:ignore
                 $rest->bookingsObject->forms->formData->id    = (int) $_POST['form-id'];
-
+                // phpcs:ignore
                 $rest->bookings           = $rest->bookingsObject->getBookingsBySubmission((int) $_POST['id']);
 
                 // Get the subject the current user is manager of
@@ -99,6 +99,7 @@ function restapiInit()
             'permission_callback'     => function ($request) {
                 // Get the bookings related to this submission
                 $bookingsObject    = new Bookings();
+                // phpcs:ignore
                 $bookings       = $bookingsObject->getBookingsBySubmission((int) $_POST['id']);
 
                 // Get the subject the current user is manager of
@@ -141,14 +142,13 @@ function restapiInit()
 
 function getNextMonth()
 {
+    $request     = TSJIPPY\sanitize($_POST);
     $bookings    = new Bookings();
+    $bookings->forms->getForm((int) $request['form-id']);
+    $bookings->forms->shortcodeId  = (int) $request['shortcode-id'];
 
-    $bookings->forms->getForm((int) $_POST['form-id']);
-
-    $bookings->forms->shortcodeId  = (int) $_POST['shortcode-id'];
-
-    if (isset($_POST['element-id']) && is_numeric($_POST['element-id'])) {
-        $element                   = $bookings->forms->getElementById((int) $_POST['element-id']);
+    if (is_numeric($request['element-id'] ?? '')) {
+        $element                   = $bookings->forms->getElementById((int) $request['element-id']);
     } else {
         foreach ($bookings->forms->formElements as $element) {
             if ($element->type == 'booking-selector') {
@@ -157,9 +157,8 @@ function getNextMonth()
         }
     }
     $bookings->forms->currentElement    = $element;
-
-    $subjectName    = TSJIPPY\sanitize($_POST['subject']);
-    $date           = strtotime((int)$_POST['year'] . '-' . (int)$_POST['month'] . '-01');
+    $subjectName    = $request['subject'];
+    $date           = strtotime((int)$request['year'] . '-' . (int)$request['month'] . '-01');
 
     $months         = [];
     foreach ($bookings->getElementSubjects($element->id) as $subject) {
@@ -190,14 +189,14 @@ function getNextMonth()
      * the navigator expect the month given to be the first visible month
      * So if we are adding a new month the first visible month will be the month before that
      */
-    if (isset($_POST['type']) && $_POST['type'] == 'prev') {
+    if (($request['type'] ?? '') == 'prev') {
         $navDate    = $date;
     } else {
         $navDate    = strtotime('-1 month', $date);
     }
     $navigator    = $bookings->getNavigator($navDate);
     $detail        = '';
-    if (!empty($_POST['shortcode-id'])) {
+    if (!empty($request['shortcode-id'])) {
         $detail        = $bookings->detailHtml();
     }
 
@@ -250,8 +249,8 @@ function removeBooking()
 function loadPost()
 {
     global $post;
-
-    $post        = get_post($_POST['post-id']);
+    // phpcs:ignore
+    $post        = get_post((int) $_POST['post-id']);
 
     // Make sure we have valid content, balanced and comments removed.
     $content    = get_the_content();

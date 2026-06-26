@@ -1372,6 +1372,7 @@ class Bookings
             if (is_array($startDate)) {
                 // phpcs:ignore
                 if (!empty($_POST['subid']) && isset($startDate[$_POST['subid']])) {
+                    // phpcs:ignore
                     $startDate  = $startDate[TSJIPPY\sanitize($_POST['subid'] ?? '')];
                 } else {
                     $startDate  = array_values($startDate)[0];

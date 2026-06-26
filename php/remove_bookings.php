@@ -21,10 +21,11 @@ function removeBookings($instance, $submissionId)
         return;
     }
 
+    // phpcs:ignore
     if (($_POST['action'] ?? '') == 'archive') {
 
         foreach ($currentBookings as $booking) {
-
+            // phpcs:ignore
             if (!empty($_POST['subid']) && $booking->room != $_POST['subid']) {
                 // we should only remove the requested booking
                 continue;

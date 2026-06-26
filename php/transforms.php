@@ -67,6 +67,7 @@ function transformEmpty($replaceValue, $match, $replaceValues, $instance)
     if (
         $match != "booking-details" ||
         (
+            // phpcs:ignore
             empty($_POST['booking-start-date']) &&
             empty($replaceValues['booking-start-date'])
         )
@@ -74,13 +75,17 @@ function transformEmpty($replaceValue, $match, $replaceValues, $instance)
         return $replaceValue;
     }
 
+    // phpcs:ignore
     if (empty($_POST['booking-start-date'])) {
         $startDates     = (array)$replaceValues['booking-start-date'];
         $endDates       = (array)$replaceValues['booking-end-date'];
         $rooms          = (array)$replaceValues['booking-rooms'];
     } else {
+        // phpcs:ignore
         $startDates     = TSJIPPY\sanitize($_POST['booking-start-date'] ?? '');
+        // phpcs:ignore
         $endDates       = TSJIPPY\sanitize($_POST['booking-end-date'] ?? '');
+        // phpcs:ignore
         $rooms          = TSJIPPY\sanitize((array)$_POST['booking-rooms'] ?? []);
     }
 

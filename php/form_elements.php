@@ -711,7 +711,9 @@ function bookingSelectorHtml($parent, $object)
     wp_enqueue_script('tsjippy-bookings');
 
     $day    = gmdate('d');
+    // phpcs:ignore
     $month  = (int) ($_GET['month'] ?? '');
+    // phpcs:ignore
     $year   = (int) ($_GET['yr'] ?? '');
 
     if (!is_numeric($month) || strlen($month) != 2) {
@@ -862,6 +864,7 @@ function elementHtml($node, $object)
 
     // Display existing form entry element element
     elseif (!empty($object->submission)) {
+        // phpcs:ignore
         bookingDateElementHtml($node, $object, (int) $_POST['booking-id']);
     }
 

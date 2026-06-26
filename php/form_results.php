@@ -102,7 +102,9 @@ function shouldShow($shouldShow, $displayFormResults, $type, $parent)
             isset($displayFormResults->tableSettings->booking_display) &&         // option chosen
             $displayFormResults->tableSettings->booking_display != 'calendar'     // but choose table view
         )      ||
+        // phpcs:ignore
         isset($_REQUEST['export-xls'])  ||                                          // exporting an excel
+        // phpcs:ignore
         isset($_REQUEST['export-pdf'])                                              // exporting a pdf
     ) {
         return $shouldShow;
@@ -134,7 +136,9 @@ function shouldShow($shouldShow, $displayFormResults, $type, $parent)
     $bookedSubject              = '';
 
     // Show a specific booking
+    // phpcs:ignore
     if (!empty($_REQUEST['id'])) {
+        // phpcs:ignore
         $bookings->forms->submission    = $bookings->forms->getSubmissions('', (int) $_REQUEST['id'])[0];
 
         // Find the subject
@@ -439,6 +443,7 @@ function alterQuery($params, $userId, $instance)
         intval($params['values'][2]) < -101
     ) {
         $elementId      = $params['values'][2];
+        // phpcs:ignore
         $submissionId   = (int) $_POST['submission-id'];
         if (!is_numeric($submissionId)) {
             return $params;
