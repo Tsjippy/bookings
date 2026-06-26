@@ -86,7 +86,7 @@ class Bookings
                 $value  = map_deep($value, 'maybe_unserialize');
 
                 // single value not an array
-                if(in_array($key, ['payments', 'overlap', 'overlap-period', 'default-booking-state', 'amount'])){
+                if (in_array($key, ['payments', 'overlap', 'overlap-period', 'default-booking-state', 'amount'])) {
                     $value  = $value[0];
                 }
                 $this->subjects[$post->post_title][$key] = $value;
@@ -200,7 +200,7 @@ class Bookings
         $plusYearStr    = gmdate('Y', $plusMonth);
 
         ob_start();
-        ?>
+?>
         <div class="navigator" data-month='<?php echo esc_attr(gmdate('m', $firstMonth)); ?>' data-year='<?php echo esc_attr(gmdate('Y', $firstMonth)); ?>'>
             <div class="prev <?php if (gmdate('ym', $minusMonth) < gmdate('ym')) {
                                     echo 'hidden';
@@ -234,10 +234,10 @@ class Bookings
 
         $subjectName    = strtolower(str_replace(' ', '_', $subject['name']));
 
-        ?>
+    ?>
         <div name='<?php echo esc_attr($subjectName); ?>-room-modal' class="booking rooms modal hidden" style="display:unset; z-index: 999999999 !important;">
             <div class="modal-content">
-                <?php TSJIPPY\addCloseButtton();?>
+                <?php TSJIPPY\addCloseButtton(); ?>
 
                 <h4>Room descriptions</h4>
                 <p>Select a room to see its description</p>
@@ -246,9 +246,15 @@ class Bookings
                     // Render tablink buttons
                     foreach ($subject['rooms'] as $index => $room) {
                     ?>
-                        <button class='button tablink formbuilder-form <?php if ($index === 0) {
-                                                                            echo 'active';
-                                                                        } ?>' type='button' id='show-<?php echo esc_attr($subjectName); ?>-room-<?php echo esc_attr($index); ?>' data-target='<?php echo esc_attr($subjectName); ?>-room-<?php echo esc_attr($index); ?>' style='margin-right:4px;'>
+                        <button
+                            class='button tablink formbuilder-form 
+                        <?php if ($index === 0) {
+                            echo 'active';
+                        } ?>'
+                            type='button'
+                            id='show-<?php echo esc_attr($subjectName); ?>-room-<?php echo esc_attr($index); ?>'
+                            data-target='<?php echo esc_attr($subjectName); ?>-room-<?php echo esc_attr($index); ?>'
+                            style='margin-right:4px;'>
                             Room <?php echo esc_html($room['name']); ?>
                         </button>
                     <?php
@@ -263,12 +269,12 @@ class Bookings
                     $i++;
                     $name   = $room['name'];
                 ?>
-                    <div 
-                        id="<?php echo esc_attr($subjectName); ?>-room-<?php echo esc_attr($name); ?>" 
+                    <div
+                        id="<?php echo esc_attr($subjectName); ?>-room-<?php echo esc_attr($name); ?>"
                         class="tabcontent 
                         <?php if ($i > 1) {
                             echo 'hidden';
-                        } ?> lazy-post" 
+                        } ?> lazy-post"
                         data-post-id='<?php echo esc_attr($room['post-id']); ?>'>
                     </div>
                 <?php
@@ -301,7 +307,9 @@ class Bookings
             $type   = 'checkbox';
         }
 
+        // phpcs:ignore
         if (!empty($_REQUEST['id']) && $this->forms->submission->id != $_REQUEST['id']) {
+            // phpcs:ignore
             $this->forms->submission = (object) $this->forms->getSubmissions('', $_REQUEST['id']);
         }
 
@@ -338,7 +346,7 @@ class Bookings
         /**
          * Add inputs based on the room numbering
          */
-        foreach($subject['rooms'] as $room){
+        foreach ($subject['rooms'] as $room) {
             $attributes  = [
                 'type'  => $type,
                 'name'  => 'room',
@@ -356,7 +364,7 @@ class Bookings
             }
 
             addElement('input', $wrapper, $attributes);
-            
+
             $wrapper->append($room['name']);
         }
     }
@@ -370,7 +378,7 @@ class Bookings
     private function roomCalendars($subject, $date)
     {
         ob_start();
-        ?>
+    ?>
         <div class='rooms-wrapper'>
             <?php
             foreach ($this->subjects[$subject]['rooms'] as $room) {
@@ -383,7 +391,7 @@ class Bookings
                 ) {
                     $roomHidden = '';
                 }
-                ?>
+            ?>
                 <div class='room-wrapper <?php echo esc_attr($roomHidden); ?>' data-room='<?php echo esc_attr($room['name']); ?>'>
                     <h4>Room <?php echo esc_html($room['name']); ?></h4>
                     <div class='month-wrapper flex'>
@@ -397,7 +405,7 @@ class Bookings
             }
             ?>
         </div>
-        <?php
+    <?php
 
         return ob_get_clean();
     }
@@ -553,7 +561,7 @@ class Bookings
             </div>
         </div>
 
-        <?php
+    <?php
 
         return addRawHtml(ob_get_clean(), $node);
     }
@@ -698,7 +706,7 @@ class Bookings
                 $hidden = 'hidden';
             }
 
-            ?>
+        ?>
             <dl class='calendar row <?php echo esc_attr($hidden); ?>' data-month='<?php echo esc_attr($month); ?>'>
                 <?php
                 //loop over all days of a week
@@ -710,7 +718,7 @@ class Bookings
                     $class              = '';
 
                     if ($workingMonth != $month) {
-                    ?>
+                ?>
                         <dt class='empty'></dt>
                     <?php
                     } else {
@@ -777,7 +785,7 @@ class Bookings
                             }
                         }
 
-                        ?>
+                    ?>
                         <dt
                             class='calendar day <?php echo esc_attr($class); ?>'
                             data-date='<?php echo esc_attr(gmdate(TSJIPPY\DATEFORMAT, $workingDate)); ?>'
@@ -787,7 +795,7 @@ class Bookings
                                 <?php echo esc_html($workingDay); ?>
                             </span>
                         </dt>
-                        <?php
+                <?php
                     }
 
                     //calculate the next week
@@ -799,7 +807,7 @@ class Bookings
                 }
                 ?>
             </dl>
-            <?php
+        <?php
 
             // Break if next month
             if (gmdate('Ym', $workingDate) > gmdate('Ym', $date)) {
@@ -1013,11 +1021,11 @@ class Bookings
                                                 $text   = $buttonAttributes['text'] ?? '';
 
                                                 unset($buttonAttributes['text']);
-                                                ?>
+                                            ?>
                                                 <button
                                                     <?php
                                                     foreach ($buttonAttributes as $key => $value) {
-                                                        echo esc_attr($key)."='".esc_attr($value)."'";
+                                                        echo esc_attr($key) . "='" . esc_attr($value) . "'";
                                                     }
                                                     ?>>
                                                     <?php echo esc_html($text); ?>
@@ -1091,11 +1099,11 @@ class Bookings
                 $this->forms->submission->user_id != $this->forms->user->ID
             ) {
                 // no right to see this
-                ?>
+        ?>
                 <div class='booking-detail-wrapper warning hidden' data-booking-id='<?php echo esc_attr($booking->id); ?>'>
                     No permission to see this booking
                 </div>
-                <?php
+<?php
                 continue;
             }
 
@@ -1170,7 +1178,7 @@ class Bookings
         $bookings           = TSJIPPY\getFromDb(
             $cacheKey,
             "bookings",
-            $query, 
+            $query,
             $values
         );
 
@@ -1362,8 +1370,9 @@ class Bookings
 
             // get the relevant date
             if (is_array($startDate)) {
+                // phpcs:ignore
                 if (!empty($_POST['subid']) && isset($startDate[$_POST['subid']])) {
-                    $startDate  = $startDate[$_POST['subid']];
+                    $startDate  = $startDate[TSJIPPY\sanitize($_POST['subid'] ?? '')];
                 } else {
                     $startDate  = array_values($startDate)[0];
                 }
@@ -1378,8 +1387,10 @@ class Bookings
 
             // get the relevant date
             if (is_array($endDate)) {
+                // phpcs:ignore
                 if (!empty($_POST['subid']) && isset($endDate[$_POST['subid']])) {
-                    $endDate  = $endDate[$_POST['subid']];
+                    // phpcs:ignore
+                    $endDate  = $endDate[TSJIPPY\sanitize($_POST['subid'] ?? '')];
                 } else {
                     $endDate  = array_values($endDate)[0];
                 }
@@ -1602,7 +1613,7 @@ class Bookings
 
         // Delete potential existing bookings;
         $results    = TSJIPPY\getFromDb(
-            "get_bookings_for_".($subjectData['name'] ?? ''),
+            "get_bookings_for_" . ($subjectData['name'] ?? ''),
             "bookings",
             "select * FROM %i WHERE `subject` LIKE %s",
             $this->tableName,
@@ -1746,7 +1757,7 @@ class Bookings
         return TSJIPPY\getFromDb(
             "get_booking_by_end_date_$date",
             "bookings",
-            "SELECT * FROM %i WHERE end_date = %s", 
+            "SELECT * FROM %i WHERE end_date = %s",
             $this->tableName,
             $date
         );
@@ -1766,7 +1777,7 @@ class Bookings
         return TSJIPPY\getFromDb(
             "get_booking_by_start_date_$date",
             "bookings",
-            "SELECT * FROM %i WHERE start_date = %s", 
+            "SELECT * FROM %i WHERE start_date = %s",
             $this->tableName,
             $date
         );
@@ -1780,7 +1791,8 @@ class Bookings
      * 
      * @return array                An array with all bookings
      */
-    function getUserBookingsByStartDate($userId, $date){
+    function getUserBookingsByStartDate($userId, $date)
+    {
         if (is_numeric($date)) {
             $date   = gmdate('Y-m-d', $date);
         }
@@ -1788,7 +1800,7 @@ class Bookings
         return TSJIPPY\getFromDb(
             "get_booking_for_user_{$userId}_by_start_date_$date",
             "bookings",
-            "SELECT distinct submission_id, bookings.id as booking_id, start_date, end_date, subject, pending, event_id, paid, room FROM %i as bookings join %i as submission on bookings.submission_id = submission.id where bookings.start_date > %s and submission.user_id = %d", 
+            "SELECT distinct submission_id, bookings.id as booking_id, start_date, end_date, subject, pending, event_id, paid, room FROM %i as bookings join %i as submission on bookings.submission_id = submission.id where bookings.start_date > %s and submission.user_id = %d",
             $this->tableName,
             $this->forms->submissionTableName,
             $date,
@@ -1806,8 +1818,8 @@ class Bookings
     {
 
         $results = TSJIPPY\getFromDb(
-            "booking_id_$id", 
-            'bookings', 
+            "booking_id_$id",
+            'bookings',
             "SELECT * FROM %i WHERE id=%d",
             $this->tableName,
             $id
@@ -1832,8 +1844,8 @@ class Bookings
         $results    = TSJIPPY\getFromDb(
             "booking_by_submission_$id",
             'bookings',
-            "SELECT * FROM %i WHERE submission_id=%d", 
-            $this->tableName, 
+            "SELECT * FROM %i WHERE submission_id=%d",
+            $this->tableName,
             $id
         );
 

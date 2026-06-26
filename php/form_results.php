@@ -180,7 +180,7 @@ function shouldShow($shouldShow, $displayFormResults, $type, $parent)
         $bookings->pendingBookingsHtml($div, 'payment');
 
         // Get the bookings for the current user
-        $userBookings    = $bookings->getUserBookingsByStartDate($displayFormResults->userId, date("Y-m-d"));
+        $userBookings    = $bookings->getUserBookingsByStartDate($displayFormResults->userId, gmdate("Y-m-d"));
 
         if (empty($userBookings)) {
             $div->append("You do not have any bookings. ");

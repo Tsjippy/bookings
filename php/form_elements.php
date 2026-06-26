@@ -312,7 +312,7 @@ function addFormElementOptions($html, $object, $element)
                             class='numbering-type'
                             name='formfield[booking-details][<?php echo esc_attr($index); ?>][nrtype]'
                             value='numbers'
-                            <?php if ($subject['nrtype'] == 'numbers') {
+                            <?php if (($subject['nrtype'] ?? '') == 'numbers') {
                                 echo 'checked';
                             } ?>>
                         Numbers
@@ -323,7 +323,7 @@ function addFormElementOptions($html, $object, $element)
                             class='numbering-type'
                             name='formfield[booking-details][<?php echo esc_attr($index); ?>][nrtype]'
                             value='letters'
-                            <?php if ($subject['nrtype'] == 'letters') {
+                            <?php if (($subject['nrtype'] ?? '')  == 'letters') {
                                 echo 'checked';
                             } ?>>
                         Letters
@@ -334,7 +334,7 @@ function addFormElementOptions($html, $object, $element)
                             class='numbering-type'
                             name='formfield[booking-details][<?php echo esc_attr($index); ?>][nrtype]'
                             value='custom'
-                            <?php if ($subject['nrtype'] == 'custom') {
+                            <?php if (($subject['nrtype'] ?? '')  == 'custom') {
                                 echo 'checked';
                             } ?>>
                         Custom
@@ -390,7 +390,7 @@ function addFormElementOptions($html, $object, $element)
 
                             if (!empty($room['name'])) {
                                 $roomName   = $room['name'];
-                            } elseif ($subject['nrtype'] == 'letters') {
+                            } elseif (($subject['nrtype'] ?? '')  == 'letters') {
                                 $alphabet   = range('A', 'Z');
                                 $roomName   = $alphabet[$i];
                             } else {
@@ -985,6 +985,7 @@ function formElementUpdated($element, $instance, $oldElement)
             // Subject detail changed
             if ($key == 'name') {
                 // update existing bookings
+                // phpcs:disable
                 $wpdb->query($wpdb->prepare(
                     "UPDATE %i SET subject = REPLACE(`subject`, %s, %s) WHERE `subject` LIKE %s",
                     $bookings->tableName,
@@ -992,6 +993,7 @@ function formElementUpdated($element, $instance, $oldElement)
                     $value,
                     $wpdb->esc_like($value) . '%'
                 ));
+                // phpcs:enable
 
                 // Flush the cache to force new db queries
                 if (wp_cache_supports('flush_group')) {

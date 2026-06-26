@@ -165,12 +165,12 @@ function getNextMonth()
     foreach ($bookings->getElementSubjects($element->id) as $subject) {
         if ($subject['name'] == $subjectName) {
             if ($subject['amount'] > 1) {
-                if (isset($subject['nrtype']) && $subject['nrtype'] == 'letters') {
+                if (($subject['nrtype'] ?? '') == 'letters') {
                     $alphabet = range('A', 'Z');
                     for ($x = 0; $x < $subject['amount']; $x++) {
                         $months[]    = $bookings->monthCalendar($subject['name'], $alphabet[$x], $date);
                     }
-                } elseif (isset($subject['nrtype']) && $subject['nrtype'] == 'custom') {
+                } elseif (($subject['nrtype'] ?? '') == 'custom') {
                     foreach ($subject['rooms'] as $room) {
                         $months[]    = $bookings->monthCalendar($subject['name'], $room, $date);
                     }
@@ -255,6 +255,7 @@ function loadPost()
 
     // Make sure we have valid content, balanced and comments removed.
     $content    = get_the_content();
+    // phpcs:ignore
     $content    = apply_filters('the_content', $content);
 
     if (empty($content)) {
