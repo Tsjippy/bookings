@@ -58,9 +58,11 @@ function displayBooks()
 
             if (is_numeric($mapId)) {
                 //Show the map of this category
-                echo "<div style='margin-bottom:25px;'>";
-                echo do_shortcode("[ultimate_maps id='$mapId']");
-                echo '</div>';
+                ?>
+                <div style='margin-bottom:25px;'>
+                    <?php echo wp_kses_post(do_shortcode("[ultimate_maps id='$mapId']"));?>
+                </div>
+                <?php
             }
         }
 

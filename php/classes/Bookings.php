@@ -202,9 +202,7 @@ class Bookings
         ob_start();
 ?>
         <div class="navigator" data-month='<?php echo esc_attr(gmdate('m', $firstMonth)); ?>' data-year='<?php echo esc_attr(gmdate('Y', $firstMonth)); ?>'>
-            <div class="prev <?php if (gmdate('ym', $minusMonth) < gmdate('ym')) {
-                                    echo 'hidden';
-                                } ?>">
+            <div class="prev <?php if (gmdate('ym', $minusMonth) < gmdate('ym')) echo 'hidden'; ?>">
                 <a class="prevnext" data-month="<?php echo esc_attr($minusMonthStr); ?>" data-year="<?php echo esc_attr($minusYearStr); ?>">
                     <span>
                         << /span> <?php echo esc_html(gmdate('F', $minusMonth)); ?>
@@ -248,9 +246,7 @@ class Bookings
                     ?>
                         <button
                             class='button tablink formbuilder-form 
-                        <?php if ($index === 0) {
-                            echo 'active';
-                        } ?>'
+                        <?php if ($index === 0) echo 'active'; ?>'
                             type='button'
                             id='show-<?php echo esc_attr($subjectName); ?>-room-<?php echo esc_attr($index); ?>'
                             data-target='<?php echo esc_attr($subjectName); ?>-room-<?php echo esc_attr($index); ?>'
@@ -272,9 +268,7 @@ class Bookings
                     <div
                         id="<?php echo esc_attr($subjectName); ?>-room-<?php echo esc_attr($name); ?>"
                         class="tabcontent 
-                        <?php if ($i > 1) {
-                            echo 'hidden';
-                        } ?> lazy-post"
+                        <?php if ($i > 1) echo 'hidden'; ?> lazy-post"
                         data-post-id='<?php echo esc_attr($room['post-id']); ?>'>
                     </div>
                 <?php
@@ -521,9 +515,7 @@ class Bookings
         ob_start();
     ?>
         <div class="booking-date-wrapper 
-            <?php if ($hide) {
-                echo 'hidden';
-            } ?>">
+            <?php if ($hide) echo 'hidden'; ?>">
             <div class="booking-dates-input-wrapper">
                 <div class="-h0i9fjw">
                     <div class="booking-date-label-wrapper">

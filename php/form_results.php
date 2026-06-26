@@ -34,15 +34,11 @@ function tableSettings($displayFormResults)
         </label>
         <br>
         <label>
-            <input type='radio' name='table-settings[booking-display]' value='table' <?php if ($setting == 'table') {
-                                                                                            echo 'checked';
-                                                                                        } ?>>
+            <input type='radio' name='table-settings[booking-display]' value='table' <?php if ($setting == 'table') echo 'checked'; ?>>
             Table
         </label>
         <label>
-            <input type='radio' name='table-settings[booking-display]' value='calendar' <?php if ($setting == 'calendar') {
-                                                                                            echo 'checked';
-                                                                                        } ?>>
+            <input type='radio' name='table-settings[booking-display]' value='calendar' <?php if ($setting == 'calendar') echo 'checked'; ?>>
             Calendar
         </label>
     </div>

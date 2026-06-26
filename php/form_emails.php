@@ -25,15 +25,11 @@ function addBookingEmails($key, $email)
             name='emails[<?php echo esc_attr($key); ?>][email-trigger]' 
             class='email-trigger' 
             value='before-stay' 
-            <?php if ($email->email_trigger == 'before-stay') {
-                echo 'checked';
-            } ?>>
+            <?php if ($email->email_trigger == 'before-stay') echo 'checked'; ?>>
         <input 
             type='number' 
             name='emails[<?php echo esc_attr($key); ?>][days-before]' 
-            <?php if (is_numeric($email->days_before)) {
-                echo esc_attr("value='{$email->days_before}'");
-            } ?> 
+            <?php if (is_numeric($email->days_before)) echo "value='".esc_attr($email->days_before)."'"; ?> 
             style='max-width: 70px;'> 
             days before their booking starts
     </label>
@@ -44,15 +40,11 @@ function addBookingEmails($key, $email)
             name='emails[<?php echo esc_attr($key); ?>][email-trigger]' 
             class='email-trigger' 
             value='after-stay' 
-            <?php if ($email->email_trigger == 'after-stay') {
-                echo 'checked';
-            } ?>>
+            <?php if ($email->email_trigger == 'after-stay') echo 'checked'; ?>>
         <input 
             type='number' 
             name='emails[<?php echo esc_attr($key); ?>][days-after]' 
-            <?php if (is_numeric($email->days_after)) {
-                echo esc_attr("value='{$email->days_after}'");
-            } ?> 
+            <?php if (is_numeric($email->days_after)) echo "value='".esc_attr($email->days_after)."'"; ?> 
             style='max-width: 70px;'> 
             days after their booking finished (0 means on the end date)
     </label>

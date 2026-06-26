@@ -39,15 +39,35 @@ add_action('tsjippy-forms-add-email-placeholder-option', __NAMESPACE__ . '\place
 function placeholderOption($formBuilderForm)
 {
     if ($formBuilderForm->getElementByType('booking-selector')) {
-        echo "<option>%booking-start-date%</option>";
-        echo "<option>%booking-end-date%</option>";
-        echo "<option>%booking-rooms%</option>";
-        echo "<option>%booking-details%</option>";
-        echo "<option>%paid%</option>";
-        echo "<option title='total amount to be paid'>%payable%</option>";
-        echo "<option>%payment_details%</option>";
-        echo "<option>%price_per_night%</option>";
-        echo "<option title='from %start_date% till %end_date%'>%duration%</option>";
+        ?>
+ 		<option>
+			%booking-start-date%
+        </option>
+ 		<option>
+			%booking-end-date%
+		</option>
+ 		<option>
+			%booking-rooms%
+		</option>
+ 		<option>
+			%booking-details%
+		</option>
+ 		<option>
+			%paid%
+		</option>
+        <option title='total amount to be paid'>
+            %payable%
+        </option>
+ 		<option>
+			%payment_details%
+		</option>
+ 		<option>
+			%price_per_night%
+		</option>
+        <option title='from %start_date% till %end_date%'>
+            %duration%
+        </option>
+        <?php
     }
 }
 

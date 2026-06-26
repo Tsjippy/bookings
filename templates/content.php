@@ -27,9 +27,7 @@ function printContent(){
         <div
             class="
             cat-card
-            <?php if ($archive) {
-                echo ' inside-article';
-            } ?>
+            <?php if ($archive) echo ' inside-article'; ?>
             ">
 
             <?php
