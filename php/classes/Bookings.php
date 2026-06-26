@@ -79,7 +79,7 @@ class Bookings
         ]);
 
         foreach ($posts as $post) {
-            $metas                                            = get_post_meta($post->ID);
+            $metas      = get_post_meta($post->ID);
 
             foreach ($metas as $key => $value) {
                 $key    = str_replace('tsjippy_', '', $key);
@@ -1663,8 +1663,8 @@ class Bookings
                     'post_parent'   => $postId
                 ]);
 
-                add_post_meta($postId, 'room', [$roomId => $name]);
-                add_post_meta($roomId, 'name', $name);
+                add_post_meta($postId, "tsjippy_room", [$roomId => $name]);
+                add_post_meta($roomId, "tsjippy_name", $name);
             }
         }
 
@@ -1673,7 +1673,7 @@ class Bookings
         unset($subjectData['rooms']);
 
         foreach ($subjectData as $key => $value) {
-            update_post_meta($postId, "tsjippy_".$key, $value);
+            update_post_meta($postId, "tsjippy_$key", $value);
         }
     }
 

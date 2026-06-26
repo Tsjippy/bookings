@@ -62,7 +62,7 @@ function addFormElementOptions($html, $object, $element)
 
     ob_start();
 
-?>
+    ?>
     <div class='element-option booking-selector hidden'>
         <div class="clone-divs-wrapper">
             <button class='button tablink formbuilder-form active' type='button' id='show-element-settings' data-target='element-settings' style='margin-right:4px;'>
@@ -458,7 +458,7 @@ function addFormElementOptions($html, $object, $element)
         </div>
         <br>
     </div>
-<?php
+    <?php
 
     return ob_get_clean();
 }
@@ -953,7 +953,7 @@ function formElementUpdated($element, $instance, $oldElement)
 
         // See what is removed
         foreach ($removed as $key => $value) {
-            delete_post_meta($postId, "tsjippy_$key");
+            delete_post_meta($postId, "tsjippy_$key", $value);
 
             if ($key == 'payments') {
                 // We disabled payments
@@ -1056,8 +1056,8 @@ function formElementUpdated($element, $instance, $oldElement)
                         'post_parent'   => $postId
                     ]);
 
-                    add_post_meta($postId, 'rooms', [$roomId => $name]);
-                    add_post_meta($roomId, 'name', $name);
+                    add_post_meta($postId, "tsjippy_rooms", [$roomId => $name]);
+                    add_post_meta($roomId, "tsjippy_name", $name);
                 }
 
                 foreach ($changedRooms as $roomId => $room) {
@@ -1103,15 +1103,15 @@ function formElementUpdated($element, $instance, $oldElement)
 
                 // Then add the new ones
                 foreach ($value as $k => $v) {
-                    add_post_meta($postId, $key, $v);
+                    add_post_meta($postId, "tsjippy_$key", $v);
                 }
             } else {
-                update_post_meta($postId, "tsjippy_" . $key, $value);
+                update_post_meta($postId, "tsjippy_$key", $value);
             }
         }
     }
 
-    $addedSubjects      = array_diff_key($newSubjects, $oldSubjects);
+    $addedSubjects = array_diff_key($newSubjects, $oldSubjects);
     foreach ($addedSubjects as $newSubject) {
         $bookings->addSubject($newSubject);
     }
