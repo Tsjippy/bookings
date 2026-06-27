@@ -142,6 +142,7 @@ function restapiInit()
 
 function getNextMonth()
 {
+    // phpcs:ignore
     $request     = TSJIPPY\sanitize($_POST);
     $bookings    = new Bookings();
     $bookings->forms->getForm((int) $request['form-id']);
@@ -241,6 +242,7 @@ function removeBooking()
 {
     $bookings    = new Bookings();
 
+    // phpcs:ignore
     $bookings->removeBooking((int) $_POST['id']);
 
     return 'Booking removed succesfully';

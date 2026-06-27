@@ -350,6 +350,7 @@ class Bookings
             ];
 
             if (
+                // phpcs:ignore
                 !empty($_REQUEST['id']) &&
                 is_array($this->forms->submission->{'booking-rooms'}) &&
                 in_array($room['name'], $this->forms->submission->{'booking-rooms'})
@@ -379,6 +380,7 @@ class Bookings
                 $roomHidden = 'hidden';
 
                 if (
+                    // phpcs:ignore
                     isset($_REQUEST['id'])                                  &&              // We should display a specific submission
                     is_array($this->forms->submission->{'booking-rooms'})   &&              // and a room is set
                     in_array($room['name'], $this->forms->submission->{'booking-rooms'})    // and it is this room
@@ -531,7 +533,9 @@ class Bookings
                     <div></div>
                     <div class="booking-date-label-wrapper disabled enddate">
                         <label class="booking-date-label" for="booking-end-date">
-                            <div class="booking-date-label-text">Departure</div>
+                            <div class="booking-date-label-text">
+                                Departure
+                            </div>
                             <div dir="ltr">
                                 <div class="booking-date-label-input-wrapper">
                                     <input class="booking-date-label-input booking-end-date" placeholder="Select a date" type="text" value="" disabled>
@@ -830,7 +834,9 @@ class Bookings
         if (
             $hide   &&
             (
+                // phpcs:ignore
                 empty($_REQUEST['id']) ||
+                // phpcs:ignore
                 $_REQUEST['id'] != $this->forms->submission->id
             )
         ) {

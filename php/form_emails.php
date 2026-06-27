@@ -29,7 +29,7 @@ function addBookingEmails($key, $email)
         <input 
             type='number' 
             name='emails[<?php echo esc_attr($key); ?>][days-before]' 
-            <?php if (is_numeric($email->days_before)) echo "value='".esc_attr($email->days_before)."'"; ?> 
+            value='<?php if (is_numeric($email->days_before)) echo esc_attr($email->days_before); ?>' 
             style='max-width: 70px;'> 
             days before their booking starts
     </label>
@@ -44,7 +44,7 @@ function addBookingEmails($key, $email)
         <input 
             type='number' 
             name='emails[<?php echo esc_attr($key); ?>][days-after]' 
-            <?php if (is_numeric($email->days_after)) echo "value='".esc_attr($email->days_after)."'"; ?> 
+            value='<?php if (is_numeric($email->days_after)) esc_attr($email->days_after); ?>'
             style='max-width: 70px;'> 
             days after their booking finished (0 means on the end date)
     </label>

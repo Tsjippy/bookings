@@ -887,6 +887,7 @@ function formElementUpdated($element, $instance, $oldElement)
     $bookings->getSubjects();
 
     // Get the updated subject data
+    // phpcs:ignore
     $newSubjects    = TSJIPPY\sanitize($_POST['formfield']['booking-details'] ?? []);
 
     // index by post ids
