@@ -71,7 +71,7 @@ function changeTableViewPermissions($tableViewPermissions, $object)
     foreach ($elements as $element) {
         foreach ($bookings->getElementSubjects($element->id) as $subject) {
             // if we are the manager of one of the subjects
-            if (is_array($subject['managers']) && in_array($object->user->ID, $subject['managers'])) {
+            if (isset($subject['managers'][$object->user->ID])) {
                 return true;
             }
         }
@@ -162,7 +162,7 @@ function shouldShow($shouldShow, $displayFormResults, $type, $parent)
     foreach ($elements as $element) {
         foreach ($bookings->getElementSubjects($element->id) as $subject) {
             // Only show the subjects we are manager of
-            if (!in_array($bookings->user->ID, $subject['managers'] ?? [])) {
+            if (!isset($subject['managers'][$bookings->user->ID])) {
                 continue;
             }
 
@@ -388,8 +388,6 @@ function formdataRetrieved($submissions, $userId, $object)
     // Get the subjects for the current user
     $booker->getSubjectManagers($booker->user->ID);
 
-    $subjectsToKeep = array_keys($booker->managers);
-
     // Loop over all booking selctors in the form
     foreach ($bookingSelectors as $bookingSelector) {
         if (empty($bookingSelector)) {
@@ -400,7 +398,7 @@ function formdataRetrieved($submissions, $userId, $object)
                 // remove any submission not belonging to the $subjectsToKeep
                 if (
                     !empty($submission->{$bookingSelector->slug})    &&
-                    !in_array($submission->{$bookingSelector->slug}, $subjectsToKeep)    &&  // Not managed by us
+                    !isset($booker->managers[$submission->{$bookingSelector->slug}])    &&  // Not managed by us
                     $submission->user_id    != $booker->user->ID                      // Not our own sumissionn
 
                 ) {
@@ -475,13 +473,15 @@ function alterQuery($params, $userId, $instance)
     }
 
     // only show future bookings in table view
-    elseif (
-        !in_array("S.id=%d", $params['where']) &&
-        !in_array("submission_id = %d", $params['where'])
-    ) {
-        $params['where'][] .= "S.id IN(SELECT submission_id FROM %i WHERE end_date >= %s ORDER BY 'start_date')";
-        $params['values'][] = $bookings->tableName;
-        $params['values'][] = gmdate('Y-m-d');
+    else{
+        if (
+            !in_array("S.id=%d", $params['where']) &&
+            !in_array("submission_id = %d", $params['where'])
+        ) {
+            $params['where'][] .= "S.id IN(SELECT submission_id FROM %i WHERE end_date >= %s ORDER BY 'start_date')";
+            $params['values'][] = $bookings->tableName;
+            $params['values'][] = gmdate('Y-m-d');
+        }
     }
 
     return $params;
@@ -520,7 +520,7 @@ function updateBookingData($shouldContinue, $elementId, $submissionId, $subId, $
              * @param   string  $value      The value of the payment indicator
              * @param   object  $instance   The EditDormResults instance
              */
-            $value  = apply_filters('tsjippy-bookings-payment-status', in_array($value, ['paid', 'free']), $value, $instance);
+            $value  = apply_filters('tsjippy-bookings-payment-status', isset(['paid' => 1, 'free' => 1][$value]), $value, $instance);
             break;
         case -102:
             $column = 'start_date';

@@ -228,7 +228,7 @@ class BookingPayments extends Bookings
         foreach ($this->retrieveUnPaidBookings(true, true) as $booking) {
 
             // no subject set or this form submission is already processed
-            if (empty($booking->subject) || in_array($booking->submission_id, $processed)) {
+            if (empty($booking->subject) || isset($processed[$booking->submission_id])) {
                 continue;
             }
 
@@ -238,7 +238,7 @@ class BookingPayments extends Bookings
                 continue;
             }
 
-            $processed[]    = $booking->submission_id;
+            $processed[$booking->submission_id] = 1;
 
             // Load the form
             $this->forms->getForm($this->forms->submission->form_id);

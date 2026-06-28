@@ -76,7 +76,7 @@ function restapiInit()
                 $rest->bookingsObject->getSubjectManagers(get_current_user_id());
 
                 // Return true if the user is manager of the subject related to the booking
-                return in_array($rest->bookings[0]->subject, array_keys($rest->bookingsObject->managers));
+                return isset($rest->bookingsObject->managers[$rest->bookings[0]->subject]);
             },
             'args'                    => array(
                 'id'    => array(
@@ -106,7 +106,7 @@ function restapiInit()
                 $bookingsObject->getSubjectManagers(get_current_user_id());
 
                 // Return true if the user is manager of the subject related to the booking
-                return in_array($bookings[0]->subject, array_keys($bookingsObject->managers));
+                return isset($bookingsObject->managers[$bookings[0]->subject]);
             },
             'args'                    => array(
                 'id'    => array(

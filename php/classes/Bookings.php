@@ -86,7 +86,7 @@ class Bookings
                 $value  = map_deep($value, 'maybe_unserialize');
 
                 // single value not an array
-                if (in_array($key, ['payments', 'overlap', 'overlap-period', 'default-booking-state', 'amount'])) {
+                if (isset(['payments' => 1, 'overlap' => 1, 'overlap-period' => 1, 'default-booking-state' => 1, 'amount' => 1][$key])) {
                     $value  = $value[0];
                 }
                 $this->subjects[$post->post_title][$key] = $value;
@@ -200,7 +200,7 @@ class Bookings
         $plusYearStr    = gmdate('Y', $plusMonth);
 
         ob_start();
-?>
+        ?>
         <div class="navigator" data-month='<?php echo esc_attr(gmdate('m', $firstMonth)); ?>' data-year='<?php echo esc_attr(gmdate('Y', $firstMonth)); ?>'>
             <div class="prev <?php if (gmdate('ym', $minusMonth) < gmdate('ym')) echo 'hidden'; ?>">
                 <a class="prevnext" data-month="<?php echo esc_attr($minusMonthStr); ?>" data-year="<?php echo esc_attr($minusYearStr); ?>">
@@ -232,7 +232,7 @@ class Bookings
 
         $subjectName    = strtolower(str_replace(' ', '_', $subject['name']));
 
-    ?>
+        ?>
         <div name='<?php echo esc_attr($subjectName); ?>-room-modal' class="booking rooms modal hidden" style="display:unset; z-index: 999999999 !important;">
             <div class="modal-content">
                 <?php TSJIPPY\addCloseButtton(); ?>
@@ -276,7 +276,7 @@ class Bookings
                 ?>
             </div>
         </div>
-    <?php
+        <?php
 
         return ob_get_clean();
     }
@@ -352,8 +352,7 @@ class Bookings
             if (
                 // phpcs:ignore
                 !empty($_REQUEST['id']) &&
-                is_array($this->forms->submission->{'booking-rooms'}) &&
-                in_array($room['name'], $this->forms->submission->{'booking-rooms'})
+                in_array($room['name'], $this->forms->submission->{'booking-rooms'} ?? [])
             ) {
                 $attributes['checked']    = 'checked';
             }
@@ -381,9 +380,8 @@ class Bookings
 
                 if (
                     // phpcs:ignore
-                    isset($_REQUEST['id'])                                  &&              // We should display a specific submission
-                    is_array($this->forms->submission->{'booking-rooms'})   &&              // and a room is set
-                    in_array($room['name'], $this->forms->submission->{'booking-rooms'})    // and it is this room
+                    isset($_REQUEST['id'])           &&              // We should display a specific submission
+                    in_array($room['name'], $this->forms->submission->{'booking-rooms'} ?? [])    // and it is this room
                 ) {
                     $roomHidden = '';
                 }
@@ -905,29 +903,29 @@ class Bookings
                                 if (
                                     !$setting['show']     ||
                                     !is_numeric($key)   ||
-                                    in_array(
+                                    array_key_exists(
                                         $setting['slug'],
                                         [
-                                            'form-id',
-                                            'formurl',
-                                            '_wpnonce',
-                                            'id',
-                                            'submissiontime',
-                                            'edittime',
-                                            'timecreated',
-                                            'timelastedited',
-                                            'time_created',
-                                            'time_last_edited',
-                                            'startdate',
-                                            'booking-startdate',
-                                            'booking-start-date',
-                                            'endate',
-                                            'booking-enddate',
-                                            'booking-end-date',
-                                            'booking-room',
-                                            'booking-rooms',
-                                            'name',
-                                            $this->bookingElements[0]->slug
+                                            'form-id'                       => 1,
+                                            'formurl'                       => 1,
+                                            '_wpnonce'                      => 1,
+                                            'id'                            => 1,
+                                            'submissiontime'                => 1,
+                                            'edittime'                      => 1,
+                                            'timecreated'                   => 1,
+                                            'timelastedited'                => 1,
+                                            'time_created'                  => 1,
+                                            'time_last_edited'              => 1,
+                                            'startdate'                     => 1,
+                                            'booking-startdate'             => 1,
+                                            'booking-start-date'            => 1,
+                                            'endate'                        => 1,
+                                            'booking-enddate'               => 1,
+                                            'booking-end-date'              => 1,
+                                            'booking-room'                  => 1,
+                                            'booking-rooms'                 => 1,
+                                            'name'                          => 1,
+                                            $this->bookingElements[0]->slug => 1
                                         ]
                                     )
                                 ) {
@@ -1076,10 +1074,10 @@ class Bookings
         $processed  = [];
         foreach ($this->bookings as $booking) {
             // do not process the same submission more than once
-            if (in_array($booking->submission_id, $processed)) {
+            if (isset($processed[$booking->submission_id])) {
                 continue;
             }
-            $processed[]    = $booking->submission_id;
+            $processed[$booking->submission_id] = 1;
 
             // Retrieve booking details
             $this->forms->parseSubmissions(null, $booking->submission_id);
@@ -1088,7 +1086,7 @@ class Bookings
 
             if (
                 // we are not the manager of this subject
-                !in_array($this->user->ID, array_keys((array) $this->managers[$subject])) &&
+                !isset($this->managers[$subject][$this->user->ID]) &&
 
                 // we do not have permissions
                 !array_intersect($this->forms->userRoles, array_keys($this->forms->tableSettings->view_right_roles))  &&      // we do not have the right to see others submissions
@@ -1101,7 +1099,7 @@ class Bookings
                 <div class='booking-detail-wrapper warning hidden' data-booking-id='<?php echo esc_attr($booking->id); ?>'>
                     No permission to see this booking
                 </div>
-<?php
+        <?php
                 continue;
             }
 
@@ -1236,10 +1234,7 @@ class Bookings
                 continue;
             }
 
-            if (isset($subjectSettings['default_booking_state']) && $subjectSettings['default_booking_state'] == 'pending') {
-                array_filter($subjectSettings['confirmed_booking_roles']);
-
-                $confirmRoles   = array_keys($subjectSettings['confirmed_booking_roles']);
+            if (($subjectSettings['default_booking_state'] ?? '') == 'pending') {
 
                 // user the boooking is for
                 if (is_numeric($user)) {
@@ -1249,16 +1244,7 @@ class Bookings
                 // user who submitted the form
                 $submittingUser = get_userdata($this->forms->submission->user - id);
 
-                if (
-                    (
-                        $user  &&          //user found
-                        array_intersect($user->roles, $confirmRoles) // and allowed
-                    )   ||
-                    (
-                        $submittingUser  &&          // user found
-                        array_intersect($submittingUser->roles, $confirmRoles) // and allowed
-                    )
-                ) {
+                if ( isset($subjectSettings['manager'][$user->ID]) || isset($subjectSettings['manager'][$submittingUser])) {
                     return    true;
                 }
             }
@@ -1303,7 +1289,7 @@ class Bookings
         // create a personal event
         if (!empty($userId)) {
             $post = array(
-                'post_type'        => 'event',
+                'post_type'     => 'event',
                 'post_title'    => "Booking for $subjectWithRoom",
                 'post_content'  => "Booking for $subjectWithRoom",
                 'post_status'   => 'publish',
@@ -1312,14 +1298,14 @@ class Bookings
 
             $eventId     = wp_insert_post($post, true, false);
 
-            $event                            = [];
-            $event['start_date']                = $startDate;
-            $event['start_time']                = '14:00';
-            $event['end_date']                = $endDate;
-            $event['end_time']                = '12:00';
-            $event['location']                = $subjectWithRoom;
-            $event['organizer-id']            = $userId;
-            $event['only_for']               = $userId;
+            $event                 = [];
+            $event['start_date']   = $startDate;
+            $event['start_time']   = '14:00';
+            $event['end_date']     = $endDate;
+            $event['end_time']     = '12:00';
+            $event['location']     = $subjectWithRoom;
+            $event['organizer-id'] = $userId;
+            $event['only_for']     = $userId;
             update_post_meta($eventId, 'tsjippy_eventdetails', json_encode($event));
             update_post_meta($eventId, 'tsjippy_only_for', $userId);
         }
@@ -1440,7 +1426,7 @@ class Bookings
 
         // only keep valid values
         $values         = array_filter($values, function ($val) {
-            return in_array($val, ['start_date', 'end_date', 'start_time', 'end_time', 'subject', 'room', 'pending', 'paid']);
+            return isset(['start_date' => 1, 'end_date' => 1, 'start_time' => 1, 'end_time' => 1, 'subject' => 1, 'room' => 1, 'pending' => 1, 'paid' => 1][$val]);
         }, ARRAY_FILTER_USE_KEY);
 
         // Validate updated dates and adjusts the values array to only the relevant date for this booking
@@ -1518,14 +1504,14 @@ class Bookings
      * @param   array   $newRooms           An array of the new rooms names
      * @param   array   $currentBookings    An array of the bookings to be updated
      */
-    function updateRooms($newRooms, $currentBookings)
+    public function updateRooms($newRooms, $currentBookings)
     {
         $oldRooms   = [];
         foreach ($currentBookings as $booking) {
             $oldRooms[] = $booking->room;
         }
 
-        $deleted    = array_diff((array) $oldRooms, (array)$newRooms);
+        $deleted    = array_flip(array_diff((array)$oldRooms, (array)$newRooms));
         $added      = array_diff((array)$newRooms, (array)$oldRooms);
 
         // we changed a room
@@ -1565,7 +1551,7 @@ class Bookings
                 $room   = $booking->room;
 
                 // if this is the booking for the room
-                if (in_array($room, $deleted)) {
+                if (isset($deleted[$room])) {
                     // Delete the booking
                     $this->removeBooking($booking);
                 }
@@ -1790,7 +1776,7 @@ class Bookings
      * 
      * @return array                An array with all bookings
      */
-    function getUserBookingsByStartDate($userId, $date)
+    public function getUserBookingsByStartDate($userId, $date)
     {
         if (is_numeric($date)) {
             $date   = gmdate('Y-m-d', $date);
@@ -1913,6 +1899,7 @@ class Bookings
                 if ($mail->email_trigger == 'before-stay' || $mail->email_trigger == 'after-stay') {
                     $processedSubmissionIds   = [];
 
+                    $bookings   = [];
                     if ($mail->email_trigger == 'before-stay') {
                         $date       = gmdate('Y-m-d', strtotime("+{$mail->days_before} days", time()));
                         $bookings   = $this->retrieveBookingsByStartDate($date);
@@ -1923,11 +1910,11 @@ class Bookings
 
                     foreach ($bookings as $booking) {
                         // Do not send multiple emails for the same submission
-                        if (in_array($booking->submission_id, $processedSubmissionIds)) {
+                        if (isset($processedSubmissionIds[$booking->submission_id])) {
                             continue;
                         }
 
-                        $processedSubmissionIds[] = $booking->submission_id;
+                        $processedSubmissionIds[$booking->submission_id] = 1;
 
                         $bookingEmail    = new BookingEmail($booking);
 

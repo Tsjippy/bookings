@@ -75,8 +75,7 @@ function addFormElementOptions($html, $object, $element)
                     $subject = $subjects[$index]    = [
                         'post-id'                   => -1,
                         'name'                      => $subject,
-                        'amount'                    => 1,
-                        'confirmed-booking-roles'   => [],
+                        'amount'                    => 1
                     ];
                 }
 
@@ -239,38 +238,6 @@ function addFormElementOptions($html, $object, $element)
                         </label>
                         <br>
                         <br>
-                        <button
-                            class="button tsjippy small confirmed-roles-switcher 
-                        <?php if ($subject['default-booking-state'] != 'pending') echo 'hidden'; ?>"
-                            type="button"
-                            style='max-width: unset;'>
-                            Advanced
-                        </button>
-                        <div class='confirmed-roles-wrapper hidden'>
-                            <h4>Select roles for which bookings are confirmed by default</h4>
-                            <div class="role-info">
-                                <?php
-                                foreach ($userRoles as $key => $roleName) {
-                                    if (in_array($key, $subject['confirmed-booking-roles'])) {
-                                        $checked = 'checked';
-                                    } else {
-                                        $checked = '';
-                                    }
-                                ?>
-                                    <label class='option-label'>
-                                        <input
-                                            type='checkbox'
-                                            class='formbuilder form-element-setting'
-                                            name='formfield[booking-details][<?php echo esc_attr($index); ?>][confirmed-booking-roles][]'
-                                            value='<?php echo esc_attr($key); ?>'
-                                            <?php if (in_array($key, $subject['confirmed-booking-roles'])) echo 'checked=checked'; ?>>
-                                        <?php echo esc_html($roleName); ?>
-                                    </label><br>
-                                <?php
-                                }
-                                ?>
-                            </div>
-                        </div>
                     </label>
 
                     <br>
@@ -444,7 +411,8 @@ add_filter('tsjippy-forms-elements', __NAMESPACE__ . '\formElements', 10, 3);
 function formElements($elements, $displayFormResults, $force)
 {
     // do not show on the form itself, only on the results
-    if (!$force && !in_array(get_class($displayFormResults), ["TSJIPPY\FORMS", "TSJIPPY\FORMS\DisplayFormResults", "TSJIPPY\FORMS\SubmitForm", "TSJIPPY\FORMS\EditFormResults"])) {
+    $array  = ["TSJIPPY\FORMS" => 1, "TSJIPPY\FORMS\DisplayFormResults" => 1, "TSJIPPY\FORMS\SubmitForm" => 1, "TSJIPPY\FORMS\EditFormResults" => 1];
+    if (!$force && !isset($array[get_class($displayFormResults)])) {
         return $elements;
     }
 
@@ -1124,7 +1092,6 @@ function addFormFormat($formats, $object)
     $formats['payment_details_el']      = '%d'; // payment_details_el
     $formats['price_per_night_el']      = '%d'; // price_per_night_el
     $formats['default_booking_state']   = '%s'; // default_booking_state
-    $formats['confirmed_booking_roles'] = '%s'; // confirmed_booking_roles
 
     return $formats;
 }
