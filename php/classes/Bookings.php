@@ -189,14 +189,14 @@ class Bookings
      */
     public function getNavigator($date)
     {
-        $minusMonth        = strtotime("first day of 1 months ago", $date);
-        $minusMonthStr    = gmdate('m', $minusMonth);
-        $minusYearStr    = gmdate('Y', $minusMonth);
+        $minusMonth     = strtotime("first day of 1 months ago", $date);
+        $minusMonthStr  = gmdate('m', $minusMonth);
+        $minusYearStr   = gmdate('Y', $minusMonth);
 
         $firstMonth     = strtotime("first day of next month", $minusMonth);
 
-        $plusMonth        = strtotime("first day of 2 months", $date);
-        $plusMonthStr    = gmdate('m', $plusMonth);
+        $plusMonth      = strtotime("first day of 2 months", $date);
+        $plusMonthStr   = gmdate('m', $plusMonth);
         $plusYearStr    = gmdate('Y', $plusMonth);
 
         ob_start();
