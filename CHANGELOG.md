@@ -7,6 +7,7 @@
 ### Changed
 - plugin tested up to 7.0
 - replaced in_array with isset
+- array_intersect_key
 
 ### Fixed
 
