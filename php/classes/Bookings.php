@@ -47,7 +47,7 @@ class Bookings
         $this->tableName                    = $wpdb->prefix . 'tsjippy_bookings';
         $this->unavailable                  = [];
         $this->user                         = wp_get_current_user();
-        $this->userRoles                    = $this->user->roles;
+        $this->userRoles                    = array_flip($this->user->roles);
 
         if (getType($formInstance) == 'object') {
             $this->forms        = $formInstance;
@@ -971,7 +971,7 @@ class Bookings
                                 //loop over all the actions
                                 $attributes    = [];
                                 foreach ($this->forms->formData->actions as $action) {
-                                    $editRoles  = (array)$this->forms->columnSettings[$action]['edit_right_roles'] ?? [];
+                                    $editRoles  = $this->forms->columnSettings[$action]['edit_right_roles'] ?? [];
 
                                     // Use the table settings if no specific rights are set
                                     if (empty($editRoles)) {
@@ -981,7 +981,7 @@ class Bookings
                                     if (
                                         !$this->tableEditPermissions &&                       //if we are not allowed to do all actions
                                         $submission->user_id != $this->user->ID ||            //this is not our own entry
-                                        !array_intersect($this->userRoles, $editRoles)        // we don't have permission for this specific button
+                                        !array_intersect_key($this->userRoles, $editRoles)        // we don't have permission for this specific button
                                     ) {
                                         continue;
                                     }
@@ -2029,11 +2029,11 @@ class Bookings
             }
 
             if (!is_array($subject['managers'] ?? '')) {
-                $subject['managers']    = [$subject['managers']];
+                $subject['managers']    = [$subject['managers'] => 1];
             }
 
             // loop over all the managers of this subject
-            foreach ($subject['managers'] as $managerId) {
+            foreach ($subject['managers'] as $managerId => $value) {
 
                 if (!is_numeric($managerId)) {
                     continue;

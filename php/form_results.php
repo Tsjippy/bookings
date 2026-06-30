@@ -235,7 +235,7 @@ function shouldShow($shouldShow, $displayFormResults, $type, $parent)
     }
 
     // Export buttons
-    if (array_intersect($bookings->forms->userRoles, array_keys($bookings->forms->tableSettings->view_right_roles))) {
+    if (array_intersect($bookings->forms->userRoles, $bookings->forms->tableSettings->view_right_roles)) {
         $div    = addElement('div', $div);
 
         $form   = addElement('form', $div, ['method' => 'post', 'class' => 'export-form', 'id' => 'export-xls']);
