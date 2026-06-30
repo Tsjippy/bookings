@@ -10,6 +10,7 @@
 - array_intersect_key
 
 ### Fixed
+- array intersect bug
 
 ### Updated
 
