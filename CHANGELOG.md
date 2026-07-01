@@ -9,6 +9,7 @@
 - plugin tested up to 7.0
 - replaced in_array with isset
 - array_intersect_key
+- store booking details in post meta not in element settings
 
 ### Fixed
 - array intersect bug
