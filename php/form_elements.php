@@ -873,12 +873,21 @@ function formElementUpdated($element, $instance, $oldElement)
 
     // Get the updated subject data
     // phpcs:ignore
-    $newSubjects    = TSJIPPY\sanitize($_POST['formfield']['booking-details'] ?? []);
+    $updatedSubjectData    = TSJIPPY\sanitize($_POST['formfield']['booking-details'] ?? []);
 
-    // index by post ids
-    foreach ($newSubjects as $index => $subject) {
-        unset($newSubjects[$index]);
-        $newSubjects[$subject['post-id']]  = $subject;
+    /**
+     * Loop over the updated subject data and index by post ids
+     * This is done to make it easier to compare the old and new data
+     */
+    foreach ($updatedSubjectData as $index => $subject) {
+        unset($updatedSubjectData[$index]);
+
+        // flip the managers array so we can use the faster isset vs in_array
+        if (!empty($subject['managers'])) {
+            $subject['managers'] = array_flip($subject['managers']);
+        }
+
+        $updatedSubjectData[$subject['post-id']]  = $subject;
     }
 
     // Previous subject data
@@ -893,13 +902,13 @@ function formElementUpdated($element, $instance, $oldElement)
     // Loop over old subjects to see what changed
     foreach ($oldSubjects as $postId => $subject) {
         // This subject is removed
-        if (!isset($newSubjects[$postId])) {
+        if (!isset($updatedSubjectData[$postId])) {
             $bookings->removeSubject($subject);
             continue;
         }
 
-        $removed    = TSJIPPY\arrayDiffAssocRecursive($subject, $newSubjects[$postId]);
-        $added      = TSJIPPY\arrayDiffAssocRecursive($newSubjects[$postId], $subject);
+        $removed    = TSJIPPY\arrayDiffAssocRecursive($subject, $updatedSubjectData[$postId]);
+        $added      = TSJIPPY\arrayDiffAssocRecursive($updatedSubjectData[$postId], $subject);
         $changed    = array_intersect_key($added, $removed);
 
         foreach ($changed as $key => $value) {
@@ -1000,7 +1009,7 @@ function formElementUpdated($element, $instance, $oldElement)
                  * Cannot use the filtered data as rooms without change are also not present in there
                  */
                 $submittedRooms = [];
-                foreach ($newSubjects[$postId]['rooms'] as $room) {
+                foreach ($updatedSubjectData[$postId]['rooms'] as $room) {
                     $submittedRooms[$room['post-id']]   = $room;
                 }
 
@@ -1071,7 +1080,7 @@ function formElementUpdated($element, $instance, $oldElement)
         }
     }
 
-    $addedSubjects = array_diff_key($newSubjects, $oldSubjects);
+    $addedSubjects = array_diff_key($updatedSubjectData, $oldSubjects);
     foreach ($addedSubjects as $newSubject) {
         $bookings->addSubject($newSubject);
     }

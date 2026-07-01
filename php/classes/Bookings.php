@@ -382,7 +382,7 @@ class Bookings
 
                 if (
                     // phpcs:ignore
-                    isset($_REQUEST['id'])           &&              // We should display a specific submission
+                    isset($_REQUEST['id'])  &&                                                     // We should display a specific submission
                     in_array($room['name'], $this->forms->submission->{'booking-rooms'} ?? [])    // and it is this room
                 ) {
                     $roomHidden = '';
@@ -463,14 +463,14 @@ class Bookings
         $calendarTable  = addElement('div', $overview, $attributes);
 
         // Show the month calendar if there are no rooms, otherwise show the room calendars
-        if (empty($subject['nrtype']) || $subject['nrtype'] == 'none' || $subject['amount'] == 0) {
+        if (count($subject['rooms']) > 1) {
+            addRawHtml($this->roomCalendars($cleanSubject, $date), $calendarTable);
+        } else {
             $roomWrapper    = addElement('div', $calendarTable, ['class' => "room-wrapper"]); // needed for layout purposes
             $monthWrapper   = addElement('div', $roomWrapper, ['class' => "month-wrapper flex"]);
 
             addRawHtml($this->monthCalendar($cleanSubject, '', $date), $monthWrapper);
             addRawHtml($this->monthCalendar($cleanSubject, '', strtotime('first day of next month', $date)), $monthWrapper);
-        } else {
-            addRawHtml($this->roomCalendars($cleanSubject, $date), $calendarTable);
         }
 
         if (!$isAdmin) {
@@ -495,7 +495,7 @@ class Bookings
                     continue;
                 }
 
-                $roomDescription        = addElement('div', $roomDetails, ['class' => 'hidden room-description', 'data-room-name' => $room['name']]);
+                $roomDescription  = addElement('div', $roomDetails, ['class' => 'hidden room-description', 'data-room-name' => $room['name']]);
                 addElement('h4', $roomDescription, [], "Room " . $room['name']);
                 addElement('div', $roomDescription, ['class' => 'lazy-post', 'data-post-id' => $room['post-id']]);
             }
@@ -568,8 +568,13 @@ class Bookings
      *
      * Displays a date selector modal
      *
+     * @param   int     $day        The day to show the modal for
+     * @param   int     $month      The month to show the modal for
+     * @param   int     $year       The year to show the modal for
      * @param   object  $node       The node to append the modal to
      * @param   array   $subject    array with The name of the building/event and the amount of rooms
+     * 
+     * @return  void
      */
     public function dateSelectorModal($day, $month, $year, $node, $subject)
     {
@@ -618,7 +623,6 @@ class Bookings
      */
     public function monthCalendar($subject, $room, $date, $echo = false)
     {
-
         if (is_array($subject)) {
             $subject    = $subject['name'];
         }
@@ -652,7 +656,7 @@ class Bookings
             ob_start();
         }
 
-    ?>
+        ?>
         <div class="month-container" data-month='<?php echo esc_attr(gmdate('m', $date)); ?>' data-year='<?php echo esc_attr(gmdate('Y', $date)); ?>'>
             <div class="current">
                 <?php echo esc_html(gmdate('F Y', $date)); ?>

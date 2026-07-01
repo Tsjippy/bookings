@@ -23,7 +23,7 @@ function extraFormSettings($object)
         return;
     }
 
-?>
+    ?>
     <br>
     <h4>
         Payment Indicator Element
@@ -80,7 +80,9 @@ function extraFormSettings($object)
         Price Per Night Element
     </h4>
     <select name="price-per-night-el">
-        <option value=''>---</option>
+        <option value=''>
+            ---
+        </option>
         <?php
         foreach ($object->formElements as $element) {
         ?>
