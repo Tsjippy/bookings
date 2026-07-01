@@ -91,7 +91,7 @@ class Bookings
                 $value  = map_deep($value, 'maybe_unserialize');
 
                 // single value not an array
-                if (isset(['payments' => 1, 'overlap' => 1, 'overlap-period' => 1, 'default-booking-state' => 1][$key])) {
+                if (isset(['payments' => 1, 'overlap' => 1, 'overlap-period' => 1, 'default-booking-state' => 1, 'element-id' => 1, 'oneday' => 1][$key])) {
                     $value  = $value[0];
                 }
                 $this->subjects[$post->post_title][$key] = $value;
@@ -118,14 +118,6 @@ class Bookings
                     'description'   => $roomPost->post_content
                 ];
             }
-
-            // add a dummy room if no rooms are found
-            /* if (empty($rooms)) {
-                $this->subjects[$post->post_title]['rooms'][] = [
-                    'post-id'       => -1,
-                    'name'          => ''
-                ];
-            } */
         }
     }
 
@@ -1645,6 +1637,8 @@ class Bookings
     /**
      * Stores a new subject
      * @param   array  $subjectData    The subject data of the subject to add
+     * 
+     * @return  int                    The post id of the new subject
      */
     public function addSubject($subjectData)
     {
@@ -1658,7 +1652,7 @@ class Bookings
             'post_content'  => isset($subjectData['description']) ? $subjectData['description'] : ''
         ]);
 
-        if (isset($subjectData['rooms']) && is_array($subjectData['rooms'])) {
+        if (is_array($subjectData['rooms'] ?? '')) {
             foreach ($subjectData['rooms'] as $room) {
                 $name          = ucfirst($room['name']);
                 $description   = isset($room['description']) ? $room['description'] : '';
@@ -1683,6 +1677,8 @@ class Bookings
         foreach ($subjectData as $key => $value) {
             update_post_meta($postId, "tsjippy_$key", $value);
         }
+
+        return $postId;
     }
 
     /**

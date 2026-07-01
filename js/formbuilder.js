@@ -1,3 +1,5 @@
+console.log("Bookings Form Builder JS Loaded");
+
 document.addEventListener("input", (ev) => {
   let target = ev.target;
   if (target.matches(`.subject-name`)) {

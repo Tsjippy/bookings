@@ -27,6 +27,9 @@ function allowedRestApiUrls($urls)
 }
 
 add_action('rest_api_init', __NAMESPACE__ . '\restapiInit');
+/**
+ * Register REST API routes for bookings
+ */
 function restapiInit()
 {
     // Next month
@@ -139,7 +142,11 @@ function restapiInit()
     );
 }
 
-
+/**
+ * Get the next month's calendar
+ *
+ * @return array The calendar data for the next month
+ */
 function getNextMonth()
 {
     // phpcs:ignore
@@ -227,6 +234,11 @@ function approveBooking($rest)
     return $result;
 }
 
+/**
+ * Remove a booking
+ *
+ * @return string    A success message indicating that the booking was removed successfully
+ */
 function removeBooking()
 {
     $bookings    = new Bookings();
@@ -237,6 +249,11 @@ function removeBooking()
     return 'Booking removed succesfully';
 }
 
+/**
+ * Load the content of a post by its ID
+ *
+ * @return string    The content of the post, or an error message if no content is found
+ */
 function loadPost()
 {
     global $post;

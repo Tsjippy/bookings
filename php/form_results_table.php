@@ -9,6 +9,68 @@ if (! defined('ABSPATH')) {
     exit;
 }
 
+// add extra elements for displaying in results table
+add_filter('tsjippy-forms-elements', __NAMESPACE__ . '\formElements', 10, 3);
+/**
+ * Add extra form elements for the booking selector
+ * These elements are used to store the booking details and to display them in the results table
+ *
+ * @param array  $elements           The current list of form elements
+ * @param object $displayFormResults The current form results object
+ * @param bool   $force               Whether to force to run the function again
+ *
+ * @return array The updated list of form elements
+ */
+function formElements($elements, $displayFormResults, $force)
+{
+    // do not show on the form itself, only on the results
+    $array  = ["TSJIPPY\FORMS" => 1, "TSJIPPY\FORMS\DisplayFormResults" => 1, "TSJIPPY\FORMS\SubmitForm" => 1, "TSJIPPY\FORMS\EditFormResults" => 1];
+    if (!$force && !isset($array[get_class($displayFormResults)])) {
+        return $elements;
+    }
+
+    /**
+     * Check if this form has a booking-selector element
+     */
+
+    // We cannot use getElementByType here as we have not gotten all elements yet.
+    $element    = false;
+    foreach ($elements as $el) {
+        if ($el->type == 'booking-selector') {
+            $element    = $el;
+            break;
+        }
+    }
+
+    if ($element) {
+        // Add the start_date and end_date
+        $start_date                     = clone $element;
+        $start_date->type               = 'date';
+        $start_date->slug               = 'booking-start-date';
+        $start_date->name               = 'Startdate';
+        $start_date->id                 = -102;
+
+        $end_date                   = clone $element;
+        $end_date->type             = 'date';
+        $end_date->slug             = 'booking-end-date';
+        $end_date->name             = 'Enddate';
+        $end_date->id               = -103;
+
+        $room                   = clone $element;
+        $room->type             = 'checkbox';
+        $room->slug             = 'booking-rooms';
+        $room->name             = 'Room';
+        $room->id               = -104;
+        $room->required         = false;
+
+        $elements[]         = $start_date;
+        $elements[]         = $end_date;
+        $elements[]         = $room;
+    }
+
+    return $elements;
+}
+
 // the choice for table view or calendar view
 add_action('tsjippy-forms-after-table-settings', __NAMESPACE__ . '\tableSettings');
 /**
