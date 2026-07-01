@@ -12,6 +12,7 @@
 
 ### Fixed
 - array intersect bug
+- store managers in right format
 
 ### Updated
 
