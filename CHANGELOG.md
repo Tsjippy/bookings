@@ -10,6 +10,7 @@
 - replaced in_array with isset
 - array_intersect_key
 - store booking details in post meta not in element settings
+- booking element formbuilder form redesign
 
 ### Fixed
 - array intersect bug
