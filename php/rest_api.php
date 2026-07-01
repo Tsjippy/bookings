@@ -164,20 +164,9 @@ function getNextMonth()
     $months         = [];
     foreach ($bookings->getElementSubjects($element->id) as $subject) {
         if ($subject['name'] == $subjectName) {
-            if ($subject['amount'] > 1) {
-                if (($subject['nrtype'] ?? '') == 'letters') {
-                    $alphabet = range('A', 'Z');
-                    for ($x = 0; $x < $subject['amount']; $x++) {
-                        $months[]    = $bookings->monthCalendar($subject['name'], $alphabet[$x], $date);
-                    }
-                } elseif (($subject['nrtype'] ?? '') == 'custom') {
-                    foreach ($subject['rooms'] as $room) {
-                        $months[]    = $bookings->monthCalendar($subject['name'], $room, $date);
-                    }
-                } else {
-                    for ($x = 1; $x <= $subject['amount']; $x++) {
-                        $months[]    = $bookings->monthCalendar($subject['name'], $x, $date);
-                    }
+            if (count($subject['rooms']) > 1) {
+                foreach ($subject['rooms'] as $room) {
+                    $months[]    = $bookings->monthCalendar($subject['name'], $room, $date);
                 }
             } else {
                 $months[]    = $bookings->monthCalendar($subject['name'], '', $date);

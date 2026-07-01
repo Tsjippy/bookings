@@ -31,11 +31,11 @@ add_filter('tsjippy-forms-element-form-content', __NAMESPACE__ . '\addFormElemen
 /**
  * Add form element options for the booking selector
  *
- * @param string $html The current HTML content
- * @param object $object The form object
+ * @param string $html    The current HTML content
+ * @param object $object  The form object
  * @param object $element The form element
  *
- * @return string The updated HTML content
+ * @return string         The updated HTML content
  */
 function addFormElementOptions($html, $object, $element)
 {
@@ -44,6 +44,8 @@ function addFormElementOptions($html, $object, $element)
     if ($element == null || $element->type != 'booking-selector') {
         return $html;
     }
+
+    wp_enqueue_script('tsjippy-bookings-formbuilder');
 
     //Get all available roles
     $userRoles      = $wp_roles->role_names;
@@ -65,17 +67,18 @@ function addFormElementOptions($html, $object, $element)
             </button>
             <?php
             // Render tab buttons
+            /**
+             * We need one empty subject to be able set it up
+             */
+            if(empty($subjects)){
+                $subjects[] = [
+                    'post-id'                   => -1,
+                ];
+            }
             foreach ($subjects as $index => $subject) {
-                if (!is_array($subject)) {
-                    $subject = $subjects[$index]    = [
-                        'post-id'                   => -1,
-                        'name'                      => $subject,
-                        'amount'                    => 1
-                    ];
-                }
                 ?>
-                <button class='button tablink formbuilder-form' type='button' id='show-subject-<?php echo esc_attr($index); ?>' data-target='subject-<?php echo esc_attr($index); ?>' style='margin-right:4px;'>
-                    <?php echo esc_html($subject['name']); ?>
+                <button class='button tablink formbuilder-form <?php if ($index === 0) echo 'active'; if($subject['post-id'] == -1){ echo 'dummy hidden'; } ?>' type='button' id='show-subject-<?php echo esc_attr($index); ?>' data-target='subject-<?php echo esc_attr($index); ?>' style='margin-right:4px;'>
+                    <?php echo esc_html($subject['name'] ?? 'Name'); ?>
                 </button>
             <?php
             }
@@ -89,19 +92,10 @@ function addFormElementOptions($html, $object, $element)
             </div>
             <?php
 
-            /**
-             * We need one empty subject to be able set it up
-             */
-            if(empty($subjects)){
-                $subjects[] = [
-                    'post-id'                   => -1,
-                    'name'                      => '',
-                    'amount'                    => 1
-                ];
-            }
+        
             foreach ($subjects as $index => $subject) {
             ?>
-                <div id="subject-<?php echo esc_attr($index); ?>" class="clone-div tabcontent <?php if($index !== 0 || empty($subject['name'])){ echo 'hidden'; } ?>" data-div-id="<?php echo esc_attr($index); ?>">
+                <div id="subject-<?php echo esc_attr($index); ?>" class="clone-div tabcontent <?php if($index !== 0 || $subject['post-id'] == -1){ echo 'hidden'; } ?>" data-div-id="<?php echo esc_attr($index); ?>">
                     <input type="hidden" class="no-reset" name="formfield[booking-details][<?php echo esc_attr($index); ?>][post-id]" value="<?php echo esc_attr($subject['post-id']); ?>">
                     <input type="hidden" class="no-reset" name="formfield[booking-details][<?php echo esc_attr($index); ?>][element-id]" value="<?php echo esc_attr($element->id); ?>">
                     <?php
@@ -145,7 +139,7 @@ function addFormElementOptions($html, $object, $element)
                     );
 
                     wp_editor(
-                        $subject['description'],
+                        $subject['description'] ?? '',
                         "subjects-{$index}-description",
                         $settings
                     );
@@ -251,150 +245,114 @@ function addFormElementOptions($html, $object, $element)
                     </label>
 
                     <br>
-                    <label class="amount formfield form-label">
-                        <h4>
-                            Room amount
-                        </h4>
-                        <input type="number" name="formfield[booking-details][<?php echo esc_attr($index); ?>][amount]" class=" formfield formfield-input" value="<?php echo esc_attr($subject['amount']); ?>" placeholder="Enter subject amount" style='width: unset;'>
-                    </label>
-                    <br>
-
-                    <br>
-                    <label
-                        class=" formfield form-label room-numbering 
-                    <?php if ($subject['amount'] == 1 || empty($subject['amount'])) echo 'hidden'; ?>">
-                        <h4>
-                            Room numbering type
-                        </h4>
-                        <input
-                            type='radio'
-                            class='numbering-type'
-                            name='formfield[booking-details][<?php echo esc_attr($index); ?>][nrtype]'
-                            value='numbers'
-                            <?php if (($subject['nrtype'] ?? '') == 'numbers') echo 'checked'; ?>>
-                        Numbers
+    
+                    <div class="rooms clone-divs-wrapper">
+                        <button type="button" class="add button room" style="max-width: 130px; flex: 1;margin-right: 3px;margin-left: 3px;">
+                            Add a room
+                        </button>
                         <br>
 
-                        <input
-                            type='radio'
-                            class='numbering-type'
-                            name='formfield[booking-details][<?php echo esc_attr($index); ?>][nrtype]'
-                            value='letters'
-                            <?php if (($subject['nrtype'] ?? '')  == 'letters') echo 'checked'; ?>>
-                        Letters
-                        <br>
-
-                        <input
-                            type='radio'
-                            class='numbering-type'
-                            name='formfield[booking-details][<?php echo esc_attr($index); ?>][nrtype]'
-                            value='custom'
-                            <?php if (($subject['nrtype'] ?? '')  == 'custom') echo 'checked'; ?>>
-                        Custom
-                    </label>
-                    <br>
-                    <br>
-                    <div
-                        class="rooms clone-divs-wrapper <?php if ($subject['amount'] == 1 || empty($subject['amount'])) echo 'hidden'; ?>"
-                        style='background: lightgrey;padding-bottom: 10px;padding-left: 10px;margin-right:10px'>
-                        
-                        <h3>
-                            Room details
-                        </h3>
-                        <?php
-                        // Tab buttons
-                        foreach (($subject['rooms'] ?? []) as $i => $room) {
-                            if (empty($room['name'])) {
-                                $room['name']   = "No Name " . $i + 1;
-                            }
-
-                            $subjectName    = strtolower(str_replace(' ', '-', $subject['name']));
-
-                            ?>
-                            <button
-                                class='button tablink formbuilder-form <?php if ($i === 0) echo 'active'; ?>'
-                                type='button' 
-                                id='<?php echo esc_attr("show-$subjectName-room-$i"); ?>'
-                                data-target='<?php echo esc_attr("$subjectName-room-$i"); ?>'
-                                style='margin-right:4px;max-width: 100px;'>
-                                Room <?php echo esc_html($room['name']); ?>
-                            </button>
+                        <div class="room-details-wrapper<?php if (count($subject['rooms'] ?? []) < 2 ) echo ' hidden'; ?>" style='background: lightgrey;padding-bottom: 10px;padding-left: 10px;margin-right:10px'>
+                            
+                            <h3>
+                                Room details
+                            </h3>
                             <?php
-                        }
-
-                        // Tab contents
-                        foreach (($subject['rooms'] ?? []) as $i => $room) {
-                            if (!is_array($room)) {
-                                $room   = [
-                                    "name"          => '',
-                                    "description"   => ''
+                            /**
+                             * We need one empty room to be able set it up
+                             */
+                            if(empty($subject['rooms'])){
+                                $subject['rooms'] = [
+                                    [
+                                        'post-id'                   => -1
+                                    ]
                                 ];
                             }
 
-                            if (!empty($room['name'])) {
-                                $roomName   = $room['name'];
-                            } elseif (($subject['nrtype'] ?? '')  == 'letters') {
-                                $alphabet   = range('A', 'Z');
-                                $roomName   = $alphabet[$i];
-                            } else {
-                                $roomName   =  $i + 1;
+                            // Tab buttons
+                            foreach (($subject['rooms']) as $i => $room) {
+
+                                $subjectName    = strtolower(str_replace(' ', '-', $subject['name'] ?? ''));
+
+                                ?>
+                                <button
+                                    class='button tablink formbuilder-form <?php if ($i === 0) echo 'active';  if ($room['post-id'] == -1) echo 'dummy hidden'; ?>'
+                                    type='button' 
+                                    id='<?php echo esc_attr("show-$subjectName-room-$i"); ?>'
+                                    data-target='<?php echo esc_attr("$subjectName-room-$i"); ?>'
+                                    style='margin-right:4px;max-width: 100px;'>
+                                    Room <?php echo esc_html($room['name']); ?>
+                                </button>
+                                <?php
                             }
 
-                            $subjectName    = strtolower(str_replace(' ', '-', $subject['name']));
+                            // Tab contents
+                            foreach (($subject['rooms'] ?? []) as $i => $room) {
+                                if (!is_array($room)) {
+                                    $room   = [
+                                        "name"          => '',
+                                        "description"   => ''
+                                    ];
+                                }
 
-                        ?>
-                            <div
-                                id="<?php echo esc_attr($subjectName); ?>-room-<?php echo esc_attr($i); ?>"
-                                class="clone-div tabcontent 
-                            <?php if ($i !== 0) echo 'hidden'; ?>"
-                                data-div-id="<?php echo esc_attr($i); ?>">
-                                <input type="hidden" name="formfield[booking-details][<?php echo esc_attr($index); ?>][rooms][<?php echo esc_attr($i); ?>][post-id]" value="<?php echo esc_attr($room['post-id']); ?>">
-                                <label name="roomname" class=" formfield form-label roomname">
+                                if (!empty($room['name'])) {
+                                    $roomName   = $room['name'];
+                                } else {
+                                    $roomName   =  $i + 1;
+                                }
+
+                                $subjectName    = strtolower(str_replace(' ', '-', $subject['name']));
+
+                            ?>
+                                <div
+                                    id="<?php echo esc_attr($subjectName); ?>-room-<?php echo esc_attr($i); ?>"
+                                    class="clone-div tabcontent <?php if ($i !== 0 || $room['post-id'] == -1) echo 'hidden'; ?>"
+                                    data-div-id="<?php echo esc_attr($i); ?>">
+                                    <input type="hidden" name="formfield[booking-details][<?php echo esc_attr($index); ?>][rooms][<?php echo esc_attr($i); ?>][post-id]" value="<?php echo esc_attr($room['post-id']); ?>">
+                                    <label name="roomname" class=" formfield form-label roomname">
+                                        <h4>
+                                            Room name
+                                        </h4>
+                                        <input type="text" name="formfield[booking-details][<?php echo esc_attr($index); ?>][rooms][<?php echo esc_attr($i); ?>][name]" class=" formfield formfield-input" value="<?php echo esc_attr($roomName); ?>" placeholder="Enter room name" style='width: unset;'>
+                                    </label>
+                                    <br>
+                                    <br>
                                     <h4>
-                                        Room name
+                                        Room Description
                                     </h4>
-                                    <input type="text" name="formfield[booking-details][<?php echo esc_attr($index); ?>][rooms][<?php echo esc_attr($i); ?>][name]" class=" formfield formfield-input" value="<?php echo esc_attr($roomName); ?>" placeholder="Enter room name" style='width: unset;'>
-                                </label>
-                                <br>
-                                <br>
-                                <h4>
-                                    Room Description
-                                </h4>
-                                <?php
-                                $settings = array(
-                                    'wpautop' => false,
-                                    'media_buttons' => false,
-                                    'forced_root_block' => true,
-                                    'convert_newlines_to_brs' => true,
-                                    'textarea_name' => "formfield[booking-details][$index][rooms][$i][description]",
-                                    'textarea_rows' => 10
-                                );
-
-                                wp_editor(
-                                    $room['description'],
-                                    "subjects-{$index}-rooms-{$i}-description",
-                                    $settings
-                                );
-                                ?>
-
-                                <div class="button-wrapper" style="width:100%; display: flex;">
-                                    <button type="button" class="add button" style="max-width: 130px; flex: 1;margin-right: 3px;margin-left: 3px;">
-                                        Add a room
-                                    </button>
                                     <?php
-                                    $hidden = 'hidden';
-                                    if (count($subject['rooms']) > 1) {
-                                        $hidden = '';
-                                    }
+                                    $settings = array(
+                                        'wpautop' => false,
+                                        'media_buttons' => false,
+                                        'forced_root_block' => true,
+                                        'convert_newlines_to_brs' => true,
+                                        'textarea_name' => "formfield[booking-details][$index][rooms][$i][description]",
+                                        'textarea_rows' => 10
+                                    );
+
+                                    wp_editor(
+                                        $room['description'],
+                                        "subjects-{$index}-rooms-{$i}-description",
+                                        $settings
+                                    );
                                     ?>
-                                    <button type="button" class="remove button <?php echo esc_attr($hidden); ?>" style="max-width: 190px;flex: 1;margin-right: 5px;">
-                                        Remove this room
-                                    </button>
+
+                                    <div class="button-wrapper" style="width:100%; display: flex;">
+                                        <?php
+                                        $hidden = 'hidden';
+                                        if (count($subject['rooms']) > 1) {
+                                            $hidden = '';
+                                        }
+                                        ?>
+                                        <button type="button" class="remove button <?php echo esc_attr($hidden); ?>" style="max-width: 190px;flex: 1;margin-right: 5px;">
+                                            Remove this room
+                                        </button>
+                                    </div>
                                 </div>
-                            </div>
-                        <?php
-                        }
-                        ?>
+                            <?php
+                            }
+                            ?>
+                        </div>
                     </div>
                 </div>
             <?php
@@ -403,7 +361,7 @@ function addFormElementOptions($html, $object, $element)
         </div>
         <br>
     </div>
-<?php
+    <?php
 
     return ob_get_clean();
 }

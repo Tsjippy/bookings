@@ -55,9 +55,6 @@ register_activation_hook(__FILE__, function () {
     maybe_add_column($forms->tableName, 'price_per_night_el', "ALTER TABLE $forms->tableName ADD COLUMN `price_per_night_el` int");
     maybe_add_column($forms->tableName, 'default_booking_state', "ALTER TABLE $forms->tableName ADD COLUMN `default_booking_state` text");
 
-    // Add column to the form element table
-    maybe_add_column($forms->elTableName, 'booking_details', "ALTER TABLE $forms->elTableName ADD COLUMN `booking_details` text");
-
     // Add column to the form email table
     maybe_add_column($forms->formEmailTable, 'days_before', "ALTER TABLE $forms->formEmailTable ADD COLUMN `days_before` int");
     maybe_add_column($forms->formEmailTable, 'days_after', "ALTER TABLE $forms->formEmailTable ADD COLUMN `days_after` int");

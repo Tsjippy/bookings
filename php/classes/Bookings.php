@@ -31,6 +31,11 @@ class Bookings
     public object $user;
     public array $userRoles;
 
+    /**
+     * Bookings constructor.
+     *
+     * @param   object|null $formInstance  Optional instance of the form to use for bookings. If not provided, a new instance will be created.
+     */
     public function __construct($formInstance = null)
     {
         global $wpdb;
@@ -86,7 +91,7 @@ class Bookings
                 $value  = map_deep($value, 'maybe_unserialize');
 
                 // single value not an array
-                if (isset(['payments' => 1, 'overlap' => 1, 'overlap-period' => 1, 'default-booking-state' => 1, 'amount' => 1][$key])) {
+                if (isset(['payments' => 1, 'overlap' => 1, 'overlap-period' => 1, 'default-booking-state' => 1][$key])) {
                     $value  = $value[0];
                 }
                 $this->subjects[$post->post_title][$key] = $value;
@@ -292,7 +297,7 @@ class Bookings
      */
     public function roomSelector($node, $subject, $isResult, $radio = false)
     {
-        if (empty($subject['amount']) || $subject['amount'] == 1) {
+        if (count($subject['rooms'] ?? []) < 2) {
             return;
         }
 
@@ -448,21 +453,21 @@ class Bookings
         $this->roomSelector($header, $subject, $isResult);
 
         if (!$isAdmin) {
-            $this->showSelectedModalDates($header, $subject['amount'] > 1);
+            $this->showSelectedModalDates($header, count($subject['rooms'] ?? []) > 1);
         }
 
-        $navigators = addElement('div', $header, ['class' => "navigators " . ($subject['amount'] > 1 ? 'hidden' : '')]);
+        $navigators = addElement('div', $header, ['class' => "navigators " . (count($subject['rooms'] ?? []) > 1 ? 'hidden' : '')]);
         addRawHtml($this->getNavigator($date), $navigators);
 
         $attributes =  ['class' => "calendar table"];
-        if (($subject['amount'] ?? []) > 1) {
+        if ((count($subject['rooms'] ?? []) > 1)) {
             $attributes['style']    = "display:block;";
         }
 
         $calendarTable  = addElement('div', $overview, $attributes);
 
         // Show the month calendar if there are no rooms, otherwise show the room calendars
-        if (count($subject['rooms']) > 1) {
+        if (count($subject['rooms'] ?? []) > 1) {
             addRawHtml($this->roomCalendars($cleanSubject, $date), $calendarTable);
         } else {
             $roomWrapper    = addElement('div', $calendarTable, ['class' => "room-wrapper"]); // needed for layout purposes

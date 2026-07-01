@@ -601,11 +601,6 @@ document.addEventListener("click", (ev) => {
     remove(target);
   } else if (target.matches(".room-selector")) {
     roomSelected(target);
-  } else if (target.matches(".confirmed-roles-switcher")) {
-    target
-      .closest(".form-label")
-      .querySelectorAll(".confirmed-roles-wrapper")
-      .forEach((el) => el.classList.toggle("hidden"));
   } else if (target.matches(`.room-details`)) {
     target
       .closest(`.input-wrapper`)
@@ -616,67 +611,5 @@ document.addEventListener("click", (ev) => {
       .closest(`.input-wrapper`)
       .querySelector(`[name="location-details-modal"]`)
       .classList.toggle("hidden");
-  }
-});
-
-document.addEventListener("change", (ev) => {
-  let target = ev.target;
-
-  if (target.name != null && target.name.includes("default-booking-state")) {
-    if (target.value == "pending" && target.checked) {
-      target
-        .closest(".formfield.form-label")
-        .querySelectorAll("button.confirmed-roles-switcher.hidden")
-        .forEach((but) => but.classList.remove("hidden"));
-    } else {
-      target
-        .closest(".formfield.form-label")
-        .querySelectorAll("button.confirmed-roles-switcher:not(.hidden)")
-        .forEach((but) => but.classList.add("hidden"));
-    }
-  } else if (target.name != null && target.name.includes("amount")) {
-    let tabContent = target.closest(".tabcontent");
-    if (tabContent == null) {
-      return;
-    }
-
-    let numberingType = tabContent.querySelector(`.room-numbering`);
-    let rooms = tabContent.querySelector(`.rooms`);
-
-    if (target.value < 2) {
-      numberingType.classList.add("hidden");
-      rooms.classList.add("hidden");
-    } else {
-      numberingType.classList.remove("hidden");
-      rooms.classList.remove("hidden");
-    }
-  } else if (target.matches(".numbering-type")) {
-    let tabContent = target.closest(".tabcontent");
-    if (tabContent == null) {
-      return;
-    }
-
-    tabContent.querySelectorAll(".roomname").forEach((el) => {
-      if (target.value == "custom") {
-        el.classList.remove("hidden");
-      } else {
-        el.classList.add("hidden");
-      }
-    });
-  } else {
-    return;
-  }
-
-  ev.stopImmediatePropagation();
-});
-
-document.addEventListener("input", (ev) => {
-  let target = ev.target;
-  if (target.matches(`.subject-name`)) {
-    ev.stopImmediatePropagation();
-
-    let tabId = target.closest(`.tabcontent`).id;
-    document.querySelector(`[data-target="${tabId}"`).textContent =
-      target.value;
   }
 });

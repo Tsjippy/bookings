@@ -12,4 +12,6 @@ add_action('wp_enqueue_scripts', __NAMESPACE__ . '\loadAssets');
 function loadAssets()
 {
     wp_register_script('tsjippy-bookings', TSJIPPY\pathToUrl(PLUGINPATH . 'js/bookings.min.js'), array('tsjippy_formsubmit_script'), PLUGINVERSION, true);
+
+    wp_register_script('tsjippy-bookings-formbuilder', TSJIPPY\pathToUrl(PLUGINPATH . 'js/formbuilder.min.js'), array('tsjippy_formsubmit_script'), PLUGINVERSION, true);
 }
