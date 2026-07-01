@@ -55,7 +55,9 @@ class AdminMenu extends ADMIN\SubAdminMenu
         $emails->printPlaceholders();
         ?>
 
-        <h4>Payment Reminder E-mail</h4>
+        <h4>
+            Payment Reminder E-mail
+        </h4>
 <?php
 
         $emails->printInputs();

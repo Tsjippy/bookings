@@ -23,9 +23,11 @@ function extraFormSettings($object)
         return;
     }
 
-    ?>
+?>
     <br>
-    <h4>Payment Indicator Element</h4>
+    <h4>
+        Payment Indicator Element
+    </h4>
     <select name="payment-amount-el">
         <option value=''>---</option>
         <?php
@@ -40,7 +42,9 @@ function extraFormSettings($object)
     </select>
 
     <br>
-    <h4>Payment Amount Element</h4>
+    <h4>
+        Payment Amount Element
+    </h4>
     <select name="payment-amount-el">
         <option value=''>---</option>
         <?php
@@ -55,7 +59,9 @@ function extraFormSettings($object)
     </select>
 
     <br>
-    <h4>Payment Details Element</h4>
+    <h4>
+        Payment Details Element
+    </h4>
     <select name="payment-details-el">
         <option value=''>---</option>
         <?php
@@ -70,7 +76,9 @@ function extraFormSettings($object)
     </select>
 
     <br>
-    <h4>Price Per Night Element</h4>
+    <h4>
+        Price Per Night Element
+    </h4>
     <select name="price-per-night-el">
         <option value=''>---</option>
         <?php
@@ -83,7 +91,7 @@ function extraFormSettings($object)
         }
         ?>
     </select>
-    <?php
+<?php
 }
 
 add_filter('tsjippy-forms-before-saving-settings', __NAMESPACE__ . '\beforeSavingSettings', 10, 3);

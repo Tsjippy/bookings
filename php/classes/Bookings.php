@@ -200,7 +200,7 @@ class Bookings
         $plusYearStr    = gmdate('Y', $plusMonth);
 
         ob_start();
-        ?>
+?>
         <div class="navigator" data-month='<?php echo esc_attr(gmdate('m', $firstMonth)); ?>' data-year='<?php echo esc_attr(gmdate('Y', $firstMonth)); ?>'>
             <div class="prev <?php if (gmdate('ym', $minusMonth) < gmdate('ym')) echo 'hidden'; ?>">
                 <a class="prevnext" data-month="<?php echo esc_attr($minusMonthStr); ?>" data-year="<?php echo esc_attr($minusYearStr); ?>">
@@ -232,12 +232,14 @@ class Bookings
 
         $subjectName    = strtolower(str_replace(' ', '_', $subject['name']));
 
-        ?>
+    ?>
         <div name='<?php echo esc_attr($subjectName); ?>-room-modal' class="booking rooms modal hidden" style="display:unset; z-index: 999999999 !important;">
             <div class="modal-content">
                 <?php TSJIPPY\addCloseButtton(); ?>
 
-                <h4>Room descriptions</h4>
+                <h4>
+                    Room descriptions
+                </h4>
                 <p>Select a room to see its description</p>
                 <div class='tablink-wrapper'>
                     <?php
@@ -276,7 +278,7 @@ class Bookings
                 ?>
             </div>
         </div>
-        <?php
+    <?php
 
         return ob_get_clean();
     }
@@ -387,7 +389,9 @@ class Bookings
                 }
             ?>
                 <div class='room-wrapper <?php echo esc_attr($roomHidden); ?>' data-room='<?php echo esc_attr($room['name']); ?>'>
-                    <h4>Room <?php echo esc_html($room['name']); ?></h4>
+                    <h4>
+                        Room <?php echo esc_html($room['name']); ?>
+                    </h4>
                     <div class='month-wrapper flex'>
                         <?php
                         $this->monthCalendar($subject, $room['name'], $date, true);
@@ -1099,7 +1103,7 @@ class Bookings
                 <div class='booking-detail-wrapper warning hidden' data-booking-id='<?php echo esc_attr($booking->id); ?>'>
                     No permission to see this booking
                 </div>
-        <?php
+<?php
                 continue;
             }
 
@@ -1244,7 +1248,7 @@ class Bookings
                 // user who submitted the form
                 $submittingUser = get_userdata($this->forms->submission->user - id);
 
-                if ( isset($subjectSettings['manager'][$user->ID]) || isset($subjectSettings['manager'][$submittingUser])) {
+                if (isset($subjectSettings['manager'][$user->ID]) || isset($subjectSettings['manager'][$submittingUser])) {
                     return    true;
                 }
             }

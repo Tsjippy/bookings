@@ -41,7 +41,6 @@ function addFormElementOptions($html, $object, $element)
 {
     global $wp_roles;
 
-
     if ($element == null || $element->type != 'booking-selector') {
         return $html;
     }
@@ -115,19 +114,25 @@ function addFormElementOptions($html, $object, $element)
                     </button>
 
                     <label name="Subject" class=" formfield form-label" style='width: auto;margin-right: 20px;'>
-                        <h4>Name</h4>
+                        <h4>
+                            Name
+                        </h4>
                         <input type="text" name="formfield[booking-details][<?php echo esc_attr($index); ?>][name]" class="subject-name formfield formfield-input" value="<?php echo esc_attr($subject['name']); ?>" placeholder="Enter subject name" style='width: unset;'>
                     </label>
                     <br>
                     <br>
                     <label class=" formfield form-label" style='width: auto;margin-right: 20px;'>
-                        <h4>Manager(s)</h4>
+                        <h4>
+                            Manager(s)
+                        </h4>
                         <?php
                         TSJIPPY\userSelect(id: "formfield[booking-details][$index][managers][]", userId: $subject['managers'], multiple: true, echo: true);
                         ?>
                     </label>
 
-                    <h4>Location Description</h4>
+                    <h4>
+                        Location Description
+                    </h4>
                     <?php
                     $settings = array(
                         'wpautop'                   => false,
@@ -146,7 +151,9 @@ function addFormElementOptions($html, $object, $element)
                     ?>
 
                     <label class=" formfield form-label" style='width: auto;margin-right: 20px;'>
-                        <h4>Enable Payments</h4>
+                        <h4>
+                            Enable Payments
+                        </h4>
                         <?php
                         $bookings->forms->infoBoxHtml("Enable to send payment reminders.<br>Make sure to set the payment options in the form settings. ");
                         ?>
@@ -218,7 +225,9 @@ function addFormElementOptions($html, $object, $element)
                     </label>
 
                     <label class="formfield form-label">
-                        <h4>Default status for new bookings</h4>
+                        <h4>
+                            Default status for new bookings
+                        </h4>
                         <label>
                             <input
                                 type='radio'
@@ -242,7 +251,9 @@ function addFormElementOptions($html, $object, $element)
 
                     <br>
                     <label class="amount formfield form-label">
-                        <h4>Room amount</h4>
+                        <h4>
+                            Room amount
+                        </h4>
                         <input type="number" name="formfield[booking-details][<?php echo esc_attr($index); ?>][amount]" class=" formfield formfield-input" value="<?php echo esc_attr($subject['amount']); ?>" placeholder="Enter subject amount" style='width: unset;'>
                     </label>
                     <br>
@@ -251,7 +262,9 @@ function addFormElementOptions($html, $object, $element)
                     <label
                         class=" formfield form-label room-numbering 
                     <?php if ($subject['amount'] == 1 || empty($subject['amount'])) echo 'hidden'; ?>">
-                        <h4>Room numbering type</h4>
+                        <h4>
+                            Room numbering type
+                        </h4>
                         <input
                             type='radio'
                             class='numbering-type'
@@ -342,12 +355,16 @@ function addFormElementOptions($html, $object, $element)
                                 data-div-id="<?php echo esc_attr($i); ?>">
                                 <input type="hidden" name="formfield[booking-details][<?php echo esc_attr($index); ?>][rooms][<?php echo esc_attr($i); ?>][post-id]" value="<?php echo esc_attr($room['post-id']); ?>">
                                 <label name="roomname" class=" formfield form-label roomname">
-                                    <h4>Room name</h4>
+                                    <h4>
+                                        Room name
+                                    </h4>
                                     <input type="text" name="formfield[booking-details][<?php echo esc_attr($index); ?>][rooms][<?php echo esc_attr($i); ?>][name]" class=" formfield formfield-input" value="<?php echo esc_attr($roomName); ?>" placeholder="Enter room name" style='width: unset;'>
                                 </label>
                                 <br>
                                 <br>
-                                <h4>Room Description</h4>
+                                <h4>
+                                    Room Description
+                                </h4>
                                 <?php
                                 $settings = array(
                                     'wpautop' => false,
@@ -391,7 +408,7 @@ function addFormElementOptions($html, $object, $element)
         </div>
         <br>
     </div>
-    <?php
+<?php
 
     return ob_get_clean();
 }
@@ -892,11 +909,11 @@ function formElementUpdated($element, $instance, $oldElement)
         // See what is removed
         foreach ($removed as $key => $value) {
             // Only delete a specific post meta
-            if(is_array($value)){
-                foreach($value as $v){
+            if (is_array($value)) {
+                foreach ($value as $v) {
                     delete_post_meta($postId, "tsjippy_$key", $v);
                 }
-            }else{  
+            } else {
                 delete_post_meta($postId, "tsjippy_$key");
             }
 
