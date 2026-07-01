@@ -91,7 +91,6 @@ class Bookings
                 }
                 $this->subjects[$post->post_title][$key] = $value;
             }
-            $this->subjects[$post->post_title]['element-id']   = get_post_meta($post->ID, 'tsjippy_element-id', true);
             $this->subjects[$post->post_title]['post-id']      = $post->ID;
             $this->subjects[$post->post_title]['name']         = $post->post_title;
             $this->subjects[$post->post_title]['description']  = $post->post_content;
@@ -116,12 +115,12 @@ class Bookings
             }
 
             // add a dummy room if no rooms are found
-            if (empty($rooms)) {
+            /* if (empty($rooms)) {
                 $this->subjects[$post->post_title]['rooms'][] = [
                     'post-id'       => -1,
                     'name'          => ''
                 ];
-            }
+            } */
         }
     }
 

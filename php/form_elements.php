@@ -55,10 +55,6 @@ function addFormElementOptions($html, $object, $element)
 
     $subjects       = $bookings->getElementSubjects($element->id);
 
-    if (empty($subjects)) {
-        $subjects = ['No Subjects defined yet'];
-    }
-
     ob_start();
 
     ?>
@@ -77,8 +73,7 @@ function addFormElementOptions($html, $object, $element)
                         'amount'                    => 1
                     ];
                 }
-
-            ?>
+                ?>
                 <button class='button tablink formbuilder-form' type='button' id='show-subject-<?php echo esc_attr($index); ?>' data-target='subject-<?php echo esc_attr($index); ?>' style='margin-right:4px;'>
                     <?php echo esc_html($subject['name']); ?>
                 </button>
@@ -94,13 +89,19 @@ function addFormElementOptions($html, $object, $element)
             </div>
             <?php
 
+            /**
+             * We need one empty subject to be able set it up
+             */
+            if(empty($subjects)){
+                $subjects[] = [
+                    'post-id'                   => -1,
+                    'name'                      => '',
+                    'amount'                    => 1
+                ];
+            }
             foreach ($subjects as $index => $subject) {
-                $hidden    = 'hidden';
-                if ($index === 0) {
-                    //$hidden = '';
-                }
             ?>
-                <div id="subject-<?php echo esc_attr($index); ?>" class="clone-div tabcontent <?php echo esc_attr($hidden); ?>" data-div-id="<?php echo esc_attr($index); ?>">
+                <div id="subject-<?php echo esc_attr($index); ?>" class="clone-div tabcontent <?php if($index !== 0 || empty($subject['name'])){ echo 'hidden'; } ?>" data-div-id="<?php echo esc_attr($index); ?>">
                     <input type="hidden" class="no-reset" name="formfield[booking-details][<?php echo esc_attr($index); ?>][post-id]" value="<?php echo esc_attr($subject['post-id']); ?>">
                     <input type="hidden" class="no-reset" name="formfield[booking-details][<?php echo esc_attr($index); ?>][element-id]" value="<?php echo esc_attr($element->id); ?>">
                     <?php
@@ -126,7 +127,7 @@ function addFormElementOptions($html, $object, $element)
                             Manager(s)
                         </h4>
                         <?php
-                        TSJIPPY\userSelect(id: "formfield[booking-details][$index][managers][]", userId: $subject['managers'], multiple: true, echo: true);
+                        TSJIPPY\userSelect(id: "formfield[booking-details][$index][managers][]", userId: $subject['managers'] ?? [], multiple: true, echo: true);
                         ?>
                     </label>
 
@@ -294,41 +295,35 @@ function addFormElementOptions($html, $object, $element)
                     <br>
                     <br>
                     <div
-                        class="rooms clone-divs-wrapper 
-                    <?php if ($subject['amount'] == 1 || empty($subject['amount'])) echo 'hidden'; ?>"
+                        class="rooms clone-divs-wrapper <?php if ($subject['amount'] == 1 || empty($subject['amount'])) echo 'hidden'; ?>"
                         style='background: lightgrey;padding-bottom: 10px;padding-left: 10px;margin-right:10px'>
+                        
+                        <h3>
+                            Room details
+                        </h3>
                         <?php
-                        if (empty($subject['rooms'])) {
-                            $subject['rooms']   = ['0'];
-                        }
-
-                        ?>
-                        <h3>Room details</h3>
-                        <?php
-
                         // Tab buttons
-                        foreach ($subject['rooms'] as $i => $room) {
+                        foreach (($subject['rooms'] ?? []) as $i => $room) {
                             if (empty($room['name'])) {
                                 $room['name']   = "No Name " . $i + 1;
                             }
 
                             $subjectName    = strtolower(str_replace(' ', '-', $subject['name']));
 
-                        ?>
+                            ?>
                             <button
-                                class='button tablink formbuilder-form 
-                            <?php if ($i === 0) echo 'active'; ?>'
-                                type='button'
+                                class='button tablink formbuilder-form <?php if ($i === 0) echo 'active'; ?>'
+                                type='button' 
                                 id='<?php echo esc_attr("show-$subjectName-room-$i"); ?>'
                                 data-target='<?php echo esc_attr("$subjectName-room-$i"); ?>'
                                 style='margin-right:4px;max-width: 100px;'>
                                 Room <?php echo esc_html($room['name']); ?>
                             </button>
-                        <?php
+                            <?php
                         }
 
                         // Tab contents
-                        foreach ($subject['rooms'] as $i => $room) {
+                        foreach (($subject['rooms'] ?? []) as $i => $room) {
                             if (!is_array($room)) {
                                 $room   = [
                                     "name"          => '',
@@ -453,14 +448,12 @@ function formElements($elements, $displayFormResults, $force)
         $start_date->slug               = 'booking-start-date';
         $start_date->name               = 'Startdate';
         $start_date->id                 = -102;
-        $start_date->booking_details    = '';
 
         $end_date                   = clone $element;
         $end_date->type             = 'date';
         $end_date->slug             = 'booking-end-date';
         $end_date->name             = 'Enddate';
         $end_date->id               = -103;
-        $end_date->booking_details  = '';
 
         $room                   = clone $element;
         $room->type             = 'checkbox';
@@ -468,7 +461,6 @@ function formElements($elements, $displayFormResults, $force)
         $room->name             = 'Room';
         $room->id               = -104;
         $room->required         = false;
-        $room->booking_details  = '';
 
         $elements[]         = $start_date;
         $elements[]         = $end_date;
