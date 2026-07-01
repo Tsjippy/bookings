@@ -4,6 +4,7 @@
 ### Added
 - attribute escaping
 - activate shared code function
+- formbuilder js
 
 ### Changed
 - plugin tested up to 7.0
