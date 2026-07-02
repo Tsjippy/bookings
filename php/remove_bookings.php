@@ -10,6 +10,14 @@ if (! defined('ABSPATH')) {
 
 add_action('tsjippy-forms-entry-archived', __NAMESPACE__ . '\removeBookings', 10, 2);
 add_action('tsjippy-forms-entry-removed', __NAMESPACE__ . '\removeBookings', 10, 2);
+/**
+ * Remove the bookings for a submission
+ *
+ * @param object $instance The instance of the form
+ * @param int $submissionId The submission id
+ *
+ * @return void
+ */
 function removeBookings($instance, $submissionId)
 {
     // remove the booking

@@ -9,6 +9,11 @@ if (! defined('ABSPATH')) {
 }
 
 add_action('init', __NAMESPACE__ . '\addEventPostType', 999);
+/**
+ * Registers the booking post types
+ *
+ * @return void
+ */
 function addEventPostType()
 {
     TSJIPPY\registerPostTypeAndTax('booking-subject', 'booking-subjects');

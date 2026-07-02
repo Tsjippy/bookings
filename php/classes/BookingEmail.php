@@ -14,6 +14,11 @@ class BookingEmail extends ADMIN\MailSetting
     public object $booking;
     public array $paymentDetailsRows;
 
+    /**
+     * BookingEmail constructor.
+     *
+     * @param object $booking The booking object
+     */
     public function __construct(object $booking)
     {
         $this->booking              = $booking;
@@ -40,6 +45,11 @@ class BookingEmail extends ADMIN\MailSetting
         $this->defaultMessage     .= '%payment_details%<br>';
     }
 
+    /**
+     * Load the bookings for the current booking
+     *
+     * @return void
+     */
     public function loadBookings()
     {
         if (!isset($this->booking->submission_id)) {

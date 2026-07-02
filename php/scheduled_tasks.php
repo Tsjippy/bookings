@@ -9,6 +9,11 @@ if (! defined('ABSPATH')) {
 }
 
 add_action('init', __NAMESPACE__ . '\scheduleTasks');
+/**
+ * Schedule the tasks for the plugin
+ *
+ * @return void
+ */
 function scheduleTasks()
 {
     TSJIPPY\scheduleTask('tsjippy-bookings-emails', 'daily', __NAMESPACE__, 'bookingEmails');
@@ -19,6 +24,9 @@ function scheduleTasks()
     }
 }
 
+/**
+ * Sends reminders by e-mail and Signal to pay for a booking
+ */
 function paymentReminder()
 {
     $forms    = new TSJIPPY\FORMS\EditFormResults([]);

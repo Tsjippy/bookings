@@ -27,6 +27,12 @@ class AdminMenu extends ADMIN\SubAdminMenu
         parent::__construct($settings, $name);
     }
 
+    /**
+     * Add the settings page to the admin menu
+     *
+     * @param string $parent The parent menu slug
+     * @return bool True if the settings page was added, false otherwise
+     */
     public function settings($parent)
     {
         $this->recurrenceSelector('payment-reminder-freq', $this->settings['payment-reminder-freq'] ?? '', 'How often should people be reminded to pay?', $parent);
@@ -34,6 +40,12 @@ class AdminMenu extends ADMIN\SubAdminMenu
         return true;
     }
 
+    /**
+     * Add the emails page to the admin menu
+     *
+     * @param string $parent The parent menu slug
+     * @return bool True if the emails page was added, false otherwise
+     */
     public function emails($parent)
     {
         ob_start();
@@ -67,12 +79,24 @@ class AdminMenu extends ADMIN\SubAdminMenu
         return true;
     }
 
+    /**
+     * Add the data page to the admin menu
+     *
+     * @param string $parent The parent menu slug
+     * @return bool True if the data page was added, false otherwise
+     */
     public function data($parent = '')
     {
 
         return false;
     }
 
+    /**
+     * Add the functions page to the admin menu
+     *
+     * @param string $parent The parent menu slug
+     * @return bool True if the functions page was added, false otherwise
+     */
     public function functions($parent)
     {
 
