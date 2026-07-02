@@ -17,6 +17,7 @@
 - array intersect bug
 - store managers in right format
 - add rooms
+- new rooms
 
 ### Updated
 
