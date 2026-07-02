@@ -242,7 +242,7 @@ function addFormFromBuilderBookingSelectorOptions($html, $object, $element)
                     <br>
     
                     <div class="rooms">
-                        <button type="button" class="add button room hide-when-clicked <?php if (count($subject['rooms'] ?? []) > 1 ) echo ' hidden'; ?>" style="max-width: 130px; flex: 1;margin-right: 3px;margin-left: 3px;">
+                        <button type="button" class="show-rooms-wrapper button<?php if (count($subject['rooms'] ?? []) > 1 ) echo ' hidden'; ?>" style="max-width: 130px; flex: 1;margin-right: 3px;margin-left: 3px;">
                             Add a room
                         </button>
                         <br>

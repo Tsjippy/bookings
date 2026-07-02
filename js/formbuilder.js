@@ -15,10 +15,16 @@ document.addEventListener("input", (ev) => {
 window.addEventListener("click", (event) => {
   let target = event.target;
   
-  if (target.matches(`.add.room`)) {
-    if(target.matches(`.hide-when-clicked`)){
-      target.classList.add('hidden');
-    }
-    target.closest('div').querySelector('.room-details-wrapper').classList.remove('hidden');
+  if (target.matches(`.show-rooms-wrapper`)) {
+    // Hide the button
+    target.classList.add('hidden');
+
+    let wrapper = target.closest('div').querySelector('.room-details-wrapper');
+
+    // Add a new room
+    wrapper.querySelector(`.add.room.button`).click();
+  
+    // SHow the rooms
+    wrapper.classList.remove('hidden');
   }
 });
