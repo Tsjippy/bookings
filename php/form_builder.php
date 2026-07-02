@@ -73,7 +73,7 @@ function addFormFromBuilderBookingSelectorOptions($html, $object, $element)
             }
             foreach ($subjects as $index => $subject) {
                 ?>
-                <button class='button tablink formbuilder-form<?php if ($index === 0) echo ' active'; if($subject['post-id'] == -1){ echo ' dummy hidden'; } ?>' type='button' id='show-subject-<?php echo esc_attr($index); ?>' data-target='subject-<?php echo esc_attr($index); ?>' style='margin-right:4px;'>
+                <button class='button tablink formbuilder-form<?php if($subject['post-id'] == -1){ echo ' dummy hidden'; } ?>' type='button' id='show-subject-<?php echo esc_attr($index); ?>' data-target='subject-<?php echo esc_attr($index); ?>' style='margin-right:4px;'>
                     <?php echo esc_html($subject['name'] ?? 'Name'); ?>
                 </button>
             <?php
@@ -83,15 +83,14 @@ function addFormFromBuilderBookingSelectorOptions($html, $object, $element)
                 Add a Subject
             </button>
 
-            <div id="element-settings" class="tabcontent">
+            <div id="element-settings" class="tabcontent clone-div">
                 <?php echo wp_kses_post($html); ?>
             </div>
             <?php
-
         
             foreach ($subjects as $index => $subject) {
                 ?>
-                <div id="subject-<?php echo esc_attr($index); ?>" class="clone-div tabcontent <?php if($index !== 0 || $subject['post-id'] == -1){ echo 'hidden'; } ?>" data-div-id="<?php echo esc_attr($index); ?>">
+                <div id="subject-<?php echo esc_attr($index); ?>" class="clone-div tabcontent hidden" data-div-id="<?php echo esc_attr($index); ?>">
                     <input type="hidden" class="no-reset" name="formfield[booking-details][<?php echo esc_attr($index); ?>][post-id]" value="<?php echo esc_attr($subject['post-id']); ?>">
                     <input type="hidden" class="no-reset" name="formfield[booking-details][<?php echo esc_attr($index); ?>][element-id]" value="<?php echo esc_attr($element->id); ?>">
                     <?php
@@ -242,13 +241,13 @@ function addFormFromBuilderBookingSelectorOptions($html, $object, $element)
 
                     <br>
     
-                    <div class="rooms clone-divs-wrapper">
-                        <button type="button" class="add button room" style="max-width: 130px; flex: 1;margin-right: 3px;margin-left: 3px;">
+                    <div class="rooms">
+                        <button type="button" class="add button room hide-when-clicked <?php if (count($subject['rooms'] ?? []) > 1 ) echo ' hidden'; ?>" style="max-width: 130px; flex: 1;margin-right: 3px;margin-left: 3px;">
                             Add a room
                         </button>
                         <br>
 
-                        <div class="room-details-wrapper<?php if (count($subject['rooms'] ?? []) < 2 ) echo ' hidden'; ?>" style='background: lightgrey;padding-bottom: 10px;padding-left: 10px;margin-right:10px'>
+                        <div class="clone-divs-wrapper room-details-wrapper<?php if (count($subject['rooms'] ?? []) < 2 ) echo ' hidden'; ?>" style='background: lightgrey;padding-bottom: 10px;padding-left: 10px;margin-right:10px'>
                             
                             <h3>
                                 Room details
@@ -281,6 +280,11 @@ function addFormFromBuilderBookingSelectorOptions($html, $object, $element)
                                 </button>
                                 <?php
                             }
+                            ?>
+                            <button type="button" class="add button room" style="max-width: 130px; flex: 1;margin-right: 3px;margin-left: 3px;">
+                                Add a room
+                            </button>
+                            <?php
 
                             // Tab contents
                             foreach (($subject['rooms'] ?? []) as $i => $room) {
@@ -309,7 +313,7 @@ function addFormFromBuilderBookingSelectorOptions($html, $object, $element)
                                         <h4>
                                             Room name
                                         </h4>
-                                        <input type="text" name="formfield[booking-details][<?php echo esc_attr($index); ?>][rooms][<?php echo esc_attr($i); ?>][name]" class=" formfield formfield-input" value="<?php echo esc_attr($roomName); ?>" placeholder="Enter room name" style='width: unset;'>
+                                        <input type="text" name="formfield[booking-details][<?php echo esc_attr($index); ?>][rooms][<?php echo esc_attr($i); ?>][name]" class="room-name formfield formfield-input" value="<?php echo esc_attr($roomName); ?>" placeholder="Enter room name" style='width: unset;'>
                                     </label>
                                     <br>
                                     <br>

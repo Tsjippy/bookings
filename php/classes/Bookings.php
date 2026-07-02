@@ -90,8 +90,12 @@ class Bookings
                 $key    = str_replace('tsjippy_', '', $key);
                 $value  = map_deep($value, 'maybe_unserialize');
 
-                // single value not an array
-                if (isset(['payments' => 1, 'overlap' => 1, 'overlap-period' => 1, 'default-booking-state' => 1, 'element-id' => 1, 'oneday' => 1][$key])) {
+                
+                if ($key == 'managers') {
+                    // Store values as index for use of isset
+                    $value  = array_flip($value);
+                }else{
+                    // single value not an array
                     $value  = $value[0];
                 }
                 $this->subjects[$post->post_title][$key] = $value;
