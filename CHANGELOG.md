@@ -2,6 +2,17 @@
 ## [Unreleased] - yyyy-mm-dd
 
 ### Added
+
+### Changed
+
+### Fixed
+
+### Updated
+
+## [10.5.2] - 2026-07-02
+
+
+### Added
 - attribute escaping
 - activate shared code function
 - formbuilder js
@@ -18,8 +29,6 @@
 - store managers in right format
 - add rooms
 - new rooms
-
-### Updated
 
 ## [10.5.1] - 2026-06-26
 
