@@ -128,20 +128,29 @@ class BookingEmail extends ADMIN\MailSetting
         // Convert details to table
         $this->paymentDetailsRows   = explode("\n",  $paymentDetails);
 
-        $table  = '<table border="1" style="padding: 5px;border: none;">';
-        foreach ($this->paymentDetailsRows  as $row) {
-            $cols   = explode(":", $row);
-            $table  .= '<tr>';
-            $table  .= "<td style='border: none;width: 120px;'>";
-            $table  .= "<b>" . trim($cols[0]) . "</b>";
-            $table  .= "</td>";
-            $table  .= "<td style='border: none;'>";
-            $table  .= trim($cols[1]);
-            $table  .= "</td>";
-            $table  .= "</tr>";
-        }
-        $table  .= '</table>';
+        ob_start();
+        ?>
+        <table class="no-border" border="1" style="padding: 5px;">
+            <?php
+            foreach ($this->paymentDetailsRows  as $row) {
+                $cols   = explode(":", $row);
+                ?>
+                <tr>
+                    <td style='width: 120px;'>
+                        <b>
+                            <?php echo wp_kses_post(trim($cols[0]));?>
+                        </b>
+                    </td>
+                    <td>
+                        <?php echo wp_kses_post(trim($cols[1]));?>
+                    </td>
+                </tr>
+                <?php
+            }
+            ?>
+        </table>
+        <?php
 
-        $this->replaceArray['%payment_details%']    = $table;
+        $this->replaceArray['%payment_details%']    = ob_get_clean();
     }
 }
