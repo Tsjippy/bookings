@@ -70,7 +70,7 @@ class AdminMenu extends ADMIN\SubAdminMenu
         <h4>
             Payment Reminder E-mail
         </h4>
-<?php
+        <?php
 
         $emails->printInputs();
 
@@ -95,6 +95,7 @@ class AdminMenu extends ADMIN\SubAdminMenu
      * Add the functions page to the admin menu
      *
      * @param string $parent The parent menu slug
+     * 
      * @return bool True if the functions page was added, false otherwise
      */
     public function functions($parent)
