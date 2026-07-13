@@ -30,7 +30,8 @@ class AdminMenu extends ADMIN\SubAdminMenu
     /**
      * Add the settings page to the admin menu
      *
-     * @param string $parent The parent menu slug
+     * @param \DOMElement $parent The parent menu slug
+     * 
      * @return bool True if the settings page was added, false otherwise
      */
     public function settings($parent)
@@ -50,7 +51,7 @@ class AdminMenu extends ADMIN\SubAdminMenu
     {
         ob_start();
 
-?>
+        ?>
         <h4>
             Define the e-mail people get when they still need to pay for some booking(s).
         </h4>
