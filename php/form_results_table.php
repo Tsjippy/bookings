@@ -369,16 +369,16 @@ add_filter('tsjippy-forms-checkbox-options', function ($options, $object) {
 add_filter('tsjippy-forms-retrieved-formdata', __NAMESPACE__ . '\formdataRetrieved', 10, 3);
 /**
  * Alter the form results
- * @param    array    $submissions    The current form submissions retrieved, can be altered to change the data shown in the form results
- * @param    int|string    $userId        The ID of the user for which the data is retrieved, can be used to decide how to alter the data
- * @param    object    $object        The current instance of the form table class, can be
+ * @param    array      $submissions   The current form submissions retrieved, can be altered to change the data shown in the form results
+ * @param    int|string $userId        The ID of the user for which the data is retrieved, can be used to decide how to alter the data
+ * @param    object     $object        The current instance of the form table class, can be
  * used to get more information about the form and the user to decide how to alter the data
- * @return array   The altered form submissions
+ * @return array                        The altered form submissions
  */
 function formdataRetrieved($submissions, $userId, $object)
 {
     $bookingSelectors   = $object->getElementByType('booking-selector');
-    if (!$bookingSelectors) {
+    if (!$bookingSelectors || is_wp_error($bookingSelectors)) {
         return $submissions;
     }
 
@@ -487,7 +487,7 @@ add_filter('tsjippy-forms-formdata-retrieval-query', __NAMESPACE__ . '\alterQuer
  */
 function alterQuery($params, $userId, $instance)
 {
-    if (empty($instance->getElementByType('booking-selector'))) {
+    if (empty($instance->formData->id) || empty($instance->getElementByType('booking-selector'))) {
         return $params;
     }
 

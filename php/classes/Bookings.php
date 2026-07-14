@@ -200,7 +200,7 @@ class Bookings
         $plusYearStr    = gmdate('Y', $plusMonth);
 
         ob_start();
-?>
+        ?>
         <div class="navigator" data-month='<?php echo esc_attr(gmdate('m', $firstMonth)); ?>' data-year='<?php echo esc_attr(gmdate('Y', $firstMonth)); ?>'>
             <div class="prev <?php if (gmdate('ym', $minusMonth) < gmdate('ym')) echo 'hidden'; ?>">
                 <a class="prevnext" data-month="<?php echo esc_attr($minusMonthStr); ?>" data-year="<?php echo esc_attr($minusYearStr); ?>">
@@ -215,7 +215,7 @@ class Bookings
             </div>
         </div>
 
-    <?php
+        <?php
         return ob_get_clean();
     }
 
@@ -232,7 +232,7 @@ class Bookings
 
         $subjectName    = strtolower(str_replace(' ', '_', $subject['name']));
 
-    ?>
+        ?>
         <div name='<?php echo esc_attr($subjectName); ?>-room-modal' class="booking rooms modal hidden" style="display:unset; z-index: 999999999 !important;">
             <div class="modal-content">
                 <?php TSJIPPY\addCloseButtton(); ?>
@@ -278,7 +278,7 @@ class Bookings
                 ?>
             </div>
         </div>
-    <?php
+        <?php
 
         return ob_get_clean();
     }
@@ -374,7 +374,7 @@ class Bookings
     private function roomCalendars($subject, $date)
     {
         ob_start();
-    ?>
+        ?>
         <div class='rooms-wrapper'>
             <?php
             foreach ($this->subjects[$subject]['rooms'] as $room) {
@@ -403,7 +403,7 @@ class Bookings
             }
             ?>
         </div>
-    <?php
+        <?php
 
         return ob_get_clean();
     }
@@ -517,7 +517,7 @@ class Bookings
     protected function showSelectedModalDates($node, $hide)
     {
         ob_start();
-    ?>
+        ?>
         <div class="booking-date-wrapper 
             <?php if ($hide) echo 'hidden'; ?>">
             <div class="booking-dates-input-wrapper">
@@ -559,7 +559,7 @@ class Bookings
             </div>
         </div>
 
-    <?php
+        <?php
 
         return addRawHtml(ob_get_clean(), $node);
     }
@@ -1103,11 +1103,11 @@ class Bookings
                 $this->forms->submission->user_id != $this->forms->user->ID
             ) {
                 // no right to see this
-        ?>
+                ?>
                 <div class='booking-detail-wrapper warning hidden' data-booking-id='<?php echo esc_attr($booking->id); ?>'>
                     No permission to see this booking
                 </div>
-<?php
+                <?php
                 continue;
             }
 
@@ -1860,7 +1860,7 @@ class Bookings
      *
      * @return  array                   An array with startDates, endDates and rooms arrays
      */
-    function getBookingDates($submissionId)
+    public function getBookingDates($submissionId)
     {
         // Get all the bookings belonging to this form submission
         $bookings   = $this->getBookingsBySubmission($submissionId);
