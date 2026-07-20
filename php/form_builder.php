@@ -492,7 +492,7 @@ function formElementUpdated($element, $instance, $oldElement)
 
                 // Flush the cache to force new db queries
                 if (wp_cache_supports('flush_group')) {
-                    wp_cache_flush_group('bookings');
+                    wp_cache_flush_group('tsjippy_bookings');
                 } else {
                     wp_cache_flush();
                 }
