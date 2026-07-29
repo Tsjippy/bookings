@@ -7,8 +7,6 @@ use TSJIPPY;
 use function TSJIPPY\addElement as addElement;
 use function TSJIPPY\addRawHtml as addRawHtml;
 
-use TSJIPPY\EVENTS;
-use TSJIPPY\FORMS;
 use WP_Error;
 
 if (! defined('ABSPATH')) {
@@ -45,7 +43,7 @@ class Bookings
         $this->managers                     = [];
         $this->payables                     = [];
         $this->payables                     = [];
-        $this->picturesUrl                    = TSJIPPY\pathToUrl(PLUGINPATH . 'pictures');
+        $this->picturesUrl                  = TSJIPPY\pathToUrl(PLUGINPATH . 'pictures');
         $this->showArchived                 = false;
         $this->tableEditPermissions         = current_user_can('manage_options');
         $this->subjects                     = [];
