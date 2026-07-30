@@ -4,6 +4,7 @@
 ### Added
 - accommodation-meta and room-meta block
 - blocks
+- booking selector block
 
 ### Changed
 - prefixed cache group
