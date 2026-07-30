@@ -34,10 +34,11 @@ const Edit = () => {
   const blockProps = (0,_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_3__.useBlockProps)();
   const postType = (0,_wordpress_data__WEBPACK_IMPORTED_MODULE_1__.useSelect)(select => select("core/editor").getCurrentPostType(), []);
   const [meta, setMeta] = (0,_wordpress_core_data__WEBPACK_IMPORTED_MODULE_2__.useEntityProp)("postType", postType, "meta");
+  console.log(meta);
   const allUsers = (0,_wordpress_data__WEBPACK_IMPORTED_MODULE_1__.useSelect)(select => select(_wordpress_core_data__WEBPACK_IMPORTED_MODULE_2__.store).getUsers({
     per_page: 100
   }) || [], []);
-  const selectedUsers = (allUsers || []).filter(user => (meta?.managers || []).includes(user.id));
+  const selectedUsers = (allUsers || []).filter(user => (meta?.tsjippy_managers || []).includes(user.id));
   return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.Fragment, {
     children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_3__.InspectorControls, {
       children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)(_wordpress_components__WEBPACK_IMPORTED_MODULE_0__.PanelBody, {
@@ -51,43 +52,43 @@ const Edit = () => {
             const managers = (allUsers || []).filter(user => tokens.includes(user.name)).map(user => user.id);
             setMeta({
               ...(meta || {}),
-              managers
+              tsjippy_managers: managers
             });
           }
         }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_0__.ToggleControl, {
           label: "Enable Payments",
-          checked: !!meta?.payments,
+          checked: !!meta?.tsjippy_payments,
           onChange: payments => setMeta({
             ...(meta || {}),
-            payments
+            tsjippy_payments: payments
           })
         }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_0__.ToggleControl, {
           label: "Allow new arrivals on the day the previous people leave",
-          checked: !!meta?.overlap,
+          checked: !!meta?.tsjippy_overlap,
           onChange: overlap => setMeta({
             ...(meta || {}),
-            overlap
+            tsjippy_overlap: overlap
           })
         }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_0__.TextControl, {
           label: "Minimum time between two bookings in days",
           type: "number",
           min: 0,
           help: "Use 0 for allowing guests to arrive the next day. 1 means there is one full day between the previous and the next booking.",
-          value: meta?.overlap_period ?? 0,
+          value: meta?.tsjippy_overlap_period ?? 0,
           onChange: overlapPeriod => setMeta({
             ...(meta || {}),
-            overlap_period: parseInt(overlapPeriod, 10) || 0
+            tsjippy_overlap_period: parseInt(overlapPeriod, 10) || 0
           })
         }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_0__.ToggleControl, {
           label: "Allow one day events",
-          checked: !!meta?.oneday,
+          checked: !!meta?.tsjippy_oneday,
           onChange: oneday => setMeta({
             ...(meta || {}),
-            oneday
+            tsjippy_oneday: oneday
           })
         }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_0__.SelectControl, {
           label: "Default status for new bookings",
-          value: meta?.default_booking_state ?? "confirmed",
+          value: meta?.tsjippy_default_booking_state ?? "confirmed",
           options: [{
             label: 'Pending',
             value: 'pending'
@@ -97,7 +98,7 @@ const Edit = () => {
           }],
           onChange: default_booking_state => setMeta({
             ...(meta || {}),
-            default_booking_state
+            tsjippy_default_booking_state: default_booking_state
           })
         })]
       })
@@ -119,37 +120,37 @@ const Edit = () => {
             children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("td", {
               children: "Managers"
             }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("td", {
-              children: selectedUsers.map(user => user.name)
+              children: selectedUsers.map(user => user.name).join(', ')
             })]
           }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("tr", {
             children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("td", {
               children: "Automatic Payment Reminders"
             }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("td", {
-              children: !!meta?.payments ? "Enabled" : "Disabled"
+              children: !!meta?.tsjippy_payments ? "Enabled" : "Disabled"
             })]
           }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("tr", {
             children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("td", {
               children: "Allow new arrivals on the day the previous people leave"
             }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("td", {
-              children: !!meta?.overlap ? "Enabled" : "Disabled"
+              children: !!meta?.tsjippy_overlap ? "Enabled" : "Disabled"
             })]
           }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("tr", {
             children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("td", {
               children: "Minimum time between two bookings in days"
             }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("td", {
-              children: meta?.overlap_period ?? 0
+              children: meta?.tsjippy_overlap_period ?? 0
             })]
           }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("tr", {
             children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("td", {
               children: "Allow one day events"
             }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("td", {
-              children: !!meta?.oneday ? "Enabled" : "Disabled"
+              children: !!meta?.tsjippy_oneday ? "Enabled" : "Disabled"
             })]
           }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("tr", {
             children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("td", {
               children: "Default status for new bookings"
             }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("td", {
-              children: meta?.default_booking_state ?? "confirmed"
+              children: (meta?.tsjippy_default_booking_state ?? "confirmed") == '' ? "confirmed" : meta?.tsjippy_default_booking_state ?? "confirmed"
             })]
           })]
         })]
@@ -237,7 +238,7 @@ module.exports = window["wp"]["i18n"];
   \***********************************************/
 (module) {
 
-module.exports = /*#__PURE__*/JSON.parse('{"$schema":"https://schemas.wp.org/trunk/block.json","apiVersion":3,"name":"tsjippy-booking-subjects/meta","version":"0.1.0","title":"Booking Subjects meta data","category":"widgets","description":"All Booking Subjects Meta","textdomain":"tsjippy","editorScript":"file:./index.js","editorStyle":"file:./index.css","style":"file:./style-index.css","attributes":{"lock":{"type":"object","default":{"move":true,"remove":true}},"managers":{"type":"array","source":"meta","meta":"managers"},"payments":{"type":"boolean","source":"meta","meta":"payments","default":false},"overlap":{"type":"boolean","source":"meta","meta":"overlap","default":false},"overlapPeriod":{"type":"number","source":"meta","meta":"overlap_period","default":0},"oneday":{"type":"boolean","source":"meta","meta":"oneday","default":false},"defaultBookingState":{"type":"string","source":"meta","meta":"default_booking_state","default":"pending"}}}');
+module.exports = /*#__PURE__*/JSON.parse('{"$schema":"https://schemas.wp.org/trunk/block.json","apiVersion":3,"name":"tsjippy-booking-subjects/meta","version":"0.1.0","title":"Booking Subjects meta data","category":"widgets","description":"All Booking Subjects Meta","textdomain":"tsjippy","editorScript":"file:./index.js","editorStyle":"file:./index.css","style":"file:./style-index.css","attributes":{"lock":{"type":"object","default":{"move":true,"remove":true}},"managers":{"type":"array","source":"meta","meta":"tsjippy_managers"},"payments":{"type":"boolean","source":"meta","meta":"tsjippy_payments","default":false},"overlap":{"type":"boolean","source":"meta","meta":"tsjippy_overlap","default":false},"overlapPeriod":{"type":"number","source":"meta","meta":"tsjippy_overlap_period","default":0},"oneday":{"type":"boolean","source":"meta","meta":"tsjippy_oneday","default":false},"defaultBookingState":{"type":"string","source":"meta","meta":"tsjippy_default_booking_state","default":"pending"}}}');
 
 /***/ }
 

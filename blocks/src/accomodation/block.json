@@ -16,10 +16,14 @@
 	"editorStyle": "file:./index.css",
 	"style": "file:./style-index.css",
 	"viewScript": "file:./view.js",
+	"render": "file:./render.php", 
 	"attributes": {
-		"text": {
-			"type": "string",
-			"default": ""
+		"bookingSubjects": {
+			"type": "array",
+			"items": {
+				"type": "number"
+			},
+			"default": []
 		}
 	}
 }

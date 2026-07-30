@@ -21,36 +21,36 @@
 		"managers": {
 			"type": "array",
 			"source": "meta",
-			"meta": "managers"
+			"meta": "tsjippy_managers"
 		},
 		"payments": {
 			"type": "boolean",
 			"source": "meta",
-			"meta": "payments",
+			"meta": "tsjippy_payments",
 			"default": false
 		},
 		"overlap": {
 			"type": "boolean",
 			"source": "meta",
-			"meta": "overlap",
+			"meta": "tsjippy_overlap",
 			"default": false
 		},
 		"overlapPeriod": {
 			"type": "number",
 			"source": "meta",
-			"meta": "overlap_period",
+			"meta": "tsjippy_overlap_period",
 			"default": 0
 		},
 		"oneday": {
 			"type": "boolean",
 			"source": "meta",
-			"meta": "oneday",
+			"meta": "tsjippy_oneday",
 			"default": false
 		},
 		"defaultBookingState": {
 			"type": "string",
 			"source": "meta",
-			"meta": "default_booking_state",
+			"meta": "tsjippy_default_booking_state",
 			"default": "pending"
 		}
 	}

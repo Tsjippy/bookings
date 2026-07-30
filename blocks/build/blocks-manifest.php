@@ -24,36 +24,36 @@ return array(
 			'managers' => array(
 				'type' => 'array',
 				'source' => 'meta',
-				'meta' => 'managers'
+				'meta' => 'tsjippy_managers'
 			),
 			'payments' => array(
 				'type' => 'boolean',
 				'source' => 'meta',
-				'meta' => 'payments',
+				'meta' => 'tsjippy_payments',
 				'default' => false
 			),
 			'overlap' => array(
 				'type' => 'boolean',
 				'source' => 'meta',
-				'meta' => 'overlap',
+				'meta' => 'tsjippy_overlap',
 				'default' => false
 			),
 			'overlapPeriod' => array(
 				'type' => 'number',
 				'source' => 'meta',
-				'meta' => 'overlap_period',
+				'meta' => 'tsjippy_overlap_period',
 				'default' => 0
 			),
 			'oneday' => array(
 				'type' => 'boolean',
 				'source' => 'meta',
-				'meta' => 'oneday',
+				'meta' => 'tsjippy_oneday',
 				'default' => false
 			),
 			'defaultBookingState' => array(
 				'type' => 'string',
 				'source' => 'meta',
-				'meta' => 'default_booking_state',
+				'meta' => 'tsjippy_default_booking_state',
 				'default' => 'pending'
 			)
 		)
@@ -78,10 +78,16 @@ return array(
 		'editorStyle' => 'file:./index.css',
 		'style' => 'file:./style-index.css',
 		'viewScript' => 'file:./view.js',
+		'render' => 'file:./render.php',
 		'attributes' => array(
-			'text' => array(
-				'type' => 'string',
-				'default' => ''
+			'bookingSubjects' => array(
+				'type' => 'array',
+				'items' => array(
+					'type' => 'number'
+				),
+				'default' => array(
+					
+				)
 			)
 		)
 	),

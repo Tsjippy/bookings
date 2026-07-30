@@ -20,6 +20,8 @@ const Edit = () => {
 
   const [meta, setMeta] = useEntityProp("postType", postType, "meta"); 
 
+  console.log(meta);
+
   const allUsers = useSelect(
     (select) =>
         select(coreDataStore).getUsers({
@@ -29,7 +31,7 @@ const Edit = () => {
   );
 
   const selectedUsers = (allUsers || []).filter((user) =>
-      (meta?.managers || []).includes(user.id)
+      (meta?.tsjippy_managers || []).includes(user.id)
   );
 
   return (
@@ -47,26 +49,26 @@ const Edit = () => {
 
               setMeta({
                 ...(meta || {}),
-                managers,
+                tsjippy_managers: managers,
               })
             }}
         />
 
         <ToggleControl
             label="Enable Payments"
-            checked={ !!meta?.payments }
+            checked={ !!meta?.tsjippy_payments }
             onChange={ (payments) => setMeta({
                 ...(meta || {}),
-                payments,
+                tsjippy_payments: payments,
               }) }
         />
 
         <ToggleControl
             label="Allow new arrivals on the day the previous people leave"
-            checked={ !!meta?.overlap }
+            checked={ !!meta?.tsjippy_overlap }
             onChange={ (overlap) => setMeta({
                 ...(meta || {}),
-                overlap,
+                tsjippy_overlap: overlap,
               }) }
         />
 
@@ -75,27 +77,27 @@ const Edit = () => {
             type="number"
             min={ 0 }
             help="Use 0 for allowing guests to arrive the next day. 1 means there is one full day between the previous and the next booking."
-            value={ meta?.overlap_period ?? 0}
+            value={ meta?.tsjippy_overlap_period ?? 0}
             onChange={ (overlapPeriod) =>
                 setMeta({
                   ...(meta || {}),
-                  overlap_period: parseInt(overlapPeriod, 10) || 0,
+                  tsjippy_overlap_period: parseInt(overlapPeriod, 10) || 0,
                 })
             }
         />
 
         <ToggleControl
             label="Allow one day events"
-            checked={ !!meta?.oneday }
+            checked={ !!meta?.tsjippy_oneday }
             onChange={ (oneday) => setMeta({
                 ...(meta || {}),
-                oneday,
+                tsjippy_oneday: oneday,
               }) }
         />
 
         <SelectControl
             label="Default status for new bookings"
-            value={ meta?.default_booking_state ?? "confirmed"}
+            value={ meta?.tsjippy_default_booking_state ?? "confirmed"}
             options={[
                 { label: 'Pending', value: 'pending' },
                 { label: 'Confirmed', value: 'confirmed' },
@@ -103,7 +105,7 @@ const Edit = () => {
             onChange={ (default_booking_state) =>
               setMeta({
                   ...(meta || {}),
-                  default_booking_state,
+                  tsjippy_default_booking_state:default_booking_state,
               })
             }
         />
@@ -125,7 +127,7 @@ const Edit = () => {
               Managers
               </td>
             <td>
-              {selectedUsers.map((user) => user.name)}
+              {selectedUsers.map((user) => user.name).join(', ')}
             </td>
           </tr>
           <tr>
@@ -133,7 +135,7 @@ const Edit = () => {
               Automatic Payment Reminders
             </td>
             <td>
-              { !!meta?.payments ? "Enabled" : "Disabled" }
+              { !!meta?.tsjippy_payments ? "Enabled" : "Disabled" }
             </td>
           </tr>
           <tr>
@@ -141,7 +143,7 @@ const Edit = () => {
               Allow new arrivals on the day the previous people leave
             </td>
             <td>
-              { !!meta?.overlap ? "Enabled" : "Disabled"  }
+              { !!meta?.tsjippy_overlap ? "Enabled" : "Disabled"  }
             </td>
           </tr>
           <tr>
@@ -149,7 +151,7 @@ const Edit = () => {
               Minimum time between two bookings in days
             </td>
             <td>
-              { meta?.overlap_period ?? 0}
+              { meta?.tsjippy_overlap_period ?? 0}
             </td>
           </tr>
           <tr>
@@ -157,7 +159,7 @@ const Edit = () => {
               Allow one day events
             </td>
             <td>
-              { !!meta?.oneday ? "Enabled" : "Disabled"  }
+              { !!meta?.tsjippy_oneday ? "Enabled" : "Disabled"  }
             </td>
           </tr>
           <tr>
@@ -165,7 +167,7 @@ const Edit = () => {
               Default status for new bookings
             </td>
             <td>
-              { meta?.default_booking_state ?? "confirmed"}
+              { (meta?.tsjippy_default_booking_state ?? "confirmed") == '' ? "confirmed" : meta?.tsjippy_default_booking_state ?? "confirmed"}
             </td>
           </tr>
         </tbody>
