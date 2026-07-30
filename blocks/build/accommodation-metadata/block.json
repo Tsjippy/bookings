@@ -1,0 +1,57 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "tsjippy-booking-subjects/meta",
+  "version": "0.1.0",
+  "title": "Booking Subjects meta data",
+  "category": "widgets",
+  "description": "All Booking Subjects Meta",
+  "textdomain": "tsjippy",
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "attributes": {
+    "lock": {
+      "type": "object",
+      "default": {
+        "move": true,
+        "remove": true
+      }
+    },
+    "managers": {
+      "type": "array",
+      "source": "meta",
+      "meta": "managers"
+    },
+    "payments": {
+      "type": "boolean",
+      "source": "meta",
+      "meta": "payments",
+      "default": false
+    },
+    "overlap": {
+      "type": "boolean",
+      "source": "meta",
+      "meta": "overlap",
+      "default": false
+    },
+    "overlapPeriod": {
+      "type": "number",
+      "source": "meta",
+      "meta": "overlap_period",
+      "default": 0
+    },
+    "oneday": {
+      "type": "boolean",
+      "source": "meta",
+      "meta": "oneday",
+      "default": false
+    },
+    "defaultBookingState": {
+      "type": "string",
+      "source": "meta",
+      "meta": "default_booking_state",
+      "default": "pending"
+    }
+  }
+}

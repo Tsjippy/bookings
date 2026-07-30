@@ -1,0 +1,25 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "tsjippy-bookings/accomodation",
+  "version": "0.1.0",
+  "title": "Accomodation Block",
+  "category": "form-elements",
+  "icon": "forms",
+  "description": "Accomodation Description",
+  "example": {},
+  "supports": {
+    "html": false
+  },
+  "textdomain": "tsjippy",
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "viewScript": "file:./view.js",
+  "attributes": {
+    "text": {
+      "type": "string",
+      "default": ""
+    }
+  }
+}
