@@ -2,6 +2,7 @@
 ## [Unreleased] - yyyy-mm-dd
 
 ### Added
+- accommodation-meta and room-meta block
 
 ### Changed
 - prefixed cache group
