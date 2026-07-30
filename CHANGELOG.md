@@ -3,6 +3,7 @@
 
 ### Added
 - accommodation-meta and room-meta block
+- blocks
 
 ### Changed
 - prefixed cache group
