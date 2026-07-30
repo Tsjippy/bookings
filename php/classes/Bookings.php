@@ -22,7 +22,7 @@ class Bookings
     public array $payables;
     public string $picturesUrl;
     public bool $showArchived;
-    protected array $subjects;
+    public array $subjects;
     public bool $tableEditPermissions;
     public string $tableName;
     public array $unavailable;
@@ -66,8 +66,10 @@ class Bookings
 
     /**
      * Retrieves all the subjects
+     * 
+     * @param   array   $postIds    Array containing post Id to limit the result to
      */
-    public function getSubjects()
+    public function getSubjects($postIds=[])
     {
         if (!empty($this->subjects)) {
             return;
@@ -82,6 +84,11 @@ class Bookings
         ]);
 
         foreach ($posts as $post) {
+            // Exclude if not needed
+            if(!empty($postIds) && !in_array($post->ID, $postIds)){
+                continue;
+            }
+
             $metas      = get_post_meta($post->ID);
 
             foreach ($metas as $key => $value) {
@@ -2036,10 +2043,6 @@ class Bookings
 
             if (!isset($subject['managers'])) {
                 $subject['managers']    = [];
-            }
-
-            if (!is_array($subject['managers'] ?? '')) {
-                $subject['managers']    = [$subject['managers'] => 1];
             }
 
             // loop over all the managers of this subject

@@ -88,6 +88,10 @@ return array(
 				'default' => array(
 					
 				)
+			),
+			'required' => array(
+				'type' => 'boolean',
+				'default' => true
 			)
 		)
 	),

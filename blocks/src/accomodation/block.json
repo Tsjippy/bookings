@@ -24,6 +24,10 @@
 				"type": "number"
 			},
 			"default": []
+		},
+		"required": {
+			"type": "boolean",
+			"default": true
 		}
 	}
 }
