@@ -1,5 +1,4 @@
-<?php
 
-error_log(print_r($attributes, true));
-
-return '<pre>' . esc_html(wp_json_encode($attributes)) . '</pre>';
+<div <?php echo get_block_wrapper_attributes(); ?>>
+    <?php echo esc_html( $attributes['label'] ); ?>
+</div>
