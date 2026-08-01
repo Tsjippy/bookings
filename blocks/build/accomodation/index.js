@@ -47,7 +47,7 @@ function Edit({
     ...blockProps,
     children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("legend", {
       children: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('Accommodations Selector', 'tsjippy')
-    }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)(ToggleControl, {
+    }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.ToggleControl, {
       label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)("Required", "tsjippy"),
       checked: !!attributes.required,
       onChange: () => setAttributes({

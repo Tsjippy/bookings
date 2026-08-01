@@ -5,6 +5,7 @@ import {
     FormTokenField,
     Spinner,
     CheckboxControl,
+    ToggleControl
 } from '@wordpress/components';
 
 import './editor.scss';
