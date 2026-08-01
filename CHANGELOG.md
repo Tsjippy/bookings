@@ -10,6 +10,7 @@
 - prefixed cache group
 
 ### Fixed
+- dependency
 
 ### Updated
 
