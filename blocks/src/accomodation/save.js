@@ -25,7 +25,7 @@ export default function save({ attributes }) {
 				data-blockid={addBlockId ? attributes.blockId : undefined}
 				className= {attributes.childAttr.hidden ? 'hidden' : undefined}
 			>
-				<h4 class="label-text">
+				<h4 className="label-text">
 					{attributes.text}
 				</h4>
 				
