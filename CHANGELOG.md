@@ -11,6 +11,7 @@
 
 ### Fixed
 - dependency
+- typo
 
 ### Updated
 
