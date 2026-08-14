@@ -8,6 +8,7 @@
 
 ### Changed
 - prefixed cache group
+- block cleanup
 
 ### Fixed
 - dependency
