@@ -8,8 +8,6 @@ import {
     ToggleControl
 } from '@wordpress/components';
 
-import './editor.scss';
-
 export default function Edit({ attributes, setAttributes }) {
     const blockProps = useBlockProps();
 

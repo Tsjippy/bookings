@@ -75,9 +75,6 @@ return array(
 		),
 		'textdomain' => 'tsjippy',
 		'editorScript' => 'file:./index.js',
-		'editorStyle' => 'file:./index.css',
-		'style' => 'file:./style-index.css',
-		'viewScript' => 'file:./view.js',
 		'render' => 'file:./render.php',
 		'attributes' => array(
 			'bookingSubjects' => array(
@@ -106,7 +103,6 @@ return array(
 		'textdomain' => 'tsjippy',
 		'editorScript' => 'file:./index.js',
 		'editorStyle' => 'file:./index.css',
-		'style' => 'file:./style-index.css',
 		'attributes' => array(
 			'lock' => array(
 				'type' => 'object',
