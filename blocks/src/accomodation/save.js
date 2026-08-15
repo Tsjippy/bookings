@@ -40,6 +40,7 @@ export default function save({ attributes }) {
 			<Multiple
 				inner      = { labelComponent(false) }
 				attributes = { attributes.childAttr }
+    			isSaving   = { true }
 			/>
 		:
 			labelComponent(true)
