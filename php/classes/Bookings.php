@@ -433,7 +433,7 @@ class Bookings
             'class'         => "bookings-wrap " . ($hidden ? 'hidden' : ''),
             'data-date'     => "$yearStr-$monthStr",
             'data-subject'  => $cleanSubject,
-            'data-form-id'  => $this->forms->formData->id,
+            'data-form-id'  => $this->forms->formData->blockId,
         ];
 
         if (isset($this->forms->currentElement->id)) {
@@ -948,7 +948,7 @@ class Bookings
                                 $slug       = $setting['slug'];
                                 $name       = empty($setting['name']) ? $slug : $setting['name'];
                                 $element    = $this->forms->getElementBySlug($slug);
-                                $data       = $submission->{$element->id};
+                                $data       = $submission->{$element->blockId};
 
                                 $transformedData   = $this->forms->transformInputData($data, $element, $submission);
                                 if (empty($transformedData)) {
@@ -972,7 +972,7 @@ class Bookings
                                     <?php
                                     }
                                     ?>
-                                    <td class='booking-data-wrapper edit forms-table' data-element-id='<?php echo esc_attr($element->id); ?>' data-name='<?php echo esc_attr($slug); ?>' data-booking-id='<?php echo esc_attr($booking->id); ?>'>
+                                    <td class='booking-data-wrapper edit forms-table' data-element-id='<?php echo esc_attr($element->blockId); ?>' data-name='<?php echo esc_attr($slug); ?>' data-booking-id='<?php echo esc_attr($booking->id); ?>'>
                                         <?php echo wp_kses_post($transformedData); ?>
                                     </td>
                                 </tr>
@@ -1142,7 +1142,7 @@ class Bookings
         }
 
         foreach ($this->bookingElements as &$element) {
-            $this->getElementSubjects($element->id);
+            $this->getElementSubjects($element->blockId);
         }
 
         return $this->bookingElements;

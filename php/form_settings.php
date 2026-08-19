@@ -33,7 +33,7 @@ function extraFormSettings($object)
         <?php
         foreach ($object->formElements as $element) {
         ?>
-            <option value='<?php echo esc_attr($element->id); ?>' <?php if ($object->formData->payment_indicator == $element->id) echo 'selected'; ?>>
+            <option value='<?php echo esc_attr($element->blockId); ?>' <?php if ($object->formData->payment_indicator == $element->blockId) echo 'selected'; ?>>
                 <?php echo esc_html($element->name); ?>
             </option>
         <?php
@@ -50,7 +50,7 @@ function extraFormSettings($object)
         <?php
         foreach ($object->formElements as $element) {
         ?>
-            <option value='<?php echo esc_attr($element->id); ?>' <?php if ($object->formData->payment_amount_el == $element->id) echo 'selected'; ?>>
+            <option value='<?php echo esc_attr($element->blockId); ?>' <?php if ($object->formData->payment_amount_el == $element->blockId) echo 'selected'; ?>>
                 <?php echo esc_html($element->name); ?>
             </option>
         <?php
@@ -67,7 +67,7 @@ function extraFormSettings($object)
         <?php
         foreach ($object->formElements as $element) {
         ?>
-            <option value='<?php echo esc_attr($element->id); ?>' <?php if ($object->formData->payment_details_el == $element->id) echo 'selected'; ?>>
+            <option value='<?php echo esc_attr($element->blockId); ?>' <?php if ($object->formData->payment_details_el == $element->blockId) echo 'selected'; ?>>
                 <?php echo esc_html($element->name); ?>
             </option>
         <?php
@@ -86,7 +86,7 @@ function extraFormSettings($object)
         <?php
         foreach ($object->formElements as $element) {
         ?>
-            <option value='<?php echo esc_attr($element->id); ?>' <?php if ($object->formData->price_per_night_el == $element->id) echo 'selected'; ?>>
+            <option value='<?php echo esc_attr($element->blockId); ?>' <?php if ($object->formData->price_per_night_el == $element->blockId) echo 'selected'; ?>>
                 <?php echo esc_html($element->name); ?>
             </option>
         <?php

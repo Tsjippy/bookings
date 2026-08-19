@@ -71,7 +71,7 @@ function restapiInit()
                 // Get the bookings related to this submission
                 $rest->bookingsObject    = new Bookings();
                 // phpcs:ignore
-                $rest->bookingsObject->forms->formData->id    = (int) $_POST['form-id'];
+                $rest->bookingsObject->forms->formData->blockId    = (int) $_POST['form-id'];
                 // phpcs:ignore
                 $rest->bookings           = $rest->bookingsObject->getBookingsBySubmission((int) $_POST['id']);
 
@@ -169,7 +169,7 @@ function getNextMonth()
     $date           = strtotime((int)$request['year'] . '-' . (int)$request['month'] . '-01');
 
     $months         = [];
-    foreach ($bookings->getElementSubjects($element->id) as $subject) {
+    foreach ($bookings->getElementSubjects($element->blockId) as $subject) {
         if ($subject['name'] == $subjectName) {
             if (count($subject['rooms']) > 1) {
                 foreach ($subject['rooms'] as $room) {

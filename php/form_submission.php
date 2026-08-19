@@ -68,8 +68,8 @@ function beforeSavingFormData($submission, $object)
 
     // loop over all booking selectors (usually one)
     foreach ($elements as $element) {
-        $subjects       = $bookings->getElementSubjects($element->id);
-        $subjectName    = $submission->{$element->id};
+        $subjects       = $bookings->getElementSubjects($element->blockId);
+        $subjectName    = $submission->{$element->blockId};
 
         // Somehow we do not have any data
         if (empty($subjects)) {

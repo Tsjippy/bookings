@@ -89,7 +89,7 @@ function printContent(){
                 if (!empty($elementId)) {
                     $bookings    = new Bookings();
 
-                    $bookings->forms->formData->id = TSJIPPY\getFromDb(
+                    $bookings->forms->formData->blockId = TSJIPPY\getFromDb(
                         "get_form_id_from_element_id_$elementId",
                         "bookings",
                         "SELECT form_id FROM {$bookings->forms->elTableName} WHERE id=%d LIMIT 1",
