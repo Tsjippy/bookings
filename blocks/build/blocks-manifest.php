@@ -86,6 +86,10 @@ return array(
 					
 				)
 			),
+			'name' => array(
+				'type' => 'string',
+				'default' => ''
+			),
 			'required' => array(
 				'type' => 'boolean',
 				'default' => true

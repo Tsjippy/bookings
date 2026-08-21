@@ -29,7 +29,7 @@ function scheduleTasks()
  */
 function paymentReminder()
 {
-    $forms    = new TSJIPPY\FORMS\EditFormResults([]);
+    $forms    = new TSJIPPY\FORMS\EditFormResults('');
     $bookings = new BookingPayments($forms);
     $bookings->sendPaymentReminders();
 }

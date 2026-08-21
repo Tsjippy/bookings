@@ -55,7 +55,7 @@ class Bookings
         if (getType($formInstance) == 'object') {
             $this->forms        = $formInstance;
         } else {
-            $this->forms        = new TSJIPPY\FORMS\DisplayFormResults([]);
+            $this->forms        = new TSJIPPY\FORMS\Forms(postId:(int) $_REQUEST['post'] ?? -1);
         }
 
         // Load the managers
