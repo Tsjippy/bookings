@@ -10,6 +10,7 @@
 - prefixed cache group
 - block cleanup
 - id to blockid
+- loading forms
 
 ### Fixed
 - dependency
