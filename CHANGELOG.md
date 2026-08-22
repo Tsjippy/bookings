@@ -2,6 +2,17 @@
 ## [Unreleased] - yyyy-mm-dd
 
 ### Added
+
+### Changed
+
+### Fixed
+
+### Updated
+
+## [10.6.9] - 2026-08-22
+
+
+### Added
 - accommodation-meta and room-meta block
 - blocks
 - booking selector block
@@ -16,8 +27,6 @@
 - dependency
 - typo
 - bugs
-
-### Updated
 
 ## [10.6.8] - 2026-07-15
 
