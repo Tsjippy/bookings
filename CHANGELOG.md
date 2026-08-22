@@ -15,6 +15,7 @@
 ### Fixed
 - dependency
 - typo
+- bugs
 
 ### Updated
 
