@@ -132,10 +132,10 @@ class Bookings
 
     /**
      * Retrieves the subjects of a specific element from the database
-     * @param   int     $elementId      The id of the booking element
+     * @param   int     $blockId      The id of the booking block
      * @param   string  $subjectName    The optional name of a particular accomodation you want to retrieve the details of
      */
-    public function getElementSubjects($elementId, $subjectName = '')
+    public function getElementSubjects($blockId, $subjectName = '')
     {
         if (empty($this->subjects)) {
             $this->getSubjects();
@@ -143,7 +143,7 @@ class Bookings
 
         $subjects   = [];
         foreach ($this->subjects as $subject) {
-            if (($subject['element-id'] ?? '') == $elementId) {
+            if (($subject['element-id'] ?? '') == $blockId) {
                 if (empty($subjectName)) {
                     $subjects[] = $subject;
                 } elseif ($subject['name'] == $subjectName) {
@@ -302,10 +302,6 @@ class Bookings
             return;
         }
 
-        if(empty($this->forms)){
-            return new WP_Error('bookings', "Please load a forms instance");
-        }
-
         if ($radio) {
             $type   = 'radio';
         } else {
@@ -313,7 +309,7 @@ class Bookings
         }
 
         // phpcs:ignore
-        if (!empty($_REQUEST['id']) && $this->forms->submission->id != $_REQUEST['id']) {
+        if (!empty($_REQUEST['id']) && !empty($this->forms) && $this->forms->submission->id != $_REQUEST['id']) {
             // phpcs:ignore
             $this->forms->submission = (object) $this->forms->getSubmissions('', $_REQUEST['id']);
         }
@@ -363,6 +359,7 @@ class Bookings
             if (
                 // phpcs:ignore
                 !empty($_REQUEST['id']) &&
+                !empty($this->forms) &&
                 in_array($room['name'], $this->forms->submission->{'booking-rooms'} ?? [])
             ) {
                 $attributes['checked']    = 'checked';
@@ -382,10 +379,6 @@ class Bookings
      */
     private function roomCalendars($subject, $date)
     {
-        if(empty($this->forms)){
-            return new WP_Error('bookings', "Please load a forms instance");
-        }
-
         ob_start();
         ?>
         <div class='rooms-wrapper'>
@@ -396,6 +389,7 @@ class Bookings
                 if (
                     // phpcs:ignore
                     isset($_REQUEST['id'])  &&                                                     // We should display a specific submission
+                    !empty($this->forms) &&
                     in_array($room['name'], $this->forms->submission->{'booking-rooms'} ?? [])    // and it is this room
                 ) {
                     $roomHidden = '';
@@ -433,10 +427,6 @@ class Bookings
      */
     public function modalContent($parent, $subject, $date, $isAdmin = false, $hidden = false, $isResult = false)
     {
-        if(empty($this->forms)){
-            return new WP_Error('bookings', "Please load a forms instance");
-        }
-
         $monthStr       = gmdate('m', $date);
         $yearStr        = gmdate('Y', $date);
         $cleanSubject   = trim($subject['name']);
@@ -444,15 +434,19 @@ class Bookings
         $attributes     = [
             'class'         => "bookings-wrap " . ($hidden ? 'hidden' : ''),
             'data-date'     => "$yearStr-$monthStr",
-            'data-subject'  => $cleanSubject,
-            'data-form-id'  => $this->forms->formData->blockId,
+            'data-subject'  => $cleanSubject
         ];
 
-        if (isset($this->forms->currentElement->id)) {
-            $attributes["data-element-id"]  = $this->forms->currentElement->id;
-        }
-        if (isset($this->forms->shortcodeId)) {
-            $attributes["data-shortcode-id"] = $this->forms->shortcodeId;
+        
+        if(!empty($this->forms)){
+            $attributes['data-form-id']  = $this->forms->formData->blockId;
+
+            if (isset($this->forms->currentElement->id)) {
+                $attributes["data-element-id"]  = $this->forms->currentElement->id;
+            }
+            if (isset($this->forms->shortcodeId)) {
+                $attributes["data-shortcode-id"] = $this->forms->shortcodeId;
+            }
         }
 
         $wrapper        = addElement('div', $parent, $attributes);
@@ -599,7 +593,7 @@ class Bookings
 
         $date         = strtotime($dateStr);
 
-        $cleanSubject = trim($subject['name']);
+        $cleanSubject = strtolower(str_replace(' ', '-', trim($subject['name'])));
 
         /**
          * Create the modal
@@ -712,10 +706,6 @@ class Bookings
      */
     public function writeCalendarRows($date, $overlap)
     {
-        if(empty($this->forms)){
-            return new WP_Error('bookings', "Please load a forms instance");
-        }
-
         $month          = gmdate('m', $date);
         $weekDay        = gmdate("w", strtotime(gmdate('Y-m-01', $date)));
         $workingDate    = strtotime("-$weekDay day", strtotime(gmdate('Y-m-01', $date)));
@@ -733,11 +723,10 @@ class Bookings
                 <?php
                 //loop over all days of a week
                 while (true) {
-                    $workingDateStr        = gmdate('Y-m-d', $workingDate);
-                    $workingMonth        = gmdate('m', $workingDate);
-                    $workingDay            = gmdate('j', $workingDate);
-
-                    $class              = '';
+                    $workingDateStr = gmdate('Y-m-d', $workingDate);
+                    $workingMonth   = gmdate('m', $workingDate);
+                    $workingDay     = gmdate('j', $workingDate);
+                    $class          = '';
 
                     if ($workingMonth != $month) {
                 ?>
@@ -760,9 +749,12 @@ class Bookings
                             $dayBefore  = gmdate('Y-m-d', strtotime('-1 day', $workingDate));
                             $dayAfter   = gmdate('Y-m-d', strtotime('+1 day', $workingDate));
                             if (
-                                $class    != 'unavailable' &&                                                                 // not in the past
-                                $overlap &&                                                                                 // overlap enabled
-                                get_class($this->forms) != 'TSJIPPY\FORMS\DisplayFormResults'   &&                          // we are not in the overview page
+                                $class    != 'unavailable' &&                                       // not in the past
+                                $overlap &&
+                                (                                                                  // overlap enabled
+                                    empty($this->forms) ||
+                                    get_class($this->forms) != 'TSJIPPY\FORMS\DisplayFormResults'  // we are not in the overview page
+                                ) &&
                                 (
                                     !isset($this->unavailable[$dayBefore])    ||    // this is the first day of a booking
                                     !isset($this->unavailable[$dayAfter])           // or the last day of a booking
@@ -788,7 +780,7 @@ class Bookings
 
                             $data   .= "data-booking-id='$bookingId'";
 
-                            if (method_exists($this->forms, 'getSubmissions')) {
+                            if (!empty($this->forms) && method_exists($this->forms, 'getSubmissions')) {
                                 // check if this is our own booking
                                 foreach ($this->bookings as $booking) {
                                     if ($booking->id == $bookingId) {
@@ -1161,7 +1153,7 @@ class Bookings
             return $this->bookingElements;
         }
 
-        $this->bookingElements   = $this->forms->getElementByType('booking-selector');
+        $this->bookingElements   = $this->forms->getElementByType("accomodation");
 
         if (!$this->bookingElements || is_wp_error($this->bookingElements)) {
             $this->bookingElements  = [];
@@ -1314,6 +1306,7 @@ class Bookings
 
             $startDateString    = gmdate(TSJIPPY\DATEFORMAT, strtotime($overlappingBookings[0]->start_date));
             $endDateString      = gmdate(TSJIPPY\DATEFORMAT, strtotime($overlappingBookings[0]->end_date));
+            
             return new \WP_Error('booking', "The booking for $subject overlaps with an existing one from $startDateString till $endDateString, try again");
         }
 

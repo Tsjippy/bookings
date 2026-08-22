@@ -257,7 +257,7 @@ function changeBookingData(target) {
     selector = ".booking.modal";
     console.log(selector);
   } else {
-    selector = `[name="${el.value}-modal"]`;
+    selector = `[name="${el.dataset.slug}-modal"]`;
   }
 
   Main.showModal(document.querySelector(selector));
@@ -492,7 +492,7 @@ document.addEventListener("DOMContentLoaded", () => {
     el.addEventListener(`change`, (ev) => {
       ev.stopImmediatePropagation();
       Main.showModal(
-        document.querySelector(`[name="${ev.target.value}-modal"]`),
+        document.querySelector(`[name="${ev.target.dataset.slug}-modal"]`),
       );
     }),
   );

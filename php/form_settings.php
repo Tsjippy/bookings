@@ -17,7 +17,7 @@ add_action('tsjippy-forms-extra-form-settings', __NAMESPACE__ . '\extraFormSetti
 function extraFormSettings($object)
 {
     // check if the form has a booking selector eement
-    $bookingElements   = $object->getElementByType('booking-selector');
+    $bookingElements   = $object->getElementByType('accomodation');
 
     if (!$bookingElements || is_wp_error($bookingElements)) {
         return;

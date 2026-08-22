@@ -18,7 +18,7 @@ add_action('tsjippy-forms-after-table-settings', __NAMESPACE__ . '\tableSettings
 function tableSettings($displayFormResults)
 {
     // Check if it has an booking selector
-    if (empty($displayFormResults->getElementByType('booking-selector'))) {
+    if (empty($displayFormResults->getElementByType('accomodation'))) {
         return;
     }
 
@@ -276,7 +276,7 @@ add_filter('tsjippy-forms-checkbox-options', function ($options, $object) {
         return $options;
     }
 
-    $bookingSelectors   = $object->getElementByType('booking-selector');
+    $bookingSelectors   = $object->getElementByType('accomodation');
     if (!$bookingSelectors) {
         return $options;
     }
@@ -315,7 +315,7 @@ add_filter('tsjippy-forms-retrieved-formdata', __NAMESPACE__ . '\formdataRetriev
  */
 function formdataRetrieved($submissions, $userId, $object)
 {
-    $bookingSelectors   = $object->getElementByType('booking-selector');
+    $bookingSelectors   = $object->getElementByType('accomodation');
     if (!$bookingSelectors || is_wp_error($bookingSelectors)) {
         return $submissions;
     }
@@ -425,7 +425,7 @@ add_filter('tsjippy-forms-formdata-retrieval-query', __NAMESPACE__ . '\alterQuer
  */
 function alterQuery($params, $userId, $instance)
 {
-    if (empty($instance->formData->blockId) || empty($instance->getElementByType('booking-selector'))) {
+    if (empty($instance->formData->blockId) || empty($instance->getElementByType('accomodation'))) {
         return $params;
     }
 

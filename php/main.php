@@ -9,7 +9,7 @@ if (! defined('ABSPATH')) {
 }
 
 add_filter('tsjippy-forms-split-element-ids', function ($splitElementIds, $instance) {
-    if (!empty($instance->getElementByType('booking-selector'))) {
+    if (!empty($instance->getElementByType('accomodation'))) {
         $splitElementIds[] = -102;
         $splitElementIds[] = -103;
         $splitElementIds[] = -104;

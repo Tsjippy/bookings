@@ -159,7 +159,7 @@ function getNextMonth()
         $element                   = $bookings->forms->getElementById((int) $request['element-id']);
     } else {
         foreach ($bookings->forms->formElements as $element) {
-            if ($element->type == 'booking-selector') {
+            if ($element->type == 'accomodation') {
                 break;
             }
         }
