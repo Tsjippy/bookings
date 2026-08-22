@@ -17,7 +17,7 @@ class Bookings
 {
     public array|false|\WP_Error $bookingElements;
     public array $bookings;
-    public object $forms;
+    public object|null $forms;
     public array $managers;
     public array $payables;
     public string $picturesUrl;
@@ -55,7 +55,7 @@ class Bookings
         if (getType($formInstance) == 'object') {
             $this->forms        = $formInstance;
         } else {
-            $this->forms        = new TSJIPPY\FORMS\Forms(postId:(int) $_REQUEST['post'] ?? -1);
+            $this->forms        = null;
         }
 
         // Load the managers
@@ -302,6 +302,10 @@ class Bookings
             return;
         }
 
+        if(empty($this->forms)){
+            return new WP_Error('bookings', "Please load a forms instance");
+        }
+
         if ($radio) {
             $type   = 'radio';
         } else {
@@ -378,6 +382,10 @@ class Bookings
      */
     private function roomCalendars($subject, $date)
     {
+        if(empty($this->forms)){
+            return new WP_Error('bookings', "Please load a forms instance");
+        }
+
         ob_start();
         ?>
         <div class='rooms-wrapper'>
@@ -425,6 +433,10 @@ class Bookings
      */
     public function modalContent($parent, $subject, $date, $isAdmin = false, $hidden = false, $isResult = false)
     {
+        if(empty($this->forms)){
+            return new WP_Error('bookings', "Please load a forms instance");
+        }
+
         $monthStr       = gmdate('m', $date);
         $yearStr        = gmdate('Y', $date);
         $cleanSubject   = trim($subject['name']);
@@ -700,6 +712,9 @@ class Bookings
      */
     public function writeCalendarRows($date, $overlap)
     {
+        if(empty($this->forms)){
+            return new WP_Error('bookings', "Please load a forms instance");
+        }
 
         $month          = gmdate('m', $date);
         $weekDay        = gmdate("w", strtotime(gmdate('Y-m-01', $date)));
@@ -835,6 +850,10 @@ class Bookings
      */
     public function submissionDetails($booking, $submission, $hide, $echo = false)
     {
+        if(empty($this->forms)){
+            return new WP_Error('bookings', "Please load a forms instance");
+        }
+
         if (!empty($booking->room)) {
             $subId  = "data-subid='$booking->room'";
         } else {
@@ -1067,6 +1086,10 @@ class Bookings
      */
     public function detailHtml($hide = true)
     {
+        if(empty($this->forms)){
+            return new WP_Error('bookings', "Please load a forms instance");
+        }
+
         if (!method_exists($this->forms, 'parseSubmissions')) {
             return '';
         }
@@ -1130,6 +1153,10 @@ class Bookings
      */
     public function getBookingElements($force = false)
     {
+        if(empty($this->forms)){
+            return new WP_Error('bookings', "Please load a forms instance");
+        }
+
         if (!empty($this->bookingElements) && !$force) {
             return $this->bookingElements;
         }
@@ -1519,6 +1546,10 @@ class Bookings
      */
     public function updateRooms($newRooms, $currentBookings)
     {
+        if(empty($this->forms)){
+            return new WP_Error('bookings', "Please load a forms instance");
+        }
+    
         $oldRooms   = [];
         foreach ($currentBookings as $booking) {
             $oldRooms[] = $booking->room;
@@ -1795,6 +1826,10 @@ class Bookings
      */
     public function getUserBookingsByStartDate($userId, $date)
     {
+        if(empty($this->forms)){
+            return new WP_Error('bookings', "Please load a forms instance");
+        }
+
         if (is_numeric($date)) {
             $date   = gmdate('Y-m-d', $date);
         }
@@ -1893,6 +1928,10 @@ class Bookings
      */
     public function sendBookingEmails()
     {
+        if(empty($this->forms)){
+            return new WP_Error('bookings', "Please load a forms instance");
+        }
+
         $this->forms->getForms();
 
         foreach ($this->forms->forms as $form) {

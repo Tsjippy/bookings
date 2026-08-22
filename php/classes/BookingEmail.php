@@ -56,7 +56,7 @@ class BookingEmail extends ADMIN\MailSetting
             return;
         }
 
-        $displayFormResults                             = new TSJIPPY\FORMS\DisplayFormResults([]);
+        $displayFormResults                             = new TSJIPPY\FORMS\DisplayFormResults();
         $displayFormResults->parseSubmissions('', $this->booking->submission_id);
 
         if (!$displayFormResults->submission) {
