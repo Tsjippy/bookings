@@ -241,7 +241,7 @@ class BookingPayments extends Bookings
             $processed[$booking->submission_id] = 1;
 
             // Load the form
-            $this->forms->getForm($this->forms->submission->form_id);
+            $this->forms->getForm($this->forms->submission->post_id, $this->forms->submission->block_id);
 
             $accommodation  = $booking->subject;
 
@@ -328,10 +328,10 @@ class BookingPayments extends Bookings
      * Adds the buttons to approve or delete a pending booking
      *
      * @param   array   $attributes   The current html for the buttons
-     * @param   object  $submission    The submission for which the buttons are shown
-     * @param   object  $object        The bookings object
+     * @param   object  $submission   The submission for which the buttons are shown
+     * @param   object  $object       The bookings object
      *
-     * @return  string                  The updated html for the buttons
+     * @return  string                The updated html for the buttons
      */
     public function pendingButtons($attributes, $submission, $object)
     {
@@ -339,7 +339,8 @@ class BookingPayments extends Bookings
             'class'              => 'button approve',
             'type'               => 'button',
             'data-submission-id' => $submission->id,
-            'data-form-id'       => $object->submission->form_id,
+            'data-post-id'       => $object->submission->post_id,
+            'data-block-id'       => $object->submission->block_id,
             'text'               => 'Approve'
         ];
 
@@ -347,7 +348,8 @@ class BookingPayments extends Bookings
             'class'              => 'button delete',
             'type'               => 'button',
             'data-submission-id' => $submission->id,
-            'data-form-id'       => $object->submission->form_id,
+            'data-post-id'       => $object->submission->post_id,
+            'data-block-id'       => $object->submission->block_id,
             'text'               => 'Delete'
         ];
         

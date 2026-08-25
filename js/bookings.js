@@ -80,7 +80,8 @@ async function getMonth(target) {
     formData.append("month", target.dataset.month);
     formData.append("year", target.dataset.year);
     formData.append("subject", wrapper.dataset.subject);
-    formData.append("form-id", wrapper.dataset.formId);
+    formData.append("post-id", wrapper.dataset.postId);
+    formData.append("block-id", wrapper.dataset.blockId);
     formData.append("type", type);
 
     if (wrapper.dataset.elementId != undefined) {

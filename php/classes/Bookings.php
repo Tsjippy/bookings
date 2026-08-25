@@ -878,7 +878,7 @@ class Bookings
             <article class='booking'>
                 <h4 class='booking-title'><?php echo esc_html($booking->subject ?? ''); ?></h4>
                 <div class='booking-detail'>
-                    <table data-form-id='<?php echo esc_attr($submission->form_id); ?>' style='width: unset;'>
+                    <table data-post-id='<?php echo esc_attr($submission->post_id); ?>' data-block-id='<?php echo esc_attr($submission->block_id); ?>' style='width: unset;'>
                         <thead></thead>
                         <tbody>
                             <tr class='<?php echo esc_attr($this->bookingElements[0]->slug); ?>' data-submission-id='<?php echo esc_attr($submission->id); ?>'>
@@ -894,7 +894,7 @@ class Bookings
                                     <img src='<?php echo esc_url($this->picturesUrl); ?>/date.png' loading='lazy' alt='date' class='booking-icon'>
                                 </td>
                                 <td class='booking-data-wrapper edit forms-table'>
-                                    <table data-form-id='<?php echo esc_attr($submission->form_id); ?>' data-shortcode-id='<?php echo esc_attr($this->forms->shortcodeId); ?>' style='margin-bottom: 0px; width:unset;'>
+                                    <table data-post-id='<?php echo esc_attr($submission->post_id); ?>' data-block-id='<?php echo esc_attr($submission->block_id); ?>' data-shortcode-id='<?php echo esc_attr($this->forms->shortcodeId); ?>' style='margin-bottom: 0px; width:unset;'>
                                         <tr data-submission-id='<?php echo esc_attr($submission->id); ?>'>
                                             <td data-name='booking-start-date' data-element-id='<?php echo esc_attr($this->forms->getElementBySlug('booking-start-date')->id); ?>' <?php echo esc_attr($subId); ?> data-booking-id='<?php echo esc_attr($booking->id); ?>' class='edit forms-table'>
                                                 <?php echo esc_html(gmdate(TSJIPPY\DATEFORMAT, strtotime($booking->start_date))); ?>

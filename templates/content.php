@@ -75,8 +75,6 @@ function printContent(){
 
             <div class='actions'>
                 <?php
-                global $wpdb;
-
                 $elementId    = get_post_meta(get_the_ID(), 'tsjippy_element-id', true);
                 if (empty($elementId)) {
                     $parentId    = wp_get_post_parent_id();
@@ -87,14 +85,8 @@ function printContent(){
                 }
 
                 if (!empty($elementId)) {
+                    // Find the form url by the element id
                     $bookings    = new Bookings();
-
-                    $bookings->forms->formData->blockId = TSJIPPY\getFromDb(
-                        "get_form_id_from_element_id_$elementId",
-                        "bookings",
-                        "SELECT form_id FROM {$bookings->forms->elTableName} WHERE id=%d LIMIT 1",
-                        $elementId
-                    );
 
                     $bookings->forms->getForm();
                 ?>

@@ -64,7 +64,7 @@ class BookingEmail extends ADMIN\MailSetting
         }
 
         // Load the formdata for this form
-        $displayFormResults->getForm($displayFormResults->submission->form_id);
+        $displayFormResults->getForm($displayFormResults->submission->post_id, $displayFormResults->submission->block_id);
         $booker = new Bookings($displayFormResults);
 
         $bookings   = $booker->getBookingsBySubmission($this->booking->submission_id);
