@@ -2,6 +2,7 @@
 ## [Unreleased] - yyyy-mm-dd
 
 ### Added
+- block-id and post-id attributes
 
 ### Changed
 
