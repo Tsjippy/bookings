@@ -156,9 +156,9 @@ function getNextMonth()
     $bookings->forms->shortcodeId  = (int) $request['shortcode-id'];
 
     if (is_numeric($request['element-id'] ?? '')) {
-        $element                   = $bookings->forms->getElementById((int) $request['element-id']);
+        $element                   = $bookings->forms->getBlockById((int) $request['element-id']);
     } else {
-        foreach ($bookings->forms->formElements as $element) {
+        foreach ($bookings->forms->formBlocks as $element) {
             if ($element->type == 'accomodation') {
                 break;
             }

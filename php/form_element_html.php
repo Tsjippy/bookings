@@ -4,8 +4,6 @@ namespace TSJIPPY\BOOKINGS;
 
 use TSJIPPY;
 
-use function TSJIPPY\addElement as addElement;
-
 if (! defined('ABSPATH')) {
     exit;
 }
@@ -31,7 +29,7 @@ function bookingDateElementHtml(&$node, $object, $bookingId = false)
     }
 
     // Get the subject
-    $subject    = $object->submission->{$object->getElementByType('accomodation')[0]->slug};
+    $subject    = $object->submission->{$object->getBlockByType('accomodation')[0]->slug};
 
     $startDates = (array) $object->submission->{'booking-start-date'};
     $endDates   = (array) $object->submission->{'booking-end-date'};
@@ -97,7 +95,7 @@ add_filter('tsjippy-forms-element-html', __NAMESPACE__ . '\elementHtml', 10, 2);
 function elementHtml($node, $object)
 {
     // Check if the form has a booking selector
-    if (empty($object->getElementByType('accomodation'))) {
+    if (empty($object->getBlockByType('accomodation'))) {
         return $node;
     }
 
@@ -108,7 +106,7 @@ function elementHtml($node, $object)
             return 'Please add one or more subjects';
         }
 
-        $elementName    = $object->getElementByType('accomodation')[0]->slug;
+        $elementName    = $object->getBlockByType('accomodation')[0]->slug;
 
         foreach ($subjects as $subject) {
             if ($subject['name'] == $object->submission->{$elementName}) {

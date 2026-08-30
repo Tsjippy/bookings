@@ -896,12 +896,12 @@ class Bookings
                                 <td class='booking-data-wrapper edit forms-table'>
                                     <table data-post-id='<?php echo esc_attr($submission->post_id); ?>' data-block-id='<?php echo esc_attr($submission->block_id); ?>' data-shortcode-id='<?php echo esc_attr($this->forms->shortcodeId); ?>' style='margin-bottom: 0px; width:unset;'>
                                         <tr data-submission-id='<?php echo esc_attr($submission->id); ?>'>
-                                            <td data-name='booking-start-date' data-element-id='<?php echo esc_attr($this->forms->getElementBySlug('booking-start-date')->id); ?>' <?php echo esc_attr($subId); ?> data-booking-id='<?php echo esc_attr($booking->id); ?>' class='edit forms-table'>
+                                            <td data-name='booking-start-date' data-element-id='<?php echo esc_attr($this->forms->getBlockBySlug('booking-start-date')->id); ?>' <?php echo esc_attr($subId); ?> data-booking-id='<?php echo esc_attr($booking->id); ?>' class='edit forms-table'>
                                                 <?php echo esc_html(gmdate(TSJIPPY\DATEFORMAT, strtotime($booking->start_date))); ?>
                                             </td>
                                         </tr>
                                         <tr data-submission-id='<?php echo esc_attr($submission->id); ?>'>
-                                            <td data-name='booking-end-date' data-element-id='<?php echo esc_attr($this->forms->getElementBySlug('booking-end-date')->id); ?>' <?php echo esc_attr($subId); ?> data-booking-id='<?php echo esc_attr($booking->id); ?>' class='edit forms-table'>
+                                            <td data-name='booking-end-date' data-element-id='<?php echo esc_attr($this->forms->getBlockBySlug('booking-end-date')->id); ?>' <?php echo esc_attr($subId); ?> data-booking-id='<?php echo esc_attr($booking->id); ?>' class='edit forms-table'>
                                                 <?php echo esc_html(gmdate(TSJIPPY\DATEFORMAT, strtotime($booking->end_date))); ?>
                                             </td>
                                         </tr>
@@ -958,7 +958,7 @@ class Bookings
 
                                 $slug       = $setting['slug'];
                                 $name       = empty($setting['name']) ? $slug : $setting['name'];
-                                $element    = $this->forms->getElementBySlug($slug);
+                                $element    = $this->forms->getBlockBySlug($slug);
                                 $data       = $submission->{$element->blockId};
 
                                 $transformedData   = $this->forms->transformInputData($data, $element, $submission);
@@ -1153,7 +1153,7 @@ class Bookings
             return $this->bookingElements;
         }
 
-        $this->bookingElements   = $this->forms->getElementByType("accomodation");
+        $this->bookingElements   = $this->forms->getBlockByType("accomodation");
 
         if (!$this->bookingElements || is_wp_error($this->bookingElements)) {
             $this->bookingElements  = [];
@@ -2011,7 +2011,7 @@ class Bookings
 
                             $elementName    = $this->forms->findUserNameElementName();
 
-                            $elementId      = $this->forms->getElementBySlug($elementName, 'id');
+                            $elementId      = $this->forms->getBlockBySlug($elementName, 'id');
 
                             $name           = $this->forms->submission->{$elementId};
 

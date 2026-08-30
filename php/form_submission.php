@@ -123,7 +123,7 @@ function beforeSavingFormData($submission, $object)
     $paymentAmountElId  = $bookings->forms->formData->payment_amount_el;
 
     if (!empty($paymentAmountElId)) {
-        $slug                = $bookings->forms->getElementById($paymentAmountElId, 'slug');
+        $slug                = $bookings->forms->getBlockById($paymentAmountElId, 'slug');
         $submission->{$slug} = $amount;
     }
 

@@ -38,7 +38,7 @@ add_action('tsjippy-forms-add-email-placeholder-option', __NAMESPACE__ . '\place
  */
 function placeholderOption($formBuilderForm)
 {
-    if ($formBuilderForm->getElementByType('accomodation')) {
+    if ($formBuilderForm->getBlockByType('accomodation')) {
         ?>
  		<option>
 			%booking-start-date%
