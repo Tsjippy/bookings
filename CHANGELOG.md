@@ -5,6 +5,7 @@
 - block-id and post-id attributes
 
 ### Changed
+- element(s) to block(s)
 
 ### Fixed
 
