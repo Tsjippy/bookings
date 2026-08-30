@@ -113,10 +113,10 @@ class BookingEmail extends ADMIN\MailSetting
             }
         }
 
-        $name                                           = $displayFormResults->findUserNameElementName();
+        $name                                           = $displayFormResults->findUserNameBlockName();
         if ($name) {
-            $elementId                                  = $displayFormResults->getElementBySlug($name, 'id');
-            $this->replaceArray['%name%']               = $displayFormResults->submission->{$elementId};
+            $blockId                                  = $displayFormResults->getBlockBySlug($name, 'id');
+            $this->replaceArray['%name%']               = $displayFormResults->submission->{$blockId};
         }
 
         $this->replaceArray['%payable%']                = $displayFormResults->submission->{$displayFormResults->formData->payment_amount_el};
