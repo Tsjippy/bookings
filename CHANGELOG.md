@@ -2,6 +2,17 @@
 ## [Unreleased] - yyyy-mm-dd
 
 ### Added
+
+### Changed
+
+### Fixed
+
+### Updated
+
+## [10.7.2] - 2026-08-31
+
+
+### Added
 - block-id and post-id attributes
 
 ### Changed
@@ -9,10 +20,6 @@
 - element to block
 - removed tsjippy-forms-element-html filter
 - renamed elements to blocks
-
-### Fixed
-
-### Updated
 
 ## [10.7.1] - 2026-08-23
 
