@@ -45,7 +45,7 @@ register_activation_hook(__FILE__, function () {
     $bookings    = new Bookings();
     $bookings->createTables();
 
-    // Add columns to forms element table
+    // Add columns to forms emails table
     $forms    = new \TSJIPPY\FORMS\Forms();
 
     // Add column to the form email table

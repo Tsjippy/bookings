@@ -41,18 +41,3 @@ function addFormFormat($formats, $object)
 
     return $formats;
 }
-
-/**
- * Get the payment information for a given element
- *
- * @param mixed $v The element to check
- *
- * @return string The payment information or an empty string
- */
-function getElementSubjectsPayments($v)
-{
-    if (is_array($v) && isset($v['payments'])) {
-        return $v['payments'];
-    }
-    return '';
-}

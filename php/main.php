@@ -8,12 +8,12 @@ if (! defined('ABSPATH')) {
     exit;
 }
 
-add_filter('tsjippy-forms-split-element-ids', function ($splitElementIds, $instance) {
+add_filter('tsjippy-forms-split-block-ids', function ($splitBlockIds, $instance) {
     if (!empty($instance->getBlockByType('accomodation'))) {
-        $splitElementIds[] = -102;
-        $splitElementIds[] = -103;
-        $splitElementIds[] = -104;
+        $splitBlockIds[] = -102;
+        $splitBlockIds[] = -103;
+        $splitBlockIds[] = -104;
     }
 
-    return $splitElementIds;
+    return $splitBlockIds;
 }, 10, 2);

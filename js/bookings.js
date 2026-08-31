@@ -84,8 +84,8 @@ async function getMonth(target) {
     formData.append("block-id", wrapper.dataset.blockId);
     formData.append("type", type);
 
-    if (wrapper.dataset.elementId != undefined) {
-      formData.append("element-id", wrapper.dataset.elementId);
+    if (wrapper.dataset.blockId != undefined) {
+      formData.append("block-id", wrapper.dataset.blockId);
     }
 
     if (wrapper.dataset.shortcodeId != undefined) {

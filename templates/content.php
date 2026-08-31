@@ -75,17 +75,17 @@ function printContent(){
 
             <div class='actions'>
                 <?php
-                $elementId    = get_post_meta(get_the_ID(), 'tsjippy_element-id', true);
-                if (empty($elementId)) {
+                $blockId    = get_post_meta(get_the_ID(), 'tsjippy_block-id', true);
+                if (empty($blockId)) {
                     $parentId    = wp_get_post_parent_id();
 
                     if ($parentId) {
-                        $elementId    = get_post_meta($parentId, 'tsjippy_element-id', true);
+                        $blockId    = get_post_meta($parentId, 'tsjippy_block-id', true);
                     }
                 }
 
-                if (!empty($elementId)) {
-                    // Find the form url by the element id
+                if (!empty($blockId)) {
+                    // Find the form url by the block id
                     $bookings    = new Bookings();
 
                     $bookings->forms->getForm();

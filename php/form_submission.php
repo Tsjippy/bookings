@@ -29,8 +29,8 @@ function beforeSavingFormData($submission, $object)
     $bookings                   = new BookingPayments($object);
 
     // Check if this is a form with a booking selector
-    $elements             = $bookings->getBookingElements();
-    if (empty($elements) || is_wp_error($elements)) {
+    $blocks             = $bookings->getBookingBlocks();
+    if (empty($blocks) || is_wp_error($blocks)) {
         return $submission;
     }
 
@@ -67,9 +67,9 @@ function beforeSavingFormData($submission, $object)
     }
 
     // loop over all booking selectors (usually one)
-    foreach ($elements as $element) {
-        $subjects       = $bookings->getElementSubjects($element->blockId);
-        $subjectName    = $submission->{$element->blockId};
+    foreach ($blocks as $block) {
+        $subjects       = $bookings->getBlockSubjects($block->blockId);
+        $subjectName    = $submission->{$block->blockId};
 
         // Somehow we do not have any data
         if (empty($subjects)) {
@@ -170,15 +170,15 @@ function afterFormSubmission($message, $submission, $object)
     $bookings                   = new Bookings($object);
 
     // find the subject
-    $elements             = $bookings->getBookingElements();
-    if (is_wp_error($elements) || empty($elements)) {
+    $blocks             = $bookings->getBookingBlocks();
+    if (is_wp_error($blocks) || empty($blocks)) {
         return $message;
     }
 
     // loop over all booking selectors (usually one)
-    foreach ($elements as $element) {
+    foreach ($blocks as $block) {
 
-        $subject        = $submission[$element->slug];
+        $subject        = $submission[$block->slug];
         $submissionId   = $object->submission->id;
 
         //Create a booking for each room

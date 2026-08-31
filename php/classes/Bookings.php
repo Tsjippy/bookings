@@ -15,7 +15,7 @@ if (! defined('ABSPATH')) {
 
 class Bookings
 {
-    public array|false|\WP_Error $bookingElements;
+    public array|false|\WP_Error $bookingBlocks;
     public array $bookings;
     public object|null $forms;
     public array $managers;
@@ -38,7 +38,7 @@ class Bookings
     {
         global $wpdb;
 
-        $this->bookingElements              = false;
+        $this->bookingBlocks              = false;
         $this->bookings                     = [];
         $this->managers                     = [];
         $this->payables                     = [];
@@ -131,11 +131,11 @@ class Bookings
     }
 
     /**
-     * Retrieves the subjects of a specific element from the database
+     * Retrieves the subjects of a specific block from the database
      * @param   int     $blockId      The id of the booking block
      * @param   string  $subjectName    The optional name of a particular accomodation you want to retrieve the details of
      */
-    public function getElementSubjects($blockId, $subjectName = '')
+    public function getBlockSubjects($blockId, $subjectName = '')
     {
         if (empty($this->subjects)) {
             $this->getSubjects();
@@ -143,7 +143,7 @@ class Bookings
 
         $subjects   = [];
         foreach ($this->subjects as $subject) {
-            if (($subject['element-id'] ?? '') == $blockId) {
+            if (($subject['block-id'] ?? '') == $blockId) {
                 if (empty($subjectName)) {
                     $subjects[] = $subject;
                 } elseif ($subject['name'] == $subjectName) {
@@ -441,9 +441,6 @@ class Bookings
         if(!empty($this->forms)){
             $attributes['data-form-id']  = $this->forms->formData->blockId;
 
-            if (isset($this->forms->currentElement->id)) {
-                $attributes["data-element-id"]  = $this->forms->currentElement->id;
-            }
             if (isset($this->forms->shortcodeId)) {
                 $attributes["data-shortcode-id"] = $this->forms->shortcodeId;
             }
@@ -881,12 +878,12 @@ class Bookings
                     <table data-post-id='<?php echo esc_attr($submission->post_id); ?>' data-block-id='<?php echo esc_attr($submission->block_id); ?>' style='width: unset;'>
                         <thead></thead>
                         <tbody>
-                            <tr class='<?php echo esc_attr($this->bookingElements[0]->slug); ?>' data-submission-id='<?php echo esc_attr($submission->id); ?>'>
+                            <tr class='<?php echo esc_attr($this->bookingBlocks[0]->slug); ?>' data-submission-id='<?php echo esc_attr($submission->id); ?>'>
                                 <td>
-                                    <img src='<?php echo esc_url($this->picturesUrl); ?>/subject.png' loading='lazy' alt='<?php echo esc_attr($this->bookingElements[0]->name); ?>' class='booking-icon' title='<?php echo esc_attr($this->bookingElements[0]->name); ?>'>
+                                    <img src='<?php echo esc_url($this->picturesUrl); ?>/subject.png' loading='lazy' alt='<?php echo esc_attr($this->bookingBlocks[0]->name); ?>' class='booking-icon' title='<?php echo esc_attr($this->bookingBlocks[0]->name); ?>'>
                                 </td>
-                                <td class='booking-data-wrapper edit forms-table' data-element-id='<?php echo esc_attr($this->bookingElements[0]->id); ?>' data-name='<?php echo esc_attr($this->bookingElements[0]->slug); ?>' data-booking-id='<?php echo esc_attr($booking->id); ?>'>
-                                    <?php echo esc_html($this->bookingElements[0]->name) ?>
+                                <td class='booking-data-wrapper edit forms-table' data-block-id='<?php echo esc_attr($this->bookingBlocks[0]->id); ?>' data-name='<?php echo esc_attr($this->bookingBlocks[0]->slug); ?>' data-booking-id='<?php echo esc_attr($booking->id); ?>'>
+                                    <?php echo esc_html($this->bookingBlocks[0]->name) ?>
                                 </td>
                             </tr>
                             <tr>
@@ -896,12 +893,12 @@ class Bookings
                                 <td class='booking-data-wrapper edit forms-table'>
                                     <table data-post-id='<?php echo esc_attr($submission->post_id); ?>' data-block-id='<?php echo esc_attr($submission->block_id); ?>' data-shortcode-id='<?php echo esc_attr($this->forms->shortcodeId); ?>' style='margin-bottom: 0px; width:unset;'>
                                         <tr data-submission-id='<?php echo esc_attr($submission->id); ?>'>
-                                            <td data-name='booking-start-date' data-element-id='<?php echo esc_attr($this->forms->getBlockBySlug('booking-start-date')->id); ?>' <?php echo esc_attr($subId); ?> data-booking-id='<?php echo esc_attr($booking->id); ?>' class='edit forms-table'>
+                                            <td data-name='booking-start-date' data-block-id='<?php echo esc_attr($this->forms->getBlockBySlug('booking-start-date')->id); ?>' <?php echo esc_attr($subId); ?> data-booking-id='<?php echo esc_attr($booking->id); ?>' class='edit forms-table'>
                                                 <?php echo esc_html(gmdate(TSJIPPY\DATEFORMAT, strtotime($booking->start_date))); ?>
                                             </td>
                                         </tr>
                                         <tr data-submission-id='<?php echo esc_attr($submission->id); ?>'>
-                                            <td data-name='booking-end-date' data-element-id='<?php echo esc_attr($this->forms->getBlockBySlug('booking-end-date')->id); ?>' <?php echo esc_attr($subId); ?> data-booking-id='<?php echo esc_attr($booking->id); ?>' class='edit forms-table'>
+                                            <td data-name='booking-end-date' data-block-id='<?php echo esc_attr($this->forms->getBlockBySlug('booking-end-date')->id); ?>' <?php echo esc_attr($subId); ?> data-booking-id='<?php echo esc_attr($booking->id); ?>' class='edit forms-table'>
                                                 <?php echo esc_html(gmdate(TSJIPPY\DATEFORMAT, strtotime($booking->end_date))); ?>
                                             </td>
                                         </tr>
@@ -916,7 +913,7 @@ class Bookings
                                     <td>
                                         <img src='<?php echo esc_url($this->picturesUrl); ?>/room.png' loading='lazy' alt='Room' class='booking-icon' title='Room'>
                                     </td>
-                                    <td class='booking-data-wrapper edit forms-table' data-element-id='-104' <?php echo esc_attr($subId); ?> data-name='booking-rooms' data-booking-id='<?php echo esc_attr($booking->id); ?>'>
+                                    <td class='booking-data-wrapper edit forms-table' data-block-id='-104' <?php echo esc_attr($subId); ?> data-name='booking-rooms' data-booking-id='<?php echo esc_attr($booking->id); ?>'>
                                         <?php echo esc_attr($booking->room); ?>
                                     </td>
                                 </tr>
@@ -949,7 +946,7 @@ class Bookings
                                             'booking-room'                  => 1,
                                             'booking-rooms'                 => 1,
                                             'name'                          => 1,
-                                            $this->bookingElements[0]->slug => 1
+                                            $this->bookingBlocks[0]->slug => 1
                                         ]
                                     )
                                 ) {
@@ -958,10 +955,10 @@ class Bookings
 
                                 $slug       = $setting['slug'];
                                 $name       = empty($setting['name']) ? $slug : $setting['name'];
-                                $element    = $this->forms->getBlockBySlug($slug);
-                                $data       = $submission->{$element->blockId};
+                                $block    = $this->forms->getBlockBySlug($slug);
+                                $data       = $submission->{$block->blockId};
 
-                                $transformedData   = $this->forms->transformInputData($data, $element, $submission);
+                                $transformedData   = $this->forms->transformInputData($data, $block, $submission);
                                 if (empty($transformedData)) {
                                     $transformedData    = 'X';
                                 }
@@ -983,7 +980,7 @@ class Bookings
                                     <?php
                                     }
                                     ?>
-                                    <td class='booking-data-wrapper edit forms-table' data-element-id='<?php echo esc_attr($element->blockId); ?>' data-name='<?php echo esc_attr($slug); ?>' data-booking-id='<?php echo esc_attr($booking->id); ?>'>
+                                    <td class='booking-data-wrapper edit forms-table' data-block-id='<?php echo esc_attr($block->blockId); ?>' data-name='<?php echo esc_attr($slug); ?>' data-booking-id='<?php echo esc_attr($booking->id); ?>'>
                                         <?php echo wp_kses_post($transformedData); ?>
                                     </td>
                                 </tr>
@@ -1086,7 +1083,7 @@ class Bookings
             return '';
         }
 
-        $this->getBookingElements();
+        $this->getBookingBlocks();
 
         if ($this->forms->columnSettings == null || empty($this->forms->tableSettings)) {
             if (method_exists($this->forms, 'loadShortcodeData')) {
@@ -1110,7 +1107,7 @@ class Bookings
             // Retrieve booking details
             $this->forms->parseSubmissions(null, $booking->submission_id);
 
-            $subject        = $this->forms->submission->{$this->bookingElements[0]->id};
+            $subject        = $this->forms->submission->{$this->bookingBlocks[0]->id};
 
             if (
                 // we are not the manager of this subject
@@ -1143,28 +1140,28 @@ class Bookings
      * Retrieve the subject data
      * @param   bool    $force      Do not send cached data, default false
      */
-    public function getBookingElements($force = false)
+    public function getBookingBlocks($force = false)
     {
         if(empty($this->forms)){
             return new WP_Error('bookings', "Please load a forms instance");
         }
 
-        if (!empty($this->bookingElements) && !$force) {
-            return $this->bookingElements;
+        if (!empty($this->bookingBlocks) && !$force) {
+            return $this->bookingBlocks;
         }
 
-        $this->bookingElements   = $this->forms->getBlockByType("accomodation");
+        $this->bookingBlocks   = $this->forms->getBlockByType("accomodation");
 
-        if (!$this->bookingElements || is_wp_error($this->bookingElements)) {
-            $this->bookingElements  = [];
+        if (!$this->bookingBlocks || is_wp_error($this->bookingBlocks)) {
+            $this->bookingBlocks  = [];
             return;
         }
 
-        foreach ($this->bookingElements as &$element) {
-            $this->getElementSubjects($element->blockId);
+        foreach ($this->bookingBlocks as &$block) {
+            $this->getBlockSubjects($block->blockId);
         }
 
-        return $this->bookingElements;
+        return $this->bookingBlocks;
     }
 
     /**
@@ -1212,7 +1209,7 @@ class Bookings
 
         $overlap            = false;
 
-        $bookingEls         = $this->getBookingElements();
+        $bookingEls         = $this->getBookingBlocks();
 
         if (is_wp_error($bookingEls)) {
             return $bookingEls;
@@ -1256,7 +1253,7 @@ class Bookings
      */
     public function checkPending($user, $subject)
     {
-        $els = $this->getBookingElements();
+        $els = $this->getBookingBlocks();
         if (!$els) {
             return true;
         }
@@ -1933,13 +1930,13 @@ class Bookings
 
             $this->forms->getForm($form->id);
 
-            $this->getBookingElements(true);
+            $this->getBookingBlocks(true);
 
-            if (empty($this->bookingElements)) {
+            if (empty($this->bookingBlocks)) {
                 continue;
             }
 
-            $subjectKey = $this->bookingElements[0]->id;
+            $subjectKey = $this->bookingBlocks[0]->id;
 
             $this->forms->getEmailSettings();
 
@@ -2009,11 +2006,11 @@ class Bookings
 
                             $managers       = (array) $this->managers[$bookingSubject];
 
-                            $elementName    = $this->forms->findUserNameElementName();
+                            $blockName    = $this->forms->findUserNameBlockName();
 
-                            $elementId      = $this->forms->getBlockBySlug($elementName, 'id');
+                            $blockId      = $this->forms->getBlockBySlug($blockName, 'id');
 
-                            $name           = $this->forms->submission->{$elementId};
+                            $name           = $this->forms->submission->{$blockId};
 
                             foreach ($managers as $manager) {
                                 // first repplace all occurences of the name for the manager name
@@ -2064,7 +2061,7 @@ class Bookings
             $this->managers['only_for']  = $userId;
         }
 
-        // get the booking selector element
+        // get the booking selector block
         $this->getSubjects();
 
         // Loop over all subjects

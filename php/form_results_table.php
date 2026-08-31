@@ -27,7 +27,7 @@ function tableSettings($displayFormResults)
         $setting    = $displayFormResults->tableSettings->booking_display;
     }
 
-?>
+    ?>
     <div class="table-rights-wrapper">
         <label>
             Select if you want to see the bookings as table or as calendar
@@ -42,7 +42,7 @@ function tableSettings($displayFormResults)
             Calendar
         </label>
     </div>
-<?php
+    <?php
 }
 
 // give table view permissions if we are a subject manager
@@ -61,15 +61,15 @@ function changeTableViewPermissions($tableViewPermissions, $object)
     $bookings       = new Bookings($object);
 
     // get all booking selectors
-    $elements       = $bookings->getBookingElements();
+    $blocks       = $bookings->getBookingBlocks();
 
-    if (empty($elements)) {
+    if (empty($blocks)) {
         return $tableViewPermissions;
     }
 
     // Loop over all subjects
-    foreach ($elements as $element) {
-        foreach ($bookings->getElementSubjects($element->blockId) as $subject) {
+    foreach ($blocks as $block) {
+        foreach ($bookings->getBlockSubjects($block->blockId) as $subject) {
             // if we are the manager of one of the subjects
             if (isset($subject['managers'][$object->user->ID])) {
                 return true;
@@ -123,9 +123,9 @@ function shouldShow($shouldShow, $displayFormResults, $type, $parent)
 
     $bookings                   = new BookingPayments($displayFormResults);
 
-    $elements                   = $bookings->getBookingElements();
-    if (is_wp_error($elements)) {
-        return $elements;
+    $blocks                   = $bookings->getBookingBlocks();
+    if (is_wp_error($blocks)) {
+        return $blocks;
     }
 
     $targetDate                 = time();
@@ -138,9 +138,9 @@ function shouldShow($shouldShow, $displayFormResults, $type, $parent)
         $bookings->forms->submission    = $bookings->forms->getSubmissions('', (int) $_REQUEST['id'])[0];
 
         // Find the subject
-        foreach ($elements as $element) {
-            if (isset($bookings->forms->submission->{$element->blockId})) {
-                $bookedSubject          = $bookings->forms->submission->{$element->blockId};
+        foreach ($blocks as $block) {
+            if (isset($bookings->forms->submission->{$block->blockId})) {
+                $bookedSubject          = $bookings->forms->submission->{$block->blockId};
                 break;
             }
         }
@@ -159,8 +159,8 @@ function shouldShow($shouldShow, $displayFormResults, $type, $parent)
     $subjects   = [];
 
     // Find the subject names
-    foreach ($elements as $element) {
-        foreach ($bookings->getElementSubjects($element->blockId) as $subject) {
+    foreach ($blocks as $block) {
+        foreach ($bookings->getBlockSubjects($block->blockId) as $subject) {
             // Only show the subjects we are manager of
             if (!isset($subject['managers'][$bookings->user->ID])) {
                 continue;
@@ -272,7 +272,7 @@ function actionHtml($attributes, $submission, $instance)
 
 // Show the possible booking rooms
 add_filter('tsjippy-forms-checkbox-options', function ($options, $object) {
-    if (!isset($object->element) || $object->element->slug != 'booking-rooms[]') {
+    if (!isset($object->block) || $object->block->slug != 'booking-rooms[]') {
         return $options;
     }
 
@@ -291,7 +291,7 @@ add_filter('tsjippy-forms-checkbox-options', function ($options, $object) {
 
         // Get the rooms of this accomodation
         $bookings   = new Bookings($object);
-        $details    = $bookings->getElementSubjects($bookingSelector->id, $accomodation);
+        $details    = $bookings->getBlockSubjects($bookingSelector->id, $accomodation);
 
         foreach ($details['rooms'] as $room) {
             $options[$room['name']]  = $room['name'];
@@ -322,7 +322,7 @@ function formdataRetrieved($submissions, $userId, $object)
 
     $booker   = new Bookings($object);
 
-    $booker->getBookingElements();
+    $booker->getBookingBlocks();
 
     /**
      * Add the booking dates to the form results
@@ -431,19 +431,19 @@ function alterQuery($params, $userId, $instance)
 
     $bookings   = new Bookings($instance);
 
-    // We are requesting a submission value and the element index is negative, meaning a start- or end date or a room value
+    // We are requesting a submission value and the block index is negative, meaning a start- or end date or a room value
     if (
         isset($params['values'][2]) &&
         intval($params['values'][2]) < -101
     ) {
-        $elementId      = $params['values'][2];
+        $blockId      = $params['values'][2];
         // phpcs:ignore
         $submissionId   = (int) $_POST['submission-id'];
         if (!is_numeric($submissionId)) {
             return $params;
         }
 
-        switch ($elementId) {
+        switch ($blockId) {
             case -102:
                 $column = 'start_date';
                 break;
@@ -459,7 +459,7 @@ function alterQuery($params, $userId, $instance)
 
         $params['baseQuery']     = "select $column from %i WHERE ";
 
-        // Unset the element index as it is not needed
+        // Unset the block index as it is not needed
         $params['where']    = [
             "submission_id = %d",
             "room = %d"
@@ -492,23 +492,23 @@ add_filter('tsjippy-forms-should-update-form-data', __NAMESPACE__ . '\updateBook
 /**
  * Change the submission data retrieved
  * @param    bool    $shouldContinue    Whether or not to continue with the default update process, return false if you have already updated the data yourself and do not want the default update to run
- * @param    int        $elementId        The id of the element for which the data is updated, can be used to decide whether or not to update the booking data
+ * @param    int        $blockId        The id of the block for which the data is updated, can be used to decide whether or not to update the booking data
  * @param    int        $submissionId    The id of the submission for which the data is updated, can be used to update the correct booking
  * @param    string    $subId            The sub id of the submission for which the data is updated, can be used to update the correct booking when there are multiple bookings for one submission
  * @param    string    $value            The new value that is being updated, can be used to update the booking with the new value
  * @param    object    $instance        The current instance of the form table class, can be used to get more information about the form and the user to decide whether or not to update the booking data
  * @return bool    Return false if you have already updated the data yourself and do not want the default update to run, return true if you want the default update process to run after this function
  */
-function updateBookingData($shouldContinue, $elementId, $submissionId, $subId, $value, $instance)
+function updateBookingData($shouldContinue, $blockId, $submissionId, $subId, $value, $instance)
 {
     // Change to paid / unpaid
     $paymentIndicatorElId    = $instance->formData->payment_indicator;
 
-    if ($elementId > -102 && $elementId != $paymentIndicatorElId) {
+    if ($blockId > -102 && $blockId != $paymentIndicatorElId) {
         return $shouldContinue;
     }
 
-    switch ($elementId) {
+    switch ($blockId) {
         // Mark as paid if the payment status changed to paid or free
         case $paymentIndicatorElId:
             $column = 'paid';
@@ -560,7 +560,7 @@ function updateBookingData($shouldContinue, $elementId, $submissionId, $subId, $
     }
 
     // Update the amount to be paid if start_date or end_date are changed
-    if ($elementId == -102 || $elementId == -103) {
+    if ($blockId == -102 || $blockId == -103) {
         $amount             = $bookings->calculatePaymentAmount($startDates, $endDates);
 
         $paymentAmountElId  = $bookings->forms->formData->payment_amount_el;
@@ -579,7 +579,7 @@ function updateBookingData($shouldContinue, $elementId, $submissionId, $subId, $
     }
 
     // Return false meaning the processing should not continue
-    if ($elementId != $paymentIndicatorElId) {
+    if ($blockId != $paymentIndicatorElId) {
         return false;
     }
 

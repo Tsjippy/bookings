@@ -212,7 +212,7 @@ class BookingPayments extends Bookings
             foreach ($this->forms->forms as $form) {
                 $this->forms->getForm($form->id);
 
-                $result = $this->getBookingElements(true);
+                $result = $this->getBookingBlocks(true);
 
                 // this form has a booking selector in it
                 if (!is_wp_error($result) && !empty($result)) {
@@ -265,14 +265,14 @@ class BookingPayments extends Bookings
             if (!is_numeric($userId) || $userId == 0) {
                 $user       = '';
 
-                $nameElName = $this->forms->findUserNameElementName();
+                $nameElName = $this->forms->findUserNameBlockName();
                 if ($nameElName) {
                     $slug   = $this->forms->submission->{$nameElName};
                     $user   = (object) ['display_name' => $slug];
                 }
 
                 // Find the phone number
-                $phoneElName    = $this->forms->findPhoneNumberElementName();
+                $phoneElName    = $this->forms->findPhoneNumberBlockName();
 
                 if ($phoneElName) {
                     foreach ($this->forms->submission->{$phoneElName} as $number) {
@@ -284,10 +284,10 @@ class BookingPayments extends Bookings
                 }
 
                 // Find the e-mail
-                $emailElName        = $this->forms->findEmailElementName();
+                $emailElName        = $this->forms->findEmailBlockName();
                 if ($emailElName) {
-                    $elementId      = $this->forms->getBlockBySlug($emailElName, 'id');
-                    $email          = $this->forms->submission->{$elementId};
+                    $blockId      = $this->forms->getBlockBySlug($emailElName, 'id');
+                    $email          = $this->forms->submission->{$blockId};
                 }
             } else {
                 $user   = get_user($userId);
@@ -361,7 +361,7 @@ class BookingPayments extends Bookings
     /**
      * Shows the html to list, approve and or delete pending bookings
      *
-     * @param   \DOMElement $parent  The element to add to
+     * @param   \DOMElement $parent  The block to add to
      * @param   string      $type    One of approval or payment to show bookings that are pending approval or pending payment
      */
     public function pendingBookingsHtml($parent, $type = 'approval')

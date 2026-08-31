@@ -10,11 +10,11 @@ if (! defined('ABSPATH')) {
 }
 
 /**
- * Render the booking selector element on the form
+ * Render the booking selector block on the form
  *
  * @param object $blockAttributes    Block attributes
  *
- * @return object The rendered element
+ * @return object The rendered block
  */
 function bookingSelectorHtml($blockAttributes)
 {
@@ -88,7 +88,7 @@ function bookingSelectorHtml($blockAttributes)
     }
 
     /**
-     * Build the element
+     * Build the block
      */
     addElement('button', $parent, ['class' => 'small tsjippy button location-details', 'type' => 'button'], 'Show Location Descriptions');
     addElement('br', $parent);

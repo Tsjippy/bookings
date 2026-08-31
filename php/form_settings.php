@@ -17,24 +17,24 @@ add_action('tsjippy-forms-extra-form-settings', __NAMESPACE__ . '\extraFormSetti
 function extraFormSettings($object)
 {
     // check if the form has a booking selector eement
-    $bookingElements   = $object->getBlockByType('accomodation');
+    $bookingBlocks   = $object->getBlockByType('accomodation');
 
-    if (!$bookingElements || is_wp_error($bookingElements)) {
+    if (!$bookingBlocks || is_wp_error($bookingBlocks)) {
         return;
     }
 
     ?>
     <br>
     <h4>
-        Payment Indicator Element
+        Payment Indicator Block
     </h4>
     <select name="payment-amount-el">
         <option value=''>---</option>
         <?php
-        foreach ($object->formBlocks as $element) {
+        foreach ($object->formBlocks as $block) {
         ?>
-            <option value='<?php echo esc_attr($element->blockId); ?>' <?php if ($object->formData->payment_indicator == $element->blockId) echo 'selected'; ?>>
-                <?php echo esc_html($element->name); ?>
+            <option value='<?php echo esc_attr($block->blockId); ?>' <?php if ($object->formData->payment_indicator == $block->blockId) echo 'selected'; ?>>
+                <?php echo esc_html($block->name); ?>
             </option>
         <?php
         }
@@ -43,15 +43,15 @@ function extraFormSettings($object)
 
     <br>
     <h4>
-        Payment Amount Element
+        Payment Amount Block
     </h4>
     <select name="payment-amount-el">
         <option value=''>---</option>
         <?php
-        foreach ($object->formBlocks as $element) {
+        foreach ($object->formBlocks as $block) {
         ?>
-            <option value='<?php echo esc_attr($element->blockId); ?>' <?php if ($object->formData->payment_amount_el == $element->blockId) echo 'selected'; ?>>
-                <?php echo esc_html($element->name); ?>
+            <option value='<?php echo esc_attr($block->blockId); ?>' <?php if ($object->formData->payment_amount_el == $block->blockId) echo 'selected'; ?>>
+                <?php echo esc_html($block->name); ?>
             </option>
         <?php
         }
@@ -60,15 +60,15 @@ function extraFormSettings($object)
 
     <br>
     <h4>
-        Payment Details Element
+        Payment Details Block
     </h4>
     <select name="payment-details-el">
         <option value=''>---</option>
         <?php
-        foreach ($object->formBlocks as $element) {
+        foreach ($object->formBlocks as $block) {
         ?>
-            <option value='<?php echo esc_attr($element->blockId); ?>' <?php if ($object->formData->payment_details_el == $element->blockId) echo 'selected'; ?>>
-                <?php echo esc_html($element->name); ?>
+            <option value='<?php echo esc_attr($block->blockId); ?>' <?php if ($object->formData->payment_details_el == $block->blockId) echo 'selected'; ?>>
+                <?php echo esc_html($block->name); ?>
             </option>
         <?php
         }
@@ -77,17 +77,17 @@ function extraFormSettings($object)
 
     <br>
     <h4>
-        Price Per Night Element
+        Price Per Night Block
     </h4>
     <select name="price-per-night-el">
         <option value=''>
             ---
         </option>
         <?php
-        foreach ($object->formBlocks as $element) {
+        foreach ($object->formBlocks as $block) {
         ?>
-            <option value='<?php echo esc_attr($element->blockId); ?>' <?php if ($object->formData->price_per_night_el == $element->blockId) echo 'selected'; ?>>
-                <?php echo esc_html($element->name); ?>
+            <option value='<?php echo esc_attr($block->blockId); ?>' <?php if ($object->formData->price_per_night_el == $block->blockId) echo 'selected'; ?>>
+                <?php echo esc_html($block->name); ?>
             </option>
         <?php
         }

@@ -155,21 +155,21 @@ function getNextMonth()
     $bookings->forms->getForm((int) $request['form-id']);
     $bookings->forms->shortcodeId  = (int) $request['shortcode-id'];
 
-    if (is_numeric($request['element-id'] ?? '')) {
-        $element                   = $bookings->forms->getBlockById((int) $request['element-id']);
+    if (is_numeric($request['block-id'] ?? '')) {
+        $block                   = $bookings->forms->getBlockById((int) $request['block-id']);
     } else {
-        foreach ($bookings->forms->formBlocks as $element) {
-            if ($element->type == 'accomodation') {
+        foreach ($bookings->forms->formBlocks as $block) {
+            if ($block->type == 'accomodation') {
                 break;
             }
         }
     }
-    $bookings->forms->currentElement    = $element;
+
     $subjectName    = $request['subject'];
     $date           = strtotime((int)$request['year'] . '-' . (int)$request['month'] . '-01');
 
     $months         = [];
-    foreach ($bookings->getElementSubjects($element->blockId) as $subject) {
+    foreach ($bookings->getBlockSubjects($block->blockId) as $subject) {
         if ($subject['name'] == $subjectName) {
             if (count($subject['rooms']) > 1) {
                 foreach ($subject['rooms'] as $room) {
