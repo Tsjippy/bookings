@@ -7,6 +7,7 @@
 ### Changed
 - element(s) to block(s)
 - element to block
+- removed tsjippy-forms-element-html filter
 
 ### Fixed
 
