@@ -250,7 +250,7 @@ function removeBooking()
 }
 
 /**
- * Load the content of a post by its ID
+ * Load the content of a bookable post by its ID
  *
  * @return string    The content of the post, or an error message if no content is found
  */
