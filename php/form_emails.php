@@ -25,7 +25,7 @@ function addBookingEmails($key, $email)
             name='emails[<?php echo esc_attr($key); ?>][email-trigger]' 
             class='email-trigger' 
             value='before-stay' 
-            <?php if ($email->email_trigger == 'before-stay') echo 'checked'; ?>>
+            <?php if ($email->trigger['type'] == 'before-stay') echo 'checked'; ?>>
         <input 
             type='number' 
             name='emails[<?php echo esc_attr($key); ?>][days-before]' 
@@ -40,7 +40,7 @@ function addBookingEmails($key, $email)
             name='emails[<?php echo esc_attr($key); ?>][email-trigger]' 
             class='email-trigger' 
             value='after-stay' 
-            <?php if ($email->email_trigger == 'after-stay') echo 'checked'; ?>>
+            <?php if ($email->trigger['type'] == 'after-stay') echo 'checked'; ?>>
         <input 
             type='number' 
             name='emails[<?php echo esc_attr($key); ?>][days-after]' 

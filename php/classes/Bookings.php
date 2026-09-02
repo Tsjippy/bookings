@@ -1942,14 +1942,14 @@ class Bookings
 
             foreach ($this->forms->emailSettings as $mail) {
 
-                if ($mail->email_trigger == 'before-stay' || $mail->email_trigger == 'after-stay') {
+                if ($mail->trigger['type'] == 'before-stay' || $mail->trigger['type'] == 'after-stay') {
                     $processedSubmissionIds   = [];
 
                     $bookings   = [];
-                    if ($mail->email_trigger == 'before-stay') {
+                    if ($mail->trigger['type'] == 'before-stay') {
                         $date       = gmdate('Y-m-d', strtotime("+{$mail->days_before} days", time()));
                         $bookings   = $this->retrieveBookingsByStartDate($date);
-                    } elseif ($mail->email_trigger == 'after-stay') {
+                    } elseif ($mail->trigger['type'] == 'after-stay') {
                         $date       = gmdate('Y-m-d', strtotime("-{$mail->days_after} days", time()));
                         $bookings   = $this->retrieveBookingsByEndDate($date);
                     }
@@ -1994,7 +1994,7 @@ class Bookings
                         wp_mail($to, $subject, $message, $headers);
                         remove_filter('wp_mail', [$this->forms, 'addFormData'], 1);
 
-                        if ($mail->email_trigger == 'before-stay') {
+                        if ($mail->trigger['type'] == 'before-stay') {
                             $this->getSubjectManagers();
 
                             $bookingSubject    =  $this->forms->submission->{$subjectKey};
