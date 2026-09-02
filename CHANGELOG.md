@@ -6,6 +6,7 @@
 ### Changed
 
 ### Fixed
+- booking e-mails
 
 ### Updated
 
