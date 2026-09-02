@@ -6,9 +6,14 @@
 ### Changed
 
 ### Fixed
-- booking e-mails
 
 ### Updated
+
+## [10.7.5] - 2026-09-02
+
+
+### Fixed
+- booking e-mails
 
 ## [10.7.4] - 2026-09-01
 
