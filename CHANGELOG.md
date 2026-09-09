@@ -4,12 +4,19 @@
 ### Added
 
 ### Changed
+
+### Fixed
+
+### Updated
+
+## [10.7.7] - 2026-09-09
+
+
+### Changed
 - removed input-wrapper query
 
 ### Fixed
 - email
-
-### Updated
 
 ## [10.7.6] - 2026-09-03
 
