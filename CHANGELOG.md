@@ -4,6 +4,7 @@
 ### Added
 
 ### Changed
+- removed input-wrapper query
 
 ### Fixed
 
