@@ -1972,9 +1972,9 @@ class Bookings
                         }
                         $replaceValues  = (array)$this->forms->submission + $replaceValues;
 
-                        $from       = $this->forms->processPlaceholders($mail->from, $replaceValues);
+                        $from       = $this->forms->processPlaceholders($mail->sender['email'], $replaceValues);
 
-                        $to         = $this->forms->processPlaceholders($mail->to, $replaceValues);
+                        $to         = $this->forms->processPlaceholders($mail->recipient['email'], $replaceValues);
 
                         $subject    = $this->forms->processPlaceholders($mail->subject, $replaceValues);
 
