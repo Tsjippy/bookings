@@ -604,12 +604,12 @@ document.addEventListener("click", (ev) => {
     roomSelected(target);
   } else if (target.matches(`.room-details`)) {
     target
-      .closest(`.input-wrapper`)
+      .closest(`form`)
       .querySelector(`[name="${target.dataset.target}"]`)
       .classList.toggle("hidden");
   } else if (target.matches(`.location-details`)) {
     target
-      .closest(`.input-wrapper`)
+      .closest(`form`)
       .querySelector(`[name="location-details-modal"]`)
       .classList.toggle("hidden");
   }
