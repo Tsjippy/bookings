@@ -7,6 +7,7 @@
 - removed input-wrapper query
 
 ### Fixed
+- email
 
 ### Updated
 
