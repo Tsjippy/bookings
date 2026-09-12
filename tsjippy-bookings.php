@@ -10,7 +10,6 @@ namespace TSJIPPY\BOOKINGS;
  * AuthorURI:            harmseninnigeria.nl
  * Requires at least:    6.7
  * Requires PHP:         8.3
- * Tested up to:         7.1
  * Plugin URI:           https://github.com/Tsjippy/bookings/
  * Tested:               7.1
  * TextDomain:           tsjippy
