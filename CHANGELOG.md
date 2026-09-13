@@ -4,11 +4,16 @@
 ### Added
 
 ### Changed
-- removed 'tested up to'
 
 ### Fixed
 
 ### Updated
+
+## [10.8.1] - 2026-09-13
+
+
+### Changed
+- removed 'tested up to'
 
 ## [10.8.0] - 2026-09-11
 
