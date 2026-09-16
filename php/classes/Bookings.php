@@ -2008,7 +2008,7 @@ class Bookings
 
                             $blockName    = $this->forms->findUserNameBlockName();
 
-                            $blockId      = $this->forms->getBlockBySlug($blockName, 'id');
+                            $blockId      = $this->forms->getBlockBySlug($blockName, 'blockId');
 
                             $name           = $this->forms->submission->{$blockId};
 

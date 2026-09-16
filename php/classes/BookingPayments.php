@@ -286,8 +286,8 @@ class BookingPayments extends Bookings
                 // Find the e-mail
                 $emailElName        = $this->forms->findEmailBlockName();
                 if ($emailElName) {
-                    $blockId      = $this->forms->getBlockBySlug($emailElName, 'id');
-                    $email          = $this->forms->submission->{$blockId};
+                    $blockId = $this->forms->getBlockBySlug($emailElName, 'blockId');
+                    $email   = $this->forms->submission->{$blockId};
                 }
             } else {
                 $user   = get_user($userId);

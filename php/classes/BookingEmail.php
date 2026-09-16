@@ -115,7 +115,7 @@ class BookingEmail extends ADMIN\MailSetting
 
         $name                                           = $displayFormResults->findUserNameBlockName();
         if ($name) {
-            $blockId                                  = $displayFormResults->getBlockBySlug($name, 'id');
+            $blockId                                  = $displayFormResults->getBlockBySlug($name, 'blockId');
             $this->replaceArray['%name%']               = $displayFormResults->submission->{$blockId};
         }
 
