@@ -15,16 +15,16 @@
 		"start": "wp-scripts start --blocks-manifest"
 	},
 	"dependencies": {
+		"@wordpress/api-fetch": "latest",
 		"@wordpress/block-editor": "latest",
 		"@wordpress/blocks": "latest",
-		"@wordpress/i18n": "latest",
 		"@wordpress/components": "latest",
-		"@wordpress/api-fetch": "latest",
-		"@wordpress/element": "latest",
 		"@wordpress/data": "latest",
+		"@wordpress/element": "latest",
+		"@wordpress/i18n": "latest",
 		"@wordpress/icons": "latest"
 	},
 	"devDependencies": {
-		"@wordpress/scripts": "^33.0.0"
+		"@wordpress/scripts": "^35.0.0"
 	}
 }

@@ -3,7 +3,6 @@
 namespace TSJIPPY\BOOKINGS;
 
 use TSJIPPY;
-use function TSJIPPY\addElement as addElement;
 
 if (! defined('ABSPATH')) {
     exit;
