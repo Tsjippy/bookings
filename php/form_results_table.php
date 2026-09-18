@@ -119,7 +119,7 @@ function shouldShow($shouldShow, $displayFormResults, $type, $parent)
     }
 
     // display the calendar instead of the table
-    wp_enqueue_script('tsjippy-bookings');
+    wp_enqueue_script_module('@tsjippy/bookings');
 
     $bookings                   = new BookingPayments($displayFormResults);
 

@@ -1,3 +1,13 @@
+import{
+  fetchRestApi
+} from "../../tsjippy-forms/js/form_submit_functions.js";
+
+import {
+  cloneNode,
+  fixNumbering
+} from "../../tsjippy-forms/js/form_exports.js";
+
+
 function reset(modal, onlyEnd = false, skipRoomSelector = true) {
   if (!onlyEnd) {
     modal.querySelector(".booking-start-date").value = "";
@@ -110,7 +120,7 @@ async function getMonth(target) {
         loader.style.marginTop = "75px";
       });
 
-    let response = await FormSubmit.fetchRestApi(
+    let response = await fetchRestApi(
       "bookings/get_next_month",
       formData,
     );
@@ -167,7 +177,7 @@ async function approve(target) {
 
   Main.showLoader(cell);
 
-  let response = await FormSubmit.fetchRestApi("bookings/approve", formData);
+  let response = await fetchRestApi("bookings/approve", formData);
 
   if (response) {
     // Remove table if empty
@@ -216,7 +226,7 @@ async function remove(target) {
 
   Main.showLoader(target.closest("td"));
 
-  let response = await FormSubmit.fetchRestApi("bookings/remove", formData);
+  let response = await fetchRestApi("bookings/remove", formData);
 
   if (response) {
     // Remove table if empty
@@ -237,7 +247,7 @@ async function loadPost(target) {
 
   Main.showLoader(target.firstElementChild);
 
-  let response = await FormSubmit.fetchRestApi("bookings/load_post", formData);
+  let response = await fetchRestApi("bookings/load_post", formData);
 
   if (response) {
     // Remove table if empty
@@ -285,7 +295,7 @@ function storeDates(target) {
     let clone = original;
 
     if (index > 0) {
-      clone = FormFunctions.cloneNode(original);
+      clone = cloneNode(original);
     }
 
     let startEl = clone.querySelector('[name^="booking-start-date"]');
@@ -306,7 +316,7 @@ function storeDates(target) {
 
     parent.insertAdjacentElement("beforeEnd", clone);
 
-    FormFunctions.fixNumbering(parent);
+    fixNumbering(parent);
   });
 
   parent.classList.remove("hidden");

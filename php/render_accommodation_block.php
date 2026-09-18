@@ -213,7 +213,7 @@ function bookingSelectorHtml($blockAttributes)
         'style' => 'margin-left: 20px;'
     ], $buttonText);
 
-    wp_enqueue_script('tsjippy-bookings');
+    wp_enqueue_script_module('@tsjippy/bookings');
 
     $day    = gmdate('d');
     // phpcs:ignore
