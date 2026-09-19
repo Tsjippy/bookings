@@ -64,7 +64,7 @@ return array(
 		'name' => 'tsjippy-bookings/accomodation',
 		'version' => '0.1.0',
 		'title' => 'Accomodation Block',
-		'category' => 'form-elements',
+		'category' => 'form-blocks',
 		'icon' => 'forms',
 		'description' => 'Accomodation Description',
 		'example' => array(
