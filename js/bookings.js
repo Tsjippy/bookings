@@ -7,6 +7,19 @@ import {
   fixNumbering
 } from "../../tsjippy-forms/js/form_exports.js";
 
+import { 
+  showLoader 
+} from "../../tsjippy-shared-functionality/js/partials/show_loader.js";
+
+import { 
+  displayMessage 
+} from "../../tsjippy-shared-functionality/js/partials/display_message.js";
+
+import { 
+  showModal,
+  hideModals
+} from "../../tsjippy-shared-functionality/js/partials/modals.js";
+
 
 function reset(modal, onlyEnd = false, skipRoomSelector = true) {
   if (!onlyEnd) {
@@ -113,7 +126,7 @@ async function getMonth(target) {
     wrapper
       .querySelectorAll(".room-wrapper .month-wrapper")
       .forEach((monthWrapper) => {
-        let loader = Main.showLoader(monthWrapper, false, 100);
+        let loader = showLoader(monthWrapper, false, 100);
         monthWrapper.insertAdjacentElement(position, loader);
 
         loader.style.marginLeft = "75px";
@@ -175,7 +188,7 @@ async function approve(target) {
 
   let initContent = cell.outerHTML;
 
-  Main.showLoader(cell);
+  showLoader(cell);
 
   let response = await fetchRestApi("bookings/approve", formData);
 
@@ -188,7 +201,7 @@ async function approve(target) {
       row.remove();
     }
 
-    Main.displayMessage(response.message);
+    displayMessage(response.message);
 
     let building = response.subject.split(";")[0];
     let room = response.subject.split(";")[1];
@@ -224,7 +237,7 @@ async function remove(target) {
   formData.append("id", target.dataset.submissionId);
   let row = target.closest("tr");
 
-  Main.showLoader(target.closest("td"));
+  showLoader(target.closest("td"));
 
   let response = await fetchRestApi("bookings/remove", formData);
 
@@ -237,7 +250,7 @@ async function remove(target) {
       row.remove();
     }
 
-    Main.displayMessage(response);
+    displayMessage(response);
   }
 }
 
@@ -245,7 +258,7 @@ async function loadPost(target) {
   let formData = new FormData();
   formData.append("post-id", target.dataset.postId);
 
-  Main.showLoader(target.firstElementChild);
+  showLoader(target.firstElementChild);
 
   let response = await fetchRestApi("bookings/load_post", formData);
 
@@ -271,7 +284,7 @@ function changeBookingData(target) {
     selector = `[name="${el.dataset.slug}-modal"]`;
   }
 
-  Main.showModal(document.querySelector(selector));
+  showModal(document.querySelector(selector));
 }
 
 function storeDates(target) {
@@ -321,7 +334,7 @@ function storeDates(target) {
 
   parent.classList.remove("hidden");
 
-  Main.hideModals();
+  hideModals();
 
   target.closest("form").querySelector(".change-booking-date").textContent =
     "Change";
@@ -360,7 +373,7 @@ function daySelected(target) {
   if (roomWrapper.querySelector(".calendar.day.startdate") == null) {
     // the selected cell is the first day of an already booked period
     if (target.matches(".first-day")) {
-      Main.displayMessage(
+      displayMessage(
         "You can only select this day as the last day of your stay!",
         "error",
       );
@@ -396,7 +409,7 @@ function daySelected(target) {
   } else {
     // the selected cell is the first day of an already booked period
     if (target.matches(".last-day")) {
-      Main.displayMessage(
+      displayMessage(
         "You can only select this day as the first day of your stay!",
         "error",
       );
@@ -405,7 +418,7 @@ function daySelected(target) {
 
     // the selected cell is also the startdate
     if (target.closest(".startdate") != null) {
-      Main.displayMessage(
+      displayMessage(
         "End date cannot be the same as the startdate!",
         "error",
       );
@@ -447,7 +460,7 @@ function daySelected(target) {
         .querySelectorAll(".inbetween.first-day, .inbetween.last-day").length >
       0
     ) {
-      Main.displayMessage(
+      displayMessage(
         "You can not book this period as it is overlapping an existing booking!",
         "error",
       );
@@ -502,7 +515,7 @@ document.addEventListener("DOMContentLoaded", () => {
   document.querySelectorAll(`.booking-subject-selector`).forEach((el) =>
     el.addEventListener(`change`, (ev) => {
       ev.stopImmediatePropagation();
-      Main.showModal(
+      showModal(
         document.querySelector(`[name="${ev.target.dataset.slug}-modal"]`),
       );
     }),
@@ -541,7 +554,7 @@ document.addEventListener("DOMContentLoaded", () => {
       // remove details
       wrapper.remove();
 
-      Main.displayMessage("Succesfully archived");
+      displayMessage("Succesfully archived");
     }),
   );
 

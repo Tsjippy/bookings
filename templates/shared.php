@@ -26,7 +26,7 @@ function displayLocationTax()
             get_header();
         }
 
-?>
+        ?>
         <div id="primary">
             <main id="main" class='taxonomy inside-article'>
                 <button type='button' class='tsjippy button add-books' onclick='Main.showModal(`add-books`)'>Add books</button>
