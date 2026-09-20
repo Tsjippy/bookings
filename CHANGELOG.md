@@ -4,14 +4,21 @@
 ### Added
 
 ### Changed
+
+### Fixed
+
+### Updated
+
+## [10.8.4] - 2026-09-20
+
+
+### Changed
 - js to modules
 - js update
 - load minification js depending on SCRIPT_DEBUG constant
 
 ### Fixed
 - block category
-
-### Updated
 
 ## [10.8.3] - 2026-09-16
 
