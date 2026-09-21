@@ -16,5 +16,14 @@ add_action('wp_enqueue_scripts', __NAMESPACE__ . '\loadAssets');
  */
 function loadAssets()
 {
-    wp_register_script_module('@tsjippy/bookings', TSJIPPY\pathToUrl(PLUGINPATH . 'js/bookings' . TSJIPPY\JSEXTENSION), array('@tsjippy/formsubmit_script'), PLUGINVERSION);
+    $deps   = SCRIPT_DEBUG ? [
+        '@tsjippy/form_submit_functions', 
+        "@tsjippy/form_exports", 
+        "@tsjippy/show_loader", 
+        "@tsjippy/display_message", 
+        "@tsjippy/modals"
+    ] :
+    [];
+
+    wp_register_script_module('@tsjippy/bookings', TSJIPPY\pathToUrl(PLUGINPATH . 'js/bookings' . TSJIPPY\JSEXTENSION), $deps, PLUGINVERSION);
 }

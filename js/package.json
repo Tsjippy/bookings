@@ -4,12 +4,9 @@
   "description": "bookings",
   "main": "./bookings.js",
   "scripts": {
-    "bookings": "webpack --entry ./bookings.js --output-path . --output-filename bookings.min.js --progress --mode=production --devtool source-map",
-    "formbuilder": "webpack --entry ./formbuilder.js --output-path . --output-filename formbuilder.min.js --progress --mode=production --devtool source-map",
-    "bookings-watch": "webpack --watch --entry ./bookings.js --output-path . --output-filename bookings.min.js --progress --mode=production --devtool source-map",
-    "formbuilder-watch": "webpack --watch --entry ./formbuilder.js --output-path . --output-filename formbuilder.min.js --progress --mode=production --devtool source-map",
-    "all": "run-p bookings formbuilder",
-    "watch-all": "run-p bookings-watch formbuilder-watch"
+    "build": "webpack --progress",
+    "watch": "webpack --watch --progress",
+    "all": "npm run build"
   },
   "author": "Ewald Harmsen",
   "license": "ISC",
