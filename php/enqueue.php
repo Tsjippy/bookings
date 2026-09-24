@@ -25,5 +25,6 @@ function loadAssets()
     ] :
     [];
 
+    $deps[] = "@tsjippy/nonce_script";
     wp_register_script_module('@tsjippy/bookings', TSJIPPY\pathToUrl(PLUGINPATH . 'js/bookings' . TSJIPPY\JSEXTENSION), $deps, PLUGINVERSION);
 }

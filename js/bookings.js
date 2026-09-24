@@ -513,7 +513,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // show booking date selector
   document.querySelectorAll(`.booking-subject-selector`).forEach((el) =>
     el.addEventListener(`change`, (ev) => {
-      ev.stopImmediatePropagation();
+      ev.stopPropagation();
       showModal(
         document.querySelector(`[name="${ev.target.dataset.slug}-modal"]`),
       );
@@ -523,7 +523,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // show booking calendar
   document.querySelectorAll(`.admin-booking-subject-selector`).forEach((el) =>
     el.addEventListener(`change`, (ev) => {
-      ev.stopImmediatePropagation();
+      ev.stopPropagation();
       document
         .querySelector(`.bookings-wrap[data-subject="${ev.target.value}"]`)
         .classList.toggle("hidden");

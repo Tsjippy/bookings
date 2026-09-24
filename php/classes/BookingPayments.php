@@ -375,6 +375,7 @@ class BookingPayments extends Bookings
             return '';
         }
 
+        wp_enqueue_script_module('@tsjippy/table_script');
         wp_enqueue_script_module('@tsjippy/forms_table_script');
 
         if ($type == 'approval') {
