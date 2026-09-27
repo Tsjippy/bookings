@@ -6,7 +6,7 @@
   "scripts": {
     "build": "webpack --progress",
     "watch": "webpack --watch --progress",
-    "all": "npm run build"
+    "all": "pnpm run build"
   },
   "author": "Ewald Harmsen",
   "license": "ISC",
