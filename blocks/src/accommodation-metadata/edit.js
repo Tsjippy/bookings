@@ -20,8 +20,6 @@ const Edit = () => {
 
   const [meta, setMeta] = useEntityProp("postType", postType, "meta"); 
 
-  console.log(meta);
-
   const allUsers = useSelect(
     (select) =>
         select(coreDataStore).getUsers({

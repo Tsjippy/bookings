@@ -278,7 +278,6 @@ function changeBookingData(target) {
   let el = document.querySelector(`.booking-subject-selector:checked`);
   if (el == null) {
     selector = ".booking.modal";
-    console.log(selector);
   } else {
     selector = `[name="${el.dataset.slug}-modal"]`;
   }
