@@ -41,3 +41,55 @@ function addFormFormat($formats, $object)
 
     return $formats;
 }
+
+add_filter('tsjippy-forms-blocks', __NAMESPACE__ . '\addBookingBlocks', 10, 3);
+/**
+ * Filters the blocks of this form,
+ * @param    array   $blocks  The blocks array
+ * @param    object  $object    The form instance
+ * @param    bool    $force     Wheter to force a requery
+ */
+function addBookingBlocks($blocks, $object, $force)
+{
+    foreach($blocks as $block) {
+        if ($block->type === 'accomodation') {
+            $blocks[] = (object) [
+                'block' => [
+                    'blockName'     => 'tsjippy-forms/input',
+                    'attrs'         => [
+                        'type' => 'date',
+                        'name' => 'booking-start-date',
+                    ],
+                    'innerBlocks'   => [],
+                    'innerHTML'     => '<input class="wp-block-tsjippy-forms-input" type="date" name="booking-start-date" autocomplete="on" value="%value-placeholder%"/>',
+                    'innerContent'  => ['<input class="wp-block-tsjippy-forms-input" type="date" name="booking-start-date" autocomplete="on" value="%value-placeholder%"/>'],
+                ],
+                'type'      => 'input',
+                'blockId'   => '-102',
+                'required'  => true,
+                'slug'      => 'booking-start-date',
+                'name'      => __('Booking Start Date', '%TEXTDOMAIN%'),
+            ];
+
+            $blocks[] = (object) [
+                'block' => [
+                    'blockName'     => 'tsjippy-forms/input',
+                    'attrs'         => [
+                        'type' => 'date',
+                        'name' => 'booking-end-date',
+                    ],
+                    'innerBlocks'   => [],
+                    'innerHTML'     => '<input class="wp-block-tsjippy-forms-input" type="date" name="booking-end-date" autocomplete="on" value="%value-placeholder%"/>',
+                    'innerContent'  => ['<input class="wp-block-tsjippy-forms-input" type="date" name="booking-end-date" autocomplete="on" value="%value-placeholder%"/>'],
+                ],
+                'type'      => 'input',
+                'blockId'   => '-103',
+                'required'  => true,
+                'slug'      => 'booking-end-date',
+                'name'      => __('Booking End Date', '%TEXTDOMAIN%'),
+            ];
+        }
+    }
+
+    return $blocks;
+}

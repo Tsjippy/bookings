@@ -35,31 +35,31 @@ function beforeSavingFormData($submission, $object)
     }
 
     $startDates = [];
-    if (isset($submission->{'booking-start-date'})) {
-        $startDates = (array)$submission->{'booking-start-date'};
+    if (isset($submission->{'-102'})) {
+        $startDates = (array)$submission->{'-102'};
 
         $startDates = TSJIPPY\cleanUpNestedArray($startDates);
 
-        unset($submission->{'booking-start-date'});
+        unset($submission->{'-102'});
     }
 
     $endDates   = [];
-    if (isset($submission->{'booking-end-date'})) {
-        $endDates   = (array)$submission->{'booking-end-date'};
+    if (isset($submission->{'-103'})) {
+        $endDates   = (array)$submission->{'-103'};
         $endDates   = TSJIPPY\cleanUpNestedArray($endDates);
 
-        unset($submission->{'booking-end-date'});
+        unset($submission->{'-103'});
     }
 
     $rooms  = [];
-    if (!empty($submission->{'booking-rooms'})) {
-        $rooms   = $submission->{'booking-rooms'};
+    if (!empty($submission->{'-104'})) {
+        $rooms   = $submission->{'-104'};
 
         if (!is_array($rooms)) {
             $rooms  = [$rooms];
         }
 
-        unset($submission->{'booking-rooms'});
+        unset($submission->{'-104'});
     }
 
     if (empty($startDates) || empty($endDates)) {
@@ -147,24 +147,24 @@ add_filter('tsjippy-forms-after-submission', __NAMESPACE__ . '\afterFormSubmissi
 function afterFormSubmission($message, $submission, $object)
 {
     $startDates = [];
-    if (isset($submission['booking-start-date'])) {
-        $startDates = (array)$submission['booking-start-date'];
+    if (isset($submission['-102'])) {
+        $startDates = (array)$submission['-102'];
 
-        unset($submission['booking-start-date']);
+        unset($submission['-102']);
     }
 
     $endDates   = [];
-    if (isset($submission['booking-end-date'])) {
-        $endDates   = (array)$submission['booking-end-date'];
+    if (isset($submission['-103'])) {
+        $endDates   = (array)$submission['-103'];
 
-        unset($submission['booking-end-date']);
+        unset($submission['-103']);
     }
 
     $rooms  = [];
-    if (isset($submission['booking-rooms']) && is_array($submission['booking-rooms'])) {
-        $rooms   = $submission['booking-rooms'];
+    if (isset($submission['-104']) && is_array($submission['-104'])) {
+        $rooms   = $submission['-104'];
 
-        unset($submission['booking-rooms']);
+        unset($submission['-104']);
     }
 
     $bookings                   = new Bookings($object);

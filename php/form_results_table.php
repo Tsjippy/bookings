@@ -145,10 +145,10 @@ function shouldShow($shouldShow, $displayFormResults, $type, $parent)
             }
         }
 
-        $targetDate                     = $bookings->forms->submission->{'booking-start-date'};
+        $targetDate                     = $bookings->forms->submission->{'-102'};
 
         if (is_array($targetDate)) {
-            array_values($bookings->forms->submission->{'booking-start-date'})[0];
+            array_values($bookings->forms->submission->{'-102'})[0];
         }
 
         $targetDate                     = strtotime($targetDate);
@@ -354,12 +354,12 @@ function formdataRetrieved($submissions, $userId, $object)
         // Add submissions for each room, using the room name as sub id
         foreach ($startDates as $i => $date) {
             // Add the dates to the form results
-            $submission->{'booking-start-date'} = $date;
-            $submission->{'booking-end-date'}   = $endDates[$i];
+            $submission->{'-102'} = $date;
+            $submission->{'-103'}   = $endDates[$i];
             $submission->booking_id             = $bookingIds[$i];
 
             if (!empty($rooms)) {
-                $submission->{'booking-rooms'}  = $rooms[$i];
+                $submission->{'-104'}  = $rooms[$i];
                 $submission->sub_id             = $rooms[$i];
             }
 
@@ -502,7 +502,7 @@ add_filter('tsjippy-forms-should-update-form-data', __NAMESPACE__ . '\updateBook
 function updateBookingData($shouldContinue, $blockId, $submissionId, $subId, $value, $instance)
 {
     // Change to paid / unpaid
-    $paymentIndicatorElId    = $instance->formData->payment_indicator;
+    $paymentIndicatorElId    = $instance->formData->payment_indicator || 0;
 
     if ($blockId > -102 && $blockId != $paymentIndicatorElId) {
         return $shouldContinue;
@@ -585,3 +585,16 @@ function updateBookingData($shouldContinue, $blockId, $submissionId, $subId, $va
 
     return true;
 }
+
+
+/**
+ * Bypass updating
+ * return non-false value to bypass updating the submission data, return false to continue with the update
+ * 
+ * @param mixed     $result     The result to return if we bypass the update, default false
+ * @param int       $blockId    The block id of the value
+ * @param int       $submissionId The submission id
+ * @param int       $subId      The sub id of the value
+ * @param object    $object     The EditFormResults Instance
+ */
+//$result = apply_filters('tsjippy-forms-bypass-updating-formdata', false, $blockId, $submissionId, $subId, $value, $this);
