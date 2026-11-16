@@ -6,9 +6,14 @@
 ### Changed
 
 ### Fixed
-- edit booking dates
 
 ### Updated
+
+## [10.9.7] - 2026-11-16
+
+
+### Fixed
+- edit booking dates
 
 ## [10.9.6] - 2026-10-04
 
