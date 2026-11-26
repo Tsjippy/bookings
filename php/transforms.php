@@ -85,7 +85,7 @@ add_filter('tsjippy-forms-transform-empty', __NAMESPACE__ . '\transformEmpty', 1
 function transformEmpty($replaceValue, $match, $replaceValues, $instance)
 {
     if (
-        $match != "booking-details" ||
+        !isset(['booking-details' => 1, 'booking-start-date' => 1, 'booking-end-date' => 1, 'booking-rooms' => 1][$match]) ||
         (
             // phpcs:ignore
             empty($_POST['booking-start-date']) &&
@@ -109,28 +109,35 @@ function transformEmpty($replaceValue, $match, $replaceValues, $instance)
         $rooms          = TSJIPPY\sanitize((array)$_POST['booking-rooms'] ?? []);
     }
 
-    // NO ROOMS
-    if (empty($rooms)) {
-        $startDate      = gmdate(TSJIPPY\DATEFORMAT, strtotime((string)$startDates[0]));
-        $endDate        = gmdate(TSJIPPY\DATEFORMAT, strtotime((string)$endDates[0]));
-        $replaceValue   = "from $startDate till $endDate";
-    } else {
-        if (count(array_unique($startDates)) == 1 && count(array_unique($endDates)) == 1) {
-            $startDate      = array_values($startDates)[0];
-            $endDate        = array_values($endDates)[0];
-            $rooms          = implode('&', $rooms);
-            $startDate      = gmdate(TSJIPPY\DATEFORMAT, strtotime((string)$startDate));
-            $endDate        = gmdate(TSJIPPY\DATEFORMAT, strtotime((string)$endDate));
-            $replaceValue   = "room $rooms from $startDate till $endDate";
-        } else {
-            $replaceValue   = "room:<br>";
-            foreach ($rooms as $room) {
-                $startDate      = gmdate(TSJIPPY\DATEFORMAT, strtotime((string)$startDates[$room]));
-                $endDate        = gmdate(TSJIPPY\DATEFORMAT, strtotime((string)$endDates[$room]));
+    $startDate      = gmdate(TSJIPPY\DATEFORMAT, strtotime((string)array_values($startDates)[0]));
+    $endDate        = gmdate(TSJIPPY\DATEFORMAT, strtotime((string)array_values($endDates)[0]));
 
-                $replaceValue   .= "$room from $startDate till $endDate<br>";
+    switch ($match) {
+        case 'booking-start-date':
+            $replaceValue = $startDate;
+            break;
+        case 'booking-end-date':
+            $replaceValue = $endDate;
+            break;
+        case 'booking-rooms':
+            $replaceValue = implode(', ', $rooms);
+            break;
+        case 'booking-details':
+            if (empty($rooms)) {
+                $replaceValue   = "from $startDate till $endDate";
+            } else {
+                if (count(array_unique($startDates)) == 1 && count(array_unique($endDates)) == 1) {
+                    $replaceValue   = "room $rooms from $startDate till $endDate";
+                } else {
+                    $replaceValue   = "room:<br>";
+                    foreach ($rooms as $room) {
+                        $startDate      = gmdate(TSJIPPY\DATEFORMAT, strtotime((string)$startDates[$room]));
+                        $endDate        = gmdate(TSJIPPY\DATEFORMAT, strtotime((string)$endDates[$room]));
+
+                        $replaceValue   .= "$room from $startDate till $endDate<br>";
+                    }
+                }
             }
-        }
     }
 
     return $replaceValue;
